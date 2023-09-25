@@ -1,0 +1,15 @@
+# Use the official PostgreSQL image as the base image
+FROM postgres:16.0
+
+# Optional: Set environment variables for PostgreSQL
+ENV POSTGRES_DB=mydb
+ENV POSTGRES_USER=myuser
+ENV POSTGRES_PASSWORD=mypassword
+
+# Expose the default PostgreSQL port
+EXPOSE 5432
+
+# Optionally, you can add custom initialization scripts
+# to the /docker-entrypoint-initdb.d/ directory to run when the container starts.
+# For example, if you have a custom.sql script, you can add it like this:
+COPY /drizzle/*.sql /docker-entrypoint-initdb.d/
