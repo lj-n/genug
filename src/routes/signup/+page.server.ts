@@ -1,6 +1,4 @@
-import { auth } from '$lib/auth';
-import { sendEmailVerificationLink } from '$lib/email';
-import { generateEmailVerificationToken } from '$lib/token';
+import { auth, generateEmailVerificationToken, sendEmailVerificationMail } from '$lib/server';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
 
 export const actions = {
@@ -36,7 +34,8 @@ export const actions = {
 
 			const token = await generateEmailVerificationToken(user.userId);
 
-			await sendEmailVerificationLink(token);
+			const response = await sendEmailVerificationMail(user, token);
+			console.log('🛸 < response =', response);
 		} catch (e) {
 			console.log('🛸 < e =', e);
 

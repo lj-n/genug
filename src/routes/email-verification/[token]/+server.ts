@@ -1,5 +1,4 @@
-import { auth } from '$lib/auth';
-import { validateEmailVerificationToken } from '$lib/token';
+import { auth, validateEmailVerificationToken } from '$lib/server';
 import { error, redirect, type RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ params, locals }) => {

@@ -1,12 +1,13 @@
-import { auth } from '$lib/auth';
+import { auth } from '$lib/server';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from '../$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const session = await locals.auth.validate();
+	console.log('🛸 < session =', session);
 
 	if (!session) return {}; // proceed
-	if (!session.user.email_verified) throw redirect(302, '/email-verification');
+	if (!session.user.emailVerified) throw redirect(302, '/email-verification');
 
 	throw redirect(302, '/');
 };
