@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import PG from 'pg';
 
-export const pool = new Pool({
+export const pool = new PG.Pool({
 	connectionString: 'postgres://myuser:mypassword@localhost:5432/mydb'
 });
 
