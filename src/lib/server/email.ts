@@ -1,50 +1,70 @@
 import { SMTP_PASSWORD, SMTP_URL, SMTP_USER } from '$env/static/private';
+import { dev } from '$app/environment';
 import Nodemailer from 'nodemailer';
-import { render } from 'svelte-email';
+import type { User } from 'lucia';
 
-import EmailVerification from '$lib/mails/EmailVerification.svelte';
-
-export const sendEmailVerificationLink = async (token: string) => {
-	const url = `http://localhost:5173/email-verification/${token}`;
-	console.log(`Your email verification link: ${url}`);
-};
-
-export const sendPasswordResetLink = async (token: string) => {
-	const url = `http://localhost:5173/password-reset/${token}`;
-	console.log(`Your password reset link: ${url}`);
-};
-
-export const isValidEmail = (maybeEmail: unknown): maybeEmail is string => {
-	if (typeof maybeEmail !== 'string') return false;
-	if (maybeEmail.length > 255) return false;
-	const emailRegexp = /^.+@.+$/; // [one or more character]@[one or more character]
-	return emailRegexp.test(maybeEmail);
-};
-
-const transporter = Nodemailer.createTransport({
+const TRANSPORTER = Nodemailer.createTransport({
 	host: SMTP_URL,
 	port: 465,
 	secure: true,
 	auth: { user: SMTP_USER, pass: SMTP_PASSWORD }
 });
 
-export async function sendEmailVerificationMail(user: Lucia.DatabaseUserAttributes, token: string) {
-	const { email } = user;
+export async function sendMail(options: {
+	from: string;
+	to: string;
+	subject: string;
+	html: string;
+}) {
+	const info = await TRANSPORTER.sendMail(options);
+	return info.messageId;
+}
 
-	const emailHtml = render({
-		template: EmailVerification,
-		props: {
-			name: user.name,
-			token
-		}
-	});
+export async function sendEmailVerificationLink(user: User, token: string) {
+	const base = dev ? 'http://localhost:5173' : 'https://real-url.com';
+	const url = new URL('/email-verification', base);
+	url.searchParams.set('token', token);
 
-	const options = {
-		from: '"genug.app" <verify@genug.app>',
-		to: email,
-		subject: 'Verify your email address',
-		html: emailHtml
-	};
+	const html = `
+		<p>Hi ${user.name} 👋,</p>
+		<p>Please verify your email address by clicking the link below.</p>
+		<a href="${url.href}">Verify your email address</a>
+	`;
 
-	return await transporter.sendMail(options);
+	try {
+		await sendMail({
+			from: '"genug.app" <verify@genug.app>',
+			to: user.email,
+			subject: 'Verify your email address',
+			html
+		});
+	} catch (error) {
+		console.log('🛸 < file: email.ts:41 < error =', error);
+	}
+}
+
+export async function sendPasswordResetLink(user: User, token: string) {
+	const base = dev ? 'http://localhost:5173' : 'https://real-url.com';
+	const url = new URL(`/password-reset/${token}`, base);
+
+	const html = `
+		<p>Hi ${user.name} 👋,</p>
+		<p>Click the link below to reset your password.</p>
+		<a href="${url.href}">Reset your password</a>
+	`;
+
+	try {
+		await sendMail({
+			from: '"genug.app" <password-reset@genug.app>',
+			to: user.email,
+			subject: 'Reset your password',
+			html
+		});
+	} catch (error) {
+		console.log('🛸 < file: email.ts:64 < error =', error);
+	}
+}
+
+export function isValidEmailAddress(email: unknown) {
+	return typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }

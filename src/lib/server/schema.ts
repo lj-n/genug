@@ -6,7 +6,6 @@ export const user = pgTable('user', {
 	}).primaryKey(),
 	email: varchar('email', { length: 32 }).notNull().unique(),
 	email_verified: integer('email_verified').notNull(),
-	// other user attributes
 	name: varchar('name', { length: 255 }).notNull()
 });
 
@@ -27,14 +26,10 @@ export const key = pgTable('user_key', {
 	hashedPassword: varchar('hashed_password', { length: 255 })
 });
 
-export const emailVerificationToken = pgTable('email_verification_token', {
+export const token = pgTable('token', {
 	id: varchar('id', { length: 63 }).primaryKey(),
-	user_id: varchar('user_id', { length: 15 }).notNull(),
-	expires: bigint('expires', { mode: 'number' }).notNull()
-});
-
-export const passwordResetToken = pgTable('password_reset_token ', {
-	id: varchar('id', { length: 63 }).primaryKey(),
-	user_id: varchar('user_id', { length: 15 }).notNull(),
+	userId: varchar('user_id', { length: 15 })
+		.notNull()
+		.references(() => user.id),
 	expires: bigint('expires', { mode: 'number' }).notNull()
 });

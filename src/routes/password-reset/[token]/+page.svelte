@@ -9,7 +9,7 @@
 <h1>Reset password</h1>
 <form method="post" use:enhance>
 	<label for="password">New Password</label>
-	<input name="password" id="password" /><br />
+	<input name="password" id="password" type="password" />
 	<input type="submit" />
 </form>
 {#if form?.message}

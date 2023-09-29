@@ -1,4 +1,4 @@
-import { auth, generateEmailVerificationToken, sendEmailVerificationMail } from '$lib/server';
+import { auth, generateToken, sendEmailVerificationLink } from '$lib/server';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
 
 export const actions = {
@@ -32,12 +32,11 @@ export const actions = {
 			});
 			locals.auth.setSession(session);
 
-			const token = await generateEmailVerificationToken(user.userId);
+			const token = await generateToken(user.userId);
 
-			const response = await sendEmailVerificationMail(user, token);
-			console.log('🛸 < response =', response);
-		} catch (e) {
-			console.log('🛸 < e =', e);
+			await sendEmailVerificationLink(user, token);
+		} catch (error) {
+			console.log('🛸 < file: +page.server.ts:39 < error =', error);
 
 			return fail(500, { error: 'Something went wrong, oops.' });
 		}

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { PageServerData } from './$types';
+	import type { PageData } from './$types';
 
-	export let data: PageServerData;
+	export let data: PageData;
 </script>
 
 <h1>Restricted Page</h1>
@@ -11,12 +11,3 @@
 <form method="post" action="?/logout" use:enhance>
 	<input type="submit" value="Sign out" />
 </form>
-
-<button
-	on:click={async () => {
-		const res = await fetch('/send-mail');
-		console.log(await res.json());
-	}}
->
-	btn
-</button>

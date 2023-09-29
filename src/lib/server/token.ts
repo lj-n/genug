@@ -1,21 +1,22 @@
 import { eq } from 'drizzle-orm';
 import { db } from './db';
-import { emailVerificationToken, passwordResetToken } from './schema';
+import { token } from './schema';
 import { generateRandomString, isWithinExpiration } from 'lucia/utils';
 
 const EXPIRES_IN = 1000 * 60 * 60 * 2; // 2 hours
 
-export async function generateEmailVerificationToken(userId: string) {
-	const storedTokens = await db
-		.select()
-		.from(emailVerificationToken)
-		.where(eq(emailVerificationToken.user_id, userId))
-		.execute();
+/**
+ * Create a user token in the database.
+ * Can be used for email verification, password reset, etc.
+ * @returns The token id
+ */
+export async function generateToken(userId: string) {
+	const existingToken = await db.select().from(token).where(eq(token.userId, userId)).execute();
 
-	if (storedTokens.length) {
-		const foundToken = storedTokens.find((tkn) =>
-			// check if expiration is within 1 hour
-			isWithinExpiration(Number(tkn.expires) - EXPIRES_IN / 2)
+	/** Check if a non expired (or soon to be expired) token already exists. */
+	if (existingToken.length) {
+		const foundToken = existingToken.find((tkn) =>
+			isWithinExpiration(tkn.expires - EXPIRES_IN / 2)
 		);
 
 		if (foundToken) {
@@ -23,117 +24,52 @@ export async function generateEmailVerificationToken(userId: string) {
 		}
 	}
 
-	const token = generateRandomString(63);
+	const newToken = generateRandomString(63);
 
-	await db
-		.insert(emailVerificationToken)
-		.values({
-			id: token,
-			user_id: userId,
-			expires: new Date().getTime() + EXPIRES_IN
-		})
-		.execute();
+	await db.insert(token).values({
+		id: newToken,
+		userId,
+		expires: new Date().getTime() + EXPIRES_IN
+	});
 
-	return token;
+	return newToken;
 }
 
-export async function validateEmailVerificationToken(token: string) {
+/**
+ * Validate a user token.
+ * @returns The user id
+ */
+export async function validateToken(tkn: string) {
 	const foundToken = await db.transaction(async (tx) => {
-		const [storedToken] = await tx
-			.select()
-			.from(emailVerificationToken)
-			.where(eq(emailVerificationToken.id, token))
-			.execute();
+		const [storedToken] = await tx.select().from(token).where(eq(token.id, tkn)).execute();
 
 		if (!storedToken) {
 			throw new Error('Token not found');
 		}
 
-		await tx
-			.delete(emailVerificationToken)
-			.where(eq(emailVerificationToken.user_id, storedToken.user_id))
-			.execute();
+		await tx.delete(token).where(eq(token.userId, storedToken.userId)).execute();
 
 		return storedToken;
 	});
 
-	// bigint -> number
-	if (!isWithinExpiration(Number(foundToken.expires))) {
+	if (!isWithinExpiration(foundToken.expires)) {
 		throw new Error('Token expired');
 	}
 
-	return foundToken.user_id;
+	return foundToken.userId;
 }
 
-export async function generatePasswordResetToken(userId: string) {
-	const storedTokens = await db
-		.select()
-		.from(passwordResetToken)
-		.where(eq(passwordResetToken.user_id, userId))
-		.execute();
-
-	if (storedTokens.length) {
-		const foundToken = storedTokens.find((token) => {
-			return isWithinExpiration(Number(token.expires) - EXPIRES_IN / 2);
-		});
-
-		if (foundToken) {
-			return foundToken.id;
-		}
-	}
-
-	const token = generateRandomString(63);
-
-	await db
-		.insert(passwordResetToken)
-		.values({
-			id: token,
-			user_id: userId,
-			expires: new Date().getTime() + EXPIRES_IN
-		})
-		.execute();
-
-	return token;
-}
-
-export async function validatePasswordResetToken(token: string) {
-	const foundToken = await db.transaction(async (tx) => {
-		const [storedToken] = await tx
-			.select()
-			.from(passwordResetToken)
-			.where(eq(passwordResetToken.id, token))
-			.execute();
-
-		if (!storedToken) {
-			throw new Error('Token not found');
-		}
-
-		await tx
-			.delete(passwordResetToken)
-			.where(eq(passwordResetToken.user_id, storedToken.user_id))
-			.execute();
-
-		return storedToken;
-	});
-
-	// bigint -> number
-	if (!isWithinExpiration(Number(foundToken.expires))) {
-		throw new Error('Token expired');
-	}
-
-	return foundToken.user_id;
-}
-
-export async function isValidPasswordResetToken(token: string) {
-	const [foundToken] = await db
-		.select()
-		.from(passwordResetToken)
-		.where(eq(passwordResetToken.id, token))
-		.execute();
+/**
+ * Check if a user token is valid.
+ * This does not delete the token in the database.
+ * @returns true if the token exists and is not expired, false otherwise.
+ */
+export async function isValidToken(tkn: string) {
+	const [foundToken] = await db.select().from(token).where(eq(token.id, tkn)).execute();
 
 	if (!foundToken) {
 		return false;
 	}
 
-	return isWithinExpiration(Number(foundToken.expires));
+	return isWithinExpiration(foundToken.expires);
 }

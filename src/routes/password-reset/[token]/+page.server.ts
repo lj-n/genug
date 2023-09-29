@@ -1,15 +1,15 @@
-import { auth, isValidPasswordResetToken, validatePasswordResetToken } from '$lib/server';
+import { auth, isValidToken, validateToken } from '$lib/server';
 import { fail, redirect } from '@sveltejs/kit';
 
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const { token } = params;
-	const validToken = await isValidPasswordResetToken(token);
+	const validToken = await isValidToken(token);
+
 	if (!validToken) {
 		throw redirect(302, '/password-reset');
 	}
-	return {};
 };
 
 export const actions: Actions = {
@@ -25,7 +25,7 @@ export const actions: Actions = {
 		try {
 			const { token } = params;
 
-			const userId = await validatePasswordResetToken(token);
+			const userId = await validateToken(token);
 
 			let user = await auth.getUser(userId);
 

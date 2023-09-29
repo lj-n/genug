@@ -1,52 +1,44 @@
 import {
 	auth,
 	db,
-	generatePasswordResetToken,
-	sendPasswordResetLink,
-	isValidEmail,
-	user as userSchema
+	generateToken,
+	isValidEmailAddress,
+	schema,
+	sendPasswordResetLink
 } from '$lib/server';
 import { fail } from '@sveltejs/kit';
-
-import type { Actions } from './$types';
 import { eq } from 'drizzle-orm';
 
-export const actions: Actions = {
+import type { Actions } from './$types';
+
+export const actions = {
 	default: async ({ request }) => {
 		const formData = await request.formData();
-		const email = formData.get('email');
+		const email = formData.get('email')?.toString();
 		// basic check
-		if (!isValidEmail(email)) {
-			return fail(400, {
-				message: 'Invalid email'
-			});
+		if (!email || !isValidEmailAddress(email)) {
+			return fail(400, { message: 'Invalid email' });
 		}
 		try {
-			const [storedUser] = await db
+			// check if user exists
+			const [foundUser] = await db
 				.select()
-				.from(userSchema)
-				.where(eq(userSchema.email, email))
+				.from(schema.user)
+				.where(eq(schema.user.email, email))
 				.execute();
 
-			if (!storedUser) {
-				return fail(400, {
-					message: 'User does not exist'
-				});
+			if (!foundUser) {
+				return fail(400, { message: 'User not found' });
 			}
+			const user = auth.transformDatabaseUser(foundUser);
+			const token = await generateToken(user.userId);
 
-			const user = auth.transformDatabaseUser(storedUser);
-			
-			const token = await generatePasswordResetToken(user.userId);
+			await sendPasswordResetLink(user, token);
 
-			await sendPasswordResetLink(token);
-
-			return {
-				success: true
-			};
-		} catch (e) {
-			return fail(500, {
-				message: 'An unknown error occurred'
-			});
+			return { success: true };
+		} catch (error) {
+			console.log('🛸 < file: +page.server.ts:17 < error =', error);
+			return fail(500, { message: 'An unknown error occurred' });
 		}
 	}
-};
+} satisfies Actions;

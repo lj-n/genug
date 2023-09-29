@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-
 	import type { ActionData } from './$types';
 
 	export let form: ActionData;
@@ -13,12 +12,12 @@
 	<input name="email" id="email" /><br />
 	<label for="password">Password</label>
 	<input type="password" name="password" id="password" /><br />
-	<input type="submit" />
+	<button type="submit">signin</button>
 </form>
 
 {#if form?.error}
 	<p class="error">{form.error}</p>
 {/if}
 
-<a href="/password-reset">Reset password</a>
+<a href="/password-reset">Forgot password</a>
 <a href="/signup">Create an account</a>

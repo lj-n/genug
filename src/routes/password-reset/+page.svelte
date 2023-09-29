@@ -7,15 +7,19 @@
 </script>
 
 <h1>Reset password</h1>
+
 <form method="post" use:enhance>
 	<label for="email">Email</label>
 	<input name="email" id="email" /><br />
-	<input type="submit" />
+	
+	<button type="submit">submit</button>
 </form>
+
 {#if form?.message}
 	<p class="error">{form.message}</p>
 {/if}
 {#if form?.success}
 	<p>Your password reset link was sent to your inbox</p>
 {/if}
+
 <a href="/login">Sign in</a>
