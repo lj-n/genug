@@ -1,35 +1,81 @@
-import { pgTable, bigint, varchar, integer } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
+import {
+	sqliteTable,
+	text,
+	integer,
+	primaryKey
+} from 'drizzle-orm/sqlite-core';
 
-export const user = pgTable('user', {
-	id: varchar('id', {
-		length: 15
-	}).primaryKey(),
-	email: varchar('email', { length: 32 }).notNull().unique(),
+export const session = sqliteTable('user_session', {
+	id: text('id', { length: 128 }).primaryKey(),
+	userId: text('user_id', { length: 15 })
+		.notNull()
+		.references(() => user.id),
+	activeExpires: integer('active_expires', { mode: 'number' }).notNull(),
+	idleExpires: integer('idle_expires', { mode: 'number' }).notNull()
+});
+
+export const key = sqliteTable('user_key', {
+	id: text('id', { length: 255 }).primaryKey(),
+	userId: text('user_id', { length: 15 })
+		.notNull()
+		.references(() => user.id),
+	hashedPassword: text('hashed_password', { length: 255 })
+});
+
+export const token = sqliteTable('token', {
+	id: text('id', { length: 63 }).primaryKey(),
+	userId: text('user_id', { length: 15 })
+		.notNull()
+		.references(() => user.id),
+	expires: integer('expires', { mode: 'number' }).notNull()
+});
+
+export const user = sqliteTable('user', {
+	id: text('id', { length: 15 }).primaryKey(),
+	email: text('email', { length: 32 }).notNull().unique(),
 	email_verified: integer('email_verified').notNull(),
-	name: varchar('name', { length: 255 }).notNull()
+	name: text('name', { length: 255 }).notNull()
 });
 
-export const session = pgTable('user_session', {
-	id: varchar('id', { length: 128 }).primaryKey(),
-	userId: varchar('user_id', { length: 15 })
-		.notNull()
-		.references(() => user.id),
-	activeExpires: bigint('active_expires', { mode: 'number' }).notNull(),
-	idleExpires: bigint('idle_expires', { mode: 'number' }).notNull()
+export const userRelations = relations(user, ({ many }) => ({
+	teamMember: many(teamMember)
+}));
+
+export const team = sqliteTable('team', {
+	id: integer('id').primaryKey(),
+	name: text('name', { length: 255 }).notNull(),
+	description: text('description', { length: 255 })
 });
 
-export const key = pgTable('user_key', {
-	id: varchar('id', { length: 255 }).primaryKey(),
-	userId: varchar('user_id', { length: 15 })
-		.notNull()
-		.references(() => user.id),
-	hashedPassword: varchar('hashed_password', { length: 255 })
-});
+export const teamRelations = relations(team, ({ many }) => ({
+	teamMember: many(teamMember)
+}));
 
-export const token = pgTable('token', {
-	id: varchar('id', { length: 63 }).primaryKey(),
-	userId: varchar('user_id', { length: 15 })
-		.notNull()
-		.references(() => user.id),
-	expires: bigint('expires', { mode: 'number' }).notNull()
-});
+export const teamMember = sqliteTable(
+	'team_user',
+	{
+		user_id: text('user_id', { length: 15 })
+			.notNull()
+			.references(() => user.id),
+		team_id: integer('team_id')
+			.notNull()
+			.references(() => team.id)
+	},
+	(table) => {
+		return {
+			pk: primaryKey(table.user_id, table.team_id)
+		};
+	}
+);
+
+export const teamMemberRelations = relations(teamMember, ({ one }) => ({
+	user: one(user, {
+		fields: [teamMember.user_id],
+		references: [user.id]
+	}),
+	team: one(team, {
+		fields: [teamMember.team_id],
+		references: [team.id]
+	})
+}));

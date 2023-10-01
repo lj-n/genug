@@ -13,7 +13,13 @@
 		<input type="hidden" name="token" value={data.token} />
 	{:else}
 		<label for="token">Verification Token:</label>
-		<input type="text" id="token" name="token" placeholder="Paste your token here" required />
+		<input
+			type="text"
+			id="token"
+			name="token"
+			placeholder="Paste your token here"
+			required
+		/>
 	{/if}
 
 	{#if form?.error}

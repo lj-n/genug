@@ -17,7 +17,11 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const password = formData.get('password');
 		// basic check
-		if (typeof password !== 'string' || password.length < 6 || password.length > 255) {
+		if (
+			typeof password !== 'string' ||
+			password.length < 6 ||
+			password.length > 255
+		) {
 			return fail(400, {
 				message: 'Invalid password'
 			});
