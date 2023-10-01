@@ -1,13 +1,13 @@
-import { SMTP_PASSWORD, SMTP_URL, SMTP_USER } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { dev } from '$app/environment';
 import Nodemailer from 'nodemailer';
 import type { User } from 'lucia';
 
 const TRANSPORTER = Nodemailer.createTransport({
-	host: SMTP_URL,
+	host: env.SMTP_URL,
 	port: 465,
 	secure: true,
-	auth: { user: SMTP_USER, pass: SMTP_PASSWORD }
+	auth: { user: env.SMTP_USER, pass: env.SMTP_PASSWORD }
 });
 
 export async function sendMail(options: {
@@ -21,7 +21,9 @@ export async function sendMail(options: {
 }
 
 export async function sendEmailVerificationLink(user: User, token: string) {
-	const base = dev ? 'http://localhost:5173' : 'https://real-url.com';
+	const base = dev
+		? 'http://localhost:5173'
+		: 'https://genug-sveltekit.fly.dev';
 	const url = new URL('/email-verification', base);
 	url.searchParams.set('token', token);
 
@@ -44,7 +46,9 @@ export async function sendEmailVerificationLink(user: User, token: string) {
 }
 
 export async function sendPasswordResetLink(user: User, token: string) {
-	const base = dev ? 'http://localhost:5173' : 'https://real-url.com';
+	const base = dev
+		? 'http://localhost:5173'
+		: 'https://genug-sveltekit.fly.dev';
 	const url = new URL(`/password-reset/${token}`, base);
 
 	const html = `

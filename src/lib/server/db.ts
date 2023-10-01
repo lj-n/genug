@@ -1,10 +1,21 @@
-import { DATABASE_URL } from '$env/static/private';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import PG from 'pg';
+// import { DATABASE_URL } from '$env/static/private';
+import { drizzle } from 'drizzle-orm/libsql';
+import { createClient } from '@libsql/client';
+
 import * as schema from './schema';
+import { dev } from '$app/environment';
+import { DATABASE_AUTH_TOKEN, DATABASE_URL } from '$env/static/private';
 
-export const pool = new PG.Pool({
-	connectionString: DATABASE_URL
-});
+const options = dev
+? {
+	url: 'file:database/local.db'
+}
+: {
+	url: DATABASE_URL,
+	authToken: DATABASE_AUTH_TOKEN
+};
 
-export const db = drizzle(pool, { schema });
+console.log("🛸 < file: db.ts:10 < options =", options);
+export const libsqlClient = createClient(options);
+
+export const db = drizzle(libsqlClient, { schema });

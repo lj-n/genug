@@ -1,18 +1,15 @@
 import { redirect, type Actions, fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { auth } from '$lib/server';
+import { auth, protectRoute } from '$lib/server';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const session = await locals.auth.validate();
+	const user = await protectRoute(locals);
 
-	if (!session) throw redirect(302, '/signin');
-	if (!session.user.emailVerified) throw redirect(302, '/email-verification');
-
-	return session.user;
+	return { user };
 };
 
 export const actions: Actions = {
-	logout: async ({ locals }) => {
+	default: async ({ locals }) => {
 		const session = await locals.auth.validate();
 
 		if (!session) return fail(401);

@@ -11,7 +11,7 @@
 <form method="post" use:enhance>
 	<label for="email">Email</label>
 	<input name="email" id="email" /><br />
-	
+
 	<button type="submit">submit</button>
 </form>
 

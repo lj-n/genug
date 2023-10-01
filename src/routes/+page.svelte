@@ -8,6 +8,6 @@
 <h1>Restricted Page</h1>
 <pre>{JSON.stringify(data, null, 2)}</pre>
 
-<form method="post" action="?/logout" use:enhance>
+<form method="post" use:enhance>
 	<input type="submit" value="Sign out" />
 </form>

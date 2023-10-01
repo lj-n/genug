@@ -11,7 +11,11 @@ const EXPIRES_IN = 1000 * 60 * 60 * 2; // 2 hours
  * @returns The token id
  */
 export async function generateToken(userId: string) {
-	const existingToken = await db.select().from(token).where(eq(token.userId, userId)).execute();
+	const existingToken = await db
+		.select()
+		.from(token)
+		.where(eq(token.userId, userId))
+		.execute();
 
 	/** Check if a non expired (or soon to be expired) token already exists. */
 	if (existingToken.length) {
@@ -41,13 +45,20 @@ export async function generateToken(userId: string) {
  */
 export async function validateToken(tkn: string) {
 	const foundToken = await db.transaction(async (tx) => {
-		const [storedToken] = await tx.select().from(token).where(eq(token.id, tkn)).execute();
+		const [storedToken] = await tx
+			.select()
+			.from(token)
+			.where(eq(token.id, tkn))
+			.execute();
 
 		if (!storedToken) {
 			throw new Error('Token not found');
 		}
 
-		await tx.delete(token).where(eq(token.userId, storedToken.userId)).execute();
+		await tx
+			.delete(token)
+			.where(eq(token.userId, storedToken.userId))
+			.execute();
 
 		return storedToken;
 	});
@@ -65,7 +76,11 @@ export async function validateToken(tkn: string) {
  * @returns true if the token exists and is not expired, false otherwise.
  */
 export async function isValidToken(tkn: string) {
-	const [foundToken] = await db.select().from(token).where(eq(token.id, tkn)).execute();
+	const [foundToken] = await db
+		.select()
+		.from(token)
+		.where(eq(token.id, tkn))
+		.execute();
 
 	if (!foundToken) {
 		return false;
