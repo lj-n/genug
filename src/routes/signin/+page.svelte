@@ -5,19 +5,43 @@
 	export let form: ActionData;
 </script>
 
-<h1>Sign in</h1>
+<form method="post" use:enhance class="flex flex-col gap-4 items-center">
+	<h1>Sign in</h1>
 
-<form method="post" use:enhance>
-	<label for="email">Email</label>
-	<input name="email" id="email" /><br />
-	<label for="password">Password</label>
-	<input type="password" name="password" id="password" /><br />
-	<button type="submit">signin</button>
+	<div class="form-control w-full max-w-sm">
+		<label class="label" for="email">
+			<span class="label-text">Email</span>
+		</label>
+		<input
+			type="text"
+			name="email"
+			id="email"
+			placeholder="Your email"
+			class="input input-bordered w-full"
+		/>
+	</div>
+
+	<div class="form-control w-full max-w-sm">
+		<label class="label" for="password">
+			<span class="label-text">Password</span>
+		</label>
+		<input
+			type="text"
+			name="password"
+			id="password"
+			placeholder="****"
+			class="input input-bordered w-full"
+		/>
+	</div>
+
+	<button type="submit" class="btn btn-primary btn-wide">signin</button>
+
+	<div class="flex flex-wrap gap-4">
+		<a href="/password-reset" class="link link-hover">Forgot password</a>
+		<a href="/signup" class="link link-hover link-accent">Create an account</a>
+	</div>
 </form>
 
 {#if form?.error}
 	<p class="error">{form.error}</p>
 {/if}
-
-<a href="/password-reset">Forgot password</a>
-<a href="/signup">Create an account</a>

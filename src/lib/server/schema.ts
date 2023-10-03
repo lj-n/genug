@@ -60,7 +60,10 @@ export const teamMember = sqliteTable(
 			.references(() => user.id),
 		team_id: integer('team_id')
 			.notNull()
-			.references(() => team.id)
+			.references(() => team.id),
+		role_id: integer('role_id')
+			.notNull()
+			.references(() => teamRole.id)
 	},
 	(table) => {
 		return {
@@ -77,5 +80,15 @@ export const teamMemberRelations = relations(teamMember, ({ one }) => ({
 	team: one(team, {
 		fields: [teamMember.team_id],
 		references: [team.id]
+	}),
+	role: one(teamRole, {
+		fields: [teamMember.role_id],
+		references: [teamRole.id]
 	})
 }));
+
+export const teamRole = sqliteTable('team_role', {
+	id: integer('id').primaryKey(),
+	type: text('type', { length: 255 }).notNull(), // OWNER | MEMBER | INVITED
+	description: text('description', { length: 255 }).notNull()
+});
