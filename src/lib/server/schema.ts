@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import {
 	sqliteTable,
 	text,
@@ -45,7 +45,8 @@ export const userRelations = relations(user, ({ many }) => ({
 export const team = sqliteTable('team', {
 	id: integer('id').primaryKey(),
 	name: text('name', { length: 255 }).notNull(),
-	description: text('description', { length: 255 })
+	description: text('description', { length: 255 }),
+	createdAt: text('created_at').default(sql`CURRENT_DATE`).notNull()
 });
 
 export const teamRelations = relations(team, ({ many }) => ({

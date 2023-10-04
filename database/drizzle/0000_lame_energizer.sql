@@ -16,15 +16,24 @@ CREATE TABLE `user_session` (
 CREATE TABLE `team` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`name` text(255) NOT NULL,
-	`description` text(255)
+	`description` text(255),
+	`created_at` text DEFAULT CURRENT_DATE NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `team_user` (
 	`user_id` text(15) NOT NULL,
 	`team_id` integer NOT NULL,
+	`role_id` integer NOT NULL,
 	PRIMARY KEY(`team_id`, `user_id`),
 	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`team_id`) REFERENCES `team`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`team_id`) REFERENCES `team`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`role_id`) REFERENCES `team_role`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `team_role` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`type` text(255) NOT NULL,
+	`description` text(255) NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `token` (
