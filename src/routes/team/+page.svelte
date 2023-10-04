@@ -1,22 +1,66 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { ActionData } from './$types';
+	import type { ActionData, PageData } from './$types';
 
 	export let form: ActionData;
+	export let data: PageData;
 </script>
 
-<h1>Create New Team</h1>
+<main class="prose">
+	<h1>Teams</h1>
 
-<form use:enhance method="POST">
-	<label for="name">Team Name</label>
-	<input type="text" id="name" name="name" placeholder="Team Name" required />
+	<h2>Your teams:</h2>
 
-	<label for="description">Description</label>
-	<input id="description" name="description" placeholder="Description" />
+	{#if data.teams.length}
+		<blockquote>Click team for details</blockquote>
 
-	{#if form?.error}
-		<p class="error">{form.error}</p>
+		<ul>
+			{#each data.teams as team (team.id)}
+				<li>
+					<a href="/team/{team.id}" class="link link-hover">
+						{team.name} | {team.createdAt}
+					</a>
+				</li>
+			{/each}
+		</ul>
+	{:else}
+		<blockquote>no teams found</blockquote>
 	{/if}
 
-	<button type="submit">Create Team</button>
-</form>
+	<form use:enhance method="POST" class="flex flex-col gap-4">
+		<h2>Create New Team</h2>
+
+		<div class="form-control w-full max-w-sm">
+			<label class="label" for="name">
+				<span class="label-text">Team Name</span>
+			</label>
+			<input
+				type="text"
+				name="name"
+				id="name"
+				required
+				placeholder="Awesome Team Name"
+				class="input input-bordered w-full"
+			/>
+		</div>
+
+		<div class="form-control w-full max-w-sm">
+			<label class="label" for="description">
+				<span class="label-text">Description (optional)</span>
+			</label>
+			<input
+				type="text"
+				name="description"
+				id="description"
+				placeholder="What is this team for?"
+				class="input input-bordered w-full"
+			/>
+		</div>
+
+		{#if form?.error}
+			<p class="error">{form.error}</p>
+		{/if}
+
+		<button type="submit" class="btn btn-secondary mr-auto">Create Team</button>
+	</form>
+</main>

@@ -1,10 +1,24 @@
 import { db, protectRoute, schema } from '$lib/server';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from '../$types';
+import { eq } from 'drizzle-orm';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const user = await protectRoute(locals);
-	return { user };
+
+	// get the users teams
+	const teams = await db
+		.select({
+			name: schema.team.name,
+			id: schema.team.id,
+			description: schema.team.description,
+			createdAt: schema.team.createdAt
+		})
+		.from(schema.team)
+		.leftJoin(schema.teamMember, eq(schema.teamMember.team_id, schema.team.id))
+		.where(eq(schema.teamMember.user_id, user.userId));
+
+	return { user, teams };
 };
 
 export const actions = {
@@ -14,7 +28,7 @@ export const actions = {
 
 		const formData = await request.formData();
 		const name = formData.get('name')?.toString();
-		const description = formData.get('description')?.toString();
+		const description = formData.get('description')?.toString() || null;
 
 		if (!name) return fail(400, { description, error: 'Missing name' });
 
@@ -24,11 +38,13 @@ export const actions = {
 			newTeamId = await db.transaction(async (tx) => {
 				const [team] = await tx
 					.insert(schema.team)
-					.values({ name })
+					.values({ name, description })
 					.returning();
-				await tx
-					.insert(schema.teamMember)
-					.values({ team_id: team.id, user_id: session.user.userId });
+				await tx.insert(schema.teamMember).values({
+					team_id: team.id,
+					user_id: session.user.userId,
+					role_id: 1
+				});
 
 				return team.id;
 			});

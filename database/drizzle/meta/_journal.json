@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1696165325936,
-      "tag": "0000_salty_dazzler",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1696327022835,
-      "tag": "0001_little_scalphunter",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1696327562182,
-      "tag": "0002_spooky_skin",
+      "when": 1696446055024,
+      "tag": "0000_lame_energizer",
       "breakpoints": true
     }
   ]
