@@ -6,6 +6,7 @@ import { dev } from '$app/environment';
 
 const getTeamMembers = db
 	.select({
+		userId: schema.user.id,
 		email: schema.user.email,
 		name: schema.user.name,
 		role: schema.teamRole.type
@@ -34,9 +35,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		throw error(404, 'Team not found');
 	}
 
-	const team = await getTeamMembers.all({ teamId });
+	const members = await getTeamMembers.all({ teamId });
 
-	return { team };
+	const role = members.find((member) => member.userId === user.userId)?.role;
+
+	return { members, user: { role, ...user } };
 };
 
 export const actions = {
@@ -110,6 +113,48 @@ export const actions = {
 		} catch (error) {
 			console.log('🛸 < file: +page.server.ts:82 < error =', error);
 			return fail(500, { error: 'Something went wrong, please try again.' });
+		}
+	},
+
+	userconfirm: async ({ locals, request, params }) => {
+		const session = await locals.auth.validate();
+		if (!session) return fail(401, { error: 'Unauthorized' });
+
+		const formData = await request.formData();
+		const userId = formData.get('userId')?.toString();
+
+		if (!userId) return fail(401, { error: 'Missing user id' });
+
+		try {
+			await db.transaction(async (tx) => {
+				const [invitedUser] = await tx
+					.select()
+					.from(schema.teamMember)
+					.where(
+						and(
+							eq(schema.teamMember.team_id, Number(params.id)),
+							eq(schema.teamMember.user_id, userId),
+							eq(schema.teamMember.role_id, 3)
+						)
+					);
+
+				if (!invitedUser) throw new Error('No User found');
+
+				await tx
+					.update(schema.teamMember)
+					.set({ role_id: 2 })
+					.where(
+						and(
+							eq(schema.teamMember.team_id, Number(params.id)),
+							eq(schema.teamMember.user_id, userId)
+						)
+					);
+			});
+
+			return { success: true };
+		} catch (error) {
+			console.log('🛸 < file: +page.server.ts:142 < error =', error);
+			return fail(500, { error: 'Invited user not found' });
 		}
 	}
 } satisfies Actions;
