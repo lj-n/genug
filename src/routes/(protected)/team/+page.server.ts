@@ -1,10 +1,10 @@
-import { db, protectRoute, schema } from '$lib/server';
+import { db, schema } from '$lib/server';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from '../$types';
+import type { PageServerLoad } from './$types';
 import { eq } from 'drizzle-orm';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	const user = await protectRoute(locals);
+export const load: PageServerLoad = async ({ parent }) => {
+	const { user } = await parent();
 
 	// get the users teams
 	const teams = await db
