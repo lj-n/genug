@@ -19,6 +19,10 @@
 	{/if}
 
 	{#if data.user.role === 'OWNER'}
+		<a href="/team/{data.teamId}/owner" class="link link-hover">
+			to owner settings
+		</a>
+
 		<form method="POST" action="?/usersearch" use:enhance>
 			<div class="form-control w-full max-w-xs">
 				<label class="label" for="email">

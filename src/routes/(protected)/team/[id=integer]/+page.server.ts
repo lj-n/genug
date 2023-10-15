@@ -39,7 +39,7 @@ export const load: PageServerLoad = async ({ parent, params }) => {
 
 	const role = members.find((member) => member.userId === user.userId)?.role;
 
-	return { members, user: { role, ...user } };
+	return { members, user: { role, ...user }, teamId };
 };
 
 export const actions = {
