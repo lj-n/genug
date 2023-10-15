@@ -46,7 +46,9 @@ export const team = sqliteTable('team', {
 	id: integer('id').primaryKey(),
 	name: text('name', { length: 255 }).notNull(),
 	description: text('description', { length: 255 }),
-	createdAt: text('created_at').default(sql`CURRENT_DATE`).notNull()
+	createdAt: text('created_at')
+		.default(sql`CURRENT_DATE`)
+		.notNull()
 });
 
 export const teamRelations = relations(team, ({ many }) => ({
@@ -90,6 +92,6 @@ export const teamMemberRelations = relations(teamMember, ({ one }) => ({
 
 export const teamRole = sqliteTable('team_role', {
 	id: integer('id').primaryKey(),
-	type: text('type', { length: 255 }).notNull(), // OWNER | MEMBER | INVITED
+	type: text('type', { enum: ['OWNER', 'MEMBER', 'INVITED'] }).notNull(), // OWNER | MEMBER | INVITED
 	description: text('description', { length: 255 }).notNull()
 });

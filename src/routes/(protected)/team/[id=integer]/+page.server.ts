@@ -1,4 +1,4 @@
-import { db, protectRoute, schema, sendMail } from '$lib/server';
+import { db, schema, sendMail } from '$lib/server';
 import { and, eq, sql } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { error, fail } from '@sveltejs/kit';
@@ -17,8 +17,8 @@ const getTeamMembers = db
 	.where(eq(schema.teamMember.team_id, sql.placeholder('teamId')))
 	.prepare();
 
-export const load: PageServerLoad = async ({ locals, params }) => {
-	const user = await protectRoute(locals);
+export const load: PageServerLoad = async ({ parent, params }) => {
+	const { user } = await parent();
 	const teamId = parseInt(params.id);
 
 	const [foundUser] = await db
@@ -39,7 +39,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	const role = members.find((member) => member.userId === user.userId)?.role;
 
-	return { members, user: { role, ...user } };
+	return { members, user: { role, ...user }, teamId };
 };
 
 export const actions = {
