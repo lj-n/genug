@@ -2,7 +2,7 @@ CREATE TABLE `user_key` (
 	`id` text(255) PRIMARY KEY NOT NULL,
 	`user_id` text(15) NOT NULL,
 	`hashed_password` text(255),
-	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `user_session` (
@@ -10,7 +10,7 @@ CREATE TABLE `user_session` (
 	`user_id` text(15) NOT NULL,
 	`active_expires` integer NOT NULL,
 	`idle_expires` integer NOT NULL,
-	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `team` (
@@ -25,14 +25,14 @@ CREATE TABLE `team_user` (
 	`team_id` integer NOT NULL,
 	`role_id` integer NOT NULL,
 	PRIMARY KEY(`team_id`, `user_id`),
-	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`team_id`) REFERENCES `team`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`team_id`) REFERENCES `team`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`role_id`) REFERENCES `team_role`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `team_role` (
 	`id` integer PRIMARY KEY NOT NULL,
-	`type` text(255) NOT NULL,
+	`type` text NOT NULL,
 	`description` text(255) NOT NULL
 );
 --> statement-breakpoint
@@ -40,7 +40,7 @@ CREATE TABLE `token` (
 	`id` text(63) PRIMARY KEY NOT NULL,
 	`user_id` text(15) NOT NULL,
 	`expires` integer NOT NULL,
-	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `user` (

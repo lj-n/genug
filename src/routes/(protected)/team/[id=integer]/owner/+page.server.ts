@@ -1,6 +1,6 @@
 import { db, schema } from '$lib/server';
 import { and, eq } from 'drizzle-orm';
-import { error, fail } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import { getTeamMembers, getTeamOwner } from '$lib/server/prepared';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -174,5 +174,26 @@ export const actions = {
 		} catch (error) {
 			return fail(404, { error });
 		}
+	},
+
+	deleteTeam: async ({ params, locals }) => {
+		const session = await locals.auth.validate();
+		if (!session) return fail(401, { error: 'Unauthorized' });
+
+		const ownerId = session.user.userId;
+		const isOwner = await getTeamOwner.get({
+			userId: ownerId,
+			teamId: params.id
+		});
+
+		if (!isOwner) return fail(401, { error: 'Unauthorized role' });
+
+		try {
+			await db.delete(schema.team).where(eq(schema.team.id, Number(params.id)));
+		} catch (error) {
+			return fail(500, { error: 'Something went wrong sorry' });
+		}
+
+		throw redirect(302, '/team');
 	}
 } satisfies Actions;
