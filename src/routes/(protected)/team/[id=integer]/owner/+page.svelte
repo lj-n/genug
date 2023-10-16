@@ -48,3 +48,8 @@
 		</tbody>
 	</table>
 </div>
+
+<form class="indicator p-4 mt-20 border border-red-400" method="post" action="?/deleteTeam">
+	<span class="indicator-item badge badge-error">danger</span>
+	<button type="submit" class="btn btn-sm">delete team</button>
+</form>

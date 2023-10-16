@@ -10,7 +10,7 @@ export const session = sqliteTable('user_session', {
 	id: text('id', { length: 128 }).primaryKey(),
 	userId: text('user_id', { length: 15 })
 		.notNull()
-		.references(() => user.id),
+		.references(() => user.id, { onDelete: 'cascade'}),
 	activeExpires: integer('active_expires', { mode: 'number' }).notNull(),
 	idleExpires: integer('idle_expires', { mode: 'number' }).notNull()
 });
@@ -19,7 +19,7 @@ export const key = sqliteTable('user_key', {
 	id: text('id', { length: 255 }).primaryKey(),
 	userId: text('user_id', { length: 15 })
 		.notNull()
-		.references(() => user.id),
+		.references(() => user.id, { onDelete: 'cascade'}),
 	hashedPassword: text('hashed_password', { length: 255 })
 });
 
@@ -27,7 +27,7 @@ export const token = sqliteTable('token', {
 	id: text('id', { length: 63 }).primaryKey(),
 	userId: text('user_id', { length: 15 })
 		.notNull()
-		.references(() => user.id),
+		.references(() => user.id, { onDelete: 'cascade'}),
 	expires: integer('expires', { mode: 'number' }).notNull()
 });
 
@@ -60,10 +60,10 @@ export const teamMember = sqliteTable(
 	{
 		user_id: text('user_id', { length: 15 })
 			.notNull()
-			.references(() => user.id),
+			.references(() => user.id, { onDelete: 'cascade'}),
 		team_id: integer('team_id')
 			.notNull()
-			.references(() => team.id),
+			.references(() => team.id, { onDelete: 'cascade'}),
 		role_id: integer('role_id')
 			.notNull()
 			.references(() => teamRole.id)
