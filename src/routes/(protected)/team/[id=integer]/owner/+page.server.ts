@@ -14,9 +14,9 @@ export const load: PageServerLoad = async ({ parent, params }) => {
 		.from(schema.teamMember)
 		.where(
 			and(
-				eq(schema.teamMember.team_id, Number(teamId)),
-				eq(schema.teamMember.user_id, user.userId),
-				eq(schema.teamMember.role_id, 1)
+				eq(schema.teamMember.teamId, Number(teamId)),
+				eq(schema.teamMember.userId, user.userId),
+				eq(schema.teamMember.role, 'OWNER')
 			)
 		);
 
@@ -53,9 +53,9 @@ export const actions = {
 					.from(schema.teamMember)
 					.where(
 						and(
-							eq(schema.teamMember.user_id, userId),
-							eq(schema.teamMember.team_id, Number(params.id)),
-							eq(schema.teamMember.role_id, 3)
+							eq(schema.teamMember.userId, userId),
+							eq(schema.teamMember.teamId, Number(params.id)),
+							eq(schema.teamMember.role, 'INVITED')
 						)
 					);
 
@@ -65,8 +65,8 @@ export const actions = {
 					.delete(schema.teamMember)
 					.where(
 						and(
-							eq(schema.teamMember.user_id, userId),
-							eq(schema.teamMember.team_id, Number(params.id))
+							eq(schema.teamMember.userId, userId),
+							eq(schema.teamMember.teamId, Number(params.id))
 						)
 					);
 			});
@@ -102,9 +102,9 @@ export const actions = {
 					.from(schema.teamMember)
 					.where(
 						and(
-							eq(schema.teamMember.user_id, userId),
-							eq(schema.teamMember.team_id, Number(params.id)),
-							eq(schema.teamMember.role_id, 2)
+							eq(schema.teamMember.userId, userId),
+							eq(schema.teamMember.teamId, Number(params.id)),
+							eq(schema.teamMember.role, 'MEMBER')
 						)
 					);
 
@@ -112,11 +112,11 @@ export const actions = {
 
 				await tx
 					.update(schema.teamMember)
-					.set({ role_id: 1 })
+					.set({ role: 'OWNER' })
 					.where(
 						and(
-							eq(schema.teamMember.user_id, userId),
-							eq(schema.teamMember.team_id, Number(params.id))
+							eq(schema.teamMember.userId, userId),
+							eq(schema.teamMember.teamId, Number(params.id))
 						)
 					);
 			});
@@ -152,8 +152,8 @@ export const actions = {
 					.from(schema.teamMember)
 					.where(
 						and(
-							eq(schema.teamMember.user_id, userId),
-							eq(schema.teamMember.team_id, Number(params.id))
+							eq(schema.teamMember.userId, userId),
+							eq(schema.teamMember.teamId, Number(params.id))
 							// eq(schema.teamMember.role_id, 2) // only members can be removed
 						)
 					);
@@ -164,8 +164,8 @@ export const actions = {
 					.delete(schema.teamMember)
 					.where(
 						and(
-							eq(schema.teamMember.user_id, userId),
-							eq(schema.teamMember.team_id, Number(params.id))
+							eq(schema.teamMember.userId, userId),
+							eq(schema.teamMember.teamId, Number(params.id))
 						)
 					);
 			});

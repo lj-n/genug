@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "8cef9869-edbf-442e-92ac-519bcfe88f84",
+  "id": "efe8ab9c-74d6-49a3-a5df-0165d4518152",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "user_key": {
@@ -154,9 +154,9 @@
           "notNull": true,
           "autoincrement": false
         },
-        "role_id": {
-          "name": "role_id",
-          "type": "integer",
+        "role": {
+          "name": "role",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -189,19 +189,6 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
-        },
-        "team_user_role_id_team_role_id_fk": {
-          "name": "team_user_role_id_team_role_id_fk",
-          "tableFrom": "team_user",
-          "tableTo": "team_role",
-          "columnsFrom": [
-            "role_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -212,36 +199,6 @@
           ]
         }
       },
-      "uniqueConstraints": {}
-    },
-    "team_role": {
-      "name": "team_role",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "type": {
-          "name": "type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
     "token": {

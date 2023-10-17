@@ -31,7 +31,7 @@ export const actions = {
 				return fail(400, { message: 'User not found' });
 			}
 			const user = auth.transformDatabaseUser(foundUser);
-			const token = await generateToken(user.userId);
+			const token = await generateToken(foundUser.id);
 
 			await sendPasswordResetLink(user, token);
 

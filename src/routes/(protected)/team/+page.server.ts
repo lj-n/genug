@@ -15,8 +15,8 @@ export const load: PageServerLoad = async ({ parent }) => {
 			createdAt: schema.team.createdAt
 		})
 		.from(schema.team)
-		.leftJoin(schema.teamMember, eq(schema.teamMember.team_id, schema.team.id))
-		.where(eq(schema.teamMember.user_id, user.userId));
+		.leftJoin(schema.teamMember, eq(schema.teamMember.teamId, schema.team.id))
+		.where(eq(schema.teamMember.userId, user.userId));
 
 	return { user, teams };
 };
@@ -41,9 +41,9 @@ export const actions = {
 					.values({ name, description })
 					.returning();
 				await tx.insert(schema.teamMember).values({
-					team_id: team.id,
-					user_id: session.user.userId,
-					role_id: 1
+					teamId: team.id,
+					userId: session.user.userId,
+					role: 'OWNER'
 				});
 
 				return team.id;

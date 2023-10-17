@@ -9,12 +9,11 @@ const getTeamMembers = db
 		userId: schema.user.id,
 		email: schema.user.email,
 		name: schema.user.name,
-		role: schema.teamRole.type
+		role: schema.teamMember.role
 	})
 	.from(schema.user)
-	.fullJoin(schema.teamMember, eq(schema.teamMember.user_id, schema.user.id))
-	.fullJoin(schema.teamRole, eq(schema.teamMember.role_id, schema.teamRole.id))
-	.where(eq(schema.teamMember.team_id, sql.placeholder('teamId')))
+	.leftJoin(schema.teamMember, eq(schema.teamMember.userId, schema.user.id))
+	.where(eq(schema.teamMember.teamId, sql.placeholder('teamId')))
 	.prepare();
 
 export const load: PageServerLoad = async ({ parent, params }) => {
@@ -26,8 +25,8 @@ export const load: PageServerLoad = async ({ parent, params }) => {
 		.from(schema.teamMember)
 		.where(
 			and(
-				eq(schema.teamMember.user_id, user.userId),
-				eq(schema.teamMember.team_id, teamId)
+				eq(schema.teamMember.userId, user.userId),
+				eq(schema.teamMember.teamId, teamId)
 			)
 		);
 
@@ -83,9 +82,9 @@ export const actions = {
 				}
 
 				await tx.insert(schema.teamMember).values({
-					role_id: 3,
-					team_id: Number(params.id),
-					user_id: foundUser.id
+					role: 'INVITED',
+					teamId: Number(params.id),
+					userId: foundUser.id
 				});
 
 				return foundUser;
@@ -132,9 +131,9 @@ export const actions = {
 					.from(schema.teamMember)
 					.where(
 						and(
-							eq(schema.teamMember.team_id, Number(params.id)),
-							eq(schema.teamMember.user_id, userId),
-							eq(schema.teamMember.role_id, 3)
+							eq(schema.teamMember.teamId, Number(params.id)),
+							eq(schema.teamMember.userId, userId),
+							eq(schema.teamMember.role, 'INVITED')
 						)
 					);
 
@@ -142,11 +141,11 @@ export const actions = {
 
 				await tx
 					.update(schema.teamMember)
-					.set({ role_id: 2 })
+					.set({ role: 'MEMBER' })
 					.where(
 						and(
-							eq(schema.teamMember.team_id, Number(params.id)),
-							eq(schema.teamMember.user_id, userId)
+							eq(schema.teamMember.teamId, Number(params.id)),
+							eq(schema.teamMember.userId, userId)
 						)
 					);
 			});
