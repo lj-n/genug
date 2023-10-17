@@ -8,9 +8,9 @@ const EXPIRES_IN = 1000 * 60 * 60 * 2; // 2 hours
 /**
  * Create a user token in the database.
  * Can be used for email verification, password reset, etc.
- * @returns The token id
+ * @returns Promise with the token id
  */
-export async function generateToken(userId: string) {
+export async function generateToken(userId: string): Promise<string> {
 	const existingToken = await db
 		.select()
 		.from(token)
@@ -41,9 +41,9 @@ export async function generateToken(userId: string) {
 
 /**
  * Validate a user token.
- * @returns The user id
+ * @returns Promise with the user id
  */
-export async function validateToken(tkn: string) {
+export async function validateToken(tkn: string): Promise<string> {
 	const foundToken = await db.transaction(async (tx) => {
 		const [storedToken] = await tx
 			.select()
@@ -73,9 +73,9 @@ export async function validateToken(tkn: string) {
 /**
  * Check if a user token is valid.
  * This does not delete the token in the database.
- * @returns true if the token exists and is not expired, false otherwise.
+ * @returns Promise with true if the token exists and is not expired, false otherwise.
  */
-export async function isValidToken(tkn: string) {
+export async function isValidToken(tkn: string): Promise<boolean> {
 	const [foundToken] = await db
 		.select()
 		.from(token)
