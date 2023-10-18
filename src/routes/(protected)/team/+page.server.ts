@@ -2,6 +2,7 @@ import { db, schema } from '$lib/server';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { eq } from 'drizzle-orm';
+import { createTeam } from '$lib/server/team';
 
 export const load: PageServerLoad = async ({ parent }) => {
 	const { user } = await parent();
@@ -28,26 +29,14 @@ export const actions = {
 
 		const formData = await request.formData();
 		const name = formData.get('name')?.toString();
-		const description = formData.get('description')?.toString() || null;
+		const description = formData.get('description')?.toString();
 
 		if (!name) return fail(400, { description, error: 'Missing name' });
 
 		let newTeamId: number;
 
 		try {
-			newTeamId = await db.transaction(async (tx) => {
-				const [team] = await tx
-					.insert(schema.team)
-					.values({ name, description })
-					.returning();
-				await tx.insert(schema.teamMember).values({
-					teamId: team.id,
-					userId: session.user.userId,
-					role: 'OWNER'
-				});
-
-				return team.id;
-			});
+			newTeamId = await createTeam(name, session.user.userId, description);
 		} catch (error) {
 			console.log('🛸 < file: +page.server.ts:28 < error =', error);
 			return fail(500, { name, description, error: 'Something went wrong' });

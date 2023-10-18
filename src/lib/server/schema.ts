@@ -35,11 +35,11 @@ export const user = sqliteTable('user', {
 	id: text('id', { length: 15 }).primaryKey(),
 	email: text('email', { length: 32 }).notNull().unique(),
 	email_verified: integer('email_verified').notNull(), // must be snake case for lucia auth
-	name: text('name', { length: 255 }).notNull()
+	name: text('name', { length: 255 }).notNull().unique()
 });
 
 export const userRelations = relations(user, ({ many }) => ({
-	teamMember: many(teamMember)
+	teams: many(teamMember)
 }));
 
 export const team = sqliteTable('team', {
@@ -52,7 +52,7 @@ export const team = sqliteTable('team', {
 });
 
 export const teamRelations = relations(team, ({ many }) => ({
-	teamMember: many(teamMember)
+	member: many(teamMember)
 }));
 
 export const teamMember = sqliteTable(

@@ -44,3 +44,5 @@ CREATE TABLE `user` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `user_email_unique` ON `user` (`email`);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `user_name_unique` ON `user` (`name`);

@@ -16,6 +16,8 @@ const getTeamMembers = db
 	.where(eq(schema.teamMember.teamId, sql.placeholder('teamId')))
 	.prepare();
 
+
+
 export const load: PageServerLoad = async ({ parent, params }) => {
 	const { user } = await parent();
 	const teamId = parseInt(params.id);
@@ -110,7 +112,6 @@ export const actions = {
 
 			return { success: true };
 		} catch (error) {
-			console.log('🛸 < file: +page.server.ts:82 < error =', error);
 			return fail(500, { error: 'Something went wrong, please try again.' });
 		}
 	},
@@ -152,7 +153,6 @@ export const actions = {
 
 			return { success: true };
 		} catch (error) {
-			console.log('🛸 < file: +page.server.ts:142 < error =', error);
 			return fail(500, { error: 'Invited user not found' });
 		}
 	}
