@@ -3,13 +3,15 @@ import { setupDataBase, teardownDataBase } from './setup';
 import { createUser } from '$lib/server/user';
 import type { User } from 'lucia';
 import {
-	addUserToTeam,
+	addTeamMember,
+	cancelUserInvitation,
+	confirmUserInvitation,
 	createTeam,
 	getTeam,
+	getTeamMemberRole,
 	lookupUsersNotInTeam,
-	setTeamMemberRole
-} from '$lib/server/team';
-
+	removeTeamMember
+} from '../routes/team/team.utils';
 beforeAll(() => {
 	const sqlFiles = [
 		'database/0000_certain_mattie_franklin.sql',
@@ -90,26 +92,9 @@ describe('user & teams', () => {
 	});
 
 	test('invite user to team', async () => {
-		await addUserToTeam(foundUser.id, teamId);
-	});
+		await addTeamMember(foundUser.id, teamId);
 
-	test('invite same user again', async () => {
-		await expect(() =>
-			addUserToTeam(foundUser.id, teamId)
-		).rejects.toThrowError();
-	});
-
-	test('get team', async () => {
 		const team = await getTeam(teamId);
-
-		expect(team).toBeDefined();
-		expect(team.member).toContainEqual({
-			role: 'OWNER',
-			user: {
-				id: user.userId,
-				name: user.name
-			}
-		});
 		expect(team.member).toContainEqual({
 			role: 'INVITED',
 			user: {
@@ -119,16 +104,60 @@ describe('user & teams', () => {
 		});
 	});
 
-	test('make invited user a member', async () => {
-		await setTeamMemberRole(foundUser.id, teamId, 'MEMBER');
+	test('invite same user again', async () => {
+		await expect(() =>
+			addTeamMember(foundUser.id, teamId)
+		).rejects.toThrowError();
+	});
+
+	test('cancel team invitation', async () => {
+		await cancelUserInvitation(foundUser.id, teamId);
 
 		const team = await getTeam(teamId);
+		expect(team.member).toHaveLength(1);
+		expect(team.member[0]).toStrictEqual({
+			role: 'OWNER',
+			user: {
+				id: user.userId,
+				name: user.name
+			}
+		});
 
+		// invite again for next test
+		await addTeamMember(foundUser.id, teamId);
+	});
+
+	test('accept team invitation', async () => {
+		await confirmUserInvitation(foundUser.id, teamId);
+
+		const team = await getTeam(teamId);
 		expect(team.member).toContainEqual({
 			role: 'MEMBER',
 			user: {
 				id: foundUser.id,
 				name: foundUser.name
+			}
+		});
+	});
+
+	test('get roles in team', async () => {
+		const role1 = await getTeamMemberRole(user.userId, teamId);
+		const role2 = await getTeamMemberRole(foundUser.id, teamId);
+
+		expect(role1).toBe('OWNER');
+		expect(role2).toBe('MEMBER');
+	});
+
+	test('remove user from team', async () => {
+		await removeTeamMember(foundUser.id, teamId);
+
+		const team = await getTeam(teamId);
+		expect(team.member).toHaveLength(1);
+		expect(team.member[0]).toStrictEqual({
+			role: 'OWNER',
+			user: {
+				id: user.userId,
+				name: user.name
 			}
 		});
 	});

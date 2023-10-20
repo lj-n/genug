@@ -2,7 +2,7 @@ import { db, schema, withAuth } from '$lib/server';
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { eq } from 'drizzle-orm';
-import { createTeam } from '$lib/server/team';
+import { createTeam } from './team.utils';
 
 export const load: PageServerLoad = withAuth(async (_, user) => {
 	// get the users teams
