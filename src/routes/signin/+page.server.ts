@@ -1,12 +1,12 @@
-import { auth } from '$lib/auth';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from '../$types';
+import { loginUser } from '$lib/server/user';
+import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const session = await locals.auth.validate();
 
 	if (!session) return {}; // proceed
-	if (!session.user.email_verified) throw redirect(302, '/email-verification');
+	if (!session.user.emailVerified) throw redirect(302, '/email-verification');
 
 	throw redirect(302, '/');
 };
@@ -22,17 +22,9 @@ export const actions = {
 		}
 
 		try {
-			const key = await auth.useKey('email', email.toLowerCase(), password);
-
-			const session = await auth.createSession({
-				userId: key.userId,
-				attributes: {}
-			});
-
+			const session = await loginUser(email, password);
 			locals.auth.setSession(session);
-		} catch (e) {
-			console.log('🛸 < e =', e);
-
+		} catch (_e) {
 			return fail(500, { error: 'Something went wrong, oops.' });
 		}
 

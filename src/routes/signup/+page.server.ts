@@ -1,6 +1,6 @@
-import { auth } from '$lib/auth';
-import { sendEmailVerificationLink } from '$lib/email';
-import { generateEmailVerificationToken } from '$lib/token';
+import { dev } from '$app/environment';
+import { auth, generateToken, sendEmailVerificationLink } from '$lib/server';
+import { createUser } from '$lib/server/user';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
 
 export const actions = {
@@ -15,31 +15,18 @@ export const actions = {
 		}
 
 		try {
-			const user = await auth.createUser({
-				key: {
-					providerId: 'email',
-					providerUserId: email.toLowerCase(),
-					password
-				},
-				attributes: {
-					email: email.toLowerCase(),
-					email_verified: Number(false),
-					name: username
-				}
-			});
+			const user = await createUser(email, username, password, dev);
 
 			const session = await auth.createSession({
 				userId: user.userId,
 				attributes: {}
 			});
+
 			locals.auth.setSession(session);
 
-			const token = await generateEmailVerificationToken(user.userId);
-
-			await sendEmailVerificationLink(token);
-		} catch (e) {
-			console.log('🛸 < e =', e);
-
+			const token = await generateToken(user.userId);
+			await sendEmailVerificationLink(user, token);
+		} catch (_e) {
 			return fail(500, { error: 'Something went wrong, oops.' });
 		}
 
