@@ -10,7 +10,7 @@ export const session = sqliteTable('user_session', {
 	id: text('id', { length: 128 }).primaryKey(),
 	userId: text('user_id', { length: 15 })
 		.notNull()
-		.references(() => user.id, { onDelete: 'cascade'}),
+		.references(() => user.id, { onDelete: 'cascade' }),
 	activeExpires: integer('active_expires', { mode: 'number' }).notNull(),
 	idleExpires: integer('idle_expires', { mode: 'number' }).notNull()
 });
@@ -19,7 +19,7 @@ export const key = sqliteTable('user_key', {
 	id: text('id', { length: 255 }).primaryKey(),
 	userId: text('user_id', { length: 15 })
 		.notNull()
-		.references(() => user.id, { onDelete: 'cascade'}),
+		.references(() => user.id, { onDelete: 'cascade' }),
 	hashedPassword: text('hashed_password', { length: 255 })
 });
 
@@ -27,19 +27,19 @@ export const token = sqliteTable('token', {
 	id: text('id', { length: 63 }).primaryKey(),
 	userId: text('user_id', { length: 15 })
 		.notNull()
-		.references(() => user.id, { onDelete: 'cascade'}),
+		.references(() => user.id, { onDelete: 'cascade' }),
 	expires: integer('expires', { mode: 'number' }).notNull()
 });
 
 export const user = sqliteTable('user', {
 	id: text('id', { length: 15 }).primaryKey(),
 	email: text('email', { length: 32 }).notNull().unique(),
-	email_verified: integer('email_verified').notNull(),
-	name: text('name', { length: 255 }).notNull()
+	email_verified: integer('email_verified').notNull(), // must be snake case for lucia auth
+	name: text('name', { length: 255 }).notNull().unique()
 });
 
 export const userRelations = relations(user, ({ many }) => ({
-	teamMember: many(teamMember)
+	teams: many(teamMember)
 }));
 
 export const team = sqliteTable('team', {
@@ -52,46 +52,34 @@ export const team = sqliteTable('team', {
 });
 
 export const teamRelations = relations(team, ({ many }) => ({
-	teamMember: many(teamMember)
+	member: many(teamMember)
 }));
 
 export const teamMember = sqliteTable(
 	'team_user',
 	{
-		user_id: text('user_id', { length: 15 })
+		userId: text('user_id', { length: 15 })
 			.notNull()
-			.references(() => user.id, { onDelete: 'cascade'}),
-		team_id: integer('team_id')
+			.references(() => user.id, { onDelete: 'cascade' }),
+		teamId: integer('team_id')
 			.notNull()
-			.references(() => team.id, { onDelete: 'cascade'}),
-		role_id: integer('role_id')
-			.notNull()
-			.references(() => teamRole.id)
+			.references(() => team.id, { onDelete: 'cascade' }),
+		role: text('role', { enum: ['OWNER', 'MEMBER', 'INVITED'] }).notNull()
 	},
 	(table) => {
 		return {
-			pk: primaryKey(table.user_id, table.team_id)
+			pk: primaryKey(table.userId, table.teamId)
 		};
 	}
 );
 
 export const teamMemberRelations = relations(teamMember, ({ one }) => ({
 	user: one(user, {
-		fields: [teamMember.user_id],
+		fields: [teamMember.userId],
 		references: [user.id]
 	}),
 	team: one(team, {
-		fields: [teamMember.team_id],
+		fields: [teamMember.teamId],
 		references: [team.id]
-	}),
-	role: one(teamRole, {
-		fields: [teamMember.role_id],
-		references: [teamRole.id]
 	})
 }));
-
-export const teamRole = sqliteTable('team_role', {
-	id: integer('id').primaryKey(),
-	type: text('type', { enum: ['OWNER', 'MEMBER', 'INVITED'] }).notNull(), // OWNER | MEMBER | INVITED
-	description: text('description', { length: 255 }).notNull()
-});

@@ -1,3 +1,4 @@
+import { dev } from '$app/environment';
 import { auth, generateToken, sendEmailVerificationLink } from '$lib/server';
 import { createUser } from '$lib/server/user';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
@@ -14,7 +15,7 @@ export const actions = {
 		}
 
 		try {
-			const user = await createUser(email, username, password);
+			const user = await createUser(email, username, password, dev);
 
 			const session = await auth.createSession({
 				userId: user.userId,

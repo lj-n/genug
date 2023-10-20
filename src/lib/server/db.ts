@@ -19,4 +19,4 @@ const options = dev
 
 export const libsqlClient = createClient(options);
 
-export const db = drizzle(libsqlClient, { schema });
+export const db = drizzle(libsqlClient, { schema, logger: false });

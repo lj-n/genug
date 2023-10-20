@@ -1,7 +1,12 @@
-import { lucia } from 'lucia';
+import { lucia, type User } from 'lucia';
 import { sveltekit } from 'lucia/middleware';
 import { libsql } from '@lucia-auth/adapter-sqlite';
 import { dev } from '$app/environment';
+import {
+	redirect,
+	type ServerLoadEvent,
+	type RequestEvent
+} from '@sveltejs/kit';
 
 import { libsqlClient } from './db';
 
@@ -21,3 +26,16 @@ export const auth = lucia({
 });
 
 export type Auth = typeof auth;
+
+/** Use to protect Server routes */
+export function withAuth<Event extends ServerLoadEvent | RequestEvent, Out>(
+	fn: (event: Event, user: User) => Out,
+	{ redirectTo = '/signin' }: { redirectTo?: string } = {}
+) {
+	return async (event: Event): Promise<Out> => {
+		const session = await event.locals.auth.validate();
+		if (!session) throw redirect(302, redirectTo);
+
+		return fn(event, session.user);
+	};
+}

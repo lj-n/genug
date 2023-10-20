@@ -32,7 +32,6 @@ export const actions = {
 
 			locals.auth.setSession(session);
 		} catch (error) {
-			console.error('🛸 < file: +page.server.ts:37 < error =', error);
 			return fail(500, { error: 'Something went wrong, oops.' });
 		}
 		throw redirect(302, '/');

@@ -1,9 +1,11 @@
 import { execSync } from 'child_process';
 import { unlinkSync } from 'fs';
 
-export async function setupDataBase() {
-	execSync('sqlite3 database/test.db < database/0000_nasty_next_avengers.sql');
-	execSync('sqlite3 database/test.db < database/1111_team_roles.sql');
+export async function setupDataBase(...sqlFilePaths: string[]) {
+	sqlFilePaths.forEach((path) => {
+		execSync(`sqlite3 database/test.db < ${path}`);
+	});
+	// execSync('sqlite3 database/test.db < database/0000_certain_mattie_franklin.sql');
 }
 
 export async function teardownDataBase() {

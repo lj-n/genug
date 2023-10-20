@@ -23,17 +23,10 @@ CREATE TABLE `team` (
 CREATE TABLE `team_user` (
 	`user_id` text(15) NOT NULL,
 	`team_id` integer NOT NULL,
-	`role_id` integer NOT NULL,
+	`role` text NOT NULL,
 	PRIMARY KEY(`team_id`, `user_id`),
 	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`team_id`) REFERENCES `team`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`role_id`) REFERENCES `team_role`(`id`) ON UPDATE no action ON DELETE no action
-);
---> statement-breakpoint
-CREATE TABLE `team_role` (
-	`id` integer PRIMARY KEY NOT NULL,
-	`type` text NOT NULL,
-	`description` text(255) NOT NULL
+	FOREIGN KEY (`team_id`) REFERENCES `team`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `token` (
@@ -51,3 +44,5 @@ CREATE TABLE `user` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `user_email_unique` ON `user` (`email`);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `user_name_unique` ON `user` (`name`);
