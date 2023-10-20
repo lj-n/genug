@@ -27,7 +27,12 @@
 		<blockquote>no teams found</blockquote>
 	{/if}
 
-	<form use:enhance method="POST" class="flex flex-col gap-4">
+	<form
+		use:enhance
+		method="post"
+		action="?/createTeam"
+		class="flex flex-col gap-4"
+	>
 		<h2>Create New Team</h2>
 
 		<div class="form-control w-full max-w-sm">

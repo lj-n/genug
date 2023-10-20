@@ -1,12 +1,10 @@
-import { db, schema } from '$lib/server';
-import { fail, type Actions, redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
+import { db, schema, withAuth } from '$lib/server';
+import { fail, redirect } from '@sveltejs/kit';
+import type { PageServerLoad, Actions } from './$types';
 import { eq } from 'drizzle-orm';
 import { createTeam } from '$lib/server/team';
 
-export const load: PageServerLoad = async ({ parent }) => {
-	const { user } = await parent();
-
+export const load: PageServerLoad = withAuth(async (_, user) => {
 	// get the users teams
 	const teams = await db
 		.select({
@@ -20,28 +18,30 @@ export const load: PageServerLoad = async ({ parent }) => {
 		.where(eq(schema.teamMember.userId, user.userId));
 
 	return { user, teams };
-};
+});
 
 export const actions = {
-	async default({ locals, request }) {
-		const session = await locals.auth.validate();
-		if (!session) return fail(401, { error: 'Unauthorized' });
-
+	createTeam: withAuth(async ({ request }, user) => {
 		const formData = await request.formData();
 		const name = formData.get('name')?.toString();
 		const description = formData.get('description')?.toString();
 
-		if (!name) return fail(400, { description, error: 'Missing name' });
+		if (!name) {
+			return fail(400, { description, error: 'Missing team name' });
+		}
 
 		let newTeamId: number;
 
 		try {
-			newTeamId = await createTeam(name, session.user.userId, description);
+			newTeamId = await createTeam(name, user.userId, description);
 		} catch (error) {
-			console.log('🛸 < file: +page.server.ts:28 < error =', error);
-			return fail(500, { name, description, error: 'Something went wrong' });
+			return fail(500, {
+				name,
+				description,
+				error: 'Something went wrong, please try again.'
+			});
 		}
 
 		throw redirect(302, `/team/${newTeamId}`);
-	}
+	})
 } satisfies Actions;

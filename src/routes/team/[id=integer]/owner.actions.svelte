@@ -3,7 +3,7 @@
 	import type { schema } from '$lib/server';
 
 	export let userId: string;
-	export let role: typeof schema.teamRole.$inferSelect.type;
+	export let role: typeof schema.teamMember.$inferSelect.role;
 </script>
 
 <form method="post" use:enhance>
