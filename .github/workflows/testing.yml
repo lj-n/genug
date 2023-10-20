@@ -1,4 +1,4 @@
-name: Integration Tests 🧪
+name: Tests 🧪
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    name: Run integration tests 🏃‍♂️
+    name: Run tests 🏃‍♂️
     runs-on: ubuntu-latest
 
     strategy:
