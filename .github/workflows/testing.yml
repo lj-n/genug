@@ -2,7 +2,11 @@ name: Tests 🧪
 
 on:
   pull_request:
-    branches: [ "dev" ]
+    branches:
+      - main
+  push:
+    branches:
+      - main
 
 jobs:
   test:
