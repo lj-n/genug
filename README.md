@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/lj-n/standalone-genug/main/static/logo.svg" />
+  <img src="static/logo.svg?raw=true" height="180"/>
 </p>
 
 <h1 align="center">
@@ -9,11 +9,5 @@ genug
 <p align="center">
   <a href="https://github.com/lj-n/standalone-genug/actions/workflows/testing.yml">
     <img src="https://github.com/lj-n/standalone-genug/actions/workflows/testing.yml/badge.svg" />
-  </a>
-</p>
-
-<p align="center">
-  <a href="#soon">
-    genug.app
   </a>
 </p>
