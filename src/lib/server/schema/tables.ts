@@ -101,7 +101,7 @@ export const userTransaction = sqliteTable('user_transaction', {
 		.references(() => userCategory.id, { onDelete: 'cascade' }),
 	accountId: integer('account_id')
 		.notNull()
-		.references(() => user.id, { onDelete: 'cascade' }),
+		.references(() => userAccount.id, { onDelete: 'cascade' }),
 	description: text('description', { length: 255 }),
 	date: text('date', { length: 10 })
 		.default(sql`CURRENT_DATE`)

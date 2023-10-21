@@ -19,8 +19,8 @@ const testUser = {
 };
 
 const testTeam = {
-	name: 'Test Team',
-	description: 'Test Team Description'
+	name: 'Awesome New Team',
+	description: 'Awesome description'
 };
 
 let user: User;

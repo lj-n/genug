@@ -7,7 +7,7 @@ import {
 	getUserAccounts
 } from 'routes/account/account.utils';
 
-const testAccount = 'Test Account';
+const testAccount = 'Awesome Account';
 
 let account: typeof schema.userAccount.$inferSelect;
 
@@ -20,12 +20,12 @@ describe('user accounts', () => {
 	});
 
 	test('get user accounts', async () => {
-		expect(await getUserAccounts('pjruqhtcfxxbaqu')).toHaveLength(1);
+		expect(await getUserAccounts('pjruqhtcfxxbaqu')).toHaveLength(2);
 		expect(await getUserAccount('pjruqhtcfxxbaqu', account.id)).toBeDefined();
 	});
 
 	test('delete user account', async () => {
 		await deleteUserAccount('pjruqhtcfxxbaqu', account.id);
-		expect(await getUserAccounts('pjruqhtcfxxbaqu')).toHaveLength(0);
+		expect(await getUserAccounts('pjruqhtcfxxbaqu')).toHaveLength(1);
 	});
 });
