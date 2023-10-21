@@ -5,13 +5,15 @@ import {
 	userAccount,
 	userCategory,
 	userTransaction,
-	team
+	team,
+	userBudget
 } from './tables';
 
 export const userRelations = relations(user, ({ many }) => ({
 	teams: many(teamMember),
 	categories: many(userCategory),
-	accounts: many(userAccount)
+	accounts: many(userAccount),
+	budgets: many(userBudget)
 }));
 
 export const teamRelations = relations(team, ({ many }) => ({
@@ -46,3 +48,33 @@ export const userTransactionRelations = relations(
 		})
 	})
 );
+
+export const userCategoryRelations = relations(
+	userCategory,
+	({ one, many }) => ({
+		user: one(user, {
+			fields: [userCategory.userId],
+			references: [user.id]
+		}),
+		transactions: many(userTransaction)
+	})
+);
+
+export const userAccountRelations = relations(userAccount, ({ one, many }) => ({
+	user: one(user, {
+		fields: [userAccount.userId],
+		references: [user.id]
+	}),
+	transactions: many(userTransaction)
+}));
+
+export const userBudgetRelations = relations(userBudget, ({ one }) => ({
+	user: one(user, {
+		fields: [userBudget.userId],
+		references: [user.id]
+	}),
+	category: one(userCategory, {
+		fields: [userBudget.categoryId],
+		references: [userCategory.id]
+	})
+}));

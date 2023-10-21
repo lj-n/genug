@@ -7,6 +7,7 @@
 
 {#if data.user}
 	<nav class="flex">
+    <a href="/account">Accounts</a>
 		<a href="/team" class="link link-hover">Teams</a>
 		<a href="/signout" class="ml-auto link link-hover">logout</a>
 	</nav>

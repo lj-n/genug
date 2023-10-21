@@ -38,17 +38,14 @@ export const user = sqliteTable('user', {
 	name: text('name', { length: 255 }).notNull().unique()
 });
 
-
-
 export const team = sqliteTable('team', {
-	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+	id: integer('id', { mode: 'number' }).primaryKey(),
 	name: text('name', { length: 255 }).notNull(),
 	description: text('description', { length: 255 }),
 	createdAt: text('created_at')
 		.default(sql`CURRENT_DATE`)
 		.notNull()
 });
-
 
 export const teamMember = sqliteTable(
 	'team_user',
@@ -68,10 +65,8 @@ export const teamMember = sqliteTable(
 	}
 );
 
-
-
 export const userCategory = sqliteTable('user_category', {
-	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+	id: integer('id', { mode: 'number' }).primaryKey(),
 	userId: text('user_id', { length: 15 })
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
@@ -85,7 +80,7 @@ export const userCategory = sqliteTable('user_category', {
 });
 
 export const userAccount = sqliteTable('user_account', {
-	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+	id: integer('id', { mode: 'number' }).primaryKey(),
 	userId: text('user_id', { length: 15 })
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
@@ -97,7 +92,7 @@ export const userAccount = sqliteTable('user_account', {
 });
 
 export const userTransaction = sqliteTable('user_transaction', {
-	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+	id: integer('id', { mode: 'number' }).primaryKey(),
 	userId: text('user_id', { length: 15 })
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
@@ -118,4 +113,21 @@ export const userTransaction = sqliteTable('user_transaction', {
 	validated: integer('validated', { mode: 'boolean' }).default(false).notNull()
 });
 
-
+export const userBudget = sqliteTable(
+	'user_budget',
+	{
+		userId: text('user_id', { length: 15 })
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		categoryId: integer('category_id')
+			.notNull()
+			.references(() => userCategory.id, { onDelete: 'cascade' }),
+		date: text('date', { length: 7 }).notNull(), // sql`strftime('%Y-%m', 'now')`
+		amount: integer('amount', { mode: 'number' }).default(0).notNull()
+	},
+	(table) => {
+		return {
+			pk: primaryKey(table.userId, table.categoryId, table.date)
+		};
+	}
+);

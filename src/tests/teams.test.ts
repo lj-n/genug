@@ -15,7 +15,7 @@ import {
 
 beforeAll(() => {
 	const sqlFiles = [
-		'database/0000_certain_mattie_franklin.sql',
+		'database/0000_curved_jack_flag.sql',
 		'database/9999_testing_data.sql'
 	];
 
