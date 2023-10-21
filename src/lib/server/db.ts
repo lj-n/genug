@@ -3,7 +3,7 @@ import { dev } from '$app/environment';
 import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 
-import * as schema from './schema';
+import { schema } from './schema';
 
 const options = dev
 	? {

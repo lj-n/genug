@@ -1,4 +1,5 @@
-import { db, schema } from '$lib/server';
+import { db } from '$lib/server';
+import { schema } from '$lib/server/schema';
 import { and, eq, isNull, ne, or, sql } from 'drizzle-orm';
 
 export async function createTeam(

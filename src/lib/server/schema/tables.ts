@@ -1,4 +1,4 @@
-import { relations, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import {
 	sqliteTable,
 	text,
@@ -38,12 +38,10 @@ export const user = sqliteTable('user', {
 	name: text('name', { length: 255 }).notNull().unique()
 });
 
-export const userRelations = relations(user, ({ many }) => ({
-	teams: many(teamMember)
-}));
+
 
 export const team = sqliteTable('team', {
-	id: integer('id').primaryKey(),
+	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
 	name: text('name', { length: 255 }).notNull(),
 	description: text('description', { length: 255 }),
 	createdAt: text('created_at')
@@ -51,9 +49,6 @@ export const team = sqliteTable('team', {
 		.notNull()
 });
 
-export const teamRelations = relations(team, ({ many }) => ({
-	member: many(teamMember)
-}));
 
 export const teamMember = sqliteTable(
 	'team_user',
@@ -73,13 +68,54 @@ export const teamMember = sqliteTable(
 	}
 );
 
-export const teamMemberRelations = relations(teamMember, ({ one }) => ({
-	user: one(user, {
-		fields: [teamMember.userId],
-		references: [user.id]
-	}),
-	team: one(team, {
-		fields: [teamMember.teamId],
-		references: [team.id]
-	})
-}));
+
+
+export const userCategory = sqliteTable('user_category', {
+	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+	userId: text('user_id', { length: 15 })
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	name: text('name', { length: 255 }).notNull(),
+	description: text('description', { length: 255 }),
+	createdAt: text('created_at')
+		.default(sql`CURRENT_DATE`)
+		.notNull(),
+	goal: integer('goal'),
+	retired: integer('retired', { mode: 'boolean' }).default(false).notNull()
+});
+
+export const userAccount = sqliteTable('user_account', {
+	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+	userId: text('user_id', { length: 15 })
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	name: text('name', { length: 255 }).notNull(),
+	description: text('description', { length: 255 }),
+	createdAt: text('created_at')
+		.default(sql`CURRENT_DATE`)
+		.notNull()
+});
+
+export const userTransaction = sqliteTable('user_transaction', {
+	id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+	userId: text('user_id', { length: 15 })
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	categoryId: integer('category_id')
+		.notNull()
+		.references(() => userCategory.id, { onDelete: 'cascade' }),
+	accountId: integer('account_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	description: text('description', { length: 255 }),
+	date: text('date', { length: 10 })
+		.default(sql`CURRENT_DATE`)
+		.notNull(),
+	createdAt: text('created_at')
+		.default(sql`CURRENT_TIMESTAMP `)
+		.notNull(),
+	flow: integer('flow').notNull(),
+	validated: integer('validated', { mode: 'boolean' }).default(false).notNull()
+});
+
+

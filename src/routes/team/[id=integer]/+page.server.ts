@@ -2,7 +2,7 @@ import type { Actions, PageServerLoad } from './$types';
 import { eq } from 'drizzle-orm';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { dev } from '$app/environment';
-import { db, schema, sendMail, withAuth } from '$lib/server';
+import { db, sendMail, withAuth } from '$lib/server';
 import {
 	getTeamMemberRole,
 	getTeam,
@@ -13,6 +13,7 @@ import {
 	cancelUserInvitation,
 	removeTeamMember
 } from '../team.utils';
+import { schema } from '$lib/server/schema';
 
 export const load: PageServerLoad = withAuth(async ({ params }, user) => {
 	const userRole = await getTeamMemberRole(user.userId, Number(params.id));

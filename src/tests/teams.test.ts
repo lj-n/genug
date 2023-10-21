@@ -12,6 +12,7 @@ import {
 	lookupUsersNotInTeam,
 	removeTeamMember
 } from '../routes/team/team.utils';
+
 beforeAll(() => {
 	const sqlFiles = [
 		'database/0000_certain_mattie_franklin.sql',

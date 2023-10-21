@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { db } from './db';
-import { token } from './schema';
+import { schema } from './schema';
 import { generateRandomString, isWithinExpiration } from 'lucia/utils';
 
 const EXPIRES_IN = 1000 * 60 * 60 * 2; // 2 hours
@@ -13,8 +13,8 @@ const EXPIRES_IN = 1000 * 60 * 60 * 2; // 2 hours
 export async function generateToken(userId: string): Promise<string> {
 	const existingToken = await db
 		.select()
-		.from(token)
-		.where(eq(token.userId, userId))
+		.from(schema.token)
+		.where(eq(schema.token.userId, userId))
 		.execute();
 
 	/** Check if a non expired (or soon to be expired) token already exists. */
@@ -30,7 +30,7 @@ export async function generateToken(userId: string): Promise<string> {
 
 	const newToken = generateRandomString(63);
 
-	await db.insert(token).values({
+	await db.insert(schema.token).values({
 		id: newToken,
 		userId,
 		expires: new Date().getTime() + EXPIRES_IN
@@ -47,8 +47,8 @@ export async function validateToken(tkn: string): Promise<string> {
 	const foundToken = await db.transaction(async (tx) => {
 		const [storedToken] = await tx
 			.select()
-			.from(token)
-			.where(eq(token.id, tkn))
+			.from(schema.token)
+			.where(eq(schema.token.id, tkn))
 			.execute();
 
 		if (!storedToken) {
@@ -56,8 +56,8 @@ export async function validateToken(tkn: string): Promise<string> {
 		}
 
 		await tx
-			.delete(token)
-			.where(eq(token.userId, storedToken.userId))
+			.delete(schema.token)
+			.where(eq(schema.token.userId, storedToken.userId))
 			.execute();
 
 		return storedToken;
@@ -78,8 +78,8 @@ export async function validateToken(tkn: string): Promise<string> {
 export async function isValidToken(tkn: string): Promise<boolean> {
 	const [foundToken] = await db
 		.select()
-		.from(token)
-		.where(eq(token.id, tkn))
+		.from(schema.token)
+		.where(eq(schema.token.id, tkn))
 		.execute();
 
 	if (!foundToken) {
