@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'vitest';
+import type { schema } from '$lib/server/schema';
 import {
 	createUserAccount,
 	deleteUserAccount,
 	getUserAccount,
 	getUserAccounts
-} from '../routes/account/account.utils';
-import type { schema } from '$lib/server/schema';
+} from 'routes/account/account.utils';
 
 const testAccount = 'Test Account';
 

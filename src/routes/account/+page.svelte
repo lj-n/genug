@@ -5,9 +5,7 @@
 	export let data: PageData;
 </script>
 
-<pre>
-  {JSON.stringify(data, null, 2)}
-</pre>
+<pre>{JSON.stringify(data, null, 2)}</pre>
 
 <ul>
 	{#each data.accounts as account (account.id)}
@@ -30,6 +28,6 @@
 			class="input input-bordered w-full"
 		/>
 	</div>
-  
-  <button type="submit" class="btn btn-primary btn-sm">create account</button>
+
+	<button type="submit" class="btn btn-primary btn-sm">create account</button>
 </form>

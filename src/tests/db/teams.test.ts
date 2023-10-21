@@ -10,7 +10,7 @@ import {
 	getTeamMemberRole,
 	lookupUsersNotInTeam,
 	removeTeamMember
-} from '../routes/team/team.utils';
+} from 'routes/team/team.utils';
 
 const testUser = {
 	name: 'Herr Lehmann',
