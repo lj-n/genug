@@ -27,8 +27,12 @@ export async function getUserAccounts(userId: string) {
 
 export async function getUserAccount(userId: string, id: number) {
 	return db.query.userAccount.findFirst({
-		where: (userAccount, { eq, and }) =>
-			and(eq(userAccount.id, id), eq(userAccount.userId, userId))
+		where: (userAccount, { eq, and }) => {
+			return and(eq(userAccount.id, id), eq(userAccount.userId, userId));
+		},
+    with: {
+      transactions: true
+    }
 	});
 }
 

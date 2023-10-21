@@ -1,5 +1,4 @@
-import { beforeAll, describe, expect, test } from 'vitest';
-import { setupDataBase, teardownDataBase } from './setup';
+import { describe, expect, test } from 'vitest';
 import {
 	createUserAccount,
 	deleteUserAccount,
@@ -7,19 +6,6 @@ import {
 	getUserAccounts
 } from '../routes/account/account.utils';
 import type { schema } from '$lib/server/schema';
-
-beforeAll(() => {
-	const sqlFiles = [
-		'database/0000_curved_jack_flag.sql',
-		'database/9999_testing_data.sql'
-	];
-
-	setupDataBase(...sqlFiles);
-
-	return () => {
-		teardownDataBase();
-	};
-});
 
 const testAccount = 'Test Account';
 

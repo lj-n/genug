@@ -1,5 +1,4 @@
-import { describe, expect, test, beforeAll } from 'vitest';
-import { setupDataBase, teardownDataBase } from './setup';
+import { describe, expect, test } from 'vitest';
 import { createUser } from '$lib/server/user';
 import type { User } from 'lucia';
 import {
@@ -12,19 +11,6 @@ import {
 	lookupUsersNotInTeam,
 	removeTeamMember
 } from '../routes/team/team.utils';
-
-beforeAll(() => {
-	const sqlFiles = [
-		'database/0000_curved_jack_flag.sql',
-		'database/9999_testing_data.sql'
-	];
-
-	setupDataBase(...sqlFiles);
-
-	return () => {
-		teardownDataBase();
-	};
-});
 
 const testUser = {
 	name: 'Herr Lehmann',
