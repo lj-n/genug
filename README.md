@@ -31,14 +31,14 @@
 
 ### Teams
 
-- the features above, can be shared in a team
+- all features above can be shared in a team
 - different roles with permissions
 
 ### Administration
 
-- every instance as an admin
-- registration for new users can be turned of
-- teams can be turned of
+- every instance has an admin
+- registration for new users can be turned off
+- teams can be turned off
 
 ## How it works
 
