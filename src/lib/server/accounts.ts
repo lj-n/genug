@@ -1,15 +1,13 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from './db';
 import { schema } from './schema';
-
-export type SelectUserAccount = typeof schema.userAccount.$inferSelect;
-export type InsertUserAccount = typeof schema.userAccount.$inferInsert;
+import type { InsertUserAccount, UserAccount } from './schema/tables';
 
 export function createUserAccount(
 	userId: string,
 	name: string,
 	description?: string
-) {
+): UserAccount {
 	const account = db
 		.insert(schema.userAccount)
 		.values({
@@ -23,7 +21,10 @@ export function createUserAccount(
 	return account;
 }
 
-export function deleteUserAccount(userId: string, id: number) {
+export function deleteUserAccount(
+	userId: string,
+	id: number
+): UserAccount | undefined {
 	return db
 		.delete(schema.userAccount)
 		.where(
@@ -33,7 +34,7 @@ export function deleteUserAccount(userId: string, id: number) {
 		.get();
 }
 
-export function getUserAccount(userId: string, id: number) {
+export function getUserAccount(userId: string, id: number): UserAccount {
 	const account = db
 		.select()
 		.from(schema.userAccount)
@@ -49,7 +50,7 @@ export function getUserAccount(userId: string, id: number) {
 	return account;
 }
 
-export function getUserAccounts(userId: string) {
+export function getUserAccounts(userId: string): UserAccount[] {
 	return db
 		.select()
 		.from(schema.userAccount)

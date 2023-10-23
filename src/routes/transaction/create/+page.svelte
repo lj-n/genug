@@ -13,13 +13,13 @@
 	class="flex flex-col gap-2"
 >
 	<div class="form-control w-full max-w-xs">
-		<label class="label" for="account">
+		<label class="label" for="accountId">
 			<span class="label-text">Account</span>
 		</label>
 		<select
 			class="select select-bordered select-sm"
-			id="account"
-			name="account"
+			id="accountId"
+			name="accountId"
 		>
 			<option disabled selected>Pick an account</option>
 			{#each data.accounts as account (account.id)}
@@ -29,13 +29,13 @@
 	</div>
 
 	<div class="form-control w-full max-w-xs">
-		<label class="label" for="category">
+		<label class="label" for="categoryId">
 			<span class="label-text">Category</span>
 		</label>
 		<select
 			class="select select-bordered select-sm"
-			id="category"
-			name="category"
+			id="categoryId"
+			name="categoryId"
 		>
 			<option selected value={null}>(None) To Be Assigned</option>
 			{#each data.categories as category (category.id)}
@@ -93,4 +93,6 @@
 			/>
 		</label>
 	</div>
+
+	<button type="submit" class="btn btn-primary">create transaction</button>
 </form>

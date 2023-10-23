@@ -46,6 +46,8 @@ export const team = sqliteTable('team', {
 		.default(sql`CURRENT_DATE`)
 		.notNull()
 });
+export type Team = typeof team.$inferSelect;
+export type InsertTeam = typeof team.$inferInsert;
 
 export const teamMember = sqliteTable(
 	'team_user',
@@ -64,6 +66,8 @@ export const teamMember = sqliteTable(
 		};
 	}
 );
+export type TeamMember = typeof teamMember.$inferSelect;
+export type InsertTeamMember = typeof teamMember.$inferInsert;
 
 export const userCategory = sqliteTable('user_category', {
 	id: integer('id', { mode: 'number' }).primaryKey(),
@@ -78,6 +82,8 @@ export const userCategory = sqliteTable('user_category', {
 	goal: integer('goal'),
 	retired: integer('retired', { mode: 'boolean' }).default(false).notNull()
 });
+export type UserCategory = typeof userCategory.$inferSelect;
+export type InsertUserCategory = typeof userCategory.$inferInsert;
 
 export const userAccount = sqliteTable('user_account', {
 	id: integer('id', { mode: 'number' }).primaryKey(),
@@ -93,6 +99,8 @@ export const userAccount = sqliteTable('user_account', {
 		.default(sql`CURRENT_DATE`)
 		.notNull()
 });
+export type UserAccount = typeof userAccount.$inferSelect;
+export type InsertUserAccount = typeof userAccount.$inferInsert;
 
 export const userTransaction = sqliteTable('user_transaction', {
 	id: integer('id', { mode: 'number' }).primaryKey(),
@@ -116,6 +124,9 @@ export const userTransaction = sqliteTable('user_transaction', {
 	validated: integer('validated', { mode: 'boolean' }).notNull()
 });
 
+export type UserTransaction = typeof userTransaction.$inferSelect;
+export type InsertUserTransaction = typeof userTransaction.$inferInsert;
+
 export const userBudget = sqliteTable(
 	'user_budget',
 	{
@@ -134,3 +145,5 @@ export const userBudget = sqliteTable(
 		};
 	}
 );
+export type UserBudget = typeof userBudget.$inferSelect;
+export type InsertUserBudget = typeof userBudget.$inferInsert;

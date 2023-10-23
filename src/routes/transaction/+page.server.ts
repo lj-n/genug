@@ -3,10 +3,23 @@ import type { PageServerLoad } from './$types';
 
 const getUserTransactions = (userId: string) => {
 	return db.query.userTransaction.findMany({
+    columns: {
+      categoryId: false,
+      accountId: false,
+      userId: false,
+    },
 		where: (userTransaction, { eq }) => eq(userTransaction.userId, userId),
 		with: {
-			category: true,
-			account: true
+			category: {
+        columns: {
+          userId: false
+        }
+      },
+			account: {
+        columns: {
+          userId: false
+        }
+      },
 		}
 	});
 };

@@ -1,6 +1,6 @@
 import { withAuth } from '$lib/server';
 import { fail } from '@sveltejs/kit';
-import { createUserCategory, getUserCategories } from './category.utils';
+import { createUserCategory, getUserCategories } from '$lib/server/categories';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = withAuth((_, user) => {
@@ -18,7 +18,7 @@ export const actions = {
 		}
 
 		try {
-			await createUserCategory(user.userId, categoryName, description);
+			createUserCategory(user.userId, categoryName, description);
 		} catch (_e) {
 			return fail(500, {
 				categoryName,

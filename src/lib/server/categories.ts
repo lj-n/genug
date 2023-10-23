@@ -1,12 +1,13 @@
 import { db } from '$lib/server';
 import { schema } from '$lib/server/schema';
 import { and, eq } from 'drizzle-orm';
+import type { UserCategory } from './schema/tables';
 
 export function createUserCategory(
 	userId: string,
 	name: string,
 	description?: string
-) {
+): UserCategory {
 	return db
 		.insert(schema.userCategory)
 		.values({
@@ -18,7 +19,7 @@ export function createUserCategory(
 		.get();
 }
 
-export function getUserCategories(userId: string) {
+export function getUserCategories(userId: string): UserCategory[] {
 	return db
 		.select()
 		.from(schema.userCategory)
@@ -26,7 +27,10 @@ export function getUserCategories(userId: string) {
 		.all();
 }
 
-export function getUserCategory(userId: string, id: number) {
+export function getUserCategory(
+	userId: string,
+	id: number
+): UserCategory | undefined {
 	return db
 		.select()
 		.from(schema.userCategory)
@@ -39,7 +43,10 @@ export function getUserCategory(userId: string, id: number) {
 		.get();
 }
 
-export function deleteUserCategory(userId: string, id: number) {
+export function deleteUserCategory(
+	userId: string,
+	id: number
+): UserCategory | undefined {
 	return db
 		.delete(schema.userCategory)
 		.where(

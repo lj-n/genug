@@ -1,22 +1,20 @@
 import { and, eq, or, sql } from 'drizzle-orm';
 import { db } from './db';
 import { schema } from './schema';
-import {
-	type SelectUserAccount,
-	updateUserAccount,
-	getUserAccount
-} from './accounts';
-
-export type SelectUserTransaction = typeof schema.userTransaction.$inferSelect;
-export type InsertUserTransaction = typeof schema.userTransaction.$inferInsert;
+import { updateUserAccount, getUserAccount } from './accounts';
+import type {
+	InsertUserTransaction,
+	UserAccount,
+	UserTransaction
+} from './schema/tables';
 
 function removeTransactionFromAccountBalance({
 	transaction,
 	account
 }: {
-	transaction: Pick<SelectUserTransaction, 'flow' | 'validated' | 'accountId'>;
-	account: SelectUserAccount;
-}): SelectUserAccount {
+	transaction: Pick<UserTransaction, 'flow' | 'validated' | 'accountId'>;
+	account: UserAccount;
+}): UserAccount {
 	if (transaction.validated) {
 		account.balanceValidated -= transaction.flow;
 	} else {
@@ -31,9 +29,9 @@ function addTransactionToAccountBalance({
 	transaction,
 	account
 }: {
-	transaction: Pick<SelectUserTransaction, 'flow' | 'validated' | 'accountId'>;
-	account: SelectUserAccount;
-}): SelectUserAccount {
+	transaction: Pick<UserTransaction, 'flow' | 'validated' | 'accountId'>;
+	account: UserAccount;
+}): UserAccount {
 	if (transaction.validated) {
 		account.balanceValidated += transaction.flow;
 	} else {
@@ -50,15 +48,12 @@ function updateTransactionInAccountBalance({
 	account
 }: {
 	previousTransaction: Pick<
-		SelectUserTransaction,
+		UserTransaction,
 		'flow' | 'validated' | 'accountId'
 	>;
-	updatedTransaction: Pick<
-		SelectUserTransaction,
-		'flow' | 'validated' | 'accountId'
-	>;
-	account: SelectUserAccount;
-}): SelectUserAccount {
+	updatedTransaction: Pick<UserTransaction, 'flow' | 'validated' | 'accountId'>;
+	account: UserAccount;
+}): UserAccount {
 	account = removeTransactionFromAccountBalance({
 		transaction: previousTransaction,
 		account
@@ -72,8 +67,8 @@ function updateTransactionInAccountBalance({
 }
 
 export function handleTransactionAccountChange(
-	transaction: SelectUserTransaction,
-	updates: Pick<SelectUserTransaction, 'flow' | 'validated' | 'accountId'>
+	transaction: UserTransaction,
+	updates: Pick<UserTransaction, 'flow' | 'validated' | 'accountId'>
 ) {
 	const accounts = db
 		.select()
@@ -114,8 +109,8 @@ export function handleTransactionAccountChange(
 }
 
 function handleTransactionFlowOrValidationChange(
-	transaction: SelectUserTransaction,
-	updates: Pick<SelectUserTransaction, 'flow' | 'validated' | 'accountId'>
+	transaction: UserTransaction,
+	updates: Pick<UserTransaction, 'flow' | 'validated' | 'accountId'>
 ) {
 	const account = db
 		.select()
@@ -143,9 +138,9 @@ function handleTransactionFlowOrValidationChange(
 }
 
 export function updateUserTransaction(
-	transaction: SelectUserTransaction,
-	updates: SelectUserTransaction
-): SelectUserTransaction {
+	transaction: UserTransaction,
+	updates: UserTransaction
+): UserTransaction {
 	return db.transaction(() => {
 		/**
 		 * If account, flow or validation changed update account balances accordingly.
@@ -177,7 +172,7 @@ export function updateUserTransaction(
 
 export function createUserTransaction(
 	transaction: InsertUserTransaction
-): SelectUserTransaction {
+): UserTransaction {
 	return db.transaction(() => {
 		/**
 		 * https://www.sqlite.org/pragma.html#pragma_foreign_keys
@@ -208,7 +203,7 @@ export function createUserTransaction(
 	});
 }
 
-export function getUserTransactions(userId: string) {
+export function getUserTransactions(userId: string): UserTransaction[] {
 	return db
 		.select()
 		.from(schema.userTransaction)
@@ -216,7 +211,10 @@ export function getUserTransactions(userId: string) {
 		.all();
 }
 
-export function getUserTransaction(userId: string, id: number) {
+export function getUserTransaction(
+	userId: string,
+	id: number
+): UserTransaction | undefined {
 	return db
 		.select()
 		.from(schema.userTransaction)
