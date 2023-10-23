@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-  import OwnerActions from './owner.actions.svelte'
+	import OwnerActions from './owner.actions.svelte';
 	import type { ActionData, PageData } from './$types';
 
 	export let data: PageData;
@@ -16,13 +16,13 @@
 </script>
 
 <main class="w-full prose flex flex-col gap-4">
-  <h1>{data.team.name}</h1>
+	<h1>{data.team.name}</h1>
 
 	{#if data.userRole === 'INVITED'}
 		<p>
 			You've been invited to join the team:
 			<span class="italic mx-2">{data.team.name}</span>
-    </p>
+		</p>
 
 		<form method="post" use:enhance>
 			<input type="hidden" name="userId" value={data.user?.userId} />
@@ -38,7 +38,7 @@
 			>
 		</form>
 	{:else}
-    <h2>Team member</h2>
+		<h2>Team member</h2>
 
 		<div class="overflow-x-auto">
 			<table class="table table-zebra">

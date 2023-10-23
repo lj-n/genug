@@ -224,29 +224,28 @@ export async function cancelUserInvitation(userId: string, teamId: number) {
 	});
 }
 
-
 export async function removeTeamMember(userId: string, teamId: number) {
-  await db.transaction(async (tx) => {
-    const [foundMember] = await tx
-      .select()
-      .from(schema.teamMember)
-      .where(
-        and(
-          eq(schema.teamMember.userId, userId),
-          eq(schema.teamMember.teamId, teamId)
-          // eq(schema.teamMember.role_id, 2) // only members can be removed
-        )
-      );
+	await db.transaction(async (tx) => {
+		const [foundMember] = await tx
+			.select()
+			.from(schema.teamMember)
+			.where(
+				and(
+					eq(schema.teamMember.userId, userId),
+					eq(schema.teamMember.teamId, teamId)
+					// eq(schema.teamMember.role_id, 2) // only members can be removed
+				)
+			);
 
-    if (!foundMember) throw new Error('Team member not found');
+		if (!foundMember) throw new Error('Team member not found');
 
-    await tx
-      .delete(schema.teamMember)
-      .where(
-        and(
-          eq(schema.teamMember.userId, userId),
-          eq(schema.teamMember.teamId, teamId)
-        )
-      );
-  });
+		await tx
+			.delete(schema.teamMember)
+			.where(
+				and(
+					eq(schema.teamMember.userId, userId),
+					eq(schema.teamMember.teamId, teamId)
+				)
+			);
+	});
 }

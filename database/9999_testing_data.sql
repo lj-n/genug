@@ -7,13 +7,7 @@ INSERT INTO team VALUES(1, 'Test Team', 'Test Team Description', CURRENT_DATE);
 INSERT INTO team_user VALUES('pjruqhtcfxxbaqu', 1, 'OWNER');
 
 -- create test user account
-INSERT INTO user_account VALUES(1, 'pjruqhtcfxxbaqu', 'Test Account', 'Test Account Description', CURRENT_DATE);
+INSERT INTO user_account VALUES(1, 'pjruqhtcfxxbaqu', 'Test Account', 'Test Account Description', 0, 0, 0, CURRENT_DATE);
 
 -- create test user category
 INSERT INTO user_category VALUES(1, 'pjruqhtcfxxbaqu', 'Test Category', 'Test Category Description', CURRENT_DATE, null, 0);
-
--- create test user transactions
-INSERT INTO user_transaction (id, user_id, category_id, account_id, description, flow)
-VALUES(1, 'pjruqhtcfxxbaqu', 1, 1, 'This is a test transaction', 500);
-INSERT INTO user_transaction (id, user_id, category_id, account_id, description, flow)
-VALUES(2, 'pjruqhtcfxxbaqu', 1, 1, 'This is a another test transaction', -800);

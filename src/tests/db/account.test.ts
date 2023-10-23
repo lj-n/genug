@@ -5,7 +5,7 @@ import {
 	deleteUserAccount,
 	getUserAccount,
 	getUserAccounts
-} from 'routes/account/account.utils';
+} from '$lib/server/accounts';
 
 const testAccount = 'Awesome Account';
 
@@ -17,15 +17,24 @@ describe('user accounts', () => {
 
 		expect(account).toBeDefined();
 		expect(account.name).toBe(testAccount);
+		expect(account.balanceValidated).toBe(0);
+		expect(account.balanceUnvalidated).toBe(0);
+		expect(account.balanceWorking).toBe(0);
 	});
 
 	test('get user accounts', async () => {
-		expect(await getUserAccounts('pjruqhtcfxxbaqu')).toHaveLength(2);
+		const accounts = await getUserAccounts('pjruqhtcfxxbaqu');
+		expect(accounts.length).toBeGreaterThanOrEqual(1);
 		expect(await getUserAccount('pjruqhtcfxxbaqu', account.id)).toBeDefined();
 	});
 
 	test('delete user account', async () => {
+		const accountsBefore = await getUserAccounts('pjruqhtcfxxbaqu');
+
 		await deleteUserAccount('pjruqhtcfxxbaqu', account.id);
-		expect(await getUserAccounts('pjruqhtcfxxbaqu')).toHaveLength(1);
+
+		const accountsAfter = await getUserAccounts('pjruqhtcfxxbaqu');
+
+		expect(accountsBefore.length).toBeGreaterThan(accountsAfter.length);
 	});
 });

@@ -48,6 +48,9 @@ CREATE TABLE `user_account` (
 	`user_id` text(15) NOT NULL,
 	`name` text(255) NOT NULL,
 	`description` text(255),
+	`balance_validated` integer DEFAULT 0 NOT NULL,
+	`balance_unvalidated` integer DEFAULT 0 NOT NULL,
+	`balance_working` integer DEFAULT 0 NOT NULL,
 	`created_at` text DEFAULT CURRENT_DATE NOT NULL,
 	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
@@ -76,7 +79,7 @@ CREATE TABLE `user_category` (
 CREATE TABLE `user_transaction` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`user_id` text(15) NOT NULL,
-	`category_id` integer NOT NULL,
+	`category_id` integer,
 	`account_id` integer NOT NULL,
 	`description` text(255),
 	`date` text(10) DEFAULT CURRENT_DATE NOT NULL,

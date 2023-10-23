@@ -86,6 +86,9 @@ export const userAccount = sqliteTable('user_account', {
 		.references(() => user.id, { onDelete: 'cascade' }),
 	name: text('name', { length: 255 }).notNull(),
 	description: text('description', { length: 255 }),
+	balanceValidated: integer('balance_validated').default(0).notNull(),
+	balanceUnvalidated: integer('balance_unvalidated').default(0).notNull(),
+	balanceWorking: integer('balance_working').default(0).notNull(),
 	createdAt: text('created_at')
 		.default(sql`CURRENT_DATE`)
 		.notNull()
@@ -96,9 +99,9 @@ export const userTransaction = sqliteTable('user_transaction', {
 	userId: text('user_id', { length: 15 })
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
-	categoryId: integer('category_id')
-		.notNull()
-		.references(() => userCategory.id, { onDelete: 'cascade' }),
+	categoryId: integer('category_id').references(() => userCategory.id, {
+		onDelete: 'cascade'
+	}),
 	accountId: integer('account_id')
 		.notNull()
 		.references(() => userAccount.id, { onDelete: 'cascade' }),
@@ -110,7 +113,7 @@ export const userTransaction = sqliteTable('user_transaction', {
 		.default(sql`CURRENT_TIMESTAMP `)
 		.notNull(),
 	flow: integer('flow').notNull(),
-	validated: integer('validated', { mode: 'boolean' }).default(false).notNull()
+	validated: integer('validated', { mode: 'boolean' }).notNull()
 });
 
 export const userBudget = sqliteTable(

@@ -8,9 +8,9 @@ const config = {
 	preprocess: vitePreprocess(),
 	kit: {
 		adapter: adapter(),
-    alias: {
-      'routes': 'src/routes'
-    }
+		alias: {
+			routes: 'src/routes'
+		}
 	}
 };
 

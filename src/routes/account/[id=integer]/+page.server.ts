@@ -1,6 +1,6 @@
 import { withAuth } from '$lib/server';
 import { error } from '@sveltejs/kit';
-import { getUserAccount } from '../account.utils';
+import { getUserAccount } from '$lib/server/accounts';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = withAuth(async ({ params }, user) => {
