@@ -1,6 +1,6 @@
 import { lucia, type User } from 'lucia';
 import { sveltekit } from 'lucia/middleware';
-import { libsql } from '@lucia-auth/adapter-sqlite';
+import { betterSqlite3 } from "@lucia-auth/adapter-sqlite";
 import { dev } from '$app/environment';
 import {
 	redirect,
@@ -8,11 +8,11 @@ import {
 	type RequestEvent
 } from '@sveltejs/kit';
 
-import { libsqlClient } from './db';
+import { sqlite } from './db';
 
 export const auth = lucia({
 	env: dev ? 'DEV' : 'PROD',
-	adapter: libsql(libsqlClient, {
+	adapter: betterSqlite3(sqlite, {
 		user: 'user',
 		key: 'user_key',
 		session: 'user_session'

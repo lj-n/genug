@@ -71,11 +71,11 @@ function updateTransactionInAccountBalance({
 	return account;
 }
 
-export async function handleTransactionAccountChange(
+export function handleTransactionAccountChange(
 	transaction: SelectUserTransaction,
 	updates: Pick<SelectUserTransaction, 'flow' | 'validated' | 'accountId'>
 ) {
-	const accounts = await db
+	const accounts = db
 		.select()
 		.from(schema.userAccount)
 		.where(
@@ -86,7 +86,8 @@ export async function handleTransactionAccountChange(
 				),
 				eq(schema.userAccount.userId, transaction.userId)
 			)
-		);
+		)
+		.all();
 
 	const prevAccount = accounts.find(({ id }) => id === transaction.accountId);
 	const nextAccount = accounts.find(({ id }) => id === updates.accountId);
@@ -95,7 +96,7 @@ export async function handleTransactionAccountChange(
 		throw new Error('handleTransactionAccountChange: accounts not found.');
 	}
 
-	await updateUserAccount(
+	updateUserAccount(
 		prevAccount.id,
 		removeTransactionFromAccountBalance({
 			account: prevAccount,
@@ -103,7 +104,7 @@ export async function handleTransactionAccountChange(
 		})
 	);
 
-	await updateUserAccount(
+	updateUserAccount(
 		nextAccount.id,
 		addTransactionToAccountBalance({
 			account: nextAccount,
@@ -112,24 +113,26 @@ export async function handleTransactionAccountChange(
 	);
 }
 
-async function handleTransactionFlowOrValidationChange(
+function handleTransactionFlowOrValidationChange(
 	transaction: SelectUserTransaction,
 	updates: Pick<SelectUserTransaction, 'flow' | 'validated' | 'accountId'>
 ) {
-	const account = await db.query.userAccount.findFirst({
-		where: (userAccount, { eq, and }) => {
-			return and(
-				eq(userAccount.userId, transaction.userId),
-				eq(userAccount.id, transaction.id)
-			);
-		}
-	});
+	const account = db
+		.select()
+		.from(schema.userAccount)
+		.where(
+			and(
+				eq(schema.userAccount.userId, transaction.userId),
+				eq(schema.userAccount.id, transaction.id)
+			)
+		)
+		.get();
 
 	if (!account) {
 		throw new Error('account not found.');
 	}
 
-	await updateUserAccount(
+	updateUserAccount(
 		account.id,
 		updateTransactionInAccountBalance({
 			account,
@@ -139,11 +142,11 @@ async function handleTransactionFlowOrValidationChange(
 	);
 }
 
-export async function updateUserTransaction(
+export function updateUserTransaction(
 	transaction: SelectUserTransaction,
 	updates: SelectUserTransaction
-): Promise<SelectUserTransaction> {
-	return db.transaction(async () => {
+): SelectUserTransaction {
+	return db.transaction(() => {
 		/**
 		 * If account, flow or validation changed update account balances accordingly.
 		 */
@@ -152,16 +155,17 @@ export async function updateUserTransaction(
 		const flowChanged = transaction.flow !== updates.flow;
 
 		if (accountChanged) {
-			await handleTransactionAccountChange(transaction, updates);
+			handleTransactionAccountChange(transaction, updates);
 		} else if (flowChanged || validatedChanged) {
-			await handleTransactionFlowOrValidationChange(transaction, updates);
+			handleTransactionFlowOrValidationChange(transaction, updates);
 		}
 
-		const [updatedTransaction] = await db
+		const updatedTransaction = db
 			.update(schema.userTransaction)
 			.set(updates)
 			.where(eq(schema.userTransaction.id, transaction.id))
-			.returning();
+			.returning()
+			.get();
 
 		if (!updatedTransaction) {
 			throw new Error('could not update transaction');
@@ -171,21 +175,18 @@ export async function updateUserTransaction(
 	});
 }
 
-export async function createUserTransaction(
+export function createUserTransaction(
 	transaction: InsertUserTransaction
-): Promise<SelectUserTransaction> {
-	return db.transaction(async () => {
+): SelectUserTransaction {
+	return db.transaction(() => {
 		/**
 		 * https://www.sqlite.org/pragma.html#pragma_foreign_keys
 		 */
-		await db.run(sql`pragma foreign_keys = TRUE`);
+		db.run(sql`pragma foreign_keys = TRUE`);
 
-		const account = await getUserAccount(
-			transaction.userId,
-			transaction.accountId
-		);
+		const account = getUserAccount(transaction.userId, transaction.accountId);
 
-		await updateUserAccount(
+		updateUserAccount(
 			account.id,
 			addTransactionToAccountBalance({
 				account,
@@ -193,10 +194,11 @@ export async function createUserTransaction(
 			})
 		);
 
-		const [newTransaction] = await db
+		const newTransaction = db
 			.insert(schema.userTransaction)
 			.values(transaction)
-			.returning();
+			.returning()
+			.get();
 
 		if (!newTransaction) {
 			throw new Error('Could not create transaction');
@@ -206,21 +208,23 @@ export async function createUserTransaction(
 	});
 }
 
-export async function getUserTransactions(userId: string) {
-	return db.query.userTransaction.findMany({
-		where: (userTransaction, { eq }) => {
-			return eq(userTransaction.userId, userId);
-		}
-	});
+export function getUserTransactions(userId: string) {
+	return db
+		.select()
+		.from(schema.userTransaction)
+		.where(eq(schema.userTransaction.userId, userId))
+		.all();
 }
 
-export async function getUserTransaction(userId: string, id: number) {
-	return db.query.userTransaction.findFirst({
-		where: (userTransaction, { eq, and }) => {
-			return and(
-				eq(userTransaction.userId, userId),
-				eq(userTransaction.id, id)
-			);
-		}
-	});
+export function getUserTransaction(userId: string, id: number) {
+	return db
+		.select()
+		.from(schema.userTransaction)
+		.where(
+			and(
+				eq(schema.userTransaction.userId, userId),
+				eq(schema.userTransaction.id, id)
+			)
+		)
+		.get();
 }

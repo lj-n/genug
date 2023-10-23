@@ -5,27 +5,27 @@ import {
 	deleteUserCategory,
 	getUserCategories,
 	getUserCategory
-} from 'routes/category/category.utils';
+} from '$lib/server/categories';
 
 const testCategory = 'Awesome Category';
 
 let category: typeof schema.userCategory.$inferSelect;
 
 describe('user categorys', () => {
-	test('create user category', async () => {
-		category = await createUserCategory('pjruqhtcfxxbaqu', testCategory);
+	test('create user category', () => {
+		category = createUserCategory('pjruqhtcfxxbaqu', testCategory);
 
 		expect(category).toBeDefined();
 		expect(category.name).toBe(testCategory);
 	});
 
-	test('get user categories', async () => {
-		expect(await getUserCategories('pjruqhtcfxxbaqu')).toHaveLength(2);
-		expect(await getUserCategory('pjruqhtcfxxbaqu', category.id)).toBeDefined();
+	test('get user categories', () => {
+		expect(getUserCategories('pjruqhtcfxxbaqu')).toHaveLength(2);
+		expect(getUserCategory('pjruqhtcfxxbaqu', category.id)).toBeDefined();
 	});
 
-	test('delete user category', async () => {
-		await deleteUserCategory('pjruqhtcfxxbaqu', category.id);
-		expect(await getUserCategories('pjruqhtcfxxbaqu')).toHaveLength(1);
+	test('delete user category', () => {
+		deleteUserCategory('pjruqhtcfxxbaqu', category.id);
+		expect(getUserCategories('pjruqhtcfxxbaqu')).toHaveLength(1);
 	});
 });

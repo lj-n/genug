@@ -1,22 +1,15 @@
-import { DATABASE_AUTH_TOKEN, DATABASE_URL } from '$env/static/private';
-import { dev } from '$app/environment';
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
-
+import {
+	drizzle,
+	type BetterSQLite3Database
+} from 'drizzle-orm/better-sqlite3';
+import Database from 'better-sqlite3';
 import { schema } from './schema';
 
-const options = dev
-	? {
-			url:
-				import.meta.env.MODE === 'test'
-					? 'file:database/test.db'
-					: 'file:database/local.db'
-	  }
-	: {
-			url: DATABASE_URL,
-			authToken: DATABASE_AUTH_TOKEN
-	  };
+const testing = import.meta.env.MODE === 'test';
 
-export const libsqlClient = createClient(options);
+const databaseFile = testing ? 'database/test.db' : 'database/genug.db';
 
-export const db = drizzle(libsqlClient, { schema, logger: false });
+export const sqlite = new Database(databaseFile);
+export const db: BetterSQLite3Database<typeof schema> = drizzle(sqlite, {
+	schema
+});

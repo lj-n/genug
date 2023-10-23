@@ -12,8 +12,8 @@ const testAccount = 'Awesome Account';
 let account: typeof schema.userAccount.$inferSelect;
 
 describe('user accounts', () => {
-	test('create user account', async () => {
-		account = await createUserAccount('pjruqhtcfxxbaqu', testAccount);
+	test('create user account', () => {
+		account = createUserAccount('pjruqhtcfxxbaqu', testAccount);
 
 		expect(account).toBeDefined();
 		expect(account.name).toBe(testAccount);
@@ -22,18 +22,18 @@ describe('user accounts', () => {
 		expect(account.balanceWorking).toBe(0);
 	});
 
-	test('get user accounts', async () => {
-		const accounts = await getUserAccounts('pjruqhtcfxxbaqu');
+	test('get user accounts', () => {
+		const accounts = getUserAccounts('pjruqhtcfxxbaqu');
 		expect(accounts.length).toBeGreaterThanOrEqual(1);
-		expect(await getUserAccount('pjruqhtcfxxbaqu', account.id)).toBeDefined();
+		expect(getUserAccount('pjruqhtcfxxbaqu', account.id)).toBeDefined();
 	});
 
-	test('delete user account', async () => {
-		const accountsBefore = await getUserAccounts('pjruqhtcfxxbaqu');
+	test('delete user account', () => {
+		const accountsBefore = getUserAccounts('pjruqhtcfxxbaqu');
 
-		await deleteUserAccount('pjruqhtcfxxbaqu', account.id);
+		deleteUserAccount('pjruqhtcfxxbaqu', account.id);
 
-		const accountsAfter = await getUserAccounts('pjruqhtcfxxbaqu');
+		const accountsAfter = getUserAccounts('pjruqhtcfxxbaqu');
 
 		expect(accountsBefore.length).toBeGreaterThan(accountsAfter.length);
 	});
