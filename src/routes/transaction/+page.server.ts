@@ -1,4 +1,16 @@
-import { withAuth } from '$lib/server';
+import { db, withAuth } from '$lib/server';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = withAuth(() => {});
+const getUserTransactions = (userId: string) => {
+	return db.query.userTransaction.findMany({
+		where: (userTransaction, { eq }) => eq(userTransaction.userId, userId),
+		with: {
+			category: true,
+			account: true
+		}
+	});
+};
+
+export const load: PageServerLoad = withAuth((_, user) => {
+	return { transactions: getUserTransactions(user.userId) };
+});
