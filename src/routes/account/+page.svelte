@@ -5,8 +5,6 @@
 	export let data: PageData;
 </script>
 
-<pre>{JSON.stringify(data, null, 2)}</pre>
-
 <ul>
 	{#each data.accounts as account (account.id)}
 		<li>

@@ -5,7 +5,6 @@ import { createInsertSchema } from 'drizzle-zod';
 import { schema } from '$lib/server/schema';
 import { z } from 'zod';
 import { createUserTransaction } from '$lib/server/transactions';
-import type { UserTransaction } from '$lib/server/schema/tables';
 
 const getData = (userId: string) => {
 	return db.query.user.findFirst({
@@ -50,10 +49,8 @@ export const actions = {
 			});
 		}
 
-		let transaction: UserTransaction;
-
 		try {
-			transaction = createUserTransaction({
+			createUserTransaction({
 				userId: user.userId,
 				...parsed.data
 			});
@@ -61,6 +58,7 @@ export const actions = {
 			return fail(500, { error: 'Oops, something went wrong.' });
 		}
 
-		throw redirect(302, `/transaction/${transaction.id}`);
+		// throw redirect(302, `/transaction/${transaction.id}`);
+		throw redirect(302, '/transaction');
 	})
 } satisfies Actions;

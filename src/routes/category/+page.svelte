@@ -4,8 +4,6 @@
 	export let data: PageData;
 </script>
 
-<pre>{JSON.stringify(data, null, 2)}</pre>
-
 <ul>
 	{#each data.categories as category (category.id)}
 		<li>

@@ -27,7 +27,7 @@
 					<td>{transaction.category?.name || 'To Be Assigned'}</td>
 					<td>{transaction.description}</td>
 					<td>{transaction.flow}</td>
-					<td>{transaction.validated ? 'v' : 'uv'}</td>
+					<td>{transaction.validated ? 'true' : 'false'}</td>
 				</tr>
 			{/each}
 		</tbody>

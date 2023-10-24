@@ -20,7 +20,7 @@ export const actions = {
 		}
 
 		try {
-			await createUserAccount(user.userId, accountName, description);
+			createUserAccount(user.userId, accountName, description);
 		} catch (_e) {
 			return fail(500, {
 				accountName,
