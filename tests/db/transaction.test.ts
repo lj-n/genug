@@ -1,12 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { getUserAccount } from '$lib/server/accounts';
-import {
-	createUserTransaction,
-	deleteUserTransaction,
-	getUserTransactions,
-	updateUserTransaction
-} from '$lib/server/transactions';
 import type { UserTransaction } from '$lib/server/schema/tables';
+import { User } from '$lib/server/user';
 
 /**
  * Present rows in the database:
@@ -20,20 +14,20 @@ import type { UserTransaction } from '$lib/server/schema/tables';
  */
 
 const testUserId = 'pjruqhtcfxxbaqu';
+const user = new User(testUserId);
 
 let tempTransaction: UserTransaction;
 
 describe('user transactions', () => {
 	test('create transaction', () => {
-		tempTransaction = createUserTransaction({
-			userId: testUserId,
+		tempTransaction = user.transactions.create({
 			accountId: 1,
 			categoryId: 1,
 			flow: -200,
 			validated: false
 		});
 
-		const account = getUserAccount(testUserId, 1);
+		const account = user.accounts.get(1);
 
 		expect(account.balanceValidated).toBe(200);
 		expect(account.balanceUnvalidated).toBe(-200);
@@ -42,8 +36,7 @@ describe('user transactions', () => {
 
 	test('create invalid transaction', () => {
 		expect(() =>
-			createUserTransaction({
-				userId: testUserId,
+			user.transactions.create({
 				accountId: 1,
 				categoryId: -1, // invalid foreign key
 				flow: 500,
@@ -54,12 +47,12 @@ describe('user transactions', () => {
 
 	describe('user transaction updates', () => {
 		test('update transaction: flow', () => {
-			tempTransaction = updateUserTransaction(tempTransaction, {
+			tempTransaction = user.transactions.update(tempTransaction.id, {
 				...tempTransaction,
 				flow: -400
 			});
 
-			const account = getUserAccount(testUserId, 1);
+			const account = user.accounts.get(1);
 
 			expect(account.balanceValidated).toBe(200);
 			expect(account.balanceUnvalidated).toBe(-400);
@@ -67,12 +60,12 @@ describe('user transactions', () => {
 		});
 
 		test('update transaction: validation', () => {
-			tempTransaction = updateUserTransaction(tempTransaction, {
+			tempTransaction = user.transactions.update(tempTransaction.id, {
 				...tempTransaction,
 				validated: !tempTransaction.validated
 			});
 
-			const account = getUserAccount(testUserId, 1);
+			const account = user.accounts.get(1);
 
 			expect(account.balanceValidated).toBe(-200);
 			expect(account.balanceUnvalidated).toBe(0);
@@ -80,13 +73,13 @@ describe('user transactions', () => {
 		});
 
 		test('update transaction: flow & validation', () => {
-			tempTransaction = updateUserTransaction(tempTransaction, {
+			tempTransaction = user.transactions.update(tempTransaction.id, {
 				...tempTransaction,
 				flow: 400,
 				validated: !tempTransaction.validated
 			});
 
-			const account = getUserAccount(testUserId, 1);
+			const account = user.accounts.get(1);
 
 			expect(account.balanceValidated).toBe(200);
 			expect(account.balanceUnvalidated).toBe(400);
@@ -94,13 +87,12 @@ describe('user transactions', () => {
 		});
 
 		test('update transaction: account', () => {
-			tempTransaction = updateUserTransaction(tempTransaction, {
+			tempTransaction = user.transactions.update(tempTransaction.id, {
 				...tempTransaction,
 				accountId: 2
 			});
-
-			const account = getUserAccount(testUserId, 1);
-			const account2 = getUserAccount(testUserId, 2);
+			const account = user.accounts.get(1);
+			const account2 = user.accounts.get(2);
 
 			expect(account.balanceValidated).toBe(200);
 			expect(account.balanceUnvalidated).toBe(0);
@@ -112,14 +104,14 @@ describe('user transactions', () => {
 		});
 
 		test('update transaction: account & flow', () => {
-			tempTransaction = updateUserTransaction(tempTransaction, {
+			tempTransaction = user.transactions.update(tempTransaction.id, {
 				...tempTransaction,
 				flow: -100,
 				accountId: 1
 			});
 
-			const account = getUserAccount(testUserId, 1);
-			const account2 = getUserAccount(testUserId, 2);
+			const account = user.accounts.get(1);
+			const account2 = user.accounts.get(2);
 
 			expect(account.balanceValidated).toBe(200);
 			expect(account.balanceUnvalidated).toBe(-100);
@@ -131,14 +123,14 @@ describe('user transactions', () => {
 		});
 
 		test('update transaction: account & validation', () => {
-			tempTransaction = updateUserTransaction(tempTransaction, {
+			tempTransaction = user.transactions.update(tempTransaction.id, {
 				...tempTransaction,
 				validated: !tempTransaction.validated,
 				accountId: 2
 			});
 
-			const account = getUserAccount(testUserId, 1);
-			const account2 = getUserAccount(testUserId, 2);
+			const account = user.accounts.get(1);
+			const account2 = user.accounts.get(2);
 
 			expect(account.balanceValidated).toBe(200);
 			expect(account.balanceUnvalidated).toBe(0);
@@ -150,15 +142,15 @@ describe('user transactions', () => {
 		});
 
 		test('update transaction: account & validation & flow', () => {
-			tempTransaction = updateUserTransaction(tempTransaction, {
+			tempTransaction = user.transactions.update(tempTransaction.id, {
 				...tempTransaction,
 				flow: -800,
 				validated: !tempTransaction.validated,
 				accountId: 1
 			});
 
-			const account = getUserAccount(testUserId, 1);
-			const account2 = getUserAccount(testUserId, 2);
+			const account = user.accounts.get(1);
+			const account2 = user.accounts.get(2);
 
 			expect(account.balanceValidated).toBe(200);
 			expect(account.balanceUnvalidated).toBe(-800);
@@ -170,15 +162,15 @@ describe('user transactions', () => {
 		});
 
 		test('update transaction: category', () => {
-			tempTransaction = updateUserTransaction(tempTransaction, {
+			tempTransaction = user.transactions.update(tempTransaction.id, {
 				...tempTransaction,
 				categoryId: null
 			});
 
 			expect(tempTransaction.categoryId).toBeNull();
 
-			const account = getUserAccount(testUserId, 1);
-			const account2 = getUserAccount(testUserId, 2);
+			const account = user.accounts.get(1);
+			const account2 = user.accounts.get(2);
 
 			expect(account.balanceValidated).toBe(200);
 			expect(account.balanceUnvalidated).toBe(-800);
@@ -191,11 +183,11 @@ describe('user transactions', () => {
 	});
 
 	test('delete transaction', () => {
-		const transactionsBefore = getUserTransactions(testUserId);
+		const transactionsBefore = user.transactions.getAll();
 
-		deleteUserTransaction(testUserId, tempTransaction.id);
+		user.transactions.delete(tempTransaction.id);
 
-		const transactionAfter = getUserTransactions(testUserId);
+		const transactionAfter = user.transactions.getAll();
 
 		expect(transactionsBefore.length).greaterThan(transactionAfter.length);
 	});

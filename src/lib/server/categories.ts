@@ -1,81 +1,171 @@
-import { db } from '$lib/server';
-import { schema } from '$lib/server/schema';
 import { and, eq } from 'drizzle-orm';
+import { db } from './db';
+import { schema } from './schema';
 import type { InsertUserCategory, UserCategory } from './schema/tables';
 
-export function createUserCategory(
-	userId: string,
-	name: string,
-	description?: string
-): UserCategory {
-	return db
-		.insert(schema.userCategory)
-		.values({
-			userId,
-			name,
-			description
-		})
-		.returning()
-		.get();
-}
+const categoryQuery = db.query.userCategory
+	.findFirst({
+		where: (category, { and, eq, sql }) => {
+			return and(
+				eq(category.userId, sql.placeholder('userId')),
+				eq(category.id, sql.placeholder('categoryId'))
+			);
+		}
+	})
+	.prepare();
 
-export function getUserCategories(userId: string): UserCategory[] {
-	return db
-		.select()
-		.from(schema.userCategory)
-		.where(eq(schema.userCategory.userId, userId))
-		.all();
-}
+const categoryWithTransactionsQuery = db.query.userCategory
+	.findFirst({
+		where: (category, { and, eq, sql }) => {
+			return and(
+				eq(category.userId, sql.placeholder('userId')),
+				eq(category.id, sql.placeholder('categoryId'))
+			);
+		},
+		with: {
+			transactions: {
+				columns: {
+					accountId: false,
+					userId: false
+				},
+				with: {
+					account: {
+						columns: {
+							userId: false
+						}
+					}
+				}
+			}
+		}
+	})
+	.prepare();
 
-export function getUserCategory(userId: string, id: number): UserCategory {
-	const category = db
-		.select()
-		.from(schema.userCategory)
-		.where(
-			and(
-				eq(schema.userCategory.userId, userId),
-				eq(schema.userCategory.id, id)
-			)
-		)
-		.get();
+const categoriesQuery = db.query.userCategory
+	.findMany({
+		where: (category, { eq, sql }) => {
+			return eq(category.userId, sql.placeholder('userId'));
+		}
+	})
+	.prepare();
 
-	if (!category) {
-		throw new Error('category not found');
+const categoriesWithTransactionsQuery = db.query.userCategory
+	.findMany({
+		where: (category, { eq, sql }) => {
+			return eq(category.userId, sql.placeholder('userId'));
+		},
+		with: {
+			transactions: {
+				columns: {
+					accountId: false,
+					userId: false
+				},
+				with: {
+					account: {
+						columns: {
+							userId: false
+						}
+					}
+				}
+			}
+		}
+	})
+	.prepare();
+
+export class UserCategories {
+	userId: string;
+	constructor(userId: string) {
+		this.userId = userId;
 	}
 
-	return category;
-}
+	get(id: number): UserCategory {
+		const category = categoryQuery.get({
+			userId: this.userId,
+			categoryId: id
+		});
 
-export function deleteUserCategory(
-	userId: string,
-	id: number
-): UserCategory | undefined {
-	return db
-		.delete(schema.userCategory)
-		.where(
-			and(
-				eq(schema.userCategory.id, id),
-				eq(schema.userCategory.userId, userId)
-			)
-		)
-		.returning()
-		.get();
-}
+		if (!category) {
+			throw new Error(`User(${this.userId}) category(${id}) not found.`);
+		}
 
-export function updateUserCategory(
-	categoryId: number,
-	updates: Partial<Omit<InsertUserCategory, 'id' | 'userId'>>
-) {
-	const updatedCategory = db
-		.update(schema.userCategory)
-		.set(updates)
-		.where(eq(schema.userCategory.id, categoryId))
-		.returning()
-		.get();
-
-	if (!updatedCategory) {
-		throw new Error(`Could not update category with id (${categoryId})`);
+		return category;
 	}
 
-	return updatedCategory;
+	getWithTransactions(id: number) {
+		const category = categoryWithTransactionsQuery.get({
+			userId: this.userId,
+			categoryId: id
+		});
+
+		if (!category) {
+			throw new Error(`User(${this.userId}) category(${id}) not found.`);
+		}
+
+		return category;
+	}
+
+	getAll() {
+		return categoriesQuery.all({ userId: this.userId });
+	}
+
+	getAllWithTransactions() {
+		return categoriesWithTransactionsQuery.all({ userId: this.userId });
+	}
+
+	create(
+		draft: Omit<InsertUserCategory, 'id' | 'userId' | 'createdAt'>
+	): UserCategory {
+		const category = db
+			.insert(schema.userCategory)
+			.values({ userId: this.userId, ...draft })
+			.returning()
+			.get();
+
+		if (!category) {
+			throw new Error(`Could not create user(${this.userId}) category.`);
+		}
+
+		return category;
+	}
+
+	update(
+		id: number,
+		updates: Partial<Omit<InsertUserCategory, 'id' | 'userId' | 'createdAt'>>
+	): UserCategory {
+		const category = db
+			.update(schema.userCategory)
+			.set(updates)
+			.where(
+				and(
+					eq(schema.userCategory.userId, this.userId),
+					eq(schema.userCategory.id, id)
+				)
+			)
+			.returning()
+			.get();
+
+		if (!category) {
+			throw new Error(`Could not update user(${this.userId}) category(${id}).`);
+		}
+
+		return category;
+	}
+
+	delete(id: number): UserCategory {
+		const category = db
+			.delete(schema.userCategory)
+			.where(
+				and(
+					eq(schema.userCategory.id, id),
+					eq(schema.userCategory.userId, this.userId)
+				)
+			)
+			.returning()
+			.get();
+
+		if (!category) {
+			throw new Error(`Could not delete user(${this.userId}) category(${id}).`);
+		}
+
+		return category;
+	}
 }

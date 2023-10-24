@@ -1,10 +1,9 @@
 import { withAuth } from '$lib/server';
 import { fail } from '@sveltejs/kit';
-import { createUserCategory, getUserCategories } from '$lib/server/categories';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = withAuth((_, user) => {
-	return { categories: getUserCategories(user.userId) };
+	return { categories: user.categories.getAll() };
 });
 
 export const actions = {
@@ -18,7 +17,12 @@ export const actions = {
 		}
 
 		try {
-			createUserCategory(user.userId, categoryName, description);
+			const category = user.categories.create({
+				name: categoryName,
+				description
+			});
+      
+			return { success: true, category };
 		} catch (_e) {
 			return fail(500, {
 				categoryName,
@@ -26,7 +30,5 @@ export const actions = {
 				error: 'Something went wrong, please try again.'
 			});
 		}
-
-		return { createSuccess: true };
 	})
 } satisfies Actions;

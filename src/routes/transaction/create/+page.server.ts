@@ -1,31 +1,14 @@
-import { db, withAuth } from '$lib/server';
-import { error, fail, redirect } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
+import { withAuth } from '$lib/server';
+import { fail, redirect } from '@sveltejs/kit';
 import { createInsertSchema } from 'drizzle-zod';
 import { schema } from '$lib/server/schema';
 import { z } from 'zod';
-import { createUserTransaction } from '$lib/server/transactions';
-
-const getData = (userId: string) => {
-	return db.query.user.findFirst({
-		where: (user, { eq }) => eq(user.id, userId),
-		with: {
-			categories: true,
-			accounts: true
-		}
-	});
-};
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = withAuth(async (_, user) => {
-	const data = await getData(user.userId);
-
-	if (!data) {
-		throw error(500, 'Could not fetch user data');
-	}
-
 	return {
-		categories: data.categories,
-		accounts: data.accounts
+		categories: user.categories.getAll(),
+		accounts: user.accounts.getAll()
 	};
 });
 
@@ -50,10 +33,8 @@ export const actions = {
 		}
 
 		try {
-			createUserTransaction({
-				userId: user.userId,
-				...parsed.data
-			});
+			user.transactions.create(parsed.data);
+			// return { success: true, transaction }
 		} catch {
 			return fail(500, { error: 'Oops, something went wrong.' });
 		}

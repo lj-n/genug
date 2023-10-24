@@ -1,77 +1,219 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from './db';
 import { schema } from './schema';
-import type { InsertUserAccount, UserAccount } from './schema/tables';
+import type {
+	InsertUserAccount,
+	InsertUserTransaction,
+	UserAccount,
+	UserTransaction
+} from './schema/tables';
 
-export function createUserAccount(
-	userId: string,
-	name: string,
-	description?: string
-): UserAccount {
-	const account = db
-		.insert(schema.userAccount)
-		.values({
-			userId,
-			name,
-			description
-		})
-		.returning()
-		.get();
+const accountQuery = db.query.userAccount
+	.findFirst({
+		where: (account, { and, eq, sql }) => {
+			return and(
+				eq(account.userId, sql.placeholder('userId')),
+				eq(account.id, sql.placeholder('accountId'))
+			);
+		}
+	})
+	.prepare();
 
-	return account;
-}
+const accountWithTransactionsQuery = db.query.userAccount
+	.findFirst({
+		where: (account, { and, eq, sql }) => {
+			return and(
+				eq(account.userId, sql.placeholder('userId')),
+				eq(account.id, sql.placeholder('accountId'))
+			);
+		},
+		with: {
+			transactions: {
+				columns: {
+					accountId: false,
+					userId: false
+				},
+				with: {
+					account: {
+						columns: {
+							userId: false
+						}
+					}
+				}
+			}
+		}
+	})
+	.prepare();
 
-export function deleteUserAccount(
-	userId: string,
-	id: number
-): UserAccount | undefined {
-	return db
-		.delete(schema.userAccount)
-		.where(
-			and(eq(schema.userAccount.id, id), eq(schema.userAccount.userId, userId))
-		)
-		.returning()
-		.get();
-}
+const accountsQuery = db.query.userAccount
+	.findMany({
+		where: (account, { eq, sql }) => {
+			return eq(account.userId, sql.placeholder('userId'));
+		}
+	})
+	.prepare();
 
-export function getUserAccount(userId: string, id: number): UserAccount {
-	const account = db
-		.select()
-		.from(schema.userAccount)
-		.where(
-			and(eq(schema.userAccount.id, id), eq(schema.userAccount.userId, userId))
-		)
-		.get();
+const accountsWithTransactionsQuery = db.query.userAccount
+	.findMany({
+		where: (account, { eq, sql }) => {
+			return eq(account.userId, sql.placeholder('userId'));
+		},
+		with: {
+			transactions: {
+				columns: {
+					accountId: false,
+					userId: false
+				},
+				with: {
+					account: {
+						columns: {
+							userId: false
+						}
+					}
+				}
+			}
+		}
+	})
+	.prepare();
 
-	if (!account) {
-		throw new Error('account not found');
+export class UserAccounts {
+	userId: string;
+
+	constructor(userId: string) {
+		this.userId = userId;
 	}
 
-	return account;
-}
+	get(id: number): UserAccount {
+		const account = accountQuery.get({
+			userId: this.userId,
+			accountId: id
+		});
 
-export function getUserAccounts(userId: string): UserAccount[] {
-	return db
-		.select()
-		.from(schema.userAccount)
-		.where(eq(schema.userAccount.userId, userId))
-		.all();
-}
+		if (!account) {
+			throw new Error(`User(${this.userId}) account(${id}) not found.`);
+		}
 
-export function updateUserAccount(
-	accountId: number,
-	updates: Partial<Omit<InsertUserAccount, 'id' | 'userId'>>
-) {
-	const updatedAccount = db
-		.update(schema.userAccount)
-		.set(updates)
-		.where(eq(schema.userAccount.id, accountId))
-		.returning()
-		.get();
-
-	if (!updatedAccount) {
-		throw new Error(`Could not update account with id (${accountId})`);
+		return account;
 	}
 
-	return updatedAccount;
+	getWithTransactions(id: number) {
+		const account = accountWithTransactionsQuery.get({
+			userId: this.userId,
+			accountId: id
+		});
+
+		if (!account) {
+			throw new Error(`User(${this.userId}) account(${id}) not found.`);
+		}
+
+		return account;
+	}
+
+	getAll() {
+		return accountsQuery.all({ userId: this.userId });
+	}
+
+	getAllWithTransactions() {
+		return accountsWithTransactionsQuery.all({ userId: this.userId });
+	}
+
+	create(
+		draft: Omit<InsertUserAccount, 'id' | 'userId' | 'createdAt'>
+	): UserAccount {
+		const account = db
+			.insert(schema.userAccount)
+			.values({ userId: this.userId, ...draft })
+			.returning()
+			.get();
+
+		if (!account) {
+			throw new Error(`Could not create user(${this.userId}) account.`);
+		}
+
+		return account;
+	}
+
+	update(
+		id: number,
+		updates: Partial<Omit<InsertUserAccount, 'id' | 'userId' | 'createdAt'>>
+	): UserAccount {
+		const account = db
+			.update(schema.userAccount)
+			.set(updates)
+			.where(
+				and(
+					eq(schema.userAccount.userId, this.userId),
+					eq(schema.userAccount.id, id)
+				)
+			)
+			.returning()
+			.get();
+
+		if (!account) {
+			throw new Error(`Could not update user(${this.userId}) account(${id}).`);
+		}
+
+		return account;
+	}
+
+	delete(id: number): UserAccount {
+		const account = db
+			.delete(schema.userAccount)
+			.where(
+				and(
+					eq(schema.userAccount.id, id),
+					eq(schema.userAccount.userId, this.userId)
+				)
+			)
+			.returning()
+			.get();
+
+		if (!account) {
+			throw new Error(`Could not delete user(${this.userId}) account(${id}).`);
+		}
+
+		return account;
+	}
+
+	addTransactionToBalance(
+		accountId: number,
+		transaction: Pick<InsertUserTransaction, 'validated' | 'flow'>
+	): UserAccount {
+		const account = this.get(accountId);
+
+		if (transaction.validated) {
+			account.balanceValidated += transaction.flow;
+		} else {
+			account.balanceUnvalidated += transaction.flow;
+		}
+		account.balanceWorking += transaction.flow;
+
+		return this.update(accountId, account);
+	}
+
+	removeTransactionFromBalance(
+		accountId: number,
+		transaction: Pick<UserTransaction, 'validated' | 'flow'>
+	): UserAccount {
+		const account = this.get(accountId);
+
+		if (transaction.validated) {
+			account.balanceValidated -= transaction.flow;
+		} else {
+			account.balanceUnvalidated -= transaction.flow;
+		}
+		account.balanceWorking -= transaction.flow;
+
+		return this.update(accountId, account);
+	}
+
+	updateTransactionInBalance(
+		accountId: number,
+		fromTransaction: UserTransaction,
+		toTransaction: UserTransaction
+	): UserAccount {
+		this.removeTransactionFromBalance(accountId, fromTransaction);
+		this.addTransactionToBalance(accountId, toTransaction);
+		return this.get(accountId);
+	}
 }

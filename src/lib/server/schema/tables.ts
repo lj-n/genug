@@ -37,6 +37,7 @@ export const user = sqliteTable('user', {
 	email_verified: integer('email_verified').notNull(), // must be snake case for lucia auth
 	name: text('name', { length: 255 }).notNull().unique()
 });
+export type DBUser = typeof user.$inferSelect
 
 export const team = sqliteTable('team', {
 	id: integer('id', { mode: 'number' }).primaryKey(),

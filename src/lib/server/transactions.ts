@@ -1,250 +1,160 @@
-import { and, eq, or } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { db } from './db';
 import { schema } from './schema';
-import { updateUserAccount, getUserAccount } from './accounts';
-import type {
-	InsertUserTransaction,
-	UserAccount,
-	UserTransaction
-} from './schema/tables';
+import type { UserAccounts } from './accounts';
+import type { InsertUserTransaction, UserTransaction } from './schema/tables';
 
-function removeTransactionFromAccountBalance({
-	transaction,
-	account
-}: {
-	transaction: Pick<UserTransaction, 'flow' | 'validated' | 'accountId'>;
-	account: UserAccount;
-}): UserAccount {
-	if (transaction.validated) {
-		account.balanceValidated -= transaction.flow;
-	} else {
-		account.balanceUnvalidated -= transaction.flow;
-	}
-	account.balanceWorking -= transaction.flow;
+const transactionQuery = db.query.userTransaction
+	.findFirst({
+		where: (transaction, { and, eq, sql }) => {
+			return and(
+				eq(transaction.userId, sql.placeholder('userId')),
+				eq(transaction.id, sql.placeholder('transactionId'))
+			);
+		},
+		with: {
+			account: {
+				columns: {
+					userId: false
+				}
+			},
+			category: {
+				columns: {
+					userId: false
+				}
+			}
+		}
+	})
+	.prepare();
 
-	return account;
-}
+const transactionsQuery = db.query.userTransaction
+	.findMany({
+		where: (transaction, { eq, sql }) => {
+			return eq(transaction.userId, sql.placeholder('userId'));
+		},
+		with: {
+			account: {
+				columns: {
+					userId: false
+				}
+			},
+			category: {
+				columns: {
+					userId: false
+				}
+			}
+		}
+	})
+	.prepare();
 
-function addTransactionToAccountBalance({
-	transaction,
-	account
-}: {
-	transaction: Pick<UserTransaction, 'flow' | 'validated' | 'accountId'>;
-	account: UserAccount;
-}): UserAccount {
-	if (transaction.validated) {
-		account.balanceValidated += transaction.flow;
-	} else {
-		account.balanceUnvalidated += transaction.flow;
-	}
-	account.balanceWorking += transaction.flow;
+type QueryTransaction = NonNullable<ReturnType<typeof transactionQuery.get>>;
 
-	return account;
-}
+export class UserTransactions {
+	userId: string;
+	accounts: UserAccounts;
 
-function updateTransactionInAccountBalance({
-	previousTransaction,
-	updatedTransaction,
-	account
-}: {
-	previousTransaction: Pick<
-		UserTransaction,
-		'flow' | 'validated' | 'accountId'
-	>;
-	updatedTransaction: Pick<UserTransaction, 'flow' | 'validated' | 'accountId'>;
-	account: UserAccount;
-}): UserAccount {
-	account = removeTransactionFromAccountBalance({
-		transaction: previousTransaction,
-		account
-	});
-	account = addTransactionToAccountBalance({
-		transaction: updatedTransaction,
-		account
-	});
-
-	return account;
-}
-
-export function handleTransactionAccountChange(
-	transaction: UserTransaction,
-	updates: Pick<UserTransaction, 'flow' | 'validated' | 'accountId'>
-) {
-	const accounts = db
-		.select()
-		.from(schema.userAccount)
-		.where(
-			and(
-				or(
-					eq(schema.userAccount.id, transaction.accountId),
-					eq(schema.userAccount.id, updates.accountId)
-				),
-				eq(schema.userAccount.userId, transaction.userId)
-			)
-		)
-		.all();
-
-	const prevAccount = accounts.find(({ id }) => id === transaction.accountId);
-	const nextAccount = accounts.find(({ id }) => id === updates.accountId);
-
-	if (!prevAccount || !nextAccount) {
-		throw new Error('handleTransactionAccountChange: accounts not found.');
+	constructor(userId: string, accounts: UserAccounts) {
+		this.userId = userId;
+		this.accounts = accounts;
 	}
 
-	updateUserAccount(
-		prevAccount.id,
-		removeTransactionFromAccountBalance({
-			account: prevAccount,
-			transaction: transaction
-		})
-	);
+	get(id: number): QueryTransaction {
+		const transaction = transactionQuery.get({
+			userId: this.userId,
+			transactionId: id
+		});
 
-	updateUserAccount(
-		nextAccount.id,
-		addTransactionToAccountBalance({
-			account: nextAccount,
-			transaction: updates
-		})
-	);
-}
-
-function handleTransactionFlowOrValidationChange(
-	transaction: UserTransaction,
-	updates: Pick<UserTransaction, 'flow' | 'validated' | 'accountId'>
-) {
-	const account = db
-		.select()
-		.from(schema.userAccount)
-		.where(
-			and(
-				eq(schema.userAccount.userId, transaction.userId),
-				eq(schema.userAccount.id, transaction.accountId)
-			)
-		)
-		.get();
-
-	if (!account) {
-		throw new Error('account not found.');
-	}
-
-	updateUserAccount(
-		account.id,
-		updateTransactionInAccountBalance({
-			account,
-			previousTransaction: transaction,
-			updatedTransaction: updates
-		})
-	);
-}
-
-export function updateUserTransaction(
-	transaction: UserTransaction,
-	updates: UserTransaction
-): UserTransaction {
-	return db.transaction(() => {
-		/**
-		 * If account, flow or validation changed update account balances accordingly.
-		 */
-		const accountChanged = transaction.accountId !== updates.accountId;
-		const validatedChanged = transaction.validated !== updates.validated;
-		const flowChanged = transaction.flow !== updates.flow;
-
-		if (accountChanged) {
-			handleTransactionAccountChange(transaction, updates);
-		} else if (flowChanged || validatedChanged) {
-			handleTransactionFlowOrValidationChange(transaction, updates);
+		if (!transaction) {
+			throw new Error(`User(${this.userId}) transaction(${id}) not found.`);
 		}
 
-		const updatedTransaction = db
-			.update(schema.userTransaction)
-			.set(updates)
-			.where(eq(schema.userTransaction.id, transaction.id))
-			.returning()
-			.get();
+		return transaction;
+	}
 
-		if (!updatedTransaction) {
-			throw new Error('could not update transaction');
-		}
+	getAll(): QueryTransaction[] {
+		return transactionsQuery.all({ userId: this.userId });
+	}
 
-		return updatedTransaction;
-	});
-}
+	create(
+		draft: Omit<InsertUserTransaction, 'id' | 'userId' | 'createdAt'>
+	): UserTransaction {
+		return db.transaction(() => {
+			/** Update account balances */
+			this.accounts.addTransactionToBalance(draft.accountId, draft);
 
-export function createUserTransaction(
-	transaction: InsertUserTransaction
-): UserTransaction {
-	return db.transaction(() => {
-		/**
-		 * https://www.sqlite.org/pragma.html#pragma_foreign_keys
-		 */
-		// db.run(sql`pragma foreign_keys = TRUE`);
+			const transaction = db
+				.insert(schema.userTransaction)
+				.values({ userId: this.userId, ...draft })
+				.returning()
+				.get();
 
-		const account = getUserAccount(transaction.userId, transaction.accountId);
+			if (!transaction) {
+				throw new Error(`Could not create user(${this.userId}) transaction.`);
+			}
 
-		updateUserAccount(
-			account.id,
-			addTransactionToAccountBalance({
-				account,
+			return transaction;
+		});
+	}
+
+	update(id: number, to: UserTransaction): UserTransaction {
+		return db.transaction(() => {
+			const from = this.get(id);
+
+			const accountChanged = from.accountId !== to.accountId;
+			const validatedChanged = from.validated !== to.validated;
+			const flowChanged = from.flow !== to.flow;
+
+			if (accountChanged) {
+				this.accounts.removeTransactionFromBalance(from.account.id, from);
+				this.accounts.addTransactionToBalance(to.accountId, to);
+			} else if (flowChanged || validatedChanged) {
+				this.accounts.updateTransactionInBalance(from.accountId, from, to);
+			}
+
+			const transaction = db
+				.update(schema.userTransaction)
+				.set(to)
+				.where(
+					and(
+						eq(schema.userTransaction.userId, this.userId),
+						eq(schema.userTransaction.id, id)
+					)
+				)
+				.returning()
+				.get();
+
+			if (!transaction) {
+				throw new Error(
+					`Could not update user(${this.userId}) transaction(${id}).`
+				);
+			}
+
+			return transaction;
+		});
+	}
+
+	delete(id: number): UserTransaction {
+		return db.transaction(() => {
+			const transaction = this.get(id);
+
+			this.accounts.removeTransactionFromBalance(
+				transaction.accountId,
 				transaction
-			})
-		);
+			);
 
-		const newTransaction = db
-			.insert(schema.userTransaction)
-			.values(transaction)
-			.returning()
-			.get();
+			const deletedTransaction = db
+				.delete(schema.userTransaction)
+				.where(eq(schema.userTransaction.id, id))
+				.returning()
+				.get();
 
-		if (!newTransaction) {
-			throw new Error('Could not create transaction');
-		}
+			if (!deletedTransaction) {
+				throw new Error(
+					`Could not delete user(${this.userId}) transaction(${id}).`
+				);
+			}
 
-		return newTransaction;
-	});
-}
-
-export function getUserTransactions(userId: string): UserTransaction[] {
-	return db
-		.select()
-		.from(schema.userTransaction)
-		.where(eq(schema.userTransaction.userId, userId))
-		.all();
-}
-
-export function getUserTransaction(
-	userId: string,
-	id: number
-): UserTransaction | undefined {
-	return db
-		.select()
-		.from(schema.userTransaction)
-		.where(
-			and(
-				eq(schema.userTransaction.userId, userId),
-				eq(schema.userTransaction.id, id)
-			)
-		)
-		.get();
-}
-
-export function deleteUserTransaction(
-	userId: string,
-	transactionId: number
-): UserTransaction {
-	const deletedTransation = db
-		.delete(schema.userTransaction)
-		.where(
-			and(
-				eq(schema.userTransaction.userId, userId),
-				eq(schema.userTransaction.id, transactionId)
-			)
-		)
-		.returning()
-		.get();
-
-	if (!deletedTransation) {
-		throw new Error('Could not delete transaction');
+			return deletedTransaction;
+		});
 	}
-
-	return deletedTransation;
 }

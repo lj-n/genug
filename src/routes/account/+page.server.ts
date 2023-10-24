@@ -1,11 +1,10 @@
 import { withAuth } from '$lib/server';
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { createUserAccount, getUserAccounts } from '$lib/server/accounts';
 
 export const load: PageServerLoad = withAuth(async (_, user) => {
 	return {
-		accounts: getUserAccounts(user.userId)
+		accounts: user.accounts.getAll()
 	};
 });
 
@@ -20,7 +19,9 @@ export const actions = {
 		}
 
 		try {
-			createUserAccount(user.userId, accountName, description);
+			const account = user.accounts.create({ name: accountName, description });
+
+			return { success: true, account };
 		} catch (_e) {
 			return fail(500, {
 				accountName,
@@ -28,7 +29,5 @@ export const actions = {
 				error: 'Something went wrong, please try again.'
 			});
 		}
-
-		return { createSuccess: true };
 	})
 } satisfies Actions;
