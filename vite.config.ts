@@ -5,7 +5,6 @@ export default defineConfig({
 	plugins: [sveltekit()],
 	test: {
 		include: ['tests/**/*.{test,spec}.{js,ts}'],
-		globals: true,
-		globalSetup: ['tests/setup.ts']
+		setupFiles: 'tests/setupDatabase.ts'
 	}
 });

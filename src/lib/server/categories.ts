@@ -1,7 +1,7 @@
 import { db } from '$lib/server';
 import { schema } from '$lib/server/schema';
 import { and, eq } from 'drizzle-orm';
-import type { UserCategory } from './schema/tables';
+import type { InsertUserCategory, UserCategory } from './schema/tables';
 
 export function createUserCategory(
 	userId: string,
@@ -27,11 +27,8 @@ export function getUserCategories(userId: string): UserCategory[] {
 		.all();
 }
 
-export function getUserCategory(
-	userId: string,
-	id: number
-): UserCategory | undefined {
-	return db
+export function getUserCategory(userId: string, id: number): UserCategory {
+	const category = db
 		.select()
 		.from(schema.userCategory)
 		.where(
@@ -41,6 +38,12 @@ export function getUserCategory(
 			)
 		)
 		.get();
+
+	if (!category) {
+		throw new Error('category not found');
+	}
+
+	return category;
 }
 
 export function deleteUserCategory(
@@ -57,4 +60,22 @@ export function deleteUserCategory(
 		)
 		.returning()
 		.get();
+}
+
+export function updateUserCategory(
+	categoryId: number,
+	updates: Partial<Omit<InsertUserCategory, 'id' | 'userId'>>
+) {
+	const updatedCategory = db
+		.update(schema.userCategory)
+		.set(updates)
+		.where(eq(schema.userCategory.id, categoryId))
+		.returning()
+		.get();
+
+	if (!updatedCategory) {
+		throw new Error(`Could not update category with id (${categoryId})`);
+	}
+
+	return updatedCategory;
 }

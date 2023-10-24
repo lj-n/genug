@@ -1,4 +1,4 @@
-import { and, eq, or, sql } from 'drizzle-orm';
+import { and, eq, or } from 'drizzle-orm';
 import { db } from './db';
 import { schema } from './schema';
 import { updateUserAccount, getUserAccount } from './accounts';
@@ -118,7 +118,7 @@ function handleTransactionFlowOrValidationChange(
 		.where(
 			and(
 				eq(schema.userAccount.userId, transaction.userId),
-				eq(schema.userAccount.id, transaction.id)
+				eq(schema.userAccount.id, transaction.accountId)
 			)
 		)
 		.get();
@@ -177,7 +177,7 @@ export function createUserTransaction(
 		/**
 		 * https://www.sqlite.org/pragma.html#pragma_foreign_keys
 		 */
-		db.run(sql`pragma foreign_keys = TRUE`);
+		// db.run(sql`pragma foreign_keys = TRUE`);
 
 		const account = getUserAccount(transaction.userId, transaction.accountId);
 
@@ -225,4 +225,26 @@ export function getUserTransaction(
 			)
 		)
 		.get();
+}
+
+export function deleteUserTransaction(
+	userId: string,
+	transactionId: number
+): UserTransaction {
+	const deletedTransation = db
+		.delete(schema.userTransaction)
+		.where(
+			and(
+				eq(schema.userTransaction.userId, userId),
+				eq(schema.userTransaction.id, transactionId)
+			)
+		)
+		.returning()
+		.get();
+
+	if (!deletedTransation) {
+		throw new Error('Could not delete transaction');
+	}
+
+	return deletedTransation;
 }

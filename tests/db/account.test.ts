@@ -1,39 +1,53 @@
 import { describe, expect, test } from 'vitest';
-import type { schema } from '$lib/server/schema';
 import {
 	createUserAccount,
 	deleteUserAccount,
+	getUserAccounts,
 	getUserAccount,
-	getUserAccounts
+	updateUserAccount
 } from '$lib/server/accounts';
+import type { UserAccount } from '$lib/server/schema/tables';
 
-const testAccount = 'Awesome Account';
-
-let account: typeof schema.userAccount.$inferSelect;
+const testUserId = 'pjruqhtcfxxbaqu';
+const newAccountName = 'Awesome Account';
 
 describe('user accounts', () => {
-	test('create user account', () => {
-		account = createUserAccount('pjruqhtcfxxbaqu', testAccount);
+	let account: UserAccount;
 
-		expect(account).toBeDefined();
-		expect(account.name).toBe(testAccount);
+	test('create user account', () => {
+		account = createUserAccount(testUserId, newAccountName);
+
+		expect(account.name).toBe(newAccountName);
 		expect(account.balanceValidated).toBe(0);
 		expect(account.balanceUnvalidated).toBe(0);
 		expect(account.balanceWorking).toBe(0);
 	});
 
-	test('get user accounts', () => {
-		const accounts = getUserAccounts('pjruqhtcfxxbaqu');
-		expect(accounts.length).toBeGreaterThanOrEqual(1);
-		expect(getUserAccount('pjruqhtcfxxbaqu', account.id)).toBeDefined();
+	test('create invalid user account', () => {
+		expect(() => createUserAccount('123', 'Name')).toThrowError();
+	});
+
+	test('get user account', () => {
+		account = getUserAccount(testUserId, account.id);
+		expect(account.name).toBe(newAccountName);
+		expect(() => getUserAccount(testUserId, -1)).toThrowError();
+	});
+
+	test('update user account', () => {
+		account = updateUserAccount(account.id, {
+			...account,
+			description: 'New Description'
+		});
+
+		expect(account.description).toBe('New Description');
 	});
 
 	test('delete user account', () => {
-		const accountsBefore = getUserAccounts('pjruqhtcfxxbaqu');
+		const accountsBefore = getUserAccounts(testUserId);
 
-		deleteUserAccount('pjruqhtcfxxbaqu', account.id);
+		deleteUserAccount(testUserId, account.id);
 
-		const accountsAfter = getUserAccounts('pjruqhtcfxxbaqu');
+		const accountsAfter = getUserAccounts(testUserId);
 
 		expect(accountsBefore.length).toBeGreaterThan(accountsAfter.length);
 	});
