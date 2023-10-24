@@ -82,7 +82,7 @@ describe('user transactions', () => {
 		test('update transaction: flow & validation', () => {
 			tempTransaction = updateUserTransaction(tempTransaction, {
 				...tempTransaction,
-        flow: 400,
+				flow: 400,
 				validated: !tempTransaction.validated
 			});
 
@@ -96,7 +96,7 @@ describe('user transactions', () => {
 		test('update transaction: account', () => {
 			tempTransaction = updateUserTransaction(tempTransaction, {
 				...tempTransaction,
-        accountId: 2
+				accountId: 2
 			});
 
 			const account = getUserAccount(testUserId, 1);
@@ -114,8 +114,8 @@ describe('user transactions', () => {
 		test('update transaction: account & flow', () => {
 			tempTransaction = updateUserTransaction(tempTransaction, {
 				...tempTransaction,
-        flow: -100,
-        accountId: 1
+				flow: -100,
+				accountId: 1
 			});
 
 			const account = getUserAccount(testUserId, 1);
@@ -133,8 +133,8 @@ describe('user transactions', () => {
 		test('update transaction: account & validation', () => {
 			tempTransaction = updateUserTransaction(tempTransaction, {
 				...tempTransaction,
-        validated: !tempTransaction.validated,
-        accountId: 2
+				validated: !tempTransaction.validated,
+				accountId: 2
 			});
 
 			const account = getUserAccount(testUserId, 1);
@@ -152,9 +152,9 @@ describe('user transactions', () => {
 		test('update transaction: account & validation & flow', () => {
 			tempTransaction = updateUserTransaction(tempTransaction, {
 				...tempTransaction,
-        flow: -800,
-        validated: !tempTransaction.validated,
-        accountId: 1
+				flow: -800,
+				validated: !tempTransaction.validated,
+				accountId: 1
 			});
 
 			const account = getUserAccount(testUserId, 1);
@@ -169,15 +169,15 @@ describe('user transactions', () => {
 			expect(account2.balanceWorking).toBe(0);
 		});
 
-    test('update transaction: category', () => {
-      tempTransaction = updateUserTransaction(tempTransaction, {
+		test('update transaction: category', () => {
+			tempTransaction = updateUserTransaction(tempTransaction, {
 				...tempTransaction,
-        categoryId: null
+				categoryId: null
 			});
 
-      expect(tempTransaction.categoryId).toBeNull()
+			expect(tempTransaction.categoryId).toBeNull();
 
-      const account = getUserAccount(testUserId, 1);
+			const account = getUserAccount(testUserId, 1);
 			const account2 = getUserAccount(testUserId, 2);
 
 			expect(account.balanceValidated).toBe(200);
@@ -187,8 +187,7 @@ describe('user transactions', () => {
 			expect(account2.balanceValidated).toBe(0);
 			expect(account2.balanceUnvalidated).toBe(0);
 			expect(account2.balanceWorking).toBe(0);
-    })
-
+		});
 	});
 
 	test('delete transaction', () => {

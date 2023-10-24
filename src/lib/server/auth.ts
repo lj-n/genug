@@ -1,6 +1,6 @@
 import { lucia, type User } from 'lucia';
 import { sveltekit } from 'lucia/middleware';
-import { betterSqlite3 } from "@lucia-auth/adapter-sqlite";
+import { betterSqlite3 } from '@lucia-auth/adapter-sqlite';
 import { dev } from '$app/environment';
 import {
 	redirect,

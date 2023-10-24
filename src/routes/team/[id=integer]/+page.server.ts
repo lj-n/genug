@@ -3,20 +3,20 @@ import { eq } from 'drizzle-orm';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import { db, sendMail, withAuth } from '$lib/server';
-import {
-	getTeamMemberRole,
-	getTeam,
-	lookupUsersNotInTeam,
-	setTeamMemberRole,
-	addTeamMember,
-	confirmUserInvitation,
-	cancelUserInvitation,
-	removeTeamMember
-} from '../team.utils';
 import { schema } from '$lib/server/schema';
+import {
+	addTeamMember,
+	cancelTeamInvitaion,
+	confirmTeamInvitation,
+	getTeam,
+	getTeamMemberRole,
+	lookupUsersNotInTeam,
+	removeTeamMember,
+	updateMemberRole
+} from '$lib/server/teams';
 
 export const load: PageServerLoad = withAuth(async ({ params }, user) => {
-	const userRole = await getTeamMemberRole(user.userId, Number(params.id));
+	const userRole = getTeamMemberRole(user.userId, Number(params.id));
 	if (!userRole) throw error(404, 'Team not found');
 
 	return { userRole, team: getTeam(Number(params.id)) };
@@ -30,7 +30,7 @@ export const actions = {
 		if (!query) return fail(400, { error: 'Missing search query.' });
 
 		try {
-			const foundUsers = await lookupUsersNotInTeam(
+			const foundUsers = lookupUsersNotInTeam(
 				query,
 				user.userId,
 				Number(params.id)
@@ -53,7 +53,7 @@ export const actions = {
 		if (!userId) return fail(400, { error: 'Missing user id' });
 
 		try {
-			const invitedMember = await addTeamMember(userId, Number(params.id));
+			const invitedMember = addTeamMember(userId, Number(params.id));
 
 			const base = dev
 				? 'http://localhost:5173'
@@ -86,7 +86,7 @@ export const actions = {
 		if (!userId) return fail(400, { error: 'Missing user id' });
 
 		try {
-			await confirmUserInvitation(userId, Number(params.id));
+			confirmTeamInvitation(userId, Number(params.id));
 			return { success: true };
 		} catch (_e) {
 			return fail(500, { error: 'Something went wrong, please try again.' });
@@ -102,7 +102,7 @@ export const actions = {
 		}
 
 		try {
-			await cancelUserInvitation(userId, Number(params.id));
+			cancelTeamInvitaion(userId, Number(params.id));
 		} catch (error) {
 			return fail(404, { error });
 		}
@@ -114,7 +114,7 @@ export const actions = {
 	}),
 
 	removeMember: withAuth(async ({ params, request }, user) => {
-		const userRole = await getTeamMemberRole(user.userId, Number(params.id));
+		const userRole = getTeamMemberRole(user.userId, Number(params.id));
 		if (userRole !== 'OWNER') return fail(401, { error: 'Unauthorized' });
 
 		const formData = await request.formData();
@@ -123,7 +123,7 @@ export const actions = {
 		if (!userId) return fail(400, { error: 'userId missing' });
 
 		try {
-			await removeTeamMember(userId, Number(params.id));
+			removeTeamMember(userId, Number(params.id));
 
 			return { success: true };
 		} catch (error) {
@@ -132,7 +132,7 @@ export const actions = {
 	}),
 
 	makeOwner: withAuth(async ({ params, request }, user) => {
-		const userRole = await getTeamMemberRole(user.userId, Number(params.id));
+		const userRole = getTeamMemberRole(user.userId, Number(params.id));
 		if (userRole !== 'OWNER') return fail(401, { error: 'Unauthorized' });
 
 		const formData = await request.formData();
@@ -141,7 +141,7 @@ export const actions = {
 		if (!userId) return fail(400, { error: 'userId missing' });
 
 		try {
-			await setTeamMemberRole(userId, Number(params.id), 'OWNER');
+			updateMemberRole(userId, Number(params.id), 'OWNER');
 			return { success: true };
 		} catch (error) {
 			return fail(404, { error });
@@ -149,11 +149,14 @@ export const actions = {
 	}),
 
 	deleteTeam: withAuth(async ({ params }, user) => {
-		const userRole = await getTeamMemberRole(user.userId, Number(params.id));
+		const userRole = getTeamMemberRole(user.userId, Number(params.id));
 		if (userRole !== 'OWNER') return fail(401, { error: 'Unauthorized' });
 
 		try {
-			await db.delete(schema.team).where(eq(schema.team.id, Number(params.id)));
+			db.delete(schema.team)
+				.where(eq(schema.team.id, Number(params.id)))
+				.returning()
+				.get();
 		} catch (error) {
 			return fail(500, { error: 'Something went wrong sorry' });
 		}

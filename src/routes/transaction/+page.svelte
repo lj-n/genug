@@ -4,7 +4,9 @@
 </script>
 
 <div class="flex my-8">
-	<a href="/transaction/create" class="ml-auto btn btn-primary">create new transaction</a>
+	<a href="/transaction/create" class="ml-auto btn btn-primary"
+		>create new transaction</a
+	>
 </div>
 
 <div class="overflow-x-auto w-full">

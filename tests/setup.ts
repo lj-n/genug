@@ -1,16 +1,15 @@
 import { execSync } from 'child_process';
 import { unlinkSync } from 'fs';
 
-let teardown = false;
+let teardownHappened = false;
 
-export default async function () {
+export default function () {
 	execSync('sqlite3 database/test.db < database/0000_light_orphan.sql');
-	execSync('sqlite3 database/test.db < database/9999_testing_data.sql');
+	execSync('sqlite3 database/test.db < database/9999_mock_data.sql');
 
-	return async () => {
-		if (teardown) throw new Error('teardown called twice');
-		teardown = true;
-
+	return () => {
+		if (teardownHappened) throw new Error('teardown called twice');
+		teardownHappened = true;
 		unlinkSync('database/test.db');
 	};
 }
