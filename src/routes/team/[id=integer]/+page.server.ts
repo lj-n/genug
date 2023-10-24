@@ -16,7 +16,7 @@ import {
 } from '$lib/server/teams';
 
 export const load: PageServerLoad = withAuth(async ({ params }, user) => {
-	const userRole = getTeamMemberRole(user.userId, Number(params.id));
+	const userRole = getTeamMemberRole(user.id, Number(params.id));
 	if (!userRole) throw error(404, 'Team not found');
 
 	return { userRole, team: getTeam(Number(params.id)) };
@@ -32,7 +32,7 @@ export const actions = {
 		try {
 			const foundUsers = lookupUsersNotInTeam(
 				query,
-				user.userId,
+				user.id,
 				Number(params.id)
 			);
 
@@ -106,7 +106,7 @@ export const actions = {
 		} catch (error) {
 			return fail(404, { error });
 		}
-		if (userId === user.userId) {
+		if (userId === user.id) {
 			throw redirect(302, '/team');
 		}
 
@@ -114,7 +114,7 @@ export const actions = {
 	}),
 
 	removeMember: withAuth(async ({ params, request }, user) => {
-		const userRole = getTeamMemberRole(user.userId, Number(params.id));
+		const userRole = getTeamMemberRole(user.id, Number(params.id));
 		if (userRole !== 'OWNER') return fail(401, { error: 'Unauthorized' });
 
 		const formData = await request.formData();
@@ -132,7 +132,7 @@ export const actions = {
 	}),
 
 	makeOwner: withAuth(async ({ params, request }, user) => {
-		const userRole = getTeamMemberRole(user.userId, Number(params.id));
+		const userRole = getTeamMemberRole(user.id, Number(params.id));
 		if (userRole !== 'OWNER') return fail(401, { error: 'Unauthorized' });
 
 		const formData = await request.formData();
@@ -149,7 +149,7 @@ export const actions = {
 	}),
 
 	deleteTeam: withAuth(async ({ params }, user) => {
-		const userRole = getTeamMemberRole(user.userId, Number(params.id));
+		const userRole = getTeamMemberRole(user.id, Number(params.id));
 		if (userRole !== 'OWNER') return fail(401, { error: 'Unauthorized' });
 
 		try {

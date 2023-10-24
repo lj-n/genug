@@ -4,7 +4,6 @@ import { UserAccounts } from './accounts';
 import { UserCategories } from './categories';
 import { UserTransactions } from './transactions';
 import type { Session, User as AuthUser } from 'lucia';
-import type { DBUser } from './schema/tables';
 
 /**
  * Creates a user and key in the database.
@@ -52,7 +51,8 @@ const userQuery = db.query.user
 	.prepare();
 
 export class User {
-	user: DBUser;
+	id: string;
+  name: string;
 	accounts: UserAccounts;
 	categories: UserCategories;
   transactions: UserTransactions
@@ -64,9 +64,10 @@ export class User {
 			throw new Error('User does not exists in database');
 		}
 
-		this.user = user;
-		this.categories = new UserCategories(user.id);
-		this.accounts = new UserAccounts(user.id);
-    this.transactions = new UserTransactions(user.id, this.accounts)
+		this.id = user.id;
+		this.name = user.name;
+		this.categories = new UserCategories(this.id);
+		this.accounts = new UserAccounts(this.id);
+    this.transactions = new UserTransactions(this.id, this.accounts)
 	}
 }
