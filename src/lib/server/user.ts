@@ -4,6 +4,7 @@ import { UserAccounts } from './accounts';
 import { UserCategories } from './categories';
 import { UserTransactions } from './transactions';
 import type { Session, User as AuthUser } from 'lucia';
+import { UserBudgets } from './budgets';
 
 /**
  * Creates a user and key in the database.
@@ -53,9 +54,10 @@ const userQuery = db.query.user
 export class User {
 	id: string;
   name: string;
+  budgets: UserBudgets;
 	accounts: UserAccounts;
 	categories: UserCategories;
-  transactions: UserTransactions
+  transactions: UserTransactions;
 
 	constructor(id: string) {
 		const user = userQuery.get({ id });
@@ -66,6 +68,7 @@ export class User {
 
 		this.id = user.id;
 		this.name = user.name;
+    this.budgets = new UserBudgets(this.id)
 		this.categories = new UserCategories(this.id);
 		this.accounts = new UserAccounts(this.id);
     this.transactions = new UserTransactions(this.id, this.accounts)

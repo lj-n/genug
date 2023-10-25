@@ -13,7 +13,8 @@ const databaseFile = testing ? 'database/test.db' : 'database/genug.db';
 export const sqlite = new Database(databaseFile);
 
 export const db: BetterSQLite3Database<typeof schema> = drizzle(sqlite, {
-	schema
+	schema,
+  logger: false
 });
 
 export const setForeignKeysPragma = () => {
