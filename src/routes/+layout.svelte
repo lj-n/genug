@@ -7,6 +7,7 @@
 
 {#if data.user}
 	<nav class="flex gap-4">
+		<a href="/budget">Budgets</a>
 		<a href="/account">Accounts</a>
 		<a href="/category">Categories</a>
 		<a href="/transaction">Transactions</a>

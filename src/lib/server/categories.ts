@@ -3,74 +3,6 @@ import { db } from './db';
 import { schema } from './schema';
 import type { InsertUserCategory, UserCategory } from './schema/tables';
 
-const categoryQuery = db.query.userCategory
-	.findFirst({
-		where: (category, { and, eq, sql }) => {
-			return and(
-				eq(category.userId, sql.placeholder('userId')),
-				eq(category.id, sql.placeholder('categoryId'))
-			);
-		}
-	})
-	.prepare();
-
-const categoryWithTransactionsQuery = db.query.userCategory
-	.findFirst({
-		where: (category, { and, eq, sql }) => {
-			return and(
-				eq(category.userId, sql.placeholder('userId')),
-				eq(category.id, sql.placeholder('categoryId'))
-			);
-		},
-		with: {
-			transactions: {
-				columns: {
-					accountId: false,
-					userId: false
-				},
-				with: {
-					account: {
-						columns: {
-							userId: false
-						}
-					}
-				}
-			}
-		}
-	})
-	.prepare();
-
-const categoriesQuery = db.query.userCategory
-	.findMany({
-		where: (category, { eq, sql }) => {
-			return eq(category.userId, sql.placeholder('userId'));
-		}
-	})
-	.prepare();
-
-const categoriesWithTransactionsQuery = db.query.userCategory
-	.findMany({
-		where: (category, { eq, sql }) => {
-			return eq(category.userId, sql.placeholder('userId'));
-		},
-		with: {
-			transactions: {
-				columns: {
-					accountId: false,
-					userId: false
-				},
-				with: {
-					account: {
-						columns: {
-							userId: false
-						}
-					}
-				}
-			}
-		}
-	})
-	.prepare();
-
 export class UserCategories {
 	userId: string;
 	constructor(userId: string) {
@@ -169,3 +101,71 @@ export class UserCategories {
 		return category;
 	}
 }
+
+const categoryQuery = db.query.userCategory
+	.findFirst({
+		where: (category, { and, eq, sql }) => {
+			return and(
+				eq(category.userId, sql.placeholder('userId')),
+				eq(category.id, sql.placeholder('categoryId'))
+			);
+		}
+	})
+	.prepare();
+
+const categoryWithTransactionsQuery = db.query.userCategory
+	.findFirst({
+		where: (category, { and, eq, sql }) => {
+			return and(
+				eq(category.userId, sql.placeholder('userId')),
+				eq(category.id, sql.placeholder('categoryId'))
+			);
+		},
+		with: {
+			transactions: {
+				columns: {
+					accountId: false,
+					userId: false
+				},
+				with: {
+					account: {
+						columns: {
+							userId: false
+						}
+					}
+				}
+			}
+		}
+	})
+	.prepare();
+
+const categoriesQuery = db.query.userCategory
+	.findMany({
+		where: (category, { eq, sql }) => {
+			return eq(category.userId, sql.placeholder('userId'));
+		}
+	})
+	.prepare();
+
+const categoriesWithTransactionsQuery = db.query.userCategory
+	.findMany({
+		where: (category, { eq, sql }) => {
+			return eq(category.userId, sql.placeholder('userId'));
+		},
+		with: {
+			transactions: {
+				columns: {
+					accountId: false,
+					userId: false
+				},
+				with: {
+					account: {
+						columns: {
+							userId: false
+						}
+					}
+				}
+			}
+		}
+	})
+	.prepare();
