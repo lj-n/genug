@@ -3,9 +3,9 @@ import {
 	db,
 	generateToken,
 	isValidEmailAddress,
-	schema,
 	sendPasswordResetLink
 } from '$lib/server';
+import { schema } from '$lib/server/schema';
 import { fail } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 

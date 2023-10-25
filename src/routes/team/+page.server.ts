@@ -1,12 +1,14 @@
-import { db, schema, withAuth } from '$lib/server';
+import { db, withAuth } from '$lib/server';
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { eq } from 'drizzle-orm';
-import { createTeam } from './team.utils';
+import { schema } from '$lib/server/schema';
+import { createTeam } from '$lib/server/teams';
+import type { Team } from '$lib/server/schema/tables';
 
 export const load: PageServerLoad = withAuth(async (_, user) => {
 	// get the users teams
-	const teams = await db
+	const teams = db
 		.select({
 			name: schema.team.name,
 			id: schema.team.id,
@@ -15,7 +17,8 @@ export const load: PageServerLoad = withAuth(async (_, user) => {
 		})
 		.from(schema.team)
 		.leftJoin(schema.teamMember, eq(schema.teamMember.teamId, schema.team.id))
-		.where(eq(schema.teamMember.userId, user.userId));
+		.where(eq(schema.teamMember.userId, user.userId))
+		.all();
 
 	return { user, teams };
 });
@@ -30,10 +33,10 @@ export const actions = {
 			return fail(400, { description, error: 'Missing team name' });
 		}
 
-		let newTeamId: number;
+		let newTeam: Team;
 
 		try {
-			newTeamId = await createTeam(name, user.userId, description);
+			newTeam = createTeam(user.userId, { name, description });
 		} catch (error) {
 			return fail(500, {
 				name,
@@ -42,6 +45,6 @@ export const actions = {
 			});
 		}
 
-		throw redirect(302, `/team/${newTeamId}`);
+		throw redirect(302, `/team/${newTeam.id}`);
 	})
 } satisfies Actions;

@@ -9,16 +9,16 @@
 <form method="post" use:enhance>
 	<input type="hidden" name="userId" value={userId} />
 
-  {#if role === 'MEMBER'}
-    <button
-      formaction="?/makeOwner"
-      type="submit"
-      class="btn btn-xs btn-outline btn-info"
-    >
-      make owner
-    </button>
-  {/if}
-  
+	{#if role === 'MEMBER'}
+		<button
+			formaction="?/makeOwner"
+			type="submit"
+			class="btn btn-xs btn-outline btn-info"
+		>
+			make owner
+		</button>
+	{/if}
+
 	{#if role === 'INVITED'}
 		<button
 			formaction="?/cancelInvitation"
@@ -36,5 +36,4 @@
 			remove from team
 		</button>
 	{/if}
-
 </form>
