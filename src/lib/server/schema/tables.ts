@@ -37,6 +37,7 @@ export const user = sqliteTable('user', {
 	email_verified: integer('email_verified').notNull(), // must be snake case for lucia auth
 	name: text('name', { length: 255 }).notNull().unique()
 });
+
 export type DBUser = typeof user.$inferSelect
 
 export const team = sqliteTable('team', {
@@ -47,6 +48,7 @@ export const team = sqliteTable('team', {
 		.default(sql`CURRENT_DATE`)
 		.notNull()
 });
+
 export type Team = typeof team.$inferSelect;
 export type InsertTeam = typeof team.$inferInsert;
 
@@ -67,6 +69,7 @@ export const teamMember = sqliteTable(
 		};
 	}
 );
+
 export type TeamMember = typeof teamMember.$inferSelect;
 export type InsertTeamMember = typeof teamMember.$inferInsert;
 
@@ -83,6 +86,7 @@ export const userCategory = sqliteTable('user_category', {
 	goal: integer('goal'),
 	retired: integer('retired', { mode: 'boolean' }).default(false).notNull()
 });
+
 export type UserCategory = typeof userCategory.$inferSelect;
 export type InsertUserCategory = typeof userCategory.$inferInsert;
 
@@ -100,6 +104,7 @@ export const userAccount = sqliteTable('user_account', {
 		.default(sql`CURRENT_DATE`)
 		.notNull()
 });
+
 export type UserAccount = typeof userAccount.$inferSelect;
 export type InsertUserAccount = typeof userAccount.$inferInsert;
 
@@ -146,5 +151,6 @@ export const userBudget = sqliteTable(
 		};
 	}
 );
+
 export type UserBudget = typeof userBudget.$inferSelect;
 export type InsertUserBudget = typeof userBudget.$inferInsert;

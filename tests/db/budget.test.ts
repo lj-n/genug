@@ -1,10 +1,4 @@
 import { db } from '$lib/server';
-import {
-	budgetSumForMonth,
-	categoriesWithBudgetQuery,
-	transactionActivityInMonth,
-	transactionSumForMonth
-} from '$lib/server/budgets';
 import { schema } from '$lib/server/schema';
 import { User } from '$lib/server/user';
 import { eq } from 'drizzle-orm';
@@ -100,194 +94,105 @@ beforeEach(() => {
 });
 
 describe('user budgets', () => {
-	describe('for every category', () => {
-		test('get the sum of transactions in a month', () => {
-			const transactionActivities1 = db
-				.select()
-				.from(transactionActivityInMonth)
-				.all({ date: '2023-10', userId: user.id });
-
-			expect(transactionActivities1).toHaveLength(
-				user.categories.getAll().length
-			);
-			expect(transactionActivities1).toContainEqual({
-				categoryId: testCategory1.id,
-				sum: -200
-			});
-			expect(transactionActivities1).toContainEqual({
-				categoryId: testCategory2.id,
-				sum: -700
-			});
-			expect(transactionActivities1).toContainEqual({
-				categoryId: emptyCategory.id,
-				sum: 0
-			});
+	test('get budget for every category', () => {
+		user.budgets.set({
+			amount: 900,
+			categoryId: testCategory1.id,
+			date: '2023-09'
+		});
+		user.budgets.set({
+			amount: 500,
+			categoryId: testCategory2.id,
+			date: '2023-09'
+		});
+		user.budgets.set({
+			amount: 300,
+			categoryId: testCategory1.id,
+			date: '2023-10'
+		});
+		user.budgets.set({
+			amount: 1400,
+			categoryId: testCategory2.id,
+			date: '2023-10'
+		});
+		user.budgets.set({
+			amount: 900,
+			categoryId: testCategory1.id,
+			date: '2023-11'
 		});
 
-		test('get the sum of transactions up to and for this month', () => {
-			const transactionSum = db
-				.select()
-				.from(transactionSumForMonth)
-				.all({ date: '2023-10', userId: user.id });
+		let categories = user.budgets.get('2023-09');
 
-			expect(transactionSum).toHaveLength(user.categories.getAll().length);
+		expect(categories).toHaveLength(user.categories.getAll().length);
 
-			expect(transactionSum).toContainEqual({
-				categoryId: testCategory1.id,
-				sum: -600
-			});
-			expect(transactionSum).toContainEqual({
-				categoryId: testCategory2.id,
-				sum: -1300
-			});
-			expect(transactionSum).toContainEqual({
-				categoryId: emptyCategory.id,
-				sum: 0
-			});
+		expect(categories).toContainEqual({
+			budget: 900,
+			activity: -400,
+			rest: 500,
+			category: testCategory1
+		});
+		expect(categories).toContainEqual({
+			budget: 500,
+			activity: -600,
+			rest: -100,
+			category: testCategory2
 		});
 
-		test('get the sum of budget amounts up to and for this month', () => {
-			user.budgets.set({
-				amount: 500,
-				categoryId: testCategory1.id,
-				date: '2023-09'
-			});
-			user.budgets.set({
-				amount: 300,
-				categoryId: testCategory1.id,
-				date: '2023-10'
-			});
-			user.budgets.set({
-				amount: 200,
-				categoryId: testCategory2.id,
-				date: '2023-10'
-			});
-			user.budgets.set({
-				amount: 200,
-				categoryId: testCategory2.id,
-				date: '2023-11'
-			});
+		categories = user.budgets.get('2023-10');
 
-			const budgetSum = db
-				.select()
-				.from(budgetSumForMonth)
-				.all({ date: '2023-10', userId: user.id });
+		expect(categories).toHaveLength(user.categories.getAll().length);
 
-			expect(budgetSum).toHaveLength(user.categories.getAll().length);
-
-			expect(budgetSum).toContainEqual({
-				categoryId: testCategory1.id,
-				sum: 800
-			});
-			expect(budgetSum).toContainEqual({
-				categoryId: testCategory2.id,
-				sum: 200
-			});
-			expect(budgetSum).toContainEqual({
-				categoryId: emptyCategory.id,
-				sum: 0
-			});
+		expect(categories).toContainEqual({
+			budget: 300,
+			activity: -200,
+			rest: 600,
+			category: testCategory1
+		});
+		expect(categories).toContainEqual({
+			budget: 1400,
+			activity: -700,
+			rest: 600,
+			category: testCategory2
 		});
 
-		test('get the whole budget data', () => {
-			user.budgets.set({
-				amount: 900,
-				categoryId: testCategory1.id,
-				date: '2023-09'
-			});
-			user.budgets.set({
-				amount: 500,
-				categoryId: testCategory2.id,
-				date: '2023-09'
-			});
-			user.budgets.set({
-				amount: 300,
-				categoryId: testCategory1.id,
-				date: '2023-10'
-			});
-			user.budgets.set({
-				amount: 1400,
-				categoryId: testCategory2.id,
-				date: '2023-10'
-			});
-			user.budgets.set({
-				amount: 900,
-				categoryId: testCategory1.id,
-				date: '2023-11'
-			});
+		categories = user.budgets.get('2023-11');
 
-			let categories = categoriesWithBudgetQuery.all({
-				date: '2023-09',
-				userId: user.id
-			});
+		expect(categories).toHaveLength(user.categories.getAll().length);
 
-			expect(categories).toHaveLength(user.categories.getAll().length);
-
-			expect(categories).toContainEqual({
-				budget: 900,
-				activity: -400,
-				rest: 500,
-				category: testCategory1
-			});
-			expect(categories).toContainEqual({
-				budget: 500,
-				activity: -600,
-				rest: -100,
-				category: testCategory2
-			});
-
-			categories = categoriesWithBudgetQuery.all({
-				date: '2023-10',
-				userId: user.id
-			});
-
-			expect(categories).toHaveLength(user.categories.getAll().length);
-
-			expect(categories).toContainEqual({
-				budget: 300,
-				activity: -200,
-				rest: 600,
-				category: testCategory1
-			});
-			expect(categories).toContainEqual({
-				budget: 1400,
-				activity: -700,
-				rest: 600,
-				category: testCategory2
-			});
-
-			categories = categoriesWithBudgetQuery.all({
-				date: '2023-11',
-				userId: user.id
-			});
-
-			expect(categories).toHaveLength(user.categories.getAll().length);
-
-			expect(categories).toContainEqual({
-				budget: 900,
-				activity: -100,
-				rest: 1400,
-				category: testCategory1
-			});
-			expect(categories).toContainEqual({
-				budget: 0,
-				activity: -800,
-				rest: -200,
-				category: testCategory2
-			});
-
-
+		expect(categories).toContainEqual({
+			budget: 900,
+			activity: -100,
+			rest: 1400,
+			category: testCategory1
+		});
+		expect(categories).toContainEqual({
+			budget: 0,
+			activity: -800,
+			rest: -200,
+			category: testCategory2
 		});
 	});
 
-  test('upsert budget', () => {
-    user.budgets.set({ amount: 400, categoryId: testCategory1.id, date: '2023-10'})
-    expect(db.select().from(schema.userBudget).all()).toHaveLength(1)
-    
-    user.budgets.set({ amount: 800, categoryId: testCategory1.id, date: '2023-10'})
-    expect(db.select().from(schema.userBudget).all()).toHaveLength(1)
-    
-    user.budgets.set({ amount: 0, categoryId: testCategory1.id, date: '2023-10'})
-    expect(db.select().from(schema.userBudget).all()).toHaveLength(0)
-  })
+	test('upsert budget', () => {
+		user.budgets.set({
+			amount: 400,
+			categoryId: testCategory1.id,
+			date: '2023-10'
+		});
+		expect(db.select().from(schema.userBudget).all()).toHaveLength(1);
+
+		user.budgets.set({
+			amount: 800,
+			categoryId: testCategory1.id,
+			date: '2023-10'
+		});
+		expect(db.select().from(schema.userBudget).all()).toHaveLength(1);
+
+		user.budgets.set({
+			amount: 0,
+			categoryId: testCategory1.id,
+			date: '2023-10'
+		});
+		expect(db.select().from(schema.userBudget).all()).toHaveLength(0);
+	});
 });
