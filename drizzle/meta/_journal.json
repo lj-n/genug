@@ -15,6 +15,13 @@
       "when": 1698324543323,
       "tag": "0001_blue_pride",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1698336541394,
+      "tag": "0002_clumsy_vector",
+      "breakpoints": true
     }
   ]
 }

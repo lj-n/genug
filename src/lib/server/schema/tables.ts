@@ -23,6 +23,13 @@ export const key = sqliteTable('user_key', {
 	hashedPassword: text('hashed_password', { length: 255 })
 });
 
+export const user = sqliteTable('user', {
+	id: text('id', { length: 15 }).primaryKey(),
+	name: text('name', { length: 255 }).notNull().unique()
+});
+
+export type DBUser = typeof user.$inferSelect;
+
 export const token = sqliteTable('token', {
 	id: text('id', { length: 63 }).primaryKey(),
 	userId: text('user_id', { length: 15 })
@@ -30,15 +37,6 @@ export const token = sqliteTable('token', {
 		.references(() => user.id, { onDelete: 'cascade' }),
 	expires: integer('expires', { mode: 'number' }).notNull()
 });
-
-export const user = sqliteTable('user', {
-	id: text('id', { length: 15 }).primaryKey(),
-	email: text('email', { length: 32 }).notNull().unique(),
-	email_verified: integer('email_verified').notNull(), // must be snake case for lucia auth
-	name: text('name', { length: 255 }).notNull().unique()
-});
-
-export type DBUser = typeof user.$inferSelect;
 
 export const team = sqliteTable('team', {
 	id: integer('id', { mode: 'number' }).primaryKey(),
@@ -156,5 +154,5 @@ export type UserBudget = typeof userBudget.$inferSelect;
 export type InsertUserBudget = typeof userBudget.$inferInsert;
 
 export const testTable = sqliteTable('test_table', {
-	name: text('name', { length: 255 }).primaryKey(),
+	name: text('name', { length: 255 }).primaryKey()
 });
