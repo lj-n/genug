@@ -85,7 +85,7 @@ CREATE TABLE `user_transaction` (
 	`date` text(10) DEFAULT CURRENT_DATE NOT NULL,
 	`created_at` text DEFAULT CURRENT_TIMESTAMP  NOT NULL,
 	`flow` integer NOT NULL,
-	`validated` integer DEFAULT false NOT NULL,
+	`validated` integer NOT NULL,
 	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`category_id`) REFERENCES `user_category`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`account_id`) REFERENCES `user_account`(`id`) ON UPDATE no action ON DELETE cascade

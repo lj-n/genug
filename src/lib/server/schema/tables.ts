@@ -38,7 +38,7 @@ export const user = sqliteTable('user', {
 	name: text('name', { length: 255 }).notNull().unique()
 });
 
-export type DBUser = typeof user.$inferSelect
+export type DBUser = typeof user.$inferSelect;
 
 export const team = sqliteTable('team', {
 	id: integer('id', { mode: 'number' }).primaryKey(),
@@ -154,3 +154,7 @@ export const userBudget = sqliteTable(
 
 export type UserBudget = typeof userBudget.$inferSelect;
 export type InsertUserBudget = typeof userBudget.$inferInsert;
+
+export const testTable = sqliteTable('test_table', {
+	name: text('name', { length: 255 }).primaryKey(),
+});

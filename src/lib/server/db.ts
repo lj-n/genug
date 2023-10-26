@@ -8,13 +8,13 @@ import { sql } from 'drizzle-orm';
 
 const testing = import.meta.env.MODE === 'test';
 
-const databaseFile = testing ? 'database/test.db' : 'database/genug.db';
+const databaseFile = testing ? 'test.db' : 'genug.db';
 
 export const sqlite = new Database(databaseFile);
 
 export const db: BetterSQLite3Database<typeof schema> = drizzle(sqlite, {
 	schema,
-  logger: false
+	logger: false
 });
 
 export const setForeignKeysPragma = () => {
