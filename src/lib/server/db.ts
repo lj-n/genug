@@ -8,7 +8,7 @@ import { sql } from 'drizzle-orm';
 
 const testing = import.meta.env.MODE === 'test';
 
-const databaseFile = testing ? 'test.db' : 'genug.db';
+const databaseFile = testing ? 'test.db' : 'data/genug.db';
 
 export const sqlite = new Database(databaseFile);
 

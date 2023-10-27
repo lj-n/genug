@@ -152,7 +152,3 @@ export const userBudget = sqliteTable(
 
 export type UserBudget = typeof userBudget.$inferSelect;
 export type InsertUserBudget = typeof userBudget.$inferInsert;
-
-export const testTable = sqliteTable('test_table', {
-	name: text('name', { length: 255 }).primaryKey()
-});
