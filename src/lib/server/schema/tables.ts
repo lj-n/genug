@@ -33,8 +33,6 @@ export const token = sqliteTable('token', {
 
 export const user = sqliteTable('user', {
 	id: text('id', { length: 15 }).primaryKey(),
-	email: text('email', { length: 32 }).notNull().unique(),
-	email_verified: integer('email_verified').notNull(), // must be snake case for lucia auth
 	name: text('name', { length: 255 }).notNull().unique()
 });
 

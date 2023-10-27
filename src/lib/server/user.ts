@@ -22,11 +22,7 @@ export async function createUser(
 			providerUserId: email.toLowerCase(),
 			password
 		},
-		attributes: {
-			email: email.toLowerCase(),
-			email_verified: Number(verified),
-			name
-		}
+		attributes: { name }
 	});
 }
 
@@ -53,11 +49,11 @@ const userQuery = db.query.user
 
 export class User {
 	id: string;
-  name: string;
-  budgets: UserBudgets;
+	name: string;
+	budgets: UserBudgets;
 	accounts: UserAccounts;
 	categories: UserCategories;
-  transactions: UserTransactions;
+	transactions: UserTransactions;
 
 	constructor(id: string) {
 		const user = userQuery.get({ id });
@@ -68,9 +64,9 @@ export class User {
 
 		this.id = user.id;
 		this.name = user.name;
-    this.budgets = new UserBudgets(this.id)
+		this.budgets = new UserBudgets(this.id);
 		this.categories = new UserCategories(this.id);
 		this.accounts = new UserAccounts(this.id);
-    this.transactions = new UserTransactions(this.id, this.accounts)
+		this.transactions = new UserTransactions(this.id, this.accounts);
 	}
 }

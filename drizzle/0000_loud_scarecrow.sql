@@ -38,8 +38,6 @@ CREATE TABLE `token` (
 --> statement-breakpoint
 CREATE TABLE `user` (
 	`id` text(15) PRIMARY KEY NOT NULL,
-	`email` text(32) NOT NULL,
-	`email_verified` integer NOT NULL,
 	`name` text(255) NOT NULL
 );
 --> statement-breakpoint
@@ -91,5 +89,4 @@ CREATE TABLE `user_transaction` (
 	FOREIGN KEY (`account_id`) REFERENCES `user_account`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `user_email_unique` ON `user` (`email`);--> statement-breakpoint
 CREATE UNIQUE INDEX `user_name_unique` ON `user` (`name`);
