@@ -1,5 +1,5 @@
 import { dev } from '$app/environment';
-import { auth, generateToken, sendEmailVerificationLink } from '$lib/server';
+import { auth } from '$lib/server';
 import { createUser } from '$lib/server/user';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
 
@@ -23,9 +23,6 @@ export const actions = {
 			});
 
 			locals.auth.setSession(session);
-
-			const token = await generateToken(user.userId);
-			await sendEmailVerificationLink(user, token);
 		} catch (_e) {
 			return fail(500, { error: 'Something went wrong, oops.' });
 		}

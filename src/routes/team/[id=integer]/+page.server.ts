@@ -1,8 +1,7 @@
 import type { Actions, PageServerLoad } from './$types';
 import { eq } from 'drizzle-orm';
 import { error, fail, redirect } from '@sveltejs/kit';
-import { dev } from '$app/environment';
-import { db, sendMail, withAuth } from '$lib/server';
+import { db, withAuth } from '$lib/server';
 import { schema } from '$lib/server/schema';
 import {
 	addTeamMember,
@@ -46,32 +45,14 @@ export const actions = {
 		}
 	}),
 
-	inviteUser: withAuth(async ({ request, params }, user) => {
+	inviteUser: withAuth(async ({ request, params }) => {
 		const formData = await request.formData();
 		const userId = formData.get('userId')?.toString();
 
 		if (!userId) return fail(400, { error: 'Missing user id' });
 
 		try {
-			const invitedMember = addTeamMember(userId, Number(params.id));
-
-			const base = dev
-				? 'http://localhost:5173'
-				: 'https://genug-sveltekit.fly.dev';
-			const url = new URL(`/team/${params.id}`, base);
-
-			const html = `
-				<p>Hi ${invitedMember.name} 👋,</p>
-				<p>${user.name} invited you to a team</p>
-				<a href="${url.href}">Click here to go to the team page</a>
-			`;
-
-			await sendMail({
-				from: '"genug.app" <no-reply@genug.app>',
-				to: invitedMember.email,
-				subject: 'You got invited to join a team',
-				html
-			});
+			addTeamMember(userId, Number(params.id));
 
 			return { success: true };
 		} catch (error) {
