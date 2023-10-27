@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { schema } from '$lib/server';
 
 	export let userId: string;
-	export let role: typeof schema.teamMember.$inferSelect.role;
+	export let role: string;
 </script>
 
 <form method="post" use:enhance>

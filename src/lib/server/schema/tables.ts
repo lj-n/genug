@@ -47,7 +47,7 @@ export const team = sqliteTable('team', {
 		.notNull()
 });
 
-export type Team = typeof team.$inferSelect;
+export type DBTeam = typeof team.$inferSelect;
 export type InsertTeam = typeof team.$inferInsert;
 
 export const teamMember = sqliteTable(

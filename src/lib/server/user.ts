@@ -6,12 +6,6 @@ import { UserTransactions } from './transactions';
 import type { Session, User as AuthUser } from 'lucia';
 import { UserBudgets } from './budgets';
 
-const userQuery = db.query.user
-	.findFirst({
-		where: (user, { eq, sql }) => eq(user.id, sql.placeholder('id'))
-	})
-	.prepare();
-
 export class User {
 	id: string;
 	name: string;
@@ -60,3 +54,9 @@ export class User {
 		return await auth.createSession({ userId: key.userId, attributes: {} });
 	}
 }
+
+const userQuery = db.query.user
+	.findFirst({
+		where: (user, { eq, sql }) => eq(user.id, sql.placeholder('id'))
+	})
+	.prepare();

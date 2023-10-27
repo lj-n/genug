@@ -17,7 +17,7 @@ export const load: PageServerLoad = withAuth(async (_, user) => {
 		})
 		.from(schema.team)
 		.leftJoin(schema.teamMember, eq(schema.teamMember.teamId, schema.team.id))
-		.where(eq(schema.teamMember.userId, user.userId))
+		.where(eq(schema.teamMember.userId, user.id))
 		.all();
 
 	return { user, teams };
@@ -36,7 +36,7 @@ export const actions = {
 		let newTeam: Team;
 
 		try {
-			newTeam = createTeam(user.userId, { name, description });
+			newTeam = createTeam(user.id, { name, description });
 		} catch (error) {
 			return fail(500, {
 				name,
