@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import type { UserAccount, UserCategory } from '$lib/server/schema/tables';
 
-const testUserId = 'pjruqhtcfxxbaqu';
+const testUserId = 'qh1jpx6731v8w7v';
 const user = new User(testUserId);
 
 let testAccount1: UserAccount;

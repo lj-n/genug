@@ -1,7 +1,6 @@
 -- create test user (password: "user")
-INSERT INTO user VALUES('pjruqhtcfxxbaqu','test@user.de',1,'Test User');
-INSERT INTO user_key VALUES('email:test@user.de','pjruqhtcfxxbaqu','s2:c9zg1t3roobtins6:be1acf3b1765e7211ed041ae3fe82f3f25da8bf50d3187f66d64b25493661ec3c840159d089d27a5bdf1894d403df73583571d1831dd73052762152495704415');
-
+INSERT INTO user VALUES('qh1jpx6731v8w7v','testuser');
+INSERT INTO user_key VALUES('username:testuser','qh1jpx6731v8w7v','s2:23u1sobd5rbs9snx:66e967483bd03cb88e63f21df32de474abc40f123e92341f596e209941e8a5f17a475d1857e638781178c89703136f5497cbce83dcb25bd4c77877695ae5cf6f');
 -- create test team
 INSERT INTO team VALUES(1, 'Test Team', 'Test Team Description', CURRENT_DATE);
-INSERT INTO team_user VALUES('pjruqhtcfxxbaqu', 1, 'OWNER');
+INSERT INTO team_user VALUES('qh1jpx6731v8w7v', 1, 'OWNER');

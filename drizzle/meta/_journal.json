@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1698405151246,
-      "tag": "0000_loud_scarecrow",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1698336541394,
-      "tag": "0002_clumsy_vector",
+      "when": 1698405527054,
+      "tag": "0000_outgoing_khan",
       "breakpoints": true
     }
   ]

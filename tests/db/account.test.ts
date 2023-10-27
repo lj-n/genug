@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import type { UserAccount } from '$lib/server/schema/tables';
 import { User } from '$lib/server/user';
 
-const testUserId = 'pjruqhtcfxxbaqu';
+const testUserId = 'qh1jpx6731v8w7v';
 const newAccountName = 'Awesome Account';
 
 const user = new User(testUserId);
