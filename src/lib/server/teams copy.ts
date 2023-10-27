@@ -1,7 +1,7 @@
 import { and, eq, isNull, ne, or, sql } from 'drizzle-orm';
 import { db } from './db';
 import { schema } from './schema';
-import type { InsertTeam, Team, TeamMember } from './schema/tables';
+import type { InsertTeam, Team, SelectTeamMember } from './schema/tables';
 
 export function createTeam(userId: string, teamDraft: InsertTeam): Team {
 	return db.transaction(() => {
@@ -69,7 +69,7 @@ export function getTeams(userId: string): Team[] {
 export function getTeamMemberRole(
 	userId: string,
 	teamId: number
-): TeamMember['role'] {
+): SelectTeamMember['role'] {
 	const foundMember = db
 		.select()
 		.from(schema.teamMember)
@@ -132,7 +132,7 @@ export function lookupUsersNotInTeam(
 export function addTeamMember(
 	userId: string,
 	teamId: number,
-	role: TeamMember['role'] = 'INVITED'
+	role: SelectTeamMember['role'] = 'INVITED'
 ) {
 	return db.transaction(() => {
 		const foundUser = db
@@ -166,7 +166,7 @@ export function addTeamMember(
 export function updateMemberRole(
 	userId: string,
 	teamId: number,
-	role: TeamMember['role']
+	role: SelectTeamMember['role']
 ) {
 	db.transaction(() => {
 		const invitedUser = db

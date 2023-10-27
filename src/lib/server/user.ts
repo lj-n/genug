@@ -1,18 +1,20 @@
 import { db } from './db';
 import { auth } from './auth';
-import { UserAccounts } from './accounts';
-import { UserCategories } from './categories';
-import { UserTransactions } from './transactions';
+import { UserAccount } from './account';
+import { UserCategory } from './category';
+import { UserTransaction } from './transactions';
 import type { Session, User as AuthUser } from 'lucia';
-import { UserBudgets } from './budgets';
+import { UserBudget } from './budget';
+import { UserTeam } from './teams';
 
 export class User {
 	id: string;
 	name: string;
-	budgets: UserBudgets;
-	accounts: UserAccounts;
-	categories: UserCategories;
-	transactions: UserTransactions;
+	team: UserTeam;
+	budget: UserBudget;
+	account: UserAccount;
+	category: UserCategory;
+	transaction: UserTransaction;
 
 	constructor(id: string) {
 		const user = userQuery.get({ id });
@@ -23,10 +25,11 @@ export class User {
 
 		this.id = user.id;
 		this.name = user.name;
-		this.budgets = new UserBudgets(this.id);
-		this.categories = new UserCategories(this.id);
-		this.accounts = new UserAccounts(this.id);
-		this.transactions = new UserTransactions(this.id, this.accounts);
+		this.team = new UserTeam(this.id);
+		this.budget = new UserBudget(this.id);
+		this.account = new UserAccount(this.id);
+		this.category = new UserCategory(this.id);
+		this.transaction = new UserTransaction(this.id, this.account);
 	}
 
 	static async create(
@@ -55,7 +58,7 @@ export class User {
 	}
 }
 
-const userQuery = db.query.user
+export const userQuery = db.query.user
 	.findFirst({
 		where: (user, { eq, sql }) => eq(user.id, sql.placeholder('id'))
 	})

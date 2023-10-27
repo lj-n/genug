@@ -17,7 +17,7 @@ export const userRelations = relations(user, ({ many }) => ({
 }));
 
 export const teamRelations = relations(team, ({ many }) => ({
-	member: many(teamMember)
+	members: many(teamMember)
 }));
 
 export const teamMemberRelations = relations(teamMember, ({ one }) => ({
