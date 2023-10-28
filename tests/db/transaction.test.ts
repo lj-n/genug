@@ -4,7 +4,7 @@ import type {
 	SelectUserCategory,
 	SelectUserTransaction
 } from '$lib/server/schema/tables';
-import { User } from '$lib/server/user';
+import { User } from '$lib/server';
 
 const testUserId = 'qh1jpx6731v8w7v';
 const user = new User(testUserId);

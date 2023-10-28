@@ -9,7 +9,7 @@ import {
 } from '@sveltejs/kit';
 
 import { sqlite } from './db';
-import { User } from './user';
+import { User } from './user/user';
 
 export const auth = lucia({
 	env: dev ? 'DEV' : 'PROD',

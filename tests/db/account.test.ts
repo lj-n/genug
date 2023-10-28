@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import type { SelectUserAccount } from '$lib/server/schema/tables';
-import { User } from '$lib/server/user';
+import { User } from '$lib/server';
 
 const testUserId = 'qh1jpx6731v8w7v';
 const newAccountName = 'Awesome Account';

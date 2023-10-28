@@ -1,3 +1,3 @@
 export * from './auth';
 export * from './db';
-export * from './token';
+export { User } from './user/user';

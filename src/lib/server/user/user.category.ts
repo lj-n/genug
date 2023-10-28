@@ -1,7 +1,7 @@
 import { and, eq } from 'drizzle-orm';
-import { db } from './db';
-import { schema } from './schema';
-import type { InsertUserCategory, SelectUserCategory } from './schema/tables';
+import { db } from '../db';
+import { schema } from '../schema';
+import type { InsertUserCategory, SelectUserCategory } from '../schema/tables';
 
 export class UserCategory {
 	userId: string;

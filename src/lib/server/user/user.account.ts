@@ -1,12 +1,12 @@
 import { and, eq } from 'drizzle-orm';
-import { db } from './db';
-import { schema } from './schema';
+import { db } from '../db';
+import { schema } from '../schema';
 import type {
 	InsertUserAccount,
 	InsertUserTransaction,
 	SelectUserAccount,
 	SelectUserTransaction
-} from './schema/tables';
+} from '../schema/tables';
 
 export class UserAccount {
 	userId: string;

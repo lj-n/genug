@@ -1,5 +1,5 @@
-import type { Team } from '$lib/server/teams';
-import { User } from '$lib/server/user';
+import { User } from '$lib/server';
+import type { Team } from '$lib/server/user/user.team';
 import { beforeAll, describe, expect, test } from 'vitest';
 
 const testUserId = 'qh1jpx6731v8w7v';
@@ -16,17 +16,16 @@ describe('teams', () => {
 
 		tempTeam = user.team.create({ teamname, description });
 
-		const info = tempTeam.info;
-		const members = tempTeam.members;
+		const members = tempTeam.getMembers();
 
-		expect(info.name).toBe(teamname);
-		expect(info.description).toBe(description);
+		expect(tempTeam.name).toBe(teamname);
+		expect(tempTeam.description).toBe(description);
 		expect(members).toContainEqual({
 			role: 'OWNER',
 			user: { id: user.id, name: user.name }
 		});
 	});
-  
+
 	describe('members', () => {
 		let tempUser: User;
 
@@ -38,7 +37,7 @@ describe('teams', () => {
 
 			tempTeam.invite(tempUser.id);
 
-			const members = tempTeam.members;
+			const members = tempTeam.getMembers();
 			expect(members).toHaveLength(2);
 			expect(members).toContainEqual({
 				role: 'INVITED',
@@ -53,11 +52,10 @@ describe('teams', () => {
 		});
 
 		test('accept invite', () => {
-			const team = tempUser.team.get(tempTeam.teamId);
+			const team = tempUser.team.get(tempTeam.id);
 			team.acceptInvite();
 
-			expect(team.role).toBe('MEMBER');
-			expect(team.members).toContainEqual({
+			expect(team.getMembers()).toContainEqual({
 				role: 'MEMBER',
 				user: {
 					id: tempUser.id,
@@ -67,9 +65,9 @@ describe('teams', () => {
 		});
 
 		test('try to accept invite again', () => {
-			const team = tempUser.team.get(tempTeam.teamId);
+			const team = tempUser.team.get(tempTeam.id);
 			expect(() => team.acceptInvite()).toThrowError(
-				`User(${tempUser.id}) is not invited. Role(${team.role})`
+				`User(${tempUser.id}) is not invited. Role(MEMBER)`
 			);
 		});
 
@@ -81,14 +79,14 @@ describe('teams', () => {
 
 			tempTeam.invite(thirdUser.id);
 
-			const team = thirdUser.team.get(tempTeam.teamId);
+			const team = thirdUser.team.get(tempTeam.id);
 			team.cancelInvite();
 
-			expect(tempTeam.members).toHaveLength(2);
+			expect(tempTeam.getMembers()).toHaveLength(2);
 		});
 
 		test('try to set member role', () => {
-			const team = tempUser.team.get(tempTeam.teamId);
+			const team = tempUser.team.get(tempTeam.id);
 			expect(() => team.makeMemberOwner(user.id)).toThrowError(
 				'Only team owners can promote team member.'
 			);
@@ -97,7 +95,7 @@ describe('teams', () => {
 		test('give member owner role', () => {
 			tempTeam.makeMemberOwner(tempUser.id);
 
-			expect(tempTeam.members).toContainEqual({
+			expect(tempTeam.getMembers()).toContainEqual({
 				role: 'OWNER',
 				user: {
 					id: tempUser.id,
@@ -109,8 +107,8 @@ describe('teams', () => {
 		test('remove member', () => {
 			tempTeam.removeMember(tempUser.id);
 
-			expect(tempTeam.members).toHaveLength(1);
-			expect(tempTeam.members).toContainEqual({
+			expect(tempTeam.getMembers()).toHaveLength(1);
+			expect(tempTeam.getMembers()).toContainEqual({
 				role: 'OWNER',
 				user: { id: user.id, name: user.name }
 			});

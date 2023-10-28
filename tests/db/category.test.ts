@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { User } from '$lib/server/user';
+import { User } from '$lib/server';
 import type { SelectUserCategory } from '$lib/server/schema/tables';
 
 const testUserId = 'qh1jpx6731v8w7v';

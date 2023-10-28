@@ -1,11 +1,11 @@
-import { db } from './db';
-import { auth } from './auth';
-import { UserAccount } from './account';
-import { UserCategory } from './category';
-import { UserTransaction } from './transactions';
+import { db } from '../db';
+import { auth } from '../auth';
+import { UserAccount } from './user.account';
+import { UserCategory } from './user.category';
+import { UserTransaction } from './user.transactions';
+import { UserBudget } from './user.budget';
+import { UserTeam } from './user.team';
 import type { Session, User as AuthUser } from 'lucia';
-import { UserBudget } from './budget';
-import { UserTeam } from './teams';
 
 export class User {
 	id: string;

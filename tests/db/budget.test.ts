@@ -1,9 +1,12 @@
 import { db } from '$lib/server';
 import { schema } from '$lib/server/schema';
-import { User } from '$lib/server/user';
+import { User } from '$lib/server';
 import { eq } from 'drizzle-orm';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
-import type { SelectUserAccount, SelectUserCategory } from '$lib/server/schema/tables';
+import type {
+	SelectUserAccount,
+	SelectUserCategory
+} from '$lib/server/schema/tables';
 
 const testUserId = 'qh1jpx6731v8w7v';
 const user = new User(testUserId);

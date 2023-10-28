@@ -1,6 +1,6 @@
 import { and, eq, lte, sql } from 'drizzle-orm';
-import { db } from './db';
-import { schema } from './schema';
+import { db } from '../db';
+import { schema } from '../schema';
 
 export class UserBudget {
 	userId: string;

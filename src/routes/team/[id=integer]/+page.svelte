@@ -4,11 +4,11 @@
 	import type { ActionData, PageData } from './$types';
 
 	export let data: PageData;
-	export let form: ActionData;
+	// export let form: ActionData;
 
 	function sortByRole(
-		a: (typeof data.team.member)[number],
-		b: (typeof data.team.member)[number]
+		a: (typeof data.members)[number],
+		b: (typeof data.members)[number]
 	) {
 		const roleOrder = { OWNER: 1, MEMBER: 2, INVITED: 3 };
 		return roleOrder[a.role] - roleOrder[b.role];
@@ -16,16 +16,16 @@
 </script>
 
 <main class="w-full prose flex flex-col gap-4">
-	<h1>{data.team.name}</h1>
+	<h1>{data.name}</h1>
 
-	{#if data.userRole === 'INVITED'}
+	{#if data.role === 'INVITED'}
 		<p>
 			You've been invited to join the team:
-			<span class="italic mx-2">{data.team.name}</span>
+			<span class="italic mx-2">{data.name}</span>
 		</p>
 
 		<form method="post" use:enhance>
-			<input type="hidden" name="userId" value={data.user?.userId} />
+			<input type="hidden" name="userId" value={data.userId} />
 			<button
 				formaction="?/acceptInvitation"
 				type="submit"
@@ -46,14 +46,14 @@
 					<tr>
 						<th>Name</th>
 						<th>Role</th>
-						{#if data.userRole === 'OWNER'}
+						{#if data.role === 'OWNER'}
 							<th>Actions</th>
 						{/if}
 					</tr>
 				</thead>
 				<tbody>
-					{#each data.team.member.sort(sortByRole) as member (member.user.id)}
-						{@const isCurrentUser = member.user.id === data.user?.userId}
+					{#each data.members.sort(sortByRole) as member (member.user.id)}
+						{@const isCurrentUser = member.user.id === data.userId}
 						<tr>
 							{#if isCurrentUser}
 								<td>{member.user.name} (You)</td>
@@ -63,7 +63,7 @@
 
 							<td>{member.role}</td>
 
-							{#if !isCurrentUser && data.userRole === 'OWNER'}
+							{#if !isCurrentUser && data.role === 'OWNER'}
 								<td>
 									<OwnerActions userId={member.user.id} role={member.role} />
 								</td>
@@ -75,7 +75,7 @@
 		</div>
 	{/if}
 
-	{#if data.userRole === 'OWNER'}
+	{#if data.role === 'OWNER'}
 		<h2>Invite Users to team</h2>
 
 		<form method="POST" action="?/searchUser" use:enhance>
@@ -98,7 +98,7 @@
 				</div>
 			</div>
 		</form>
-		{#if form?.foundUsers}
+		<!-- {#if form?.foundUsers}
 			{#each form.foundUsers as foundUser (foundUser.id)}
 				<form method="POST" action="?/inviteUser" use:enhance>
 					<input type="hidden" name="userId" id="userId" value={foundUser.id} />
@@ -109,10 +109,10 @@
 					</div>
 				</form>
 			{/each}
-		{/if}
+		{/if} -->
 	{/if}
-
+	<!-- 
 	{#if form?.error}
 		<p>{form.error}</p>
-	{/if}
+	{/if} -->
 </main>

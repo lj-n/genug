@@ -1,62 +1,33 @@
 import { and, eq, isNull, ne, or, sql } from 'drizzle-orm';
-import { db } from './db';
-import { schema } from './schema';
-import type { TeamRole } from './schema/tables';
+import { db } from '../db';
+import { schema } from '../schema';
+import type { TeamRole } from '../schema/tables';
 
 export class Team {
-	teamId: number;
-	userId: string;
+	readonly id: number;
+	readonly name: string;
+	readonly createdAt: string;
+	readonly description: string | null;
+
+	private userId: string;
+	private role: TeamRole;
+
+	// category: TeamCategory
 
 	constructor(teamId: number, userId: string) {
-		const member = teamMemberQuery.get({ userId, teamId });
+		const member = teamByUserQuery.get({ userId, teamId });
 
 		if (!member) {
 			throw new Error(`User(${userId}) not part of team(${teamId}).`);
 		}
 
-		this.teamId = member.teamId;
-		this.userId = member.userId;
-	}
+		this.id = member.team.id;
+		this.name = member.team.name;
+		this.createdAt = member.team.createdAt;
+		this.description = member.team.description;
 
-	get info() {
-		const team = teamWithMembersQuery.get({ teamId: this.teamId });
-
-		if (!team) {
-			throw new Error(`Team(${this.teamId}) not found.`);
-		}
-
-		return {
-			name: team.name,
-			description: team.description,
-			createdAt: team.createdAt
-		};
-	}
-
-	get role() {
-		const member = teamMemberQuery.get({
-			userId: this.userId,
-			teamId: this.teamId
-		});
-
-		if (!member) {
-			throw new Error(`User(${this.userId}) not part of team(${this.teamId}).`);
-		}
-
-		return member.role;
-	}
-
-	get members() {
-		if (this.role === 'INVITED') {
-			throw new Error('Only team owners and members can see other members.');
-		}
-
-		const team = teamWithMembersQuery.get({ teamId: this.teamId });
-
-		if (!team) {
-			throw new Error(`Team(${this.teamId}) not found.`);
-		}
-
-		return team.members;
+		this.role = member.role;
+		this.userId = userId;
 	}
 
 	invite(inviteeId: string) {
@@ -67,7 +38,7 @@ export class Team {
 		db.transaction(() => {
 			const foundUser = userNotInTeamQuery.get({
 				userId: inviteeId,
-				teamId: this.teamId
+				teamId: this.id
 			});
 
 			if (!foundUser) {
@@ -77,7 +48,7 @@ export class Team {
 			db.insert(schema.teamMember)
 				.values({
 					userId: inviteeId,
-					teamId: this.teamId,
+					teamId: this.id,
 					role: 'INVITED'
 				})
 				.returning()
@@ -125,7 +96,7 @@ export class Team {
 			.where(
 				and(
 					eq(schema.teamMember.userId, memberId),
-					eq(schema.teamMember.teamId, this.teamId)
+					eq(schema.teamMember.teamId, this.id)
 				)
 			)
 			.returning()
@@ -133,41 +104,71 @@ export class Team {
 
 		if (!removedMember) {
 			throw new Error(
-				`Could not remove member(${memberId}) from team(${this.teamId}).`
+				`Could not remove member(${memberId}) from team(${this.id}).`
 			);
 		}
+	}
+
+	getMembers() {
+		const team = teamWithMembersQuery.get({ teamId: this.id });
+
+		if (!team) {
+			throw new Error(`Team(${this.id}) not found.`);
+		}
+
+		return team.members;
+	}
+
+	getSerializedInfo() {
+		return {
+			id: this.id,
+			name: this.name,
+			description: this.description,
+			createdAt: this.createdAt,
+			role: this.role,
+			members: this.getMembers()
+		};
 	}
 
 	private setMemberRole(memberId: string, role: TeamRole) {
 		db.transaction(() => {
 			const member = teamMemberQuery.get({
 				userId: memberId,
-				teamId: this.teamId
+				teamId: this.id
 			});
 
 			if (!member) {
-				throw new Error(`User(${memberId}) not part of team(${this.teamId}).`);
+				throw new Error(`User(${memberId}) not part of team(${this.id}).`);
 			}
 
-			db.update(schema.teamMember)
+			const updatedMember = db
+				.update(schema.teamMember)
 				.set({ role })
 				.where(
 					and(
 						eq(schema.teamMember.userId, member.userId),
-						eq(schema.teamMember.teamId, this.teamId)
+						eq(schema.teamMember.teamId, this.id)
 					)
 				)
 				.returning()
 				.get();
+
+			if (updatedMember.userId === this.userId) {
+				this.role = updatedMember.role;
+			}
 		});
 	}
 }
 
 export class UserTeam {
-	userId: string;
+	private userId: string;
+	private teams: Team[];
 
 	constructor(userId: string) {
 		this.userId = userId;
+		this.teams = teamMembersByUserQuery
+			.all({ userId: this.userId })
+			.map((member) => new Team(member.teamId, member.userId));
 	}
 
 	get(teamId: number): Team {
@@ -175,9 +176,7 @@ export class UserTeam {
 	}
 
 	get all(): Team[] {
-		return teamMembersByUserQuery
-			.all({ userId: this.userId })
-			.map((member) => new Team(member.teamId, member.userId));
+		return this.teams;
 	}
 
 	create({
@@ -210,6 +209,21 @@ export class UserTeam {
 		});
 	}
 }
+
+const teamByUserQuery = db.query.teamMember
+	.findFirst({
+		columns: { role: true },
+		where: (teamMember, { and, eq, sql }) => {
+			return and(
+				eq(teamMember.teamId, sql.placeholder('teamId')),
+				eq(teamMember.userId, sql.placeholder('userId'))
+			);
+		},
+		with: {
+			team: true
+		}
+	})
+	.prepare();
 
 const teamMemberQuery = db.query.teamMember
 	.findFirst({

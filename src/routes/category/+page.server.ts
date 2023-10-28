@@ -21,7 +21,7 @@ export const actions = {
 				name: categoryName,
 				description
 			});
-      
+
 			return { success: true, category };
 		} catch (_e) {
 			return fail(500, {
