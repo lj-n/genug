@@ -154,6 +154,24 @@ export type SelectTeamMember = typeof teamMember.$inferSelect;
 export type InsertTeamMember = typeof teamMember.$inferInsert;
 export type TeamRole = typeof teamMember.$inferSelect.role;
 
+export const teamAccount = sqliteTable('team_account', {
+	id: integer('id', { mode: 'number' }).primaryKey(),
+	teamId: text('team_id', { length: 15 })
+		.notNull()
+		.references(() => team.id, { onDelete: 'cascade' }),
+	createdBy: text('created_by', { length: 15 })
+		.notNull()
+		.references(() => user.id),
+	name: text('name', { length: 255 }).notNull(),
+	description: text('description', { length: 255 }),
+	createdAt: text('created_at')
+		.default(sql`CURRENT_DATE`)
+		.notNull()
+});
+
+export type SelectTeamAccount = typeof teamAccount.$inferSelect;
+export type InsertTeamAccount = typeof teamAccount.$inferInsert;
+
 export const teamCategory = sqliteTable('team_category', {
 	id: integer('id', { mode: 'number' }).primaryKey(),
 	teamId: text('team_id', { length: 15 })
@@ -170,3 +188,59 @@ export const teamCategory = sqliteTable('team_category', {
 	goal: integer('goal'),
 	retired: integer('retired', { mode: 'boolean' }).default(false).notNull()
 });
+
+export type SelectTeamCategory = typeof teamCategory.$inferSelect;
+export type InsertTeamCategory = typeof teamCategory.$inferInsert;
+
+export const teamTransaction = sqliteTable('Team_transaction', {
+	id: integer('id', { mode: 'number' }).primaryKey(),
+	teamId: text('team_id', { length: 15 })
+		.notNull()
+		.references(() => team.id, { onDelete: 'cascade' }),
+	categoryId: integer('category_id').references(() => teamCategory.id, {
+		onDelete: 'cascade'
+	}),
+	accountId: integer('account_id')
+		.notNull()
+		.references(() => teamAccount.id, { onDelete: 'cascade' }),
+	createdBy: text('created_by', { length: 15 })
+		.notNull()
+		.references(() => user.id),
+	description: text('description', { length: 255 }),
+	date: text('date', { length: 10 })
+		.default(sql`CURRENT_DATE`)
+		.notNull(),
+	createdAt: text('created_at')
+		.default(sql`CURRENT_TIMESTAMP `)
+		.notNull(),
+	flow: integer('flow').notNull(),
+	validated: integer('validated', { mode: 'boolean' }).notNull()
+});
+
+export type SelectTeamTransaction = typeof teamTransaction.$inferSelect;
+export type InsertTeamTransaction = typeof teamTransaction.$inferInsert;
+
+export const teamBudget = sqliteTable(
+	'team_budget',
+	{
+		teamId: text('team_id', { length: 15 })
+			.notNull()
+			.references(() => team.id, { onDelete: 'cascade' }),
+		categoryId: integer('category_id')
+			.notNull()
+			.references(() => teamCategory.id, { onDelete: 'cascade' }),
+		date: text('date', { length: 7 }).notNull(), // sql`strftime('%Y-%m', 'now')`
+		amount: integer('amount', { mode: 'number' }).default(0).notNull(),
+		setBy: text('set_by', { length: 15 })
+			.notNull()
+			.references(() => user.id)
+	},
+	(table) => {
+		return {
+			pk: primaryKey(table.teamId, table.categoryId, table.date)
+		};
+	}
+);
+
+export type SelectTeamBudget = typeof teamBudget.$inferSelect;
+export type InsertTeamBudget = typeof teamBudget.$inferInsert;

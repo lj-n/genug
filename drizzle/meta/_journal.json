@@ -8,6 +8,13 @@
       "when": 1698405527054,
       "tag": "0000_outgoing_khan",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1698523066153,
+      "tag": "0001_ancient_firestar",
+      "breakpoints": true
     }
   ]
 }
