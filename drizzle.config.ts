@@ -5,7 +5,7 @@ export default {
 	out: './drizzle',
 	driver: 'better-sqlite',
 	dbCredentials: {
-		url: './genug.db'
+		url: './data/genug.db'
 	},
 	verbose: true
 } satisfies Config;

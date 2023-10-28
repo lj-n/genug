@@ -9,14 +9,14 @@
 	<h1>Sign in</h1>
 
 	<div class="form-control w-full max-w-sm">
-		<label class="label" for="email">
-			<span class="label-text">Email</span>
+		<label class="label" for="username">
+			<span class="label-text">Username</span>
 		</label>
 		<input
 			type="text"
-			name="email"
-			id="email"
-			placeholder="Your email"
+			name="username"
+			id="username"
+			placeholder="Your username"
 			class="input input-bordered w-full"
 		/>
 	</div>
@@ -37,7 +37,6 @@
 	<button type="submit" class="btn btn-primary btn-wide">signin</button>
 
 	<div class="flex flex-wrap gap-4">
-		<a href="/password-reset" class="link link-hover">Forgot password</a>
 		<a href="/signup" class="link link-hover link-accent">Create an account</a>
 	</div>
 </form>

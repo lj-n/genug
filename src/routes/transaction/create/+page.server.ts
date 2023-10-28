@@ -7,8 +7,8 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = withAuth(async (_, user) => {
 	return {
-		categories: user.categories.getAll(),
-		accounts: user.accounts.getAll()
+		categories: user.category.getAll(),
+		accounts: user.account.getAll()
 	};
 });
 
@@ -33,7 +33,7 @@ export const actions = {
 		}
 
 		try {
-			user.transactions.create(parsed.data);
+			user.transaction.create(parsed.data);
 			// return { success: true, transaction }
 		} catch {
 			return fail(500, { error: 'Oops, something went wrong.' });

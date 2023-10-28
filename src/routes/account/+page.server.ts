@@ -4,7 +4,7 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = withAuth(async (_, user) => {
 	return {
-		accounts: user.accounts.getAll()
+		accounts: user.account.getAll()
 	};
 });
 
@@ -19,7 +19,7 @@ export const actions = {
 		}
 
 		try {
-			const account = user.accounts.create({ name: accountName, description });
+			const account = user.account.create({ name: accountName, description });
 
 			return { success: true, account };
 		} catch (_e) {

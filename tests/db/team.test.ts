@@ -1,150 +1,117 @@
-import type { Team } from '$lib/server/schema/tables';
-import {
-	addTeamMember,
-	cancelTeamInvitaion,
-	confirmTeamInvitation,
-	createTeam,
-	getTeam,
-	getTeamMemberRole,
-	getTeams,
-	lookupUsersNotInTeam,
-	removeTeamMember,
-	updateMemberRole
-} from '$lib/server/teams';
-import { createUser } from '$lib/server/user';
-import type { User } from 'lucia';
-import { describe, expect, test } from 'vitest';
+import { User } from '$lib/server';
+import type { Team } from '$lib/server/user/user.team';
+import { beforeAll, describe, expect, test } from 'vitest';
 
-/**
- * Present rows in the database:
- *    teams = [{ id: 1, name: 'Test Team' }]
- *    teamMember = [{ userId: 'pjruqhtcfxxbaqu', teamId: 1, role: 'OWNER' }]
- */
+const testUserId = 'qh1jpx6731v8w7v';
+const user = new User(testUserId);
 
-const testUserId = 'pjruqhtcfxxbaqu';
-const testUserName = 'Test User';
-const newTeamName = 'Awesome Team';
-
-let tempTeam: Team;
+beforeAll(() => {});
 
 describe('teams', () => {
+	let tempTeam: Team;
+
 	test('create team', () => {
-		tempTeam = createTeam(testUserId, {
-			name: newTeamName
-		});
+		const teamname = 'Test Team';
+		const description = 'Test Team Description';
 
-		expect(tempTeam.name).toBe(newTeamName);
+		tempTeam = user.team.create({ teamname, description });
 
-		const team = getTeam(tempTeam.id);
+		const members = tempTeam.getMembers();
 
-		expect(team.member).toContainEqual({
+		expect(tempTeam.name).toBe(teamname);
+		expect(tempTeam.description).toBe(description);
+		expect(members).toContainEqual({
 			role: 'OWNER',
-			user: {
-				id: testUserId,
-				name: testUserName
-			}
-		});
-		expect(getTeams(testUserId)).toHaveLength(2);
-	});
-
-	test('get team member role', () => {
-		const role = getTeamMemberRole(testUserId, tempTeam.id);
-		expect(role).toBe('OWNER');
-	});
-
-	let tempUser: User;
-	test('find user that is not yet in team', async () => {
-		tempUser = await createUser(
-			'other@user.com',
-			'Faux McNonexistent',
-			'password',
-			true
-		);
-
-		const foundUsers = lookupUsersNotInTeam(
-			tempUser.name,
-			testUserId,
-			tempTeam.id
-		);
-
-		expect(foundUsers).toContainEqual({
-			name: tempUser.name,
-			id: tempUser.userId
+			user: { id: user.id, name: user.name }
 		});
 	});
 
-	test('invite user to team', () => {
-		addTeamMember(tempUser.userId, tempTeam.id);
+	describe('members', () => {
+		let tempUser: User;
 
-		const team = getTeam(tempTeam.id);
+		test('invite user', async () => {
+			const {
+				user: { userId }
+			} = await User.create('Temp user', 'pwd');
+			tempUser = new User(userId);
 
-		expect(team.member).toContainEqual({
-			role: 'INVITED',
-			user: {
-				id: tempUser.userId,
-				name: tempUser.name
-			}
+			tempTeam.invite(tempUser.id);
+
+			const members = tempTeam.getMembers();
+			expect(members).toHaveLength(2);
+			expect(members).toContainEqual({
+				role: 'INVITED',
+				user: { id: tempUser.id, name: tempUser.name }
+			});
 		});
-	});
 
-	test('cancel team invitation', () => {
-		cancelTeamInvitaion(tempUser.userId, tempTeam.id);
-		const team = getTeam(tempTeam.id);
-
-		expect(team.member).toHaveLength(1);
-		expect(team.member).toContainEqual({
-			role: 'OWNER',
-			user: {
-				id: testUserId,
-				name: testUserName
-			}
+		test('try to invite user again', () => {
+			expect(() => tempTeam.invite(tempUser.id)).toThrowError(
+				'User not found or already part of team/invited.'
+			);
 		});
-	});
 
-	test('accept team invitation', () => {
-		addTeamMember(tempUser.userId, tempTeam.id);
+		test('accept invite', () => {
+			const team = tempUser.team.get(tempTeam.id);
+			team.acceptInvite();
 
-		confirmTeamInvitation(tempUser.userId, tempTeam.id);
-
-		const team = getTeam(tempTeam.id);
-
-		expect(team.member).toHaveLength(2);
-		expect(team.member).toContainEqual({
-			role: 'MEMBER',
-			user: {
-				id: tempUser.userId,
-				name: tempUser.name
-			}
+			expect(team.getMembers()).toContainEqual({
+				role: 'MEMBER',
+				user: {
+					id: tempUser.id,
+					name: tempUser.name
+				}
+			});
 		});
-	});
 
-	test('change team member role', () => {
-		updateMemberRole(tempUser.userId, tempTeam.id, 'OWNER');
-
-		const team = getTeam(tempTeam.id);
-
-		expect(team.member).toHaveLength(2);
-		expect(team.member).toContainEqual({
-			role: 'OWNER',
-			user: {
-				id: tempUser.userId,
-				name: tempUser.name
-			}
+		test('try to accept invite again', () => {
+			const team = tempUser.team.get(tempTeam.id);
+			expect(() => team.acceptInvite()).toThrowError(
+				`User(${tempUser.id}) is not invited. Role(MEMBER)`
+			);
 		});
-	});
 
-	test('remove member from team', () => {
-		removeTeamMember(tempUser.userId, tempTeam.id);
+		test('cancel invite', async () => {
+			const {
+				user: { userId }
+			} = await User.create('Third User', 'pwd');
+			const thirdUser = new User(userId);
 
-		const team = getTeam(tempTeam.id);
+			tempTeam.invite(thirdUser.id);
 
-		expect(team.member).toHaveLength(1);
-		expect(team.member).toContainEqual({
-			role: 'OWNER',
-			user: {
-				id: testUserId,
-				name: testUserName
-			}
+			const team = thirdUser.team.get(tempTeam.id);
+			team.cancelInvite();
+
+			expect(tempTeam.getMembers()).toHaveLength(2);
+		});
+
+		test('try to set member role', () => {
+			const team = tempUser.team.get(tempTeam.id);
+			expect(() => team.makeMemberOwner(user.id)).toThrowError(
+				'Only team owners can promote team member.'
+			);
+		});
+
+		test('give member owner role', () => {
+			tempTeam.makeMemberOwner(tempUser.id);
+
+			expect(tempTeam.getMembers()).toContainEqual({
+				role: 'OWNER',
+				user: {
+					id: tempUser.id,
+					name: tempUser.name
+				}
+			});
+		});
+
+		test('remove member', () => {
+			tempTeam.removeMember(tempUser.id);
+
+			expect(tempTeam.getMembers()).toHaveLength(1);
+			expect(tempTeam.getMembers()).toContainEqual({
+				role: 'OWNER',
+				user: { id: user.id, name: user.name }
+			});
 		});
 	});
 });

@@ -5,7 +5,7 @@ import Database from 'better-sqlite3';
 try {
 	console.log('Running database migrations 📜');
 
-	migrate(drizzle(new Database('genug.db')), {
+	migrate(drizzle(new Database('data/genug.db')), {
 		migrationsFolder: 'drizzle'
 	});
 

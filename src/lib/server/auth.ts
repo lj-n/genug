@@ -9,7 +9,7 @@ import {
 } from '@sveltejs/kit';
 
 import { sqlite } from './db';
-import { User } from './user';
+import { User } from './user/user';
 
 export const auth = lucia({
 	env: dev ? 'DEV' : 'PROD',
@@ -19,11 +19,7 @@ export const auth = lucia({
 		session: 'user_session'
 	}),
 	middleware: sveltekit(),
-	getUserAttributes: (user) => ({
-		email: user.email,
-		emailVerified: Boolean(user.email_verified),
-		name: user.name
-	})
+	getUserAttributes: (user) => ({ name: user.name })
 });
 
 export type Auth = typeof auth;

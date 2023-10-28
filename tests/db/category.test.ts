@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'vitest';
-import { User } from '$lib/server/user';
-import type { UserCategory } from '$lib/server/schema/tables';
+import { User } from '$lib/server';
+import type { SelectUserCategory } from '$lib/server/schema/tables';
 
-const testUserId = 'pjruqhtcfxxbaqu';
+const testUserId = 'qh1jpx6731v8w7v';
 const newCategoryName = 'Awesome Category';
 
 const user = new User(testUserId);
 
 describe('user categories', () => {
-	let category: UserCategory;
+	let category: SelectUserCategory;
 
 	test('create user category', () => {
-		category = user.categories.create({ name: newCategoryName });
+		category = user.category.create({ name: newCategoryName });
 
 		expect(category.name).toBe(newCategoryName);
 		expect(category.retired).toBe(false);
@@ -19,13 +19,13 @@ describe('user categories', () => {
 	});
 
 	test('get user category', () => {
-		category = user.categories.get(category.id);
+		category = user.category.get(category.id);
 		expect(category.name).toBe(newCategoryName);
-		expect(() => user.categories.get(-1)).toThrowError();
+		expect(() => user.category.get(-1)).toThrowError();
 	});
 
 	test('update user category', () => {
-		category = user.categories.update(category.id, {
+		category = user.category.update(category.id, {
 			...category,
 			description: 'New Description'
 		});
@@ -34,11 +34,11 @@ describe('user categories', () => {
 	});
 
 	test('delete user category', () => {
-		const categoriesBefore = user.categories.getAll();
+		const categoriesBefore = user.category.getAll();
 
-		user.categories.delete(category.id);
+		user.category.delete(category.id);
 
-		const categoriesAfter = user.categories.getAll();
+		const categoriesAfter = user.category.getAll();
 
 		expect(categoriesBefore.length).toBeGreaterThan(categoriesAfter.length);
 	});

@@ -23,6 +23,13 @@ export const key = sqliteTable('user_key', {
 	hashedPassword: text('hashed_password', { length: 255 })
 });
 
+export const user = sqliteTable('user', {
+	id: text('id', { length: 15 }).primaryKey(),
+	name: text('name', { length: 255 }).notNull().unique()
+});
+
+export type SelectUser = typeof user.$inferSelect;
+
 export const token = sqliteTable('token', {
 	id: text('id', { length: 63 }).primaryKey(),
 	userId: text('user_id', { length: 15 })
@@ -30,48 +37,6 @@ export const token = sqliteTable('token', {
 		.references(() => user.id, { onDelete: 'cascade' }),
 	expires: integer('expires', { mode: 'number' }).notNull()
 });
-
-export const user = sqliteTable('user', {
-	id: text('id', { length: 15 }).primaryKey(),
-	email: text('email', { length: 32 }).notNull().unique(),
-	email_verified: integer('email_verified').notNull(), // must be snake case for lucia auth
-	name: text('name', { length: 255 }).notNull().unique()
-});
-
-export type DBUser = typeof user.$inferSelect;
-
-export const team = sqliteTable('team', {
-	id: integer('id', { mode: 'number' }).primaryKey(),
-	name: text('name', { length: 255 }).notNull(),
-	description: text('description', { length: 255 }),
-	createdAt: text('created_at')
-		.default(sql`CURRENT_DATE`)
-		.notNull()
-});
-
-export type Team = typeof team.$inferSelect;
-export type InsertTeam = typeof team.$inferInsert;
-
-export const teamMember = sqliteTable(
-	'team_user',
-	{
-		userId: text('user_id', { length: 15 })
-			.notNull()
-			.references(() => user.id, { onDelete: 'cascade' }),
-		teamId: integer('team_id')
-			.notNull()
-			.references(() => team.id, { onDelete: 'cascade' }),
-		role: text('role', { enum: ['OWNER', 'MEMBER', 'INVITED'] }).notNull()
-	},
-	(table) => {
-		return {
-			pk: primaryKey(table.userId, table.teamId)
-		};
-	}
-);
-
-export type TeamMember = typeof teamMember.$inferSelect;
-export type InsertTeamMember = typeof teamMember.$inferInsert;
 
 export const userCategory = sqliteTable('user_category', {
 	id: integer('id', { mode: 'number' }).primaryKey(),
@@ -87,7 +52,7 @@ export const userCategory = sqliteTable('user_category', {
 	retired: integer('retired', { mode: 'boolean' }).default(false).notNull()
 });
 
-export type UserCategory = typeof userCategory.$inferSelect;
+export type SelectUserCategory = typeof userCategory.$inferSelect;
 export type InsertUserCategory = typeof userCategory.$inferInsert;
 
 export const userAccount = sqliteTable('user_account', {
@@ -105,7 +70,7 @@ export const userAccount = sqliteTable('user_account', {
 		.notNull()
 });
 
-export type UserAccount = typeof userAccount.$inferSelect;
+export type SelectUserAccount = typeof userAccount.$inferSelect;
 export type InsertUserAccount = typeof userAccount.$inferInsert;
 
 export const userTransaction = sqliteTable('user_transaction', {
@@ -130,7 +95,7 @@ export const userTransaction = sqliteTable('user_transaction', {
 	validated: integer('validated', { mode: 'boolean' }).notNull()
 });
 
-export type UserTransaction = typeof userTransaction.$inferSelect;
+export type SelectUserTransaction = typeof userTransaction.$inferSelect;
 export type InsertUserTransaction = typeof userTransaction.$inferInsert;
 
 export const userBudget = sqliteTable(
@@ -152,9 +117,56 @@ export const userBudget = sqliteTable(
 	}
 );
 
-export type UserBudget = typeof userBudget.$inferSelect;
+export type SelectUserBudget = typeof userBudget.$inferSelect;
 export type InsertUserBudget = typeof userBudget.$inferInsert;
 
-export const testTable = sqliteTable('test_table', {
-	name: text('name', { length: 255 }).primaryKey(),
+export const team = sqliteTable('team', {
+	id: integer('id', { mode: 'number' }).primaryKey(),
+	name: text('name', { length: 255 }).notNull(),
+	description: text('description', { length: 255 }),
+	createdAt: text('created_at')
+		.default(sql`CURRENT_DATE`)
+		.notNull()
+});
+
+export type SelectTeam = typeof team.$inferSelect;
+export type InsertTeam = typeof team.$inferInsert;
+
+export const teamMember = sqliteTable(
+	'team_user',
+	{
+		userId: text('user_id', { length: 15 })
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		teamId: integer('team_id')
+			.notNull()
+			.references(() => team.id, { onDelete: 'cascade' }),
+		role: text('role', { enum: ['OWNER', 'MEMBER', 'INVITED'] }).notNull()
+	},
+	(table) => {
+		return {
+			pk: primaryKey(table.userId, table.teamId)
+		};
+	}
+);
+
+export type SelectTeamMember = typeof teamMember.$inferSelect;
+export type InsertTeamMember = typeof teamMember.$inferInsert;
+export type TeamRole = typeof teamMember.$inferSelect.role;
+
+export const teamCategory = sqliteTable('team_category', {
+	id: integer('id', { mode: 'number' }).primaryKey(),
+	teamId: text('team_id', { length: 15 })
+		.notNull()
+		.references(() => team.id, { onDelete: 'cascade' }),
+	createdBy: text('created_by', { length: 15 })
+		.notNull()
+		.references(() => user.id),
+	name: text('name', { length: 255 }).notNull(),
+	description: text('description', { length: 255 }),
+	createdAt: text('created_at')
+		.default(sql`CURRENT_DATE`)
+		.notNull(),
+	goal: integer('goal'),
+	retired: integer('retired', { mode: 'boolean' }).default(false).notNull()
 });

@@ -1,15 +1,16 @@
 import { and, eq } from 'drizzle-orm';
-import { db } from './db';
-import { schema } from './schema';
-import type { InsertUserCategory, UserCategory } from './schema/tables';
+import { db } from '../db';
+import { schema } from '../schema';
+import type { InsertUserCategory, SelectUserCategory } from '../schema/tables';
 
-export class UserCategories {
+export class UserCategory {
 	userId: string;
+
 	constructor(userId: string) {
 		this.userId = userId;
 	}
 
-	get(id: number): UserCategory {
+	get(id: number): SelectUserCategory {
 		const category = categoryQuery.get({
 			userId: this.userId,
 			categoryId: id
@@ -45,7 +46,7 @@ export class UserCategories {
 
 	create(
 		draft: Omit<InsertUserCategory, 'id' | 'userId' | 'createdAt'>
-	): UserCategory {
+	): SelectUserCategory {
 		const category = db
 			.insert(schema.userCategory)
 			.values({ userId: this.userId, ...draft })
@@ -62,7 +63,7 @@ export class UserCategories {
 	update(
 		id: number,
 		updates: Partial<Omit<InsertUserCategory, 'id' | 'userId' | 'createdAt'>>
-	): UserCategory {
+	): SelectUserCategory {
 		const category = db
 			.update(schema.userCategory)
 			.set(updates)
@@ -82,7 +83,7 @@ export class UserCategories {
 		return category;
 	}
 
-	delete(id: number): UserCategory {
+	delete(id: number): SelectUserCategory {
 		const category = db
 			.delete(schema.userCategory)
 			.where(

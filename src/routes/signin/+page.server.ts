@@ -1,31 +1,29 @@
-import { fail, type Actions, redirect } from '@sveltejs/kit';
-import { loginUser } from '$lib/server/user';
-import type { PageServerLoad } from './$types';
+import { fail, redirect } from '@sveltejs/kit';
+import type { PageServerLoad, Actions } from './$types';
+import { User } from '$lib/server/user';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const session = await locals.auth.validate();
-
-	if (!session) return {}; // proceed
-	if (!session.user.emailVerified) throw redirect(302, '/email-verification');
-
-	throw redirect(302, '/');
+	if (session) {
+		throw redirect(302, '/');
+	}
 };
 
 export const actions = {
 	async default({ request, locals }) {
 		const data = await request.formData();
-		const email = data.get('email')?.toString();
+		const username = data.get('username')?.toString();
 		const password = data.get('password')?.toString();
 
-		if (!email || !password) {
+		if (!username || !password) {
 			return fail(400, { error: 'Missing stuff..' });
 		}
 
 		try {
-			const session = await loginUser(email, password);
+			const session = await User.login(username, password);
 			locals.auth.setSession(session);
 		} catch (_e) {
-			return fail(500, { error: 'Something went wrong, oops.' });
+			return fail(500, { username, error: 'Something went wrong, oops.' });
 		}
 
 		throw redirect(302, '/');

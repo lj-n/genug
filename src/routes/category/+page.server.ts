@@ -3,7 +3,7 @@ import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = withAuth((_, user) => {
-	return { categories: user.categories.getAll() };
+	return { categories: user.category.getAll() };
 });
 
 export const actions = {
@@ -17,11 +17,11 @@ export const actions = {
 		}
 
 		try {
-			const category = user.categories.create({
+			const category = user.category.create({
 				name: categoryName,
 				description
 			});
-      
+
 			return { success: true, category };
 		} catch (_e) {
 			return fail(500, {

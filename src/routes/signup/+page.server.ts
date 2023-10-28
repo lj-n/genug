@@ -1,33 +1,38 @@
-import { dev } from '$app/environment';
-import { auth, generateToken, sendEmailVerificationLink } from '$lib/server';
-import { createUser } from '$lib/server/user';
+import { User } from '$lib/server/user';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
+import { LuciaError } from 'lucia';
+import { SqliteError } from 'better-sqlite3';
+
+function isNameAlreadyInUse(e: unknown) {
+	return (
+		(e instanceof SqliteError && e.code === 'SQLITE_CONSTRAINT_UNIQUE') ||
+		(e instanceof LuciaError && e.message === 'AUTH_DUPLICATE_KEY_ID')
+	);
+}
 
 export const actions = {
 	async default({ request, locals }) {
 		const data = await request.formData();
-		const email = data.get('email')?.toString();
 		const username = data.get('username')?.toString();
 		const password = data.get('password')?.toString();
 
-		if (!email || !password || !username) {
+		if (!password || !username) {
 			return fail(400, { error: 'Missing stuff..' });
 		}
 
 		try {
-			const user = await createUser(email, username, password, dev);
-
-			const session = await auth.createSession({
-				userId: user.userId,
-				attributes: {}
-			});
-
+			const { session } = await User.create(username, password);
 			locals.auth.setSession(session);
+		} catch (error) {
+			if (isNameAlreadyInUse(error)) {
+				return fail(400, {
+					username,
+					password,
+					error: 'Username is already in use'
+				});
+			}
 
-			const token = await generateToken(user.userId);
-			await sendEmailVerificationLink(user, token);
-		} catch (_e) {
-			return fail(500, { error: 'Something went wrong, oops.' });
+			return fail(500, { username, error: 'Something went wrong, oops.' });
 		}
 
 		throw redirect(302, '/');

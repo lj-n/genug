@@ -1,8 +1,8 @@
 import { and, eq, lte, sql } from 'drizzle-orm';
-import { db } from './db';
-import { schema } from './schema';
+import { db } from '../db';
+import { schema } from '../schema';
 
-export class UserBudgets {
+export class UserBudget {
 	userId: string;
 
 	constructor(userId: string) {
