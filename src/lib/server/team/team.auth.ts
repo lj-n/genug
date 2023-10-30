@@ -4,35 +4,46 @@ import { schema } from '../schema';
 import type { SelectTeam, TeamRole } from '../schema/tables';
 
 export function createTeam({
-  userId,
-  teamname,
-  description
+	userId,
+	teamname,
+	description
 }: {
-  userId: string
-  teamname: string;
-  description?: string;
+	userId: string;
+	teamname: string;
+	description?: string;
 }): SelectTeam {
-  return db.transaction(() => {
-    const team = db
-      .insert(schema.team)
-      .values({
-        name: teamname,
-        description
-      })
-      .returning()
-      .get();
+	return db.transaction(() => {
+		const team = db
+			.insert(schema.team)
+			.values({
+				name: teamname,
+				description
+			})
+			.returning()
+			.get();
 
-    db.insert(schema.teamMember)
-      .values({
-        role: 'OWNER',
-        userId: userId,
-        teamId: team.id
-      })
-      .returning()
-      .get();
+		db.insert(schema.teamMember)
+			.values({
+				role: 'OWNER',
+				userId: userId,
+				teamId: team.id
+			})
+			.returning()
+			.get();
 
-    return team;
-  });
+		return team;
+	});
+}
+
+export function removeTeam(teamId: number) {
+	return db.transaction(() => {
+		db.delete(schema.teamMember)
+			.where(eq(schema.teamMember.teamId, teamId))
+			.returning()
+			.all();
+
+		db.delete(schema.team).where(eq(schema.team.id, teamId)).returning().get();
+	});
 }
 
 export function useTeamAuth(teamId: number, userId: string) {

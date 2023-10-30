@@ -68,9 +68,8 @@ export function useTeamTransaction(teamId: number) {
 
 	function update(
 		transactionId: number,
-		updates: Omit<
-			InsertTeamTransaction,
-			'id' | 'teamId' | 'createdBy' | 'createdAt'
+		updates: Partial<
+			Omit<InsertTeamTransaction, 'id' | 'teamId' | 'createdBy' | 'createdAt'>
 		>
 	): SelectTeamTransaction {
 		const updatedTransaction = db
