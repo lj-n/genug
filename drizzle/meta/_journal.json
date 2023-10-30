@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1698405527054,
-      "tag": "0000_outgoing_khan",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1698523066153,
-      "tag": "0001_ancient_firestar",
+      "when": 1698662467647,
+      "tag": "0000_mature_karnak",
       "breakpoints": true
     }
   ]

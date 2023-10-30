@@ -1,42 +1,33 @@
-import { and, eq, lte, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { schema } from '../schema';
+import type { SelectUserBudget } from '../schema/tables';
 
-export class UserBudget {
-	userId: string;
-
-	constructor(userId: string) {
-		this.userId = userId;
-	}
-
-	set({
-		amount,
-		date,
-		categoryId
-	}: {
-		amount: number;
-		date: string;
-		categoryId: number;
-	}) {
-		return db.transaction(() => {
+export function useUserBudget(userId: string) {
+	/**
+	 * Upserts a budget for a category and month.
+	 * If the amount is 0 the budget gets deleted if it exists.
+	 */
+	function set({ amount, date, categoryId }: Omit<SelectUserBudget, 'userId'>) {
+		db.transaction(() => {
 			if (amount === 0) {
 				db.delete(schema.userBudget)
 					.where(
 						and(
 							eq(schema.userBudget.date, date),
-							eq(schema.userBudget.userId, this.userId),
+							eq(schema.userBudget.userId, userId),
 							eq(schema.userBudget.categoryId, categoryId)
 						)
 					)
 					.returning()
 					.get();
 
-				return this.get(date);
+				return;
 			}
 
 			db.insert(schema.userBudget)
 				.values({
-					userId: this.userId,
+					userId,
 					amount,
 					categoryId,
 					date
@@ -51,125 +42,67 @@ export class UserBudget {
 				})
 				.returning()
 				.get();
-
-			return this.get(date);
 		});
 	}
 
-	get(month: string) {
-		return categoriesWithBudgetQuery.all({ userId: this.userId, date: month });
+	/**
+	 * Get all categories with their monthly budget data.
+	 */
+	function get(month: string) {
+		return categoriesWithBudget.all({ userId, month });
 	}
+
+	return { set, get };
 }
 
 /**
- * Select the sum of all transactions in a month.
+ * Get each category for a user with the budget, activity and rest sum for a month.
  * @param {string} userId
- * @param {string} date
+ * @param {string} month
  */
-const transactionActivityInMonth = db
+const categoriesWithBudget = db
 	.select({
-		sum: sql<number>`coalesce(sum(${schema.userTransaction.flow}), 0)`.as(
-			'activity'
-		),
-		categoryId: schema.userCategory.id
-	})
-	.from(schema.userCategory)
-	.leftJoin(
-		schema.userTransaction,
-		and(
-			eq(schema.userTransaction.categoryId, schema.userCategory.id),
-			eq(
-				sql`strftime('%Y-%m', ${schema.userTransaction.date})`, // convert YYYY-MM-DD date to YYYY-MM
-				sql.placeholder('date')
-			)
-		)
-	)
-	.where(eq(schema.userCategory.userId, sql.placeholder('userId')))
-	.groupBy(({ categoryId }) => categoryId)
-	.as('transactionActivityInMonth');
-
-/**
- * Select the sum of all transactions before and in a month.
- * @param {string} userId
- * @param {string} date
- */
-const transactionSumForMonth = db
-	.select({
-		sum: sql<number>`coalesce(sum(${schema.userTransaction.flow}), 0)`.as(
-			'transaction_sum'
-		),
-		categoryId: schema.userCategory.id
-	})
-	.from(schema.userCategory)
-	.leftJoin(
-		schema.userTransaction,
-		and(
-			eq(schema.userTransaction.categoryId, schema.userCategory.id),
-			lte(
-				sql`strftime('%Y-%m', ${schema.userTransaction.date})`, // convert transaction date to YYYY-MM
-				sql.placeholder('date')
-			)
-		)
-	)
-	.where(eq(schema.userCategory.userId, sql.placeholder('userId')))
-	.groupBy(({ categoryId }) => categoryId)
-	.as('transactionSumForMonth');
-
-/**
- * Select the sum of all budget amounts before and in a month.
- * @param {string} userId
- * @param {string} date
- */
-const budgetSumForMonth = db
-	.select({
-		sum: sql<number>`coalesce(sum(${schema.userBudget.amount}), 0)`.as(
-			'budget_sum'
-		),
-		categoryId: schema.userCategory.id
-	})
-	.from(schema.userCategory)
-	.leftJoin(
-		schema.userBudget,
-		and(
-			eq(schema.userBudget.categoryId, schema.userCategory.id),
-			lte(schema.userBudget.date, sql.placeholder('date'))
-		)
-	)
-	.where(eq(schema.userCategory.userId, sql.placeholder('userId')))
-	.groupBy(({ categoryId }) => categoryId)
-	.as('budgetSumForMonth');
-
-/**
- * Select all categories of a user with budget, activity and rest for a month.
- * @param {string} userId
- * @param {string} date
- */
-const categoriesWithBudgetQuery = db
-	.select({
+		category: schema.userCategory,
 		budget: sql<number>`coalesce(${schema.userBudget.amount}, 0)`,
-		activity: transactionActivityInMonth.sum,
-		rest: sql<number>`${budgetSumForMonth.sum} + ${transactionSumForMonth.sum}`,
-		category: schema.userCategory
+		activity: sql<number>`coalesce(sum(${schema.userTransaction.flow}), 0)`,
+		rest: sql<number>`
+      coalesce((
+        select sum(${schema.userBudget.amount})
+        from ${schema.userBudget}
+        where ${schema.userBudget.userId} = ${schema.userCategory.userId}
+        and ${schema.userBudget.categoryId} = ${schema.userCategory.id}
+        and ${schema.userBudget.date} <= ${sql.placeholder('month')}
+      ), 0)
+      +
+      coalesce((
+        select sum(${schema.userTransaction.flow})
+        from ${schema.userTransaction}
+        where ${schema.userTransaction.userId} = ${schema.userCategory.userId}
+        and ${schema.userTransaction.categoryId} = ${schema.userCategory.id}
+        and strftime('%Y-%m', ${
+					schema.userTransaction.date
+				}) <= ${sql.placeholder('month')}
+      ), 0)
+    `
 	})
 	.from(schema.userCategory)
 	.leftJoin(
 		schema.userBudget,
 		and(
-			eq(schema.userBudget.userId, sql.placeholder('userId')),
-			eq(schema.userBudget.categoryId, schema.userCategory.id),
-			eq(schema.userBudget.date, sql.placeholder('date'))
+			eq(schema.userBudget.date, sql.placeholder('month')),
+			eq(schema.userBudget.categoryId, schema.userCategory.id)
 		)
 	)
 	.leftJoin(
-		transactionSumForMonth,
-		eq(transactionSumForMonth.categoryId, schema.userCategory.id)
+		schema.userTransaction,
+		and(
+			eq(
+				sql`strftime('%Y-%m', ${schema.userTransaction.date})`,
+				sql.placeholder('month')
+			),
+			eq(schema.userTransaction.categoryId, schema.userCategory.id)
+		)
 	)
-	.leftJoin(
-		budgetSumForMonth,
-		eq(budgetSumForMonth.categoryId, schema.userCategory.id)
-	)
-	.leftJoin(
-		transactionActivityInMonth,
-		eq(transactionActivityInMonth.categoryId, schema.userCategory.id)
-	)
+	.where(eq(schema.userCategory.userId, sql.placeholder('userId')))
+	.groupBy(({ category }) => category.id)
 	.prepare();

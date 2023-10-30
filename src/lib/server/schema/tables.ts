@@ -54,6 +54,10 @@ export const userCategory = sqliteTable('user_category', {
 
 export type SelectUserCategory = typeof userCategory.$inferSelect;
 export type InsertUserCategory = typeof userCategory.$inferInsert;
+export type UpdateUserCategory = Omit<
+	InsertUserCategory,
+	'id' | 'userId' | 'createdAt'
+>;
 
 export const userAccount = sqliteTable('user_account', {
 	id: integer('id', { mode: 'number' }).primaryKey(),
@@ -62,9 +66,6 @@ export const userAccount = sqliteTable('user_account', {
 		.references(() => user.id, { onDelete: 'cascade' }),
 	name: text('name', { length: 255 }).notNull(),
 	description: text('description', { length: 255 }),
-	balanceValidated: integer('balance_validated').default(0).notNull(),
-	balanceUnvalidated: integer('balance_unvalidated').default(0).notNull(),
-	balanceWorking: integer('balance_working').default(0).notNull(),
 	createdAt: text('created_at')
 		.default(sql`CURRENT_DATE`)
 		.notNull()
@@ -72,6 +73,10 @@ export const userAccount = sqliteTable('user_account', {
 
 export type SelectUserAccount = typeof userAccount.$inferSelect;
 export type InsertUserAccount = typeof userAccount.$inferInsert;
+export type UpdateUserAccount = Omit<
+	InsertUserAccount,
+	'id' | 'userId' | 'createdAt'
+>;
 
 export const userTransaction = sqliteTable('user_transaction', {
 	id: integer('id', { mode: 'number' }).primaryKey(),
@@ -97,6 +102,9 @@ export const userTransaction = sqliteTable('user_transaction', {
 
 export type SelectUserTransaction = typeof userTransaction.$inferSelect;
 export type InsertUserTransaction = typeof userTransaction.$inferInsert;
+export type UpdateUserTransaction = Partial<
+	Omit<InsertUserTransaction, 'id' | 'userId' | 'createdAt'>
+>;
 
 export const userBudget = sqliteTable(
 	'user_budget',
@@ -156,7 +164,7 @@ export type TeamRole = typeof teamMember.$inferSelect.role;
 
 export const teamAccount = sqliteTable('team_account', {
 	id: integer('id', { mode: 'number' }).primaryKey(),
-	teamId: text('team_id', { length: 15 })
+	teamId: integer('team_id')
 		.notNull()
 		.references(() => team.id, { onDelete: 'cascade' }),
 	createdBy: text('created_by', { length: 15 })
@@ -174,7 +182,7 @@ export type InsertTeamAccount = typeof teamAccount.$inferInsert;
 
 export const teamCategory = sqliteTable('team_category', {
 	id: integer('id', { mode: 'number' }).primaryKey(),
-	teamId: text('team_id', { length: 15 })
+	teamId: integer('team_id')
 		.notNull()
 		.references(() => team.id, { onDelete: 'cascade' }),
 	createdBy: text('created_by', { length: 15 })
@@ -192,9 +200,9 @@ export const teamCategory = sqliteTable('team_category', {
 export type SelectTeamCategory = typeof teamCategory.$inferSelect;
 export type InsertTeamCategory = typeof teamCategory.$inferInsert;
 
-export const teamTransaction = sqliteTable('Team_transaction', {
+export const teamTransaction = sqliteTable('team_transaction', {
 	id: integer('id', { mode: 'number' }).primaryKey(),
-	teamId: text('team_id', { length: 15 })
+	teamId: integer('team_id')
 		.notNull()
 		.references(() => team.id, { onDelete: 'cascade' }),
 	categoryId: integer('category_id').references(() => teamCategory.id, {
@@ -223,7 +231,7 @@ export type InsertTeamTransaction = typeof teamTransaction.$inferInsert;
 export const teamBudget = sqliteTable(
 	'team_budget',
 	{
-		teamId: text('team_id', { length: 15 })
+		teamId: integer('team_id')
 			.notNull()
 			.references(() => team.id, { onDelete: 'cascade' }),
 		categoryId: integer('category_id')
