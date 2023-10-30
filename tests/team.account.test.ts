@@ -28,7 +28,11 @@ describe('user accounts', () => {
 
 		const teamAccount = useTeamAccount(teamId);
 
-		const account = teamAccount.create({ name, description, createdBy: testUserId });
+		const account = teamAccount.create({
+			name,
+			description,
+			createdBy: testUserId
+		});
 		accountId = account.id;
 
 		expect(account.name).toBe(name);
@@ -37,8 +41,8 @@ describe('user accounts', () => {
 		expect(account.createdBy).toBe(testUserId);
 	});
 
-  test('get account', () => {
-    const teamAccount = useTeamAccount(teamId);
+	test('get account', () => {
+		const teamAccount = useTeamAccount(teamId);
 
 		const account = teamAccount.get(accountId);
 		const accountWithTransactions = teamAccount.getWithTransactions(accountId);
@@ -49,10 +53,10 @@ describe('user accounts', () => {
 		expect(accountWithTransactions).toHaveProperty('transactions', []);
 		expect(accounts).toHaveLength(1);
 		expect(accountsWithTransactions[0]).toHaveProperty('transactions', []);
-  })
+	});
 
 	test('update account', () => {
-    const teamAccount = useTeamAccount(teamId);
+		const teamAccount = useTeamAccount(teamId);
 
 		const account = teamAccount.update(accountId, { name: 'New Name' });
 		expect(account.name).toBe('New Name');
@@ -60,32 +64,32 @@ describe('user accounts', () => {
 	});
 
 	test('aggregate account balances', () => {
-    const teamAccount = useTeamAccount(teamId);
-    const teamTransaction = useTeamTransaction(teamId)
-    
+		const teamAccount = useTeamAccount(teamId);
+		const teamTransaction = useTeamTransaction(teamId);
+
 		teamTransaction.create({
 			accountId,
 			flow: 400,
 			validated: true,
-      createdBy: testUserId
+			createdBy: testUserId
 		});
 		teamTransaction.create({
 			accountId,
 			flow: -800,
 			validated: true,
-      createdBy: testUserId
+			createdBy: testUserId
 		});
 		teamTransaction.create({
 			accountId,
 			flow: -200,
 			validated: false,
-      createdBy: testUserId
+			createdBy: testUserId
 		});
 		teamTransaction.create({
 			accountId,
 			flow: 1000,
 			validated: false,
-      createdBy: testUserId
+			createdBy: testUserId
 		});
 
 		const balance = teamAccount.getBalance(accountId);
@@ -103,7 +107,7 @@ describe('user accounts', () => {
 	});
 
 	test('remove account', () => {
-    const teamAccount = useTeamAccount(teamId);
+		const teamAccount = useTeamAccount(teamId);
 		const removedAccount = teamAccount.remove(accountId);
 
 		expect(removedAccount).toBeDefined();

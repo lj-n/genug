@@ -1,5 +1,5 @@
 import { and, eq, sql } from 'drizzle-orm';
-import { db } from '..';
+import { db } from '../db';
 import { schema } from '../schema';
 import type {
 	InsertUserAccount,

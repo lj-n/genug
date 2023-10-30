@@ -1,4 +1,4 @@
-import { db } from '$lib/server';
+import { db } from '$lib/server/db';
 import { schema } from '$lib/server/schema';
 import { eq } from 'drizzle-orm';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';

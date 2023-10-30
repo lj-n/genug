@@ -1,4 +1,4 @@
-import { User } from '$lib/server/user';
+import { useUserAuth } from '$lib/server/user';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
 import { LuciaError } from 'lucia';
 import { SqliteError } from 'better-sqlite3';
@@ -21,7 +21,8 @@ export const actions = {
 		}
 
 		try {
-			const { session } = await User.create(username, password);
+			const { createUser } = useUserAuth();
+			const { session } = await createUser(username, password);
 			locals.auth.setSession(session);
 		} catch (error) {
 			if (isNameAlreadyInUse(error)) {
