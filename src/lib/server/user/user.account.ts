@@ -1,219 +1,202 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { schema } from '../schema';
 import type {
 	InsertUserAccount,
-	InsertUserTransaction,
 	SelectUserAccount,
-	SelectUserTransaction
+	UpdateUserAccount
 } from '../schema/tables';
 
-export class UserAccount {
-	userId: string;
-
-	constructor(userId: string) {
-		this.userId = userId;
-	}
-
-	get(id: number): SelectUserAccount {
-		const account = accountQuery.get({
-			userId: this.userId,
-			accountId: id
-		});
-
-		if (!account) {
-			throw new Error(`User(${this.userId}) account(${id}) not found.`);
+const userAccountFindFirst = db.query.userAccount
+	.findFirst({
+		where: (account, { and, eq, sql }) => {
+			return and(
+				eq(account.id, sql.placeholder('accountId')),
+				eq(account.userId, sql.placeholder('userId'))
+			);
 		}
+	})
+	.prepare();
 
-		return account;
-	}
-
-	getWithTransactions(id: number) {
-		const account = accountWithTransactionsQuery.get({
-			userId: this.userId,
-			accountId: id
-		});
-
-		if (!account) {
-			throw new Error(`User(${this.userId}) account(${id}) not found.`);
+const userAccountFindMany = db.query.userAccount
+	.findMany({
+		where: (account, { eq, sql }) => {
+			return eq(account.userId, sql.placeholder('userId'));
 		}
+	})
+	.prepare();
 
-		return account;
-	}
+const userAccountWithTransactionsFindFirst = db.query.userAccount
+	.findFirst({
+		where: (account, { and, eq, sql }) => {
+			return and(
+				eq(account.id, sql.placeholder('accountId')),
+				eq(account.userId, sql.placeholder('userId'))
+			);
+		},
+		with: {
+			transactions: true
+		}
+	})
+	.prepare();
 
-	getAll() {
-		return accountsQuery.all({ userId: this.userId });
-	}
+const userAccountWithTransactionsFindMany = db.query.userAccount
+	.findMany({
+		where: (account, { eq, sql }) => {
+			return eq(account.userId, sql.placeholder('userId'));
+		},
+		with: {
+			transactions: true
+		}
+	})
+	.prepare();
 
-	getAllWithTransactions() {
-		return accountsWithTransactionsQuery.all({ userId: this.userId });
-	}
+const userAccountBalanceQuery = db
+	.select({
+		validated: sql<number>`coalesce(sum(CASE WHEN ${schema.userTransaction.validated} = 1 THEN ${schema.userTransaction.flow} ELSE 0 END) ,0)`,
+		pending: sql<number>`coalesce(sum(CASE WHEN ${schema.userTransaction.validated} = 0 THEN ${schema.userTransaction.flow} ELSE 0 END) ,0)`
+	})
+	.from(schema.userTransaction)
+	.where(
+		and(
+			eq(schema.userTransaction.accountId, sql.placeholder('accountId')),
+			eq(schema.userTransaction.userId, sql.placeholder('userId'))
+		)
+	)
+	.prepare();
 
-	create(
-		draft: Omit<InsertUserAccount, 'id' | 'userId' | 'createdAt'>
+const userAccountBalanceAllQuery = db
+	.select({
+		accountId: schema.userAccount.id,
+		validated: sql<number>`coalesce(sum(CASE WHEN ${schema.userTransaction.validated} = 1 THEN ${schema.userTransaction.flow} ELSE 0 END) ,0)`,
+		pending: sql<number>`coalesce(sum(CASE WHEN ${schema.userTransaction.validated} = 0 THEN ${schema.userTransaction.flow} ELSE 0 END) ,0)`
+	})
+	.from(schema.userAccount)
+	.leftJoin(
+		schema.userTransaction,
+		eq(schema.userTransaction.accountId, schema.userAccount.id)
+	)
+	.where(eq(schema.userAccount.userId, sql.placeholder('userId')))
+	.groupBy(({ accountId }) => accountId)
+	.prepare();
+
+export function useUserAccount(userId: string) {
+	function create(
+		draft: Omit<InsertUserAccount, 'userId' | 'id' | 'createdAt'>
 	): SelectUserAccount {
-		const account = db
+		const createdAccount = db
 			.insert(schema.userAccount)
-			.values({ userId: this.userId, ...draft })
+			.values({ userId, ...draft })
 			.returning()
 			.get();
 
+		if (!createdAccount) {
+			throw new Error(`Could not create user(${userId}) account.`);
+		}
+
+		return createdAccount;
+	}
+
+	function get(accountId: number): SelectUserAccount {
+		const account = userAccountFindFirst.get({ accountId, userId });
+
 		if (!account) {
-			throw new Error(`Could not create user(${this.userId}) account.`);
+			throw new Error(`User(${userId}) account(${accountId}) not found`);
 		}
 
 		return account;
 	}
 
-	update(
-		id: number,
-		updates: Partial<Omit<InsertUserAccount, 'id' | 'userId' | 'createdAt'>>
+	function getWithTransactions(accountId: number) {
+		const account = userAccountWithTransactionsFindFirst.get({
+			accountId,
+			userId
+		});
+
+		if (!account) {
+			throw new Error(`User(${userId}) account(${accountId}) not found`);
+		}
+
+		return account;
+	}
+
+	function getAll() {
+		return userAccountFindMany.all({ userId });
+	}
+
+	function getAllWithTransactions() {
+		return userAccountWithTransactionsFindMany.all({ userId });
+	}
+
+	function getBalance(accountId: number) {
+		const balance = userAccountBalanceQuery.get({ accountId, userId });
+
+		if (!balance) {
+			throw new Error(`User(${userId}) account(${accountId}) not found`);
+		}
+
+		return balance;
+	}
+
+	function getBalances() {
+		return userAccountBalanceAllQuery.all({ userId });
+	}
+
+	function update(
+		accountId: number,
+		updates: UpdateUserAccount
 	): SelectUserAccount {
-		const account = db
+		const updatedAccount = db
 			.update(schema.userAccount)
 			.set(updates)
 			.where(
 				and(
-					eq(schema.userAccount.userId, this.userId),
-					eq(schema.userAccount.id, id)
+					eq(schema.userAccount.userId, userId),
+					eq(schema.userAccount.id, accountId)
 				)
 			)
 			.returning()
 			.get();
 
-		if (!account) {
-			throw new Error(`Could not update user(${this.userId}) account(${id}).`);
+		if (!updatedAccount) {
+			throw new Error(
+				`Could not update user(${userId}) account(${accountId}).`
+			);
 		}
 
-		return account;
+		return updatedAccount;
 	}
 
-	delete(id: number): SelectUserAccount {
-		const account = db
+	function remove(accountId: number): SelectUserAccount {
+		const removedAccount = db
 			.delete(schema.userAccount)
 			.where(
 				and(
-					eq(schema.userAccount.id, id),
-					eq(schema.userAccount.userId, this.userId)
+					eq(schema.userAccount.id, accountId),
+					eq(schema.userAccount.userId, userId)
 				)
 			)
 			.returning()
 			.get();
 
-		if (!account) {
-			throw new Error(`Could not delete user(${this.userId}) account(${id}).`);
+		if (!removedAccount) {
+			throw new Error(
+				`Could not remove user(${userId}) account(${accountId}).`
+			);
 		}
 
-		return account;
+		return removedAccount;
 	}
 
-	addTransactionToBalance(
-		accountId: number,
-		transaction: Pick<InsertUserTransaction, 'validated' | 'flow'>
-	): SelectUserAccount {
-		const account = this.get(accountId);
-
-		if (transaction.validated) {
-			account.balanceValidated += transaction.flow;
-		} else {
-			account.balanceUnvalidated += transaction.flow;
-		}
-		account.balanceWorking += transaction.flow;
-
-		return this.update(accountId, account);
-	}
-
-	removeTransactionFromBalance(
-		accountId: number,
-		transaction: Pick<SelectUserTransaction, 'validated' | 'flow'>
-	): SelectUserAccount {
-		const account = this.get(accountId);
-
-		if (transaction.validated) {
-			account.balanceValidated -= transaction.flow;
-		} else {
-			account.balanceUnvalidated -= transaction.flow;
-		}
-		account.balanceWorking -= transaction.flow;
-
-		return this.update(accountId, account);
-	}
-
-	updateTransactionInBalance(
-		accountId: number,
-		fromTransaction: SelectUserTransaction,
-		toTransaction: SelectUserTransaction
-	): SelectUserAccount {
-		this.removeTransactionFromBalance(accountId, fromTransaction);
-		this.addTransactionToBalance(accountId, toTransaction);
-		return this.get(accountId);
-	}
+	return {
+		create,
+		get,
+		getWithTransactions,
+		getAll,
+		getAllWithTransactions,
+		getBalance,
+		getBalances,
+		update,
+		remove
+	};
 }
-
-const accountQuery = db.query.userAccount
-	.findFirst({
-		where: (account, { and, eq, sql }) => {
-			return and(
-				eq(account.userId, sql.placeholder('userId')),
-				eq(account.id, sql.placeholder('accountId'))
-			);
-		}
-	})
-	.prepare();
-
-const accountWithTransactionsQuery = db.query.userAccount
-	.findFirst({
-		where: (account, { and, eq, sql }) => {
-			return and(
-				eq(account.userId, sql.placeholder('userId')),
-				eq(account.id, sql.placeholder('accountId'))
-			);
-		},
-		with: {
-			transactions: {
-				columns: {
-					accountId: false,
-					userId: false
-				},
-				with: {
-					account: {
-						columns: {
-							userId: false
-						}
-					}
-				}
-			}
-		}
-	})
-	.prepare();
-
-const accountsQuery = db.query.userAccount
-	.findMany({
-		where: (account, { eq, sql }) => {
-			return eq(account.userId, sql.placeholder('userId'));
-		}
-	})
-	.prepare();
-
-const accountsWithTransactionsQuery = db.query.userAccount
-	.findMany({
-		where: (account, { eq, sql }) => {
-			return eq(account.userId, sql.placeholder('userId'));
-		},
-		with: {
-			transactions: {
-				columns: {
-					accountId: false,
-					userId: false
-				},
-				with: {
-					account: {
-						columns: {
-							userId: false
-						}
-					}
-				}
-			}
-		}
-	})
-	.prepare();

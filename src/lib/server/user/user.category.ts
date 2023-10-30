@@ -1,172 +1,157 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from '../db';
 import { schema } from '../schema';
-import type { InsertUserCategory, SelectUserCategory } from '../schema/tables';
+import type {
+	InsertUserCategory,
+	SelectUserCategory,
+	UpdateUserCategory
+} from '../schema/tables';
 
-export class UserCategory {
-	userId: string;
-
-	constructor(userId: string) {
-		this.userId = userId;
-	}
-
-	get(id: number): SelectUserCategory {
-		const category = categoryQuery.get({
-			userId: this.userId,
-			categoryId: id
-		});
-
-		if (!category) {
-			throw new Error(`User(${this.userId}) category(${id}) not found.`);
+const userCategoryFindFirst = db.query.userCategory
+	.findFirst({
+		where: (category, { and, eq, sql }) => {
+			return and(
+				eq(category.id, sql.placeholder('categoryId')),
+				eq(category.userId, sql.placeholder('userId'))
+			);
 		}
+	})
+	.prepare();
 
-		return category;
-	}
-
-	getWithTransactions(id: number) {
-		const category = categoryWithTransactionsQuery.get({
-			userId: this.userId,
-			categoryId: id
-		});
-
-		if (!category) {
-			throw new Error(`User(${this.userId}) category(${id}) not found.`);
+const userCategoryFindMany = db.query.userCategory
+	.findMany({
+		where: (category, { eq, sql }) => {
+			return eq(category.userId, sql.placeholder('userId'));
 		}
+	})
+	.prepare();
 
-		return category;
-	}
+const userCategoryWithTransactionsFindFirst = db.query.userCategory
+	.findFirst({
+		where: (category, { and, eq, sql }) => {
+			return and(
+				eq(category.id, sql.placeholder('categoryId')),
+				eq(category.userId, sql.placeholder('userId'))
+			);
+		},
+		with: {
+			transactions: true
+		}
+	})
+	.prepare();
 
-	getAll() {
-		return categoriesQuery.all({ userId: this.userId });
-	}
+const userCategoryWithTransactionsFindMany = db.query.userCategory
+	.findMany({
+		where: (category, { eq, sql }) => {
+			return eq(category.userId, sql.placeholder('userId'));
+		},
+		with: {
+			transactions: true
+		}
+	})
+	.prepare();
 
-	getAllWithTransactions() {
-		return categoriesWithTransactionsQuery.all({ userId: this.userId });
-	}
-
-	create(
-		draft: Omit<InsertUserCategory, 'id' | 'userId' | 'createdAt'>
+export function useUserCategory(userId: string) {
+	function create(
+		draft: Omit<InsertUserCategory, 'userId' | 'id' | 'createdAt'>
 	): SelectUserCategory {
-		const category = db
+		const createdCategory = db
 			.insert(schema.userCategory)
-			.values({ userId: this.userId, ...draft })
+			.values({ userId, ...draft })
 			.returning()
 			.get();
 
+		if (!createdCategory) {
+			throw new Error(`Could not create user(${userId}) category.`);
+		}
+
+		return createdCategory;
+	}
+
+	function get(categoryId: number): SelectUserCategory {
+		const category = userCategoryFindFirst.get({ categoryId, userId });
+
 		if (!category) {
-			throw new Error(`Could not create user(${this.userId}) category.`);
+			throw new Error(`User(${userId}) category(${categoryId}) not found`);
 		}
 
 		return category;
 	}
 
-	update(
-		id: number,
-		updates: Partial<Omit<InsertUserCategory, 'id' | 'userId' | 'createdAt'>>
+	function getWithTransactions(categoryId: number) {
+		const category = userCategoryWithTransactionsFindFirst.get({
+			categoryId,
+			userId
+		});
+
+		if (!category) {
+			throw new Error(`User(${userId}) category(${categoryId}) not found`);
+		}
+
+		return category;
+	}
+
+	function getAll() {
+		return userCategoryFindMany.all({ userId });
+	}
+
+	function getAllWithTransactions() {
+		return userCategoryWithTransactionsFindMany.all({ userId });
+	}
+
+	function update(
+		categoryId: number,
+		updates: UpdateUserCategory
 	): SelectUserCategory {
-		const category = db
+		const updatedCategory = db
 			.update(schema.userCategory)
 			.set(updates)
 			.where(
 				and(
-					eq(schema.userCategory.userId, this.userId),
-					eq(schema.userCategory.id, id)
+					eq(schema.userCategory.userId, userId),
+					eq(schema.userCategory.id, categoryId)
 				)
 			)
 			.returning()
 			.get();
 
-		if (!category) {
-			throw new Error(`Could not update user(${this.userId}) category(${id}).`);
+		if (!updatedCategory) {
+			throw new Error(
+				`Could not update user(${userId}) category(${categoryId}).`
+			);
 		}
 
-		return category;
+		return updatedCategory;
 	}
 
-	delete(id: number): SelectUserCategory {
-		const category = db
+	function remove(categoryId: number): SelectUserCategory {
+		const removedCategory = db
 			.delete(schema.userCategory)
 			.where(
 				and(
-					eq(schema.userCategory.id, id),
-					eq(schema.userCategory.userId, this.userId)
+					eq(schema.userCategory.id, categoryId),
+					eq(schema.userCategory.userId, userId)
 				)
 			)
 			.returning()
 			.get();
 
-		if (!category) {
-			throw new Error(`Could not delete user(${this.userId}) category(${id}).`);
+		if (!removedCategory) {
+			throw new Error(
+				`Could not remove user(${userId}) category(${categoryId}).`
+			);
 		}
 
-		return category;
+		return removedCategory;
 	}
+
+	return {
+		create,
+		get,
+		getWithTransactions,
+		getAll,
+		getAllWithTransactions,
+		update,
+		remove
+	};
 }
-
-const categoryQuery = db.query.userCategory
-	.findFirst({
-		where: (category, { and, eq, sql }) => {
-			return and(
-				eq(category.userId, sql.placeholder('userId')),
-				eq(category.id, sql.placeholder('categoryId'))
-			);
-		}
-	})
-	.prepare();
-
-const categoryWithTransactionsQuery = db.query.userCategory
-	.findFirst({
-		where: (category, { and, eq, sql }) => {
-			return and(
-				eq(category.userId, sql.placeholder('userId')),
-				eq(category.id, sql.placeholder('categoryId'))
-			);
-		},
-		with: {
-			transactions: {
-				columns: {
-					accountId: false,
-					userId: false
-				},
-				with: {
-					account: {
-						columns: {
-							userId: false
-						}
-					}
-				}
-			}
-		}
-	})
-	.prepare();
-
-const categoriesQuery = db.query.userCategory
-	.findMany({
-		where: (category, { eq, sql }) => {
-			return eq(category.userId, sql.placeholder('userId'));
-		}
-	})
-	.prepare();
-
-const categoriesWithTransactionsQuery = db.query.userCategory
-	.findMany({
-		where: (category, { eq, sql }) => {
-			return eq(category.userId, sql.placeholder('userId'));
-		},
-		with: {
-			transactions: {
-				columns: {
-					accountId: false,
-					userId: false
-				},
-				with: {
-					account: {
-						columns: {
-							userId: false
-						}
-					}
-				}
-			}
-		}
-	})
-	.prepare();

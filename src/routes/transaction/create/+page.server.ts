@@ -1,4 +1,4 @@
-import { withAuth } from '$lib/server';
+import { withAuth } from '$lib/server/auth';
 import { fail, redirect } from '@sveltejs/kit';
 import { createInsertSchema } from 'drizzle-zod';
 import { schema } from '$lib/server/schema';

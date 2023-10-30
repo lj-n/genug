@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { User } from '$lib/server/user';
+import { useUserAuth } from '$lib/server/user';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const session = await locals.auth.validate();
@@ -20,7 +20,8 @@ export const actions = {
 		}
 
 		try {
-			const session = await User.login(username, password);
+			const { login } = useUserAuth();
+			const session = await login(username, password);
 			locals.auth.setSession(session);
 		} catch (_e) {
 			return fail(500, { username, error: 'Something went wrong, oops.' });

@@ -1,4 +1,4 @@
-import { withAuth } from '$lib/server';
+import { withAuth } from '$lib/server/auth';
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 

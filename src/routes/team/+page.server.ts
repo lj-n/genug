@@ -1,10 +1,11 @@
-import { withAuth } from '$lib/server';
+import { withAuth } from '$lib/server/auth';
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
+import { createTeam } from '$lib/server/team';
 
 export const load: PageServerLoad = withAuth(async (_, user) => {
 	return {
-		teams: user.team.all.map((team) => ({ id: team.id, name: team.name }))
+		teams: user.team.getAll()
 	};
 });
 
@@ -21,7 +22,7 @@ export const actions = {
 		let newTeam;
 
 		try {
-			newTeam = user.team.create({ teamname: name, description });
+			newTeam = createTeam({ teamname: name, description, userId: user.id });
 		} catch (error) {
 			return fail(500, {
 				name,

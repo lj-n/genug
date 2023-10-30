@@ -1,4 +1,4 @@
-import { withAuth } from '$lib/server';
+import { withAuth } from '$lib/server/auth';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = withAuth(async ({ params }, user) => {

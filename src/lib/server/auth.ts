@@ -9,7 +9,7 @@ import {
 } from '@sveltejs/kit';
 
 import { sqlite } from './db';
-import { User } from './user/user';
+import { userClient } from './user';
 
 export const auth = lucia({
 	env: dev ? 'DEV' : 'PROD',
@@ -26,15 +26,13 @@ export type Auth = typeof auth;
 
 /** Use to protect Server routes */
 export function withAuth<Event extends ServerLoadEvent | RequestEvent, Out>(
-	fn: (event: Event, user: User) => Out,
+	fn: (event: Event, user: ReturnType<typeof userClient>) => Out,
 	{ redirectTo = '/signin' }: { redirectTo?: string } = {}
 ) {
 	return async (event: Event): Promise<Out> => {
 		const session = await event.locals.auth.validate();
 		if (!session) throw redirect(302, redirectTo);
 
-		const user = new User(session.user.userId);
-
-		return fn(event, user);
+		return fn(event, userClient(session.user.userId));
 	};
 }
