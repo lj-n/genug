@@ -17,7 +17,13 @@ export const actions = {
 		const password = data.get('password')?.toString();
 
 		if (!password || !username) {
-			return fail(400, { error: 'Missing stuff..' });
+			return fail(400, { error: 'Please provide a username and password.' });
+		}
+
+		if (password.length < 8) {
+			return fail(400, {
+				error: 'Password must have a minimum of 8 characters.'
+			});
 		}
 
 		try {
@@ -29,7 +35,7 @@ export const actions = {
 				return fail(400, {
 					username,
 					password,
-					error: 'Username is already in use'
+					error: 'Username is already in use.'
 				});
 			}
 

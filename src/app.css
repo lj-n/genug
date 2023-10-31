@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-.btn,
-.input {
-	@apply rounded-md;
+
+.btn {
+  @apply normal-case;
 }
