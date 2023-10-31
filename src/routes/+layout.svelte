@@ -7,7 +7,7 @@
 </script>
 
 {#if data.user}
-	<nav class="navbar">
+	<nav class="navbar sticky top-0 z-30 backdrop-blur bg-base-100/80">
 		<div class="navbar-start">
 			<a href="/" class="hover:scale-110 transition-transform">
 				<img src="/logo.svg" alt="genug logo" width={100} />
@@ -19,6 +19,7 @@
 				href="/budget"
 				class="btn btn-ghost btn-circle"
 				aria-label="Go to Budget Page"
+        title="Budget"
 			>
 				<Feather name="sliders" />
 			</a>
@@ -27,6 +28,7 @@
 				href="/transaction"
 				class="btn btn-ghost btn-circle"
 				aria-label="Go to Transactions Page"
+        title="Transactions"
 			>
 				<Feather name="credit-card" />
 			</a>
@@ -35,6 +37,7 @@
 				href="/category"
 				class="btn btn-ghost btn-circle"
 				aria-label="Go to Categories Page"
+        title="Categories"
 			>
 				<Feather name="folder" />
 			</a>
@@ -43,6 +46,7 @@
 				href="/account"
 				class="btn btn-ghost btn-circle"
 				aria-label="Go to Accounts Page"
+        title="Accounts"
 			>
 				<Feather name="layers" />
 			</a>
@@ -51,6 +55,7 @@
 				href="/team"
 				class="btn btn-ghost btn-circle"
 				aria-label="Go to Teams Page"
+        title="Team"
 			>
 				<Feather name="users" />
 			</a>
