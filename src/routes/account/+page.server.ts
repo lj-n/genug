@@ -3,8 +3,14 @@ import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = withAuth(async (_, user) => {
+	const breadcrumbs: App.Breadcrumb[] = [
+		{ icon: 'home', title: 'Home', href: '/' },
+		{ icon: 'layers', title: 'Accounts' }
+	];
+
 	return {
-		accounts: user.account.getAll()
+    breadcrumbs,
+		accounts: user.account.getAllWithTransactions()
 	};
 });
 

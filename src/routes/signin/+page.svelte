@@ -8,14 +8,14 @@
 	let loading = false;
 </script>
 
-<div class="min-h-screen bg-base-100 items-center gap-12 p-2 flex flex-col">
+<div class="items-center gap-12 p-2 flex flex-col">
 	<div class="w-full max-w-sm mt-8">
 		<img src="/logo.svg" alt="genug logo" class="w-full" />
 	</div>
 
 	<form
 		method="post"
-		class="bg-gradient-to-tr from-base-200 to-base-100 p-6 sm:p-12 rounded-lg w-full max-w-md border border-neutral shadow-xl"
+		class="bg-gradient-to-tr from-base-200 to-base-100 p-6 sm:p-12 rounded-lg w-full max-w-md border border-neutral shadow-lg"
 		use:enhance={() => {
 			loading = true;
 			return async ({ update }) => {

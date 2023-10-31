@@ -7,10 +7,18 @@ declare global {
 		interface Locals {
 			auth: import('lucia').AuthRequest;
 		}
-		// interface PageData {}
+		interface PageData {
+			breadcrumbs?: Breadcrumb[];
+		}
 		// interface Platform {}
+    type Breadcrumb = {
+      icon?: import('feather-icons').FeatherIconNames;
+      href?: string;
+      title: string;
+    }
 	}
 }
+
 
 /// <reference types="lucia" />
 declare global {

@@ -4,8 +4,8 @@
 	export let data: PageData;
 </script>
 
-<main class="flex flex-col px-2 min-h-[4000px]">
-	<h1 class="text-5xl my-12 font-bold mx-auto">👋 Welcome, {data.user?.name}!</h1>
+<main class="flex flex-col">
+	<h1 class="text-5xl mb-12 font-bold mx-auto">👋 Welcome, {data.user?.name}!</h1>
 
 	<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 		<a
