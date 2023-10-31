@@ -1,24 +1,95 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-
+	import Feather from '$lib/components/feather.svelte';
 	import type { ActionData } from './$types';
 
 	export let form: ActionData;
+
+	let loading = false;
 </script>
 
-<h1>Sign up</h1>
+<div class="min-h-screen bg-base-100 items-center gap-12 p-2 flex flex-col">
+	<div class="w-full max-w-sm mt-8">
+		<img src="/logo.svg" alt="genug logo" class="w-full" />
+	</div>
 
-<form method="post" use:enhance>
-	<label for="username">Username</label>
-	<input name="username" id="username" /><br />
-	<label for="password">Password</label>
-	<input type="password" name="password" id="password" /><br />
-	<input type="submit" />
-</form>
+	<form
+		method="post"
+		class="bg-gradient-to-tr from-base-200 to-base-100 p-6 sm:p-12 rounded-lg w-full max-w-md border border-neutral shadow-xl"
+		use:enhance={() => {
+			loading = true;
+			return async ({ update }) => {
+				loading = false;
+				update();
+			};
+		}}
+	>
+		<h2 class="font-bold text-3xl mb-8">
+			<span
+				class="bg-clip-text text-transparent bg-gradient-to-tr from-primary to-accent"
+			>
+				Sign
+			</span>
+			up!
+		</h2>
 
-{#if form?.error}
-	<p class="error">{form.error}</p>
-{/if}
+		<div class="form-control w-full">
+			<label class="label" for="username">
+				<span class="label-text">Username</span>
+			</label>
+			<input
+				type="text"
+				name="username"
+				id="username"
+				placeholder="Your username"
+				class="input input-bordered w-full"
+				disabled={loading}
+			/>
+		</div>
 
-<a href="/password-reset">Reset password</a>
-<a href="/signin">Sign In</a>
+		<div class="form-control w-full max-w-sm group">
+			<label class="label" for="password">
+				<span class="label-text">Password</span>
+				<span
+					class="label-text text-xs text-warning opacity-0 group-focus-within:opacity-90 transition-opacity"
+				>
+					(minimum 8 characters)
+				</span>
+			</label>
+			<input
+				type="password"
+				name="password"
+				id="password"
+				placeholder="********"
+				class="input input-bordered w-full"
+				disabled={loading}
+			/>
+		</div>
+
+		{#if form?.error}
+			<div class="flex mt-4">
+				<p class="mx-auto text-error my-4 text-center">
+					{form.error}
+				</p>
+			</div>
+		{/if}
+
+		<div class="flex mt-8">
+			<button
+				type="submit"
+				class="btn btn-primary mx-auto btn-wide font-bold"
+				disabled={loading}
+			>
+				{#if loading}
+					<Feather name="loader" class="animate-spin" />
+					just a moment
+				{:else}
+					<Feather name="user-check" />
+					Create User
+				{/if}
+			</button>
+		</div>
+	</form>
+
+	<a href="/signin" class="link link-hover">Already have an Account?</a>
+</div>
