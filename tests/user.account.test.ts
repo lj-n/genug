@@ -82,7 +82,7 @@ describe('user accounts', () => {
 		expect(balance.pending).toBe(800);
 		expect(balances).toMatchObject([
 			{
-				accountId,
+				...userAccounts.get(accountId),
 				validated: -400,
 				pending: 800
 			}

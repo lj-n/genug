@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import Button from '$lib/components/button.svelte';
 	import Feather from '$lib/components/feather.svelte';
 	import type { ActionData } from './$types';
 
@@ -75,19 +76,13 @@
 		{/if}
 
 		<div class="flex mt-8">
-			<button
+			<Button
 				type="submit"
-				class="btn btn-primary mx-auto btn-wide font-bold"
-				disabled={loading}
+				class="btn btn-secondary mx-auto btn-wide font-bold"
+				icon="chevrons-right"
 			>
-				{#if loading}
-					<Feather name="loader" class="animate-spin" />
-					just a moment
-				{:else}
-					<Feather name="user-check" />
-					Create User
-				{/if}
-			</button>
+				Create User
+			</Button>
 		</div>
 	</form>
 

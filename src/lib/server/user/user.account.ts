@@ -67,7 +67,7 @@ const userAccountBalanceQuery = db
 
 const userAccountBalanceAllQuery = db
 	.select({
-		accountId: schema.userAccount.id,
+		account: schema.userAccount,
 		validated: sql<number>`coalesce(sum(CASE WHEN ${schema.userTransaction.validated} = 1 THEN ${schema.userTransaction.flow} ELSE 0 END) ,0)`,
 		pending: sql<number>`coalesce(sum(CASE WHEN ${schema.userTransaction.validated} = 0 THEN ${schema.userTransaction.flow} ELSE 0 END) ,0)`
 	})
@@ -77,7 +77,7 @@ const userAccountBalanceAllQuery = db
 		eq(schema.userTransaction.accountId, schema.userAccount.id)
 	)
 	.where(eq(schema.userAccount.userId, sql.placeholder('userId')))
-	.groupBy(({ accountId }) => accountId)
+	.groupBy(({ account }) => account.id)
 	.prepare();
 
 export function useUserAccount(userId: string) {
@@ -139,7 +139,9 @@ export function useUserAccount(userId: string) {
 	}
 
 	function getBalances() {
-		return userAccountBalanceAllQuery.all({ userId });
+		return userAccountBalanceAllQuery
+			.all({ userId })
+			.map(({ account, ...balances }) => ({ ...balances, ...account }));
 	}
 
 	function update(

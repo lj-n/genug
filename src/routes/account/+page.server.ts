@@ -9,29 +9,32 @@ export const load: PageServerLoad = withAuth(async (_, user) => {
 	];
 
 	return {
-    breadcrumbs,
-		accounts: user.account.getAllWithTransactions()
+		breadcrumbs,
+		accounts: user.account.getBalances()
 	};
 });
 
 export const actions = {
-	createUserAccount: withAuth(async ({ request }, user) => {
+	createAccount: withAuth(async ({ request }, user) => {
 		const formData = await request.formData();
 		const accountName = formData.get('accountName')?.toString();
-		const description = formData.get('description')?.toString();
+		const accountDescription = formData.get('accountDescription')?.toString();
 
 		if (!accountName) {
-			return fail(400, { description, error: 'Missing account name' });
+			return fail(400, { accountDescription, error: 'Missing account name' });
 		}
 
 		try {
-			const account = user.account.create({ name: accountName, description });
+			const account = user.account.create({
+				name: accountName,
+				description: accountDescription
+			});
 
 			return { success: true, account };
 		} catch (_e) {
 			return fail(500, {
 				accountName,
-				description,
+				accountDescription,
 				error: 'Something went wrong, please try again.'
 			});
 		}

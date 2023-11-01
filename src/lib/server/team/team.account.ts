@@ -63,7 +63,7 @@ const teamAccountBalanceQuery = db
 
 const teamAccountBalanceAllQuery = db
 	.select({
-		accountId: schema.teamAccount.id,
+		account: schema.teamAccount,
 		validated: sql<number>`coalesce(sum(CASE WHEN ${schema.teamTransaction.validated} = 1 THEN ${schema.teamTransaction.flow} ELSE 0 END), 0)`,
 		pending: sql<number>`coalesce(sum(CASE WHEN ${schema.teamTransaction.validated} = 0 THEN ${schema.teamTransaction.flow} ELSE 0 END), 0)`
 	})
@@ -73,7 +73,7 @@ const teamAccountBalanceAllQuery = db
 		eq(schema.teamTransaction.accountId, schema.teamAccount.id)
 	)
 	.where(eq(schema.teamAccount.teamId, sql.placeholder('teamId')))
-	.groupBy(({ accountId }) => accountId)
+	.groupBy(({ account }) => account.id)
 	.prepare();
 
 export function useTeamAccount(teamId: number) {
@@ -135,7 +135,9 @@ export function useTeamAccount(teamId: number) {
 	}
 
 	function getBalances() {
-		return teamAccountBalanceAllQuery.all({ teamId });
+		return teamAccountBalanceAllQuery
+			.all({ teamId })
+			.map(({ account, ...balances }) => ({ ...account, ...balances }));
 	}
 
 	function update(

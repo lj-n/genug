@@ -1,22 +1,73 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import Button from '$lib/components/button.svelte';
 	import Feather from '$lib/components/feather.svelte';
+	import { flip } from 'svelte/animate';
 	import type { PageData } from './$types';
+	import { scale } from 'svelte/transition';
+	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
 
 	export let data: PageData;
 
 	let loading = false;
 </script>
 
-<div
-	class="flex flex-col gap-2 my-8 border-neutral focus-within:border-accent border-dashed transition-colors border p-4 rounded-md shadow"
->
-	<h2 class="text-2xl font-semibold">Create New Account</h2>
+<main class="flex flex-col gap-8">
+	<h1 class="text-5xl font-bold">Your Accounts</h1>
+
+	<div class="overflow-x-auto border border-secondary shadow-xl rounded-xl p-2">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Description</th>
+					<th>Created at</th>
+					<th>Balance Validated</th>
+					<th>Balance Pending</th>
+					<th>Balance Working</th>
+					<th />
+				</tr>
+			</thead>
+
+			<tbody>
+				{#each data.accounts as account (account.id)}
+					<tr class="text-xl" animate:flip transition:scale>
+						<td>{account.name}</td>
+						<td><span class="text-sm">{account.description || '-'}</span></td>
+						<td><span class="text-sm">{account.createdAt}</span> </td>
+						<td>
+							<span class="tabular-nums font-bold">
+								{formatFractionToLocaleCurrency(account.validated)}
+							</span>
+						</td>
+						<td>
+							<span class="tabular-nums font-bold">
+								{formatFractionToLocaleCurrency(account.pending)}
+							</span>
+						</td>
+						<td>
+							<span class="tabular-nums font-bold">
+								{formatFractionToLocaleCurrency(
+									account.validated - account.pending
+								)}
+							</span>
+						</td>
+						<td>
+							<a href="/account/{account.id}" class="btn btn-xs btn-ghost">
+								<Feather name="edit" />
+								edit
+							</a>
+						</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	</div>
 
 	<form
+		class="flex flex-wrap gap-4 items-end border border-dashed shadow-xl border-neutral rounded-xl p-4"
 		action="?/createAccount"
 		method="post"
-		class="flex flex-col gap-4 sm:flex-row items-end"
 		use:enhance={() => {
 			loading = true;
 
@@ -26,67 +77,43 @@
 			};
 		}}
 	>
-		<div class="form-control w-full max-w-xs">
+		<h2 class="text-2xl font-semibold w-full">Create New Account</h2>
+
+		<div class="form-control w-full max-w-sm">
 			<label class="label" for="accountName">
-				<span class="label-text">Name</span>
+				<span class="label-text">Account Name</span>
 			</label>
 			<input
 				type="text"
 				id="accountName"
 				name="accountName"
 				placeholder="my beloved piggy bank"
-				class="input input-bordered w-full"
+				class="input input-bordered w-full focus:input-accent"
 				disabled={loading}
 			/>
 		</div>
 
-		<div class="form-control w-full max-w-xs">
+		<div class="form-control w-full max-w-sm">
 			<label class="label" for="accountDescription">
-				<span class="label-text">Description</span>
+				<span class="label-text">Account Description</span>
 			</label>
 			<input
 				type="text"
 				id="accountDescription"
 				name="accountDescription"
 				placeholder="(optional)"
-				class="input input-bordered w-full"
+				class="input input-bordered w-full focus:input-accent"
 				disabled={loading}
 			/>
 		</div>
 
-		<button type="submit" class="btn btn-outline btn-accent" disabled={loading}>
-			{#if loading}
-				<Feather name="loader" class="animate-spin" />
-				just a moment
-			{:else}
-				<Feather name="plus-circle" />
-				Create Account
-			{/if}
-		</button>
+		<Button
+			type="submit"
+			icon="plus-circle"
+			class="btn btn-outline btn-accent ml-auto mt-6"
+			{loading}
+		>
+			Create Account
+		</Button>
 	</form>
-</div>
-
-<!-- <ul>
-	{#each data.accounts as account (account.id)}
-		<li>
-			<a href="/account/{account.id}">{account.name}</a>
-		</li>
-	{/each}
-</ul>
-
-<form use:enhance method="post" action="?/createUserAccount">
-	<div class="form-control w-full max-w-xs">
-		<label class="label" for="accountName">
-			<span class="label-text">Create a new account</span>
-		</label>
-		<input
-			type="text"
-			id="accountName"
-			name="accountName"
-			placeholder="Type here"
-			class="input input-bordered w-full"
-		/>
-	</div>
-
-	<button type="submit" class="btn btn-primary btn-sm">create account</button>
-</form> -->
+</main>
