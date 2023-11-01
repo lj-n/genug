@@ -81,7 +81,7 @@
 	</nav>
 {/if}
 
-<div class="px-2 sm:px-4 pt-8 pb-4">
+<div class="px-2 sm:px-4 pt-8 pb-4 flex-grow flex flex-col">
 	{#if $page.data.breadcrumbs}
 		<Breadcrumb links={$page.data.breadcrumbs} />
 	{/if}

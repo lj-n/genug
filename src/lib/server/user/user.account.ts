@@ -97,27 +97,15 @@ export function useUserAccount(userId: string) {
 		return createdAccount;
 	}
 
-	function get(accountId: number): SelectUserAccount {
-		const account = userAccountFindFirst.get({ accountId, userId });
-
-		if (!account) {
-			throw new Error(`User(${userId}) account(${accountId}) not found`);
-		}
-
-		return account;
+	function get(accountId: number) {
+		return userAccountFindFirst.get({ accountId, userId });
 	}
 
 	function getWithTransactions(accountId: number) {
-		const account = userAccountWithTransactionsFindFirst.get({
+		return userAccountWithTransactionsFindFirst.get({
 			accountId,
 			userId
 		});
-
-		if (!account) {
-			throw new Error(`User(${userId}) account(${accountId}) not found`);
-		}
-
-		return account;
 	}
 
 	function getAll() {
@@ -129,13 +117,7 @@ export function useUserAccount(userId: string) {
 	}
 
 	function getBalance(accountId: number) {
-		const balance = userAccountBalanceQuery.get({ accountId, userId });
-
-		if (!balance) {
-			throw new Error(`User(${userId}) account(${accountId}) not found`);
-		}
-
-		return balance;
+		return userAccountBalanceQuery.get({ accountId, userId });
 	}
 
 	function getBalances() {
