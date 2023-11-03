@@ -9,82 +9,51 @@
 	let loading = false;
 </script>
 
-<div class="items-center gap-12 p-2 flex flex-col">
-	<div class="w-full max-w-sm mt-8">
+<form
+	method="post"
+	class="max-w-sm w-full bg-neutral-50 m-auto flex flex-col items-center gap-4 p-4 border border-neutral-400 rounded shadow"
+	use:enhance={() => {
+		loading = true;
+		return async ({ update }) => {
+			loading = false;
+			update();
+		};
+	}}
+>
+	<div class="w-2/3">
 		<img src="/logo.svg" alt="genug logo" class="w-full" />
 	</div>
 
-	<form
-		method="post"
-		class="bg-gradient-to-tr from-base-200 to-base-100 p-6 sm:p-12 rounded-lg w-full max-w-md border border-neutral shadow-lg"
-		use:enhance={() => {
-			loading = true;
-			return async ({ update }) => {
-				loading = false;
-				update();
-			};
-		}}
-	>
-		<h2 class="font-bold text-3xl mb-8">
+	<h1>Sign up!</h1>
+
+	<label class="input-label">
+		Username
+		<input type="text" name="username" id="username" class="input" />
+	</label>
+
+	<label class="input-label group" for="password">
+		<div class="flex justify-between items-end">
+			Password
 			<span
-				class="bg-clip-text text-transparent bg-gradient-to-tr from-primary to-accent"
+				class="text-xs opacity-0 group-focus-within:opacity-90 transition-opacity"
 			>
-				Sign
+				(minimum 8 characters)
 			</span>
-			up!
-		</h2>
-
-		<div class="form-control w-full">
-			<label class="label" for="username">
-				<span class="label-text">Username</span>
-			</label>
-			<input
-				type="text"
-				name="username"
-				id="username"
-				placeholder="Your username"
-				class="input input-bordered w-full"
-				disabled={loading}
-			/>
 		</div>
+		<input type="password" name="password" id="password" class="input" />
+	</label>
 
-		<div class="form-control w-full max-w-sm group">
-			<label class="label" for="password">
-				<span class="label-text">Password</span>
-				<span
-					class="label-text text-xs text-warning opacity-0 group-focus-within:opacity-90 transition-opacity"
-				>
-					(minimum 8 characters)
-				</span>
-			</label>
-			<input
-				type="password"
-				name="password"
-				id="password"
-				placeholder="********"
-				class="input input-bordered w-full"
-				disabled={loading}
-			/>
+	{#if form?.error}
+		<div class="flex mt-4">
+			<p class="mx-auto text-red-600 my-4 text-center">
+				{form.error}
+			</p>
 		</div>
+	{/if}
 
-		{#if form?.error}
-			<div class="flex mt-4">
-				<p class="mx-auto text-error my-4 text-center">
-					{form.error}
-				</p>
-			</div>
-		{/if}
+	<Button icon="user-plus" class="btn btn-secondary mt-2" {loading}
+		>Create User</Button
+	>
 
-		<div class="flex mt-8">
-			<Button
-				type="submit"
-				class="btn btn-secondary mx-auto btn-wide font-bold"
-				icon="chevrons-right"
-			>
-				Create User
-			</Button>
-		</div>
-	</form>
-
-	<a href="/signin" class="link link-hover">Already have an Account?</a>
-</div>
+	<a href="/signin">Are you already registered?</a>
+</form>

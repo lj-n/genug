@@ -1,9 +1,10 @@
 <script lang="ts">
-	let className: string;
+	let className: string = '';
 	export { className as class };
 
 	let input: HTMLInputElement;
 
+	export let suffix = '$';
 	export let name: string;
 	export let disabled = false;
 	export let value = 0;
@@ -38,16 +39,29 @@
 	};
 </script>
 
+<label class={className} data-suffix={suffix}>
+	<slot />
+	<input
+		type="text"
+		class="input"
+		id={name}
+		{disabled}
+		bind:this={input}
+		bind:value={displayValue}
+		on:keypress={handleKeyPress}
+		on:input={format}
+		on:focus={input.select}
+		on:blur
+	/>
+</label>
 <input type="hidden" {name} bind:value />
-<input
-	class={className}
-	type="text"
-	id={name}
-	{disabled}
-	bind:this={input}
-	bind:value={displayValue}
-	on:keypress={handleKeyPress}
-	on:input={format}
-	on:focus={input.select}
-	on:blur
-/>
+
+<style lang="postcss">
+	label {
+		@apply relative;
+	}
+	label::before {
+		@apply absolute right-2 top-1/2 text-neutral-600 font-bold;
+		content: attr(data-suffix);
+	}
+</style>

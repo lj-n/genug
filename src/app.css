@@ -2,7 +2,78 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+	font-family: Seravek, 'Gill Sans Nova', Ubuntu, Calibri, 'DejaVu Sans',
+		source-sans-pro, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+		'Segoe UI Symbol', 'Noto Color Emoji';
+}
 
-.btn {
-  @apply normal-case;
+@layer base {
+	html {
+		@apply antialiased bg-neutral-50 text-neutral-700;
+	}
+	h1 {
+		@apply text-4xl font-bold;
+	}
+	h2 {
+		@apply text-3xl font-semibold;
+	}
+	h3 {
+		@apply font-semibold text-xl;
+	}
+	select {
+		@apply text-base;
+	}
+  a:not(.btn) {
+    @apply hover:underline;
+  }
+}
+
+@layer components {
+	/* Buttons */
+	a.btn,
+	button.btn {
+		@apply inline-flex gap-2 items-center justify-center border border-stone-300 hover:bg-stone-100 rounded px-8 py-2;
+	}
+
+	a.btn-primary,
+	button.btn-primary {
+		@apply border-emerald-600 bg-emerald-400 text-emerald-950;
+		@apply hover:bg-emerald-500 hover:border-emerald-700;
+	}
+
+	a.btn-secondary,
+	button.btn-secondary {
+		@apply border-indigo-600 bg-indigo-400 text-white;
+		@apply hover:bg-indigo-500 hover:border-indigo-700;
+	}
+
+	a.btn-danger,
+	button.btn-danger {
+		@apply border-red-600 bg-red-400 text-red-950;
+		@apply hover:bg-red-500 hover:border-red-500;
+	}
+
+	a.btn-ghost,
+	button.btn-ghost {
+		@apply border-none hover:bg-stone-200 active:bg-stone-100;
+	}
+
+	a.btn:disabled,
+	button.btn:disabled {
+		@apply disabled:bg-stone-200 disabled:border-stone-300 disabled:text-stone-400;
+	}
+
+	/* Inputs */
+	label.input-label {
+		@apply flex flex-col w-full;
+	}
+	input[type='text'].input,
+	input[type='password'].input,
+	input[type='number'].input,
+	input[type='date'].input,
+	input[type='file'].input,
+	select.input {
+		@apply bg-transparent border-neutral-400 border rounded p-2 appearance-none;
+	}
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Feather from './feather.svelte';
+	import Feather from '$lib/components/feather.svelte';
 	export let links: NonNullable<App.PageData['breadcrumbs']>;
 </script>
 
