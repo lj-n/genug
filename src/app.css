@@ -16,7 +16,7 @@ html {
 		@apply text-4xl font-bold;
 	}
 	h2 {
-		@apply text-3xl font-semibold;
+		@apply text-2xl font-semibold;
 	}
 	h3 {
 		@apply font-semibold text-xl;
@@ -24,13 +24,12 @@ html {
 	select {
 		@apply text-base;
 	}
-  a:not(.btn) {
-    @apply hover:underline;
-  }
+	a:not(.btn) {
+		@apply hover:underline;
+	}
 }
 
 @layer components {
-	/* Buttons */
 	a.btn,
 	button.btn {
 		@apply inline-flex gap-2 items-center justify-center border border-stone-300 hover:bg-stone-100 rounded px-8 py-2;
@@ -59,12 +58,6 @@ html {
 		@apply border-none hover:bg-stone-200 active:bg-stone-100;
 	}
 
-	a.btn:disabled,
-	button.btn:disabled {
-		@apply disabled:bg-stone-200 disabled:border-stone-300 disabled:text-stone-400;
-	}
-
-	/* Inputs */
 	label.input-label {
 		@apply flex flex-col w-full;
 	}
@@ -74,6 +67,13 @@ html {
 	input[type='date'].input,
 	input[type='file'].input,
 	select.input {
-		@apply bg-transparent border-neutral-400 border rounded p-2 appearance-none;
+		@apply bg-neutral-50 border-neutral-400 border rounded p-2;
+	}
+
+	a.btn:disabled,
+	button.btn:disabled,
+	input:disabled,
+  select:disabled {
+		@apply disabled:bg-stone-200 disabled:border-stone-300 disabled:text-stone-400;
 	}
 }

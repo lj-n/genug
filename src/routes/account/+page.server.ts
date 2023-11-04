@@ -5,7 +5,7 @@ import type { Actions, PageServerLoad } from './$types';
 export const load: PageServerLoad = withAuth(async (_, user) => {
 	const breadcrumbs: App.Breadcrumb[] = [
 		{ icon: 'home', title: 'Home', href: '/' },
-		{ icon: 'layers', title: 'Accounts' }
+		{ title: 'Accounts' }
 	];
 
 	return {
@@ -15,26 +15,22 @@ export const load: PageServerLoad = withAuth(async (_, user) => {
 });
 
 export const actions = {
-	createAccount: withAuth(async ({ request }, user) => {
+	default: withAuth(async ({ request }, user) => {
 		const formData = await request.formData();
-		const accountName = formData.get('accountName')?.toString();
-		const accountDescription = formData.get('accountDescription')?.toString();
+		const name = formData.get('name')?.toString();
+		const description = formData.get('description')?.toString();
 
-		if (!accountName) {
-			return fail(400, { accountDescription, error: 'Missing account name' });
+		if (!name) {
+			return fail(400, { description, error: 'Missing account name' });
 		}
 
 		try {
-			const account = user.account.create({
-				name: accountName,
-				description: accountDescription
-			});
-
+			const account = user.account.create({ name, description });
 			return { success: true, account };
 		} catch (_e) {
 			return fail(500, {
-				accountName,
-				accountDescription,
+				name,
+				description,
 				error: 'Something went wrong, please try again.'
 			});
 		}

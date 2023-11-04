@@ -3,24 +3,26 @@
 	export let links: NonNullable<App.PageData['breadcrumbs']>;
 </script>
 
-<div class="text-sm breadcrumbs mb-4">
-	<ul>
-		{#each links as { href, icon, title }}
-			<li>
-				{#if href}
-					<a {href}>
-						{#if icon}
-							<Feather name={icon} class="mr-2"/>
-						{/if}
-						{title}
-					</a>
-				{:else}
-					{#if icon}
-						<Feather name={icon} class="mr-2"/>
-					{/if}
-					{title}
+<nav aria-label="breadcrumb" class="text-sm my-8 flex gap-2">
+	{#each links as { href, icon, title }, index}
+		{#if href}
+			<a {href} class="inline-flex items-center gap-0.5">
+				{#if icon}
+					<Feather name={icon} />
 				{/if}
-			</li>
-		{/each}
-	</ul>
-</div>
+				{title}
+			</a>
+		{:else}
+			<span class="inline-flex items-center gap-0.5">
+				{#if icon}
+					<Feather name={icon} />
+				{/if}
+				{title}
+			</span>
+		{/if}
+
+		{#if index < links.length - 1}
+			<span>{'>'}</span>
+		{/if}
+	{/each}
+</nav>

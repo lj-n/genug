@@ -73,10 +73,10 @@ export const userAccount = sqliteTable('user_account', {
 
 export type SelectUserAccount = typeof userAccount.$inferSelect;
 export type InsertUserAccount = typeof userAccount.$inferInsert;
-export type UpdateUserAccount = Omit<
+export type UpdateUserAccount =Partial<Omit<
 	InsertUserAccount,
 	'id' | 'userId' | 'createdAt'
->;
+>>;
 
 export const userTransaction = sqliteTable('user_transaction', {
 	id: integer('id', { mode: 'number' }).primaryKey(),

@@ -80,6 +80,28 @@ const userAccountBalanceAllQuery = db
 	.groupBy(({ account }) => account.id)
 	.prepare();
 
+const userAccountDetails = db
+	.select({
+    details: schema.userAccount,
+		transactions: {
+			count: sql<number>`coalesce(count(${schema.userTransaction.flow}), 0)`,
+			validatedSum: sql<number>`coalesce(sum(CASE WHEN ${schema.userTransaction.validated} = 1 THEN ${schema.userTransaction.flow} ELSE 0 END) ,0)`,
+			pendingSum: sql<number>`coalesce(sum(CASE WHEN ${schema.userTransaction.validated} = 0 THEN ${schema.userTransaction.flow} ELSE 0 END) ,0)`
+		}
+	})
+	.from(schema.userAccount)
+	.leftJoin(
+		schema.userTransaction,
+		eq(schema.userTransaction.accountId, schema.userAccount.id)
+	)
+	.where(
+		and(
+			eq(schema.userAccount.id, sql.placeholder('accountId')),
+			eq(schema.userAccount.userId, sql.placeholder('userId'))
+		)
+	)
+	.prepare();
+
 export function useUserAccount(userId: string) {
 	function create(
 		draft: Omit<InsertUserAccount, 'userId' | 'id' | 'createdAt'>
@@ -100,6 +122,10 @@ export function useUserAccount(userId: string) {
 	function get(accountId: number) {
 		return userAccountFindFirst.get({ accountId, userId });
 	}
+
+	function getDetails(accountId: number) {
+    return userAccountDetails.get({ accountId, userId })
+  }
 
 	function getWithTransactions(accountId: number) {
 		return userAccountWithTransactionsFindFirst.get({
@@ -175,6 +201,7 @@ export function useUserAccount(userId: string) {
 	return {
 		create,
 		get,
+    getDetails,
 		getWithTransactions,
 		getAll,
 		getAllWithTransactions,

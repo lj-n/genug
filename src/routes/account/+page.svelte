@@ -12,108 +12,82 @@
 	let loading = false;
 </script>
 
-<main class="flex flex-col gap-8">
-	<h1 class="text-5xl font-bold">Your Accounts</h1>
+<h1>Accounts</h1>
 
-	<div class="overflow-x-auto border border-secondary shadow-xl rounded-xl p-2">
-		<table class="table">
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>Description</th>
-					<th>Created at</th>
-					<th>Balance Validated</th>
-					<th>Balance Pending</th>
-					<th>Balance Working</th>
-					<th />
-				</tr>
-			</thead>
-
-			<tbody>
-				{#each data.accounts as account (account.id)}
-					<tr class="text-xl" animate:flip transition:scale>
-						<td>{account.name}</td>
-						<td><span class="text-sm">{account.description || '-'}</span></td>
-						<td><span class="text-sm">{account.createdAt}</span> </td>
-						<td>
-							<span class="tabular-nums font-bold">
-								{formatFractionToLocaleCurrency(account.validated)}
-							</span>
-						</td>
-						<td>
-							<span class="tabular-nums font-bold">
-								{formatFractionToLocaleCurrency(account.pending)}
-							</span>
-						</td>
-						<td>
-							<span class="tabular-nums font-bold">
-								{formatFractionToLocaleCurrency(
-									account.validated - account.pending
-								)}
-							</span>
-						</td>
-						<td>
-							<a href="/account/{account.id}" class="btn btn-xs btn-ghost">
-								<Feather name="edit" />
-								edit
-							</a>
-						</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-	</div>
-
-	<form
-		class="flex flex-wrap gap-4 items-end border border-dashed shadow-xl border-neutral rounded-xl p-4"
-		action="?/createAccount"
-		method="post"
-		use:enhance={() => {
-			loading = true;
-
-			return async ({ update }) => {
-				loading = false;
-				update();
-			};
-		}}
-	>
-		<h2 class="text-2xl font-semibold w-full">Create New Account</h2>
-
-		<div class="form-control w-full max-w-sm">
-			<label class="label" for="accountName">
-				<span class="label-text">Account Name</span>
-			</label>
-			<input
-				type="text"
-				id="accountName"
-				name="accountName"
-				placeholder="my beloved piggy bank"
-				class="input input-bordered w-full focus:input-accent"
-				disabled={loading}
-			/>
-		</div>
-
-		<div class="form-control w-full max-w-sm">
-			<label class="label" for="accountDescription">
-				<span class="label-text">Account Description</span>
-			</label>
-			<input
-				type="text"
-				id="accountDescription"
-				name="accountDescription"
-				placeholder="(optional)"
-				class="input input-bordered w-full focus:input-accent"
-				disabled={loading}
-			/>
-		</div>
-
-		<Button
-			type="submit"
-			icon="plus-circle"
-			class="btn btn-outline btn-accent ml-auto mt-6"
-			{loading}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-8">
+	{#each data.accounts as account (account.id)}
+		<div
+			class="p-4 grid-cols-2 grid gap-4 border border-neutral-300 rounded shadow-sm bg-neutral-50"
+			animate:flip
+			transition:scale
 		>
-			Create Account
-		</Button>
-	</form>
-</main>
+			<div class="flex flex-col">
+				<span class="text-xs text-neutral-500">Name</span>
+				<span class="text-lg font-semibold">{account.name}</span>
+			</div>
+
+			<a
+				href="/account/{account.id}"
+				aria-label=""
+				class="ml-auto mb-auto inline-flex items-center gap-1 text-sm"
+			>
+				<Feather name="arrow-up-right" />
+				Details
+			</a>
+
+			<div class="flex flex-col">
+				<span class="text-xs text-neutral-500">Description</span>
+				<span>{account.description || '~'}</span>
+			</div>
+
+			<div class="flex flex-col items-end">
+				<span class="text-xs text-neutral-500">Balance</span>
+				<span class="text-lg font-bold">
+					{formatFractionToLocaleCurrency(account.validated + account.pending)}
+				</span>
+			</div>
+		</div>
+	{/each}
+</div>
+
+<form
+	method="post"
+	class="p-4 flex flex-col gap-2 w-full max-w-sm mx-auto"
+	use:enhance={() => {
+		loading = true;
+
+		return async ({ update }) => {
+			loading = false;
+			update();
+		};
+	}}
+>
+	<h2 class="text-xl font-semibold">Create New Account</h2>
+
+	<label class="input-label">
+		Name
+		<input
+			type="text"
+			name="name"
+			id="name"
+			class="input"
+			required
+			disabled={loading}
+		/>
+	</label>
+
+	<label class="input-label">
+		Description (optional)
+		<input
+			type="text"
+			name="description"
+			id="description"
+			class="input"
+			disabled={loading}
+		/>
+	</label>
+
+	<Button icon="plus-circle" class="btn btn-primary mx-auto mt-2" {loading}>
+		Create
+	</Button>
+</form>
