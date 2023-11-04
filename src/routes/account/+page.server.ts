@@ -3,28 +3,33 @@ import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = withAuth(async (_, user) => {
+	const breadcrumbs: App.Breadcrumb[] = [
+		{ icon: 'home', title: 'Home', href: '/' },
+		{ title: 'Accounts' }
+	];
+
 	return {
-		accounts: user.account.getAll()
+		breadcrumbs,
+		accounts: user.account.getBalances()
 	};
 });
 
 export const actions = {
-	createUserAccount: withAuth(async ({ request }, user) => {
+	default: withAuth(async ({ request }, user) => {
 		const formData = await request.formData();
-		const accountName = formData.get('accountName')?.toString();
+		const name = formData.get('name')?.toString();
 		const description = formData.get('description')?.toString();
 
-		if (!accountName) {
+		if (!name) {
 			return fail(400, { description, error: 'Missing account name' });
 		}
 
 		try {
-			const account = user.account.create({ name: accountName, description });
-
+			const account = user.account.create({ name, description });
 			return { success: true, account };
 		} catch (_e) {
 			return fail(500, {
-				accountName,
+				name,
 				description,
 				error: 'Something went wrong, please try again.'
 			});

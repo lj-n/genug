@@ -67,7 +67,7 @@ const userAccountBalanceQuery = db
 
 const userAccountBalanceAllQuery = db
 	.select({
-		accountId: schema.userAccount.id,
+		account: schema.userAccount,
 		validated: sql<number>`coalesce(sum(CASE WHEN ${schema.userTransaction.validated} = 1 THEN ${schema.userTransaction.flow} ELSE 0 END) ,0)`,
 		pending: sql<number>`coalesce(sum(CASE WHEN ${schema.userTransaction.validated} = 0 THEN ${schema.userTransaction.flow} ELSE 0 END) ,0)`
 	})
@@ -77,7 +77,29 @@ const userAccountBalanceAllQuery = db
 		eq(schema.userTransaction.accountId, schema.userAccount.id)
 	)
 	.where(eq(schema.userAccount.userId, sql.placeholder('userId')))
-	.groupBy(({ accountId }) => accountId)
+	.groupBy(({ account }) => account.id)
+	.prepare();
+
+const userAccountDetails = db
+	.select({
+    details: schema.userAccount,
+		transactions: {
+			count: sql<number>`coalesce(count(${schema.userTransaction.flow}), 0)`,
+			validatedSum: sql<number>`coalesce(sum(CASE WHEN ${schema.userTransaction.validated} = 1 THEN ${schema.userTransaction.flow} ELSE 0 END) ,0)`,
+			pendingSum: sql<number>`coalesce(sum(CASE WHEN ${schema.userTransaction.validated} = 0 THEN ${schema.userTransaction.flow} ELSE 0 END) ,0)`
+		}
+	})
+	.from(schema.userAccount)
+	.leftJoin(
+		schema.userTransaction,
+		eq(schema.userTransaction.accountId, schema.userAccount.id)
+	)
+	.where(
+		and(
+			eq(schema.userAccount.id, sql.placeholder('accountId')),
+			eq(schema.userAccount.userId, sql.placeholder('userId'))
+		)
+	)
 	.prepare();
 
 export function useUserAccount(userId: string) {
@@ -97,27 +119,19 @@ export function useUserAccount(userId: string) {
 		return createdAccount;
 	}
 
-	function get(accountId: number): SelectUserAccount {
-		const account = userAccountFindFirst.get({ accountId, userId });
-
-		if (!account) {
-			throw new Error(`User(${userId}) account(${accountId}) not found`);
-		}
-
-		return account;
+	function get(accountId: number) {
+		return userAccountFindFirst.get({ accountId, userId });
 	}
 
+	function getDetails(accountId: number) {
+    return userAccountDetails.get({ accountId, userId })
+  }
+
 	function getWithTransactions(accountId: number) {
-		const account = userAccountWithTransactionsFindFirst.get({
+		return userAccountWithTransactionsFindFirst.get({
 			accountId,
 			userId
 		});
-
-		if (!account) {
-			throw new Error(`User(${userId}) account(${accountId}) not found`);
-		}
-
-		return account;
 	}
 
 	function getAll() {
@@ -129,17 +143,13 @@ export function useUserAccount(userId: string) {
 	}
 
 	function getBalance(accountId: number) {
-		const balance = userAccountBalanceQuery.get({ accountId, userId });
-
-		if (!balance) {
-			throw new Error(`User(${userId}) account(${accountId}) not found`);
-		}
-
-		return balance;
+		return userAccountBalanceQuery.get({ accountId, userId });
 	}
 
 	function getBalances() {
-		return userAccountBalanceAllQuery.all({ userId });
+		return userAccountBalanceAllQuery
+			.all({ userId })
+			.map(({ account, ...balances }) => ({ ...balances, ...account }));
 	}
 
 	function update(
@@ -191,6 +201,7 @@ export function useUserAccount(userId: string) {
 	return {
 		create,
 		get,
+    getDetails,
 		getWithTransactions,
 		getAll,
 		getAllWithTransactions,

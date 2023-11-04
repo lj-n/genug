@@ -50,7 +50,7 @@ describe('user accounts', () => {
 	test('update account', () => {
 		const account = userAccounts.update(accountId, { name: 'New Name' });
 		expect(account.name).toBe('New Name');
-		expect(userAccounts.get(accountId).name).toBe('New Name');
+		expect(userAccounts.get(accountId)?.name).toBe('New Name');
 	});
 
 	test('aggregate account balances', () => {
@@ -77,12 +77,18 @@ describe('user accounts', () => {
 
 		const balance = userAccounts.getBalance(accountId);
 		const balances = userAccounts.getBalances();
+    const account = userAccounts.getDetails(accountId)
 
-		expect(balance.validated).toBe(-400);
-		expect(balance.pending).toBe(800);
+    expect(account?.details.name).toBe('New Name')
+    expect(account?.transactions.count).toBe(4)
+    expect(account?.transactions.validatedSum).toBe(-400)
+    expect(account?.transactions.pendingSum).toBe(800)
+
+		expect(balance?.validated).toBe(-400);
+		expect(balance?.pending).toBe(800);
 		expect(balances).toMatchObject([
 			{
-				accountId,
+				...userAccounts.get(accountId),
 				validated: -400,
 				pending: 800
 			}
@@ -92,8 +98,6 @@ describe('user accounts', () => {
 	test('remove account', () => {
 		const removedAccount = userAccounts.remove(accountId);
 		expect(removedAccount).toBeDefined();
-		expect(() => userAccounts.get(accountId)).toThrowError(
-			`User(${testUserId}) account(${accountId}) not found`
-		);
+		expect(userAccounts.get(accountId)).toBeUndefined();
 	});
 });
