@@ -36,14 +36,12 @@ describe('user categories', () => {
 	test('update category', () => {
 		const category = userCategories.update(categoryId, { name: 'New Name' });
 		expect(category.name).toBe('New Name');
-		expect(userCategories.get(categoryId).name).toBe('New Name');
+		expect(userCategories.get(categoryId)?.name).toBe('New Name');
 	});
 
 	test('remove category', () => {
 		const removedcategory = userCategories.remove(categoryId);
 		expect(removedcategory).toBeDefined();
-		expect(() => userCategories.get(categoryId)).toThrowError(
-			`User(${testUserId}) category(${categoryId}) not found`
-		);
+		expect(userCategories.get(categoryId)).toBeUndefined();
 	});
 });

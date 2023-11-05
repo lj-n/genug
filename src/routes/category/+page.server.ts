@@ -2,32 +2,38 @@ import { withAuth } from '$lib/server/auth';
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = withAuth((_, user) => {
-	return { categories: user.category.getAll() };
+export const load: PageServerLoad = withAuth(() => {
+	const breadcrumbs: App.Breadcrumb[] = [
+		{ icon: 'home', title: 'Home', href: '/' },
+		{ title: 'Categories' }
+	];
+
+	return { breadcrumbs };
 });
 
 export const actions = {
-	createUserCategory: withAuth(async ({ request }, user) => {
+	default: withAuth(async ({ request }, user) => {
 		const formData = await request.formData();
-		const categoryName = formData.get('categoryName')?.toString();
-		const description = formData.get('description')?.toString();
+		const name = formData.get('name')?.toString();
+		let description = formData.get('description')?.toString();
 
-		if (!categoryName) {
-			return fail(400, { description, error: 'Missing category name' });
+		if (!name) {
+			return fail(400, { description, error: 'Please provide a name.' });
 		}
 
 		try {
+			description ||= undefined;
 			const category = user.category.create({
-				name: categoryName,
+				name,
 				description
 			});
 
 			return { success: true, category };
 		} catch (_e) {
 			return fail(500, {
-				categoryName,
+				name,
 				description,
-				error: 'Something went wrong, please try again.'
+				error: 'Something went wrong, sorry.'
 			});
 		}
 	})

@@ -7,6 +7,6 @@ export function formatFractionToLocaleCurrency(
 	currency: Currency = 'EUR'
 ): string {
 	return new Intl.NumberFormat(locales, { style: 'currency', currency }).format(
-		n
+		n / 100
 	);
 }

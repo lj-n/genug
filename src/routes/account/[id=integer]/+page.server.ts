@@ -12,8 +12,10 @@ export const load: PageServerLoad = withAuth(async ({ params }, user) => {
 		throw error(404, 'Account not found.');
 	}
 
-  const allAccounts = user.account.getAll()
-  const otherAccounts = allAccounts.filter(({ id }) => id !== Number(params.id) )
+	const allAccounts = user.account.getAll();
+	const otherAccounts = allAccounts.filter(
+		({ id }) => id !== Number(params.id)
+	);
 
 	const breadcrumbs: App.Breadcrumb[] = [
 		{ icon: 'home', title: 'Home', href: '/' },
@@ -24,20 +26,25 @@ export const load: PageServerLoad = withAuth(async ({ params }, user) => {
 	return {
 		breadcrumbs,
 		account,
-    otherAccounts
+		otherAccounts
 	};
 });
 
 export const actions = {
 	updateAccount: withAuth(async ({ params, request }, user) => {
 		const formData = await request.formData();
-		const name = formData.get('name')?.toString();
-		const description = formData.get('description')?.toString();
+		let name = formData.get('name')?.toString();
+		let description = formData.get('description')?.toString();
 
-		if (!name || !description) {
+		if (!name && !description) {
 			return fail(400);
 		}
+
 		try {
+			/** Prevent empty strings from being submitted */
+			name ||= undefined;
+			description ||= undefined;
+
 			user.account.update(Number(params.id), { name, description });
 		} catch (_e) {
 			return fail(500, {
@@ -88,7 +95,7 @@ export const actions = {
 		if (!account || account.name !== accountName) {
 			return fail(400, {
 				accountName,
-				moveTransactionError: 'Wrong account name.'
+				removeAccountError: 'Wrong account name.'
 			});
 		}
 
