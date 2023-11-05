@@ -148,6 +148,10 @@
 			required
 		/>
 
+		{#if form?.moveTransactionError}
+			<p class="text-red-500 my-2">{form.moveTransactionError}</p>
+		{/if}
+
 		<Button
 			class="btn btn-danger ml-auto mt-2"
 			icon="chevrons-right"
@@ -184,6 +188,10 @@
 			class="input w-full"
 			aria-labelledby="warning-label"
 		/>
+
+    {#if form?.removeAccountError}
+			<p class="text-red-500 my-2">{form.removeAccountError}</p>
+		{/if}
 
 		<Button
 			class="btn btn-danger ml-auto mt-2"

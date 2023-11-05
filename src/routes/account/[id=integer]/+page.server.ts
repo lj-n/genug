@@ -95,7 +95,7 @@ export const actions = {
 		if (!account || account.name !== accountName) {
 			return fail(400, {
 				accountName,
-				moveTransactionError: 'Wrong account name.'
+				removeAccountError: 'Wrong account name.'
 			});
 		}
 

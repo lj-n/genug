@@ -3,21 +3,27 @@
 	import Button from '$lib/components/button.svelte';
 	import Currency from '$lib/components/currency.svelte';
 	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
-	import type { PageData } from './$types';
+	import type { ActionData, PageData } from './$types';
+
 	export let data: PageData;
+	export let form: ActionData;
 
 	let updateLoading = false;
+	let retireLoading = false;
 	let moveTransactionLoading = false;
-	let moveTransactionInput = '';
 	let removeCategoryLoading = false;
+	let moveTransactionInput = '';
 	let removeCategoryInput = '';
 
 	$: moveTransactionReady = moveTransactionInput === data.category.name;
 	$: removeCategoryReady = removeCategoryInput === data.category.name;
+
+	$: canBeRetired =
+		data.category.budgetSum + data.category.transactionSum === 0;
 </script>
 
-<div class="card md:col-span-3">
-	<h1 id="category-{data.category.id}" class="scroll-m-16">
+<div class="card md:col-span-3 border-indigo-200">
+	<h1 id="category-{data.category.id}" class="scroll-mt-20 md:scroll-mt-100">
 		{data.category.name}
 	</h1>
 	<p class="mb-8">Description: {data.category.description || '~'}</p>
@@ -95,6 +101,7 @@
 			</Currency>
 
 			<Button
+				type="submit"
 				class="btn btn-secondary mt-auto"
 				icon="chevrons-right"
 				loading={updateLoading}
@@ -107,6 +114,13 @@
 			action="?/retireCategory"
 			method="post"
 			class="flex flex-col gap-2 rounded-md border border-neutral-200 p-4"
+			use:enhance={() => {
+				retireLoading = true;
+				return async ({ update }) => {
+					retireLoading = false;
+					update();
+				};
+			}}
 		>
 			<input type="hidden" name="retired" value={!data.category.retired} />
 			{#if !data.category.retired}
@@ -119,22 +133,32 @@
 					in your budgets, transactions, etc..
 				</p>
 
-				<blockquote>
-					Don't worry, you can always revert this decision.
-				</blockquote>
+				{#if canBeRetired}
+					<blockquote>
+						Don't worry, you can always revert this decision.
+					</blockquote>
+				{:else}
+					<blockquote>
+						You have to even out the budgeted sum and the sum of transactions to
+						retire this category. (Check the category details)
+					</blockquote>
+				{/if}
 
-				<Button icon="sunset" class="btn btn-secondary mt-auto">
+				<Button
+					type="submit"
+					icon="sunset"
+					class="btn btn-secondary mt-auto"
+					loading={retireLoading}
+					disabled={!canBeRetired}
+				>
 					Retire Category
 				</Button>
 			{:else}
 				<h2>Unretire this Category</h2>
 
-				<p>
-					This category is currently retired. If you want to use it again
-					unretire it:
-				</p>
+				<p>If you want to use this category again, click the button below.</p>
 
-				<Button icon="sunrise" class="btn btn-secondary mt-auto">
+				<Button icon="sunrise" class="btn btn-secondary mt-auto" type="submit">
 					Unretire Category
 				</Button>
 			{/if}
@@ -184,6 +208,10 @@
 				required
 			/>
 
+			{#if form?.moveTransactionError}
+				<p class="text-red-500 my-2">{form.moveTransactionError}</p>
+			{/if}
+
 			<Button
 				class="btn btn-danger ml-auto mt-2"
 				icon="chevrons-right"
@@ -219,6 +247,10 @@
 				class="input w-full"
 				aria-labelledby="warning-label"
 			/>
+
+			{#if form?.removeCategoryError}
+				<p class="text-red-500 my-2">{form.removeCategoryError}</p>
+			{/if}
 
 			<Button
 				class="btn btn-danger ml-auto mt-auto"
