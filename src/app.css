@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* :root {
+  color-scheme: dark light;
+} */
+
 html {
 	font-family: Seravek, 'Gill Sans Nova', Ubuntu, Calibri, 'DejaVu Sans',
 		source-sans-pro, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
@@ -9,9 +13,6 @@ html {
 }
 
 @layer base {
-	html {
-		@apply antialiased bg-neutral-50 text-neutral-700;
-	}
 	h1 {
 		@apply text-4xl font-bold;
 	}
@@ -27,53 +28,90 @@ html {
 	a:not(.btn) {
 		@apply hover:underline;
 	}
+	blockquote {
+		@apply items-center bg-neutral-200 p-2 pl-4 text-sm my-2 italic rounded-md overflow-hidden flex;
+		@apply relative after:absolute after:h-full after:w-1.5 after:left-0 after:top-0 after:bg-indigo-300;
+		@apply before:content-["🛸_<"] before:pr-2 before:whitespace-nowrap before:not-italic;
+	}
 }
 
 @layer components {
-	a.btn,
-	button.btn {
-		@apply inline-flex gap-2 items-center justify-center border border-stone-300 hover:bg-stone-100 rounded px-8 py-2;
+	.btn {
+		display: inline-flex;
+		gap: theme(spacing.2);
+		align-items: center;
+		justify-content: center;
+		border-radius: theme(borderRadius.md);
+		padding: theme(spacing.2) theme(spacing.8);
 	}
 
-	a.btn-primary,
-	button.btn-primary {
-		@apply border-emerald-600 bg-emerald-400 text-emerald-950;
-		@apply hover:bg-emerald-500 hover:border-emerald-700;
+	.btn:hover {
+		background-color: theme(backgroundColor.neutral.200);
 	}
 
-	a.btn-secondary,
-	button.btn-secondary {
-		@apply border-indigo-600 bg-indigo-400 text-white;
-		@apply hover:bg-indigo-500 hover:border-indigo-700;
+	.btn:active {
+		background-color: theme(backgroundColor.neutral.100);
 	}
 
-	a.btn-danger,
-	button.btn-danger {
-		@apply border-red-600 bg-red-400 text-red-950;
-		@apply hover:bg-red-500 hover:border-red-500;
+	.btn-primary {
+		border-width: theme(borderWidth.DEFAULT);
+		color: theme(textColor.emerald.950);
+		border-color: theme(borderColor.emerald.600);
+		background-color: theme(backgroundColor.emerald.400);
+	}
+	.btn-primary:hover {
+		border-color: theme(borderColor.emerald.700);
+		background-color: theme(backgroundColor.emerald.500);
 	}
 
-	a.btn-ghost,
-	button.btn-ghost {
-		@apply border-none hover:bg-stone-200 active:bg-stone-100;
+	.btn-secondary {
+		border-width: theme(borderWidth.DEFAULT);
+		color: theme(textColor.white);
+		border-color: theme(borderColor.indigo.600);
+		background-color: theme(backgroundColor.indigo.400);
+	}
+	.btn-secondary:hover {
+		border-color: theme(borderColor.indigo.700);
+		background-color: theme(backgroundColor.indigo.500);
 	}
 
-	label.input-label {
-		@apply flex flex-col w-full;
+	.btn-danger {
+		border-width: theme(borderWidth.DEFAULT);
+		color: theme(textColor.red.950);
+		border-color: theme(borderColor.red.600);
+		background-color: theme(backgroundColor.red.400);
 	}
-	input[type='text'].input,
-	input[type='password'].input,
-	input[type='number'].input,
-	input[type='date'].input,
-	input[type='file'].input,
-	select.input {
-		@apply bg-neutral-50 border-neutral-400 border rounded p-2;
+	.btn-danger:hover {
+		border-color: theme(borderColor.red.700);
+		background-color: theme(backgroundColor.red.500);
 	}
 
-	a.btn:disabled,
-	button.btn:disabled,
-	input:disabled,
-  select:disabled {
-		@apply disabled:bg-stone-200 disabled:border-stone-300 disabled:text-stone-400;
+	.btn:disabled,
+	.input:disabled {
+		background-color: theme(backgroundColor.neutral.200);
+		border-color: theme(borderColor.neutral.300);
+		color: theme(textColor.neutral.400);
+	}
+
+	.input {
+		background-color: theme(backgroundColor.neutral.50);
+		border-width: theme(borderWidth.DEFAULT);
+		border-color: theme(borderColor.neutral.400);
+		border-radius: theme(borderRadius.md);
+		padding: theme(padding.2);
+	}
+
+	.input-label {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+	}
+
+	.card {
+		background-color: theme(backgroundColor.neutral.50);
+		border-width: theme(borderWidth.DEFAULT);
+		border-color: theme(borderColor.neutral.300);
+		border-radius: theme(borderRadius.md);
+		padding: theme(padding.4);
 	}
 }

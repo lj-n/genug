@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { schema } from '../schema';
 import type {
@@ -51,6 +51,29 @@ const userCategoryWithTransactionsFindMany = db.query.userCategory
 	})
 	.prepare();
 
+const categorySums = db
+	.select({
+		transactionCount: sql<number>`coalesce(count(${schema.userTransaction.flow}), 0)`,
+		transactionSum: sql<number>`coalesce(sum(${schema.userTransaction.flow}), 0)`,
+		budgetSum: sql<number>`coalesce(sum(${schema.userBudget.amount}), 0)`
+	})
+	.from(schema.userCategory)
+	.leftJoin(
+		schema.userTransaction,
+		eq(schema.userTransaction.categoryId, schema.userCategory.id)
+	)
+	.leftJoin(
+		schema.userBudget,
+		eq(schema.userBudget.categoryId, schema.userCategory.id)
+	)
+	.where(
+		and(
+			eq(schema.userCategory.userId, sql.placeholder('userId')),
+			eq(schema.userCategory.id, sql.placeholder('categoryId'))
+		)
+	)
+	.prepare();
+
 export function useUserCategory(userId: string) {
 	function create(
 		draft: Omit<InsertUserCategory, 'userId' | 'id' | 'createdAt'>
@@ -68,27 +91,21 @@ export function useUserCategory(userId: string) {
 		return createdCategory;
 	}
 
-	function get(categoryId: number): SelectUserCategory {
-		const category = userCategoryFindFirst.get({ categoryId, userId });
+	function get(categoryId: number) {
+		return userCategoryFindFirst.get({ categoryId, userId });
+	}
 
-		if (!category) {
-			throw new Error(`User(${userId}) category(${categoryId}) not found`);
-		}
-
-		return category;
+	function getDetailed(categoryId: number) {
+		const category = get(categoryId);
+		const sums = categorySums.get({ userId, categoryId });
+		return category && sums && { ...category, ...sums };
 	}
 
 	function getWithTransactions(categoryId: number) {
-		const category = userCategoryWithTransactionsFindFirst.get({
+		return userCategoryWithTransactionsFindFirst.get({
 			categoryId,
 			userId
 		});
-
-		if (!category) {
-			throw new Error(`User(${userId}) category(${categoryId}) not found`);
-		}
-
-		return category;
 	}
 
 	function getAll() {
@@ -148,6 +165,7 @@ export function useUserCategory(userId: string) {
 	return {
 		create,
 		get,
+    getDetailed,
 		getWithTransactions,
 		getAll,
 		getAllWithTransactions,

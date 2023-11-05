@@ -54,9 +54,8 @@ export const userCategory = sqliteTable('user_category', {
 
 export type SelectUserCategory = typeof userCategory.$inferSelect;
 export type InsertUserCategory = typeof userCategory.$inferInsert;
-export type UpdateUserCategory = Omit<
-	InsertUserCategory,
-	'id' | 'userId' | 'createdAt'
+export type UpdateUserCategory = Partial<
+	Omit<InsertUserCategory, 'id' | 'userId' | 'createdAt'>
 >;
 
 export const userAccount = sqliteTable('user_account', {
@@ -73,10 +72,9 @@ export const userAccount = sqliteTable('user_account', {
 
 export type SelectUserAccount = typeof userAccount.$inferSelect;
 export type InsertUserAccount = typeof userAccount.$inferInsert;
-export type UpdateUserAccount =Partial<Omit<
-	InsertUserAccount,
-	'id' | 'userId' | 'createdAt'
->>;
+export type UpdateUserAccount = Partial<
+	Omit<InsertUserAccount, 'id' | 'userId' | 'createdAt'>
+>;
 
 export const userTransaction = sqliteTable('user_transaction', {
 	id: integer('id', { mode: 'number' }).primaryKey(),

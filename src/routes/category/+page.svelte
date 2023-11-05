@@ -1,30 +1,39 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { PageData } from './$types';
-	export let data: PageData;
+	import Button from '$lib/components/button.svelte';
+	import type { ActionData } from './$types';
+
+	export let form: ActionData;
+
+	let loading = false;
 </script>
 
-<ul>
-	{#each data.categories as category (category.id)}
-		<li>
-			<a href="/category/{category.id}">{category.name}</a>
-		</li>
-	{/each}
-</ul>
+<form
+	method="post"
+	class="mx-auto md:col-span-3 flex flex-col gap-4 w-full max-w-sm"
+	use:enhance={() => {
+		loading = true;
+		return async ({ update }) => {
+			loading = false;
+			update();
+		};
+	}}
+>
+	<h1>Create New Category</h1>
 
-<form use:enhance method="post" action="?/createUserCategory">
-	<div class="form-control w-full max-w-xs">
-		<label class="label" for="categoryName">
-			<span class="label-text">Create a new category</span>
-		</label>
-		<input
-			type="text"
-			id="categoryName"
-			name="categoryName"
-			placeholder="Type here"
-			class="input input-bordered w-full"
-		/>
-	</div>
+	<label class="input-label">
+		Name
+		<input type="text" name="name" class="input" disabled={loading} required />
+	</label>
 
-	<button type="submit" class="btn btn-primary btn-sm">create category</button>
+	<label class="input-label">
+		Description (optional)
+		<input type="text" name="description" class="input" disabled={loading} />
+	</label>
+
+	{#if form?.error}
+		<p class="text-red-500 my-2 mx-auto">{form.error}</p>
+	{/if}
+
+	<Button icon="folder-plus" class="btn btn-primary" {loading}>Create</Button>
 </form>
