@@ -29,7 +29,7 @@ html {
 		@apply hover:underline;
 	}
 	blockquote {
-		@apply items-center bg-neutral-200 p-2 pl-4 text-sm my-2 italic rounded-md overflow-hidden flex;
+		@apply items-center bg-neutral-200 p-2 px-4 text-sm my-2 italic rounded-md border border-indigo-200 overflow-hidden flex;
 		@apply relative after:absolute after:h-full after:w-1.5 after:left-0 after:top-0 after:bg-indigo-300;
 		@apply before:content-["🛸_<"] before:pr-2 before:whitespace-nowrap before:not-italic;
 	}
@@ -108,10 +108,16 @@ html {
 	}
 
 	.card {
-		background-color: theme(backgroundColor.neutral.50);
+		background-color: theme(backgroundColor.neutral.100);
 		border-width: theme(borderWidth.DEFAULT);
 		border-color: theme(borderColor.neutral.300);
 		border-radius: theme(borderRadius.md);
 		padding: theme(padding.4);
 	}
+
+  .btn-mini {
+		padding: theme(spacing.1) theme(spacing.2);
+    width: fit-content;
+    font-size: theme(fontSize.sm);
+  }
 }

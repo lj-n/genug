@@ -6,6 +6,7 @@ import type {
 	SelectUserCategory,
 	UpdateUserCategory
 } from '../schema/tables';
+import { getLastMonthsNames } from '$lib/utils';
 
 const userCategoryFindFirst = db.query.userCategory
 	.findFirst({
@@ -74,6 +75,24 @@ const categorySums = db
 	)
 	.prepare();
 
+const transactionSumAndCountForMonth = db
+	.select({
+		sum: sql<number>`coalesce(sum(${schema.userTransaction.flow}), 0)`,
+		count: sql<number>`coalesce(count(${schema.userTransaction.flow}), 0)`
+	})
+	.from(schema.userTransaction)
+	.where(
+		and(
+			eq(schema.userTransaction.userId, sql.placeholder('userId')),
+			eq(schema.userTransaction.categoryId, sql.placeholder('categoryId')),
+			eq(
+				sql`strftime('%Y-%m', ${schema.userTransaction.date})`,
+				sql.placeholder('month')
+			)
+		)
+	)
+	.prepare();
+
 export function useUserCategory(userId: string) {
 	function create(
 		draft: Omit<InsertUserCategory, 'userId' | 'id' | 'createdAt'>
@@ -98,7 +117,18 @@ export function useUserCategory(userId: string) {
 	function getDetailed(categoryId: number) {
 		const category = get(categoryId);
 		const sums = categorySums.get({ userId, categoryId });
-		return category && sums && { ...category, ...sums };
+		const lastMonths = getLastMonthsNames(12)
+			.reverse()
+			.map(({ date, name }) => ({
+				name,
+        date,
+				...transactionSumAndCountForMonth.get({
+					month: date,
+					userId,
+					categoryId
+				})
+			}));
+		return category && sums && { ...category, ...sums, lastMonths };
 	}
 
 	function getWithTransactions(categoryId: number) {
@@ -165,7 +195,7 @@ export function useUserCategory(userId: string) {
 	return {
 		create,
 		get,
-    getDetailed,
+		getDetailed,
 		getWithTransactions,
 		getAll,
 		getAllWithTransactions,

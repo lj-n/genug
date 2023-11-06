@@ -4,7 +4,7 @@
 
 <nav
 	aria-label="desktop-navigation"
-	class="hidden md:flex gap-4 items-center sticky top-0 z-30 backdrop-blur bg-neutral-100/80 py-2 border-b border-neutral-400"
+	class="hidden md:flex gap-4 h-10 items-center sticky top-0 z-30 backdrop-blur bg-neutral-50/80 py-2 border-b border-neutral-400"
 >
 	<a href="/" class="mr-auto">
 		<img src="/logo.svg" alt="genug logo" width={100} />

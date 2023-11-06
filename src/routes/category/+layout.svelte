@@ -8,10 +8,18 @@
 	export let data: LayoutData;
 </script>
 
-<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-	<div class="flex flex-col gap-2 md:max-h-[40rem] md:overflow-y-auto md:sticky md:top-20">
-		<h2 class="sticky top-0 bg-neutral-100">Your Categories</h2>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 py-4">
+	<div
+		class="flex flex-col gap-2 md:max-h-[40rem] md:overflow-y-auto md:sticky md:top-14"
+	>
+		<a href={$page.params.id ? '/category' : '/'} class="btn btn-mini">
+			<Feather name="arrow-left" />
+			go back
+		</a>
+
+		<h2>Your Categories</h2>
 		<p>Select for more details.</p>
+
 		{#each data.categories as category (category.id)}
 			<a
 				href="/category/{category.id}#category-{category.id}"
@@ -29,5 +37,9 @@
 		{/each}
 	</div>
 
-	<slot />
+	<div class="col-span-1 md:col-span-3 bg-neutral-100 rounded-md p-8 border border-neutral-200">
+		{#key $page}
+			<slot />
+		{/key}
+	</div>
 </div>

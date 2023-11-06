@@ -1,9 +1,54 @@
 <script lang="ts">
-	import Button from '$lib/components/button.svelte';
-	import Currency from '$lib/components/currency.svelte';
+	import { onMount } from 'svelte';
+	// import Button from '$lib/components/button.svelte';
+	// import Currency from '$lib/components/currency.svelte';
+
+	import type { PageData } from './$types';
+
+	import Chart from 'chart.js/auto';
+	import colors from 'tailwindcss/colors';
+
+	export let data: PageData;
+
+	let container: HTMLCanvasElement;
+
+	onMount(() => {
+		const chart = new Chart(container, {
+			type: 'bar',
+			options: {
+				events: [],
+				plugins: {
+					tooltip: {
+						enabled: false
+					}
+				}
+			},
+			data: {
+				labels: data.dingens.map(({ name }) => name),
+				datasets: [
+					{
+						label: 'Transaction Sum',
+						data: data.dingens.map(({ sum }) => sum),
+						backgroundColor: colors.indigo['400'],
+						borderRadius: 2
+					}
+				]
+			}
+		});
+
+		return () => {
+			chart.destroy();
+		};
+	});
 </script>
 
-<div class="grid grid-cols-2 gap-4 p-4">
+<div class="h-60">
+	<canvas bind:this={container} />
+</div>
+
+<!-- <pre>{JSON.stringify(data, null, 2)}</pre> -->
+
+<!-- <div class="grid grid-cols-2 gap-4 p-4">
 	<label class="input-label">
 		text
 		<input type="text" class="input" />
@@ -52,4 +97,4 @@
 	<Button loading={true} class="btn">Loading</Button>
 
   <a href="/" class="btn">Link as Button</a>
-</div>
+</div> -->
