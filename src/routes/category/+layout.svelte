@@ -37,7 +37,9 @@
 		{/each}
 	</div>
 
-	<div class="col-span-1 md:col-span-3 bg-neutral-100 rounded-md p-8 border border-neutral-200">
+	<div
+		class="col-span-1 md:col-span-3 bg-neutral-100 rounded-md p-8 border border-neutral-200"
+	>
 		{#key $page}
 			<slot />
 		{/key}

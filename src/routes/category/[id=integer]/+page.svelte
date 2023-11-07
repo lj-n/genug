@@ -102,7 +102,7 @@
 	/>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 divide-x divide-neutral-300">
+<div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-x lg:divide-y-0 divide-neutral-300">
 	<form
 		action="?/updateCategory"
 		method="post"
@@ -211,7 +211,7 @@
 	Warning: These actions can not be undone!
 </p>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 divide-x divide-red-300">
+<div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-x lg:divide-y-0 divide-red-300">
 	<form
 		action="?/moveTransactions"
 		method="post"
