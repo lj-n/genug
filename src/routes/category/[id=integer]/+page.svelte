@@ -2,7 +2,6 @@
 	import type { ActionData, PageData } from './$types';
 	import { onMount } from 'svelte';
 	import { Chart } from 'chart.js/auto';
-	import colors from 'tailwindcss/colors';
 	import { enhance } from '$app/forms';
 	import Button from '$lib/components/button.svelte';
 	import Currency from '$lib/components/currency.svelte';
@@ -54,7 +53,7 @@
 					{
 						label: 'Transaction Sum',
 						data: data.category.lastMonths.map(({ sum }) => sum),
-						backgroundColor: colors.indigo['400'],
+						backgroundColor: '#4385BE',
 						borderRadius: 2,
 						yAxisID: 'yAxis'
 					}
@@ -68,41 +67,45 @@
 	});
 </script>
 
-<span class="text-sm text-neutral-600">Created: {data.category.createdAt}</span>
 <h1 id="category-{data.category.id}" class="scroll-mt-20 md:scroll-mt-80">
 	{data.category.name}
 </h1>
-<p class="mb-8 mt-4 text-lg">{data.category.description || ''}</p>
+<span class="text-sm text-tx-2 mt-2">Created: {data.category.createdAt}</span>
+<p class="mb-8 mt-4 text-lg text-tx-2">{data.category.description || ''}</p>
 
-<div class="grid grid-cols-3 gap-4 divide-x divide-neutral-300">
+<div class="grid grid-cols-3 gap-4 divide-x divide-ui-3">
 	<div class="px-4 lg:px-8 flex flex-col">
-		<span class="text-3xl lg:text-5xl">{data.category.transactionCount}</span>
-		<span>Related Transactions</span>
+		<span class="font-semibold text-3xl lg:text-5xl"
+			>{data.category.transactionCount}</span
+		>
+		<span class="text-tx-2">Related Transactions</span>
 	</div>
 
 	<div class="px-4 lg:px-8 flex flex-col">
-		<span class="text-3xl lg:text-5xl tabular-nums">
+		<span class="font-semibold text-3xl lg:text-5xl tabular-nums">
 			{formatFractionToLocaleCurrency(data.category.transactionSum)}
 		</span>
-		<span>Total Flow</span>
+		<span class="text-tx-2">Total Flow</span>
 	</div>
 
 	<div class="px-4 lg:px-8 flex flex-col">
-		<span class="text-3xl lg:text-5xl tabular-nums">
+		<span class="font-semibold text-3xl lg:text-5xl tabular-nums">
 			{formatFractionToLocaleCurrency(data.category.budgetSum)}
 		</span>
-		<span>Total Budget</span>
+		<span class="text-tx-2">Total Budget</span>
 	</div>
 </div>
 
-<div class="relative w-full h-40 my-12">
+<div class="relative w-full h-60 my-12">
 	<canvas
 		aria-label="Sum of transactions in the last 12 months"
 		bind:this={canvas}
 	/>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-x lg:divide-y-0 divide-neutral-300">
+<div
+	class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-x lg:divide-y-0 divide-ui-3"
+>
 	<form
 		action="?/updateCategory"
 		method="post"
@@ -119,7 +122,13 @@
 
 		<label class="input-label">
 			Name
-			<input type="text" name="name" class="input" disabled={updateLoading} />
+			<input
+				type="text"
+				name="name"
+				class="input"
+				disabled={updateLoading}
+				placeholder="New Category Name"
+			/>
 		</label>
 
 		<label class="input-label">
@@ -128,6 +137,7 @@
 				type="text"
 				name="description"
 				class="input"
+				placeholder="New Category Description"
 				disabled={updateLoading}
 			/>
 		</label>
@@ -143,7 +153,7 @@
 
 		<Button
 			type="submit"
-			class="btn btn-secondary mt-auto"
+			class="btn btn-blue mt-auto"
 			icon="chevrons-right"
 			loading={updateLoading}
 		>
@@ -188,7 +198,7 @@
 			<Button
 				type="submit"
 				icon="sunset"
-				class="btn btn-secondary mt-auto"
+				class="btn btn-blue mt-auto"
 				loading={retireLoading}
 				disabled={!canBeRetired}
 			>
@@ -199,19 +209,21 @@
 
 			<p>If you want to use this category again, click the button below.</p>
 
-			<Button icon="sunrise" class="btn btn-secondary mt-auto" type="submit">
+			<Button icon="sunrise" class="btn btn-blue mt-auto" type="submit">
 				Unretire Category
 			</Button>
 		{/if}
 	</form>
 </div>
 
-<h2 class="mt-4 text-center text-red-500">Danger Zone</h2>
-<p class="mb-4 text-center text-red-500 font-bold">
+<h2 class="mt-4 text-center text-red-light">Danger Zone</h2>
+<p class="mb-4 text-center text-red-light font-bold">
 	Warning: These actions can not be undone!
 </p>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-x lg:divide-y-0 divide-red-300">
+<div
+	class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-x lg:divide-y-0 divide-red-light"
+>
 	<form
 		action="?/moveTransactions"
 		method="post"
@@ -254,7 +266,7 @@
 		{/if}
 
 		<Button
-			class="btn btn-danger ml-auto mt-2"
+			class="btn btn-red ml-auto mt-2"
 			icon="chevrons-right"
 			loading={moveTransactionLoading}
 			disabled={!moveTransactionReady}
@@ -294,7 +306,7 @@
 		{/if}
 
 		<Button
-			class="btn btn-danger ml-auto mt-auto"
+			class="btn btn-red ml-auto mt-auto"
 			icon="trash"
 			loading={removeCategoryLoading}
 			disabled={!removeCategoryReady}

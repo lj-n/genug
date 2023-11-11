@@ -6,7 +6,7 @@ import type {
 	SelectUserCategory,
 	UpdateUserCategory
 } from '../schema/tables';
-import { getLastMonthsNames } from '$lib/utils';
+import { getLastMonthsNames } from '$lib/components/utils';
 
 const userCategoryFindFirst = db.query.userCategory
 	.findFirst({

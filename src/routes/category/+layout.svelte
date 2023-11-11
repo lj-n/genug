@@ -8,11 +8,14 @@
 	export let data: LayoutData;
 </script>
 
-<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 py-4">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-8 py-4">
 	<div
 		class="flex flex-col gap-2 md:max-h-[40rem] md:overflow-y-auto md:sticky md:top-14"
 	>
-		<a href={$page.params.id ? '/category' : '/'} class="btn btn-mini">
+		<a
+			href={$page.params.id ? '/category' : '/'}
+			class="btn btn-sm mr-auto hover:bg-ui"
+		>
 			<Feather name="arrow-left" />
 			go back
 		</a>
@@ -23,23 +26,21 @@
 		{#each data.categories as category (category.id)}
 			<a
 				href="/category/{category.id}#category-{category.id}"
-				class="btn bg-neutral-50 border justify-between rounded-md p-2"
-				class:border-indigo-400={+$page.params.id === category.id}
+				class="btn btn-ghost justify-start rounded-lg px-4 border border-ui"
+				class:bg-bg-2={+$page.params.id === category.id}
 				animate:flip
 				transition:scale
 			>
-				{category.name}
-
 				{#if +$page.params.id === category.id}
-					<Feather name="chevron-right" class="text-indigo-400" />
+					<Feather name="chevron-right" class="text-blue-light" />
 				{/if}
+
+				{category.name}
 			</a>
 		{/each}
 	</div>
 
-	<div
-		class="col-span-1 md:col-span-3 bg-neutral-100 rounded-md p-8 border border-neutral-200"
-	>
+	<div class="col-span-1 md:col-span-3 p-8 flex flex-col">
 		{#key $page}
 			<slot />
 		{/key}
