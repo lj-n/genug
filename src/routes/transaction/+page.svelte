@@ -13,7 +13,7 @@
 
 <h1 class="my-4 text-2xl">Transactions</h1>
 
-<div class="table-wrapper mb-8 shadow">
+<div class="table-wrapper mb-8">
 	<table>
 		<thead class="sr-only lg:not-sr-only">
 			<tr>
@@ -67,7 +67,7 @@
 					<td data-label="Actions" class="order-8">
 						<div class="inline-flex gap-2">
 							<a
-								href="/transaction/edit/{transaction.id}"
+								href="/transaction/{transaction.id}"
 								title="Edit Transaction"
 								class="btn btn-ghost btn-sm"
 							>
@@ -107,7 +107,7 @@
 <style lang="postcss">
 	@media (min-width: theme(screens.lg)) {
 		.table-wrapper {
-			@apply border border-ui rounded-lg;
+			@apply border border-ui rounded-lg shadow;
 		}
 
 		table {
@@ -134,6 +134,10 @@
 	}
 
 	@media (max-width: theme(screens.lg)) {
+    .table-wrapper {
+			@apply border border-ui rounded-lg;
+		}
+
 		table,
 		tbody,
 		tbody tr {
@@ -153,11 +157,15 @@
 			@apply flex flex-wrap border-b border-ui last:border-none;
 		}
 
+    tbody tr td {
+      @apply bg-bg;
+    }
+
 		td[data-label='Category'] {
 			@apply order-1 w-1/2;
 		}
 		td[data-label='Validated'] {
-			@apply order-2 ml-auto px-4 rounded-full border border-green-light;
+			@apply order-2 ml-auto;
 		}
 
 		td[data-label='Flow'] {
