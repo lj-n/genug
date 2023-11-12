@@ -11,6 +11,7 @@ export const load: PageServerLoad = withAuth(({ url }, user) => {
 
 	const limit = Number(searchParams.get('limit')) || 20;
 	const offset = Number(searchParams.get('offset')) || 0;
+	const page = Number(searchParams.get('page')) || 1;
 
 	const transactions = db.query.userTransaction.findMany({
 		where: (transaction, { eq }) => eq(transaction.userId, user.id),
@@ -20,7 +21,7 @@ export const load: PageServerLoad = withAuth(({ url }, user) => {
 			desc(transaction.createdAt)
 		],
 		limit,
-		offset,
+		offset: (page - 1) * limit,
 		with: {
 			account: true,
 			category: true
@@ -28,6 +29,9 @@ export const load: PageServerLoad = withAuth(({ url }, user) => {
 	});
 
 	return {
+		limit,
+		offset,
+		page,
 		transactions,
 		accounts: user.account.getAll(),
 		categories: user.category.getAll()

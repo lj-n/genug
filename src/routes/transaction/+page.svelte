@@ -3,8 +3,9 @@
 	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
 	import Feather from '$lib/components/feather.svelte';
 	import CreateForm from './create.form.svelte';
+	import Pagination from './pagination.svelte';
 	import { flip } from 'svelte/animate';
-	import { fade, scale } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 	import { enhance } from '$app/forms';
 	export let data: PageData;
 </script>
@@ -13,7 +14,9 @@
 
 <h1 class="my-4 text-2xl">Transactions</h1>
 
-<div class="table-wrapper mb-8">
+<Pagination page={data.page} />
+
+<div class="table-wrapper">
 	<table>
 		<thead class="sr-only lg:not-sr-only">
 			<tr>
@@ -28,7 +31,7 @@
 		</thead>
 		<tbody>
 			{#each data.transactions as transaction (transaction.id)}
-				<tr animate:flip={{ duration: 300 }} transition:fade={{duration: 300}}>
+				<tr animate:flip={{ duration: 300 }}>
 					<td data-label="Date" class="order-5">{transaction.date}</td>
 					<td data-label="Account" class="order-6"
 						>{transaction.account.name}</td
@@ -104,6 +107,8 @@
 	</table>
 </div>
 
+<Pagination page={data.page} /> 
+
 <style lang="postcss">
 	@media (min-width: theme(screens.lg)) {
 		.table-wrapper {
@@ -123,7 +128,7 @@
 		}
 
 		tbody tr:last-child td {
-			@apply border-none;
+			@apply border-none first:rounded-bl-lg last:rounded-br-lg;
 		}
 
 		td[data-label='Flow'],
@@ -134,7 +139,7 @@
 	}
 
 	@media (max-width: theme(screens.lg)) {
-    .table-wrapper {
+		.table-wrapper {
 			@apply border border-ui rounded-lg;
 		}
 
@@ -157,9 +162,9 @@
 			@apply flex flex-wrap border-b border-ui last:border-none;
 		}
 
-    tbody tr td {
-      @apply bg-bg;
-    }
+		tbody tr td {
+			@apply bg-bg;
+		}
 
 		td[data-label='Category'] {
 			@apply order-1 w-1/2;
