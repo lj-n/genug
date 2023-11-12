@@ -10,7 +10,7 @@
 
 <form
 	method="post"
-	class="max-w-sm w-full bg-neutral-50 m-auto flex flex-col items-center gap-4 p-4 border border-neutral-400 rounded shadow"
+	class="max-w-sm w-full bg-bg-2 m-auto flex flex-col items-center gap-4 p-4 border border-ui rounded-lg focus-within:border-ui-3"
 	use:enhance={() => {
 		loading = true;
 		return async ({ update }) => {
@@ -43,7 +43,7 @@
 		</div>
 	{/if}
 
-	<Button icon="key" class="btn btn-primary mt-2" {loading}>Login</Button>
+	<Button icon="key" class="btn btn-blue mt-2" {loading}>Login</Button>
 
 	<a href="/signup">Create New User</a>
 </form>

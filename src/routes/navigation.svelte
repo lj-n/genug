@@ -4,7 +4,7 @@
 
 <nav
 	aria-label="desktop-navigation"
-	class="hidden md:flex gap-4 items-center sticky top-0 z-30 backdrop-blur bg-neutral-100/80 py-2 border-b border-neutral-400"
+	class="hidden md:flex gap-4 h-10 items-center sticky top-0 z-30 backdrop-blur bg-bg/80 py-2"
 >
 	<a href="/" class="mr-auto">
 		<img src="/logo.svg" alt="genug logo" width={100} />
@@ -43,7 +43,7 @@
 
 <nav
 	aria-label="mobile-navigation"
-	class="md:hidden flex items-center justify-between sticky top-0 z-30 backdrop-blur bg-neutral-100/80 py-2 px-4 border-b border-neutral-400 -mx-2"
+	class="md:hidden flex items-center justify-between sticky top-0 z-30 backdrop-blur bg-bg/80 py-2 px-4 border-b border-ui -mx-2"
 >
 	<input
 		id="mobile-navigation-toggle"
@@ -58,24 +58,24 @@
 	<label
 		for="mobile-navigation-toggle"
 		aria-label="open mobile navigation"
-		class="peer-checked:hidden"
+		class="peer-checked:hidden cursor-pointer"
 	>
 		<Feather name="menu" />
 	</label>
 	<label
 		for="mobile-navigation-toggle"
 		aria-label="close mobile navigation"
-		class="hidden peer-checked:block"
+		class="hidden peer-checked:block cursor-pointer"
 	>
 		<Feather name="x" />
 	</label>
 
 	<div
-		class="absolute top-[calc(100%+1rem)] right-4 backdrop-blur bg-neutral-100/80 border border-neutral-400 shadow rounded hidden peer-checked:grid grid-cols-2 gap-4 p-4"
+		class="absolute top-[calc(100%+1rem)] right-4 backdrop-blur bg-bg-2 border border-ui-3 shadow rounded-lg hidden peer-checked:grid grid-cols-2 gap-4 p-4"
 	>
 		<a
 			href="/budget"
-			class="flex gap-1 items-center text-sm p-4 bg-neutral-200 border-neutral-300 border rounded"
+			class="btn btn-sm btn-ghost"
 		>
 			<Feather name="pie-chart" />
 			Budget
@@ -83,7 +83,7 @@
 
 		<a
 			href="/transaction"
-			class="flex gap-1 items-center text-sm p-4 bg-neutral-200 border-neutral-300 border rounded"
+			class="btn btn-sm btn-ghost"
 		>
 			<Feather name="credit-card" />
 			Transactions
@@ -91,7 +91,7 @@
 
 		<a
 			href="/category"
-			class="flex gap-1 items-center text-sm p-4 bg-neutral-200 border-neutral-300 border rounded"
+			class="btn btn-sm btn-ghost"
 		>
 			<Feather name="folder" />
 			Categories
@@ -99,7 +99,7 @@
 
 		<a
 			href="/account"
-			class="flex gap-1 items-center text-sm p-4 bg-neutral-200 border-neutral-300 border rounded"
+			class="btn btn-sm btn-ghost"
 		>
 			<Feather name="book" />
 			Accounts
@@ -107,7 +107,7 @@
 
 		<a
 			href="/team"
-			class="flex gap-1 items-center text-sm p-4 bg-neutral-200 border-neutral-300 border rounded"
+			class="btn btn-sm btn-ghost"
 		>
 			<Feather name="users" />
 			Teams
@@ -115,7 +115,7 @@
 
 		<a
 			href="/signout"
-			class="flex gap-1 items-center text-sm p-4 bg-neutral-200 border-neutral-300 border rounded"
+			class="btn btn-sm btn-ghost"
 		>
 			<Feather name="log-out" />
 			Sign Out

@@ -12,7 +12,7 @@
 	export let loading = false;
 </script>
 
-<button {...$$restProps} disabled={loading || $$restProps.disabled}>
+<button {...$$restProps}>
 	{#if loading}
 		<Feather name="loader" class="animate-spin" />
 	{:else if icon}

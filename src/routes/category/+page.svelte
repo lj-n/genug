@@ -19,21 +19,21 @@
 		};
 	}}
 >
-	<h1>Create New Category</h1>
+	<h1>Create Category</h1>
 
 	<label class="input-label">
 		Name
-		<input type="text" name="name" class="input" disabled={loading} required />
+		<input type="text" name="name" class="input" disabled={loading} required placeholder="Groceries"/>
 	</label>
 
 	<label class="input-label">
 		Description (optional)
-		<input type="text" name="description" class="input" disabled={loading} />
+		<input type="text" name="description" class="input" disabled={loading} placeholder="food, household products, etc."/>
 	</label>
 
 	{#if form?.error}
-		<p class="text-red-500 my-2 mx-auto">{form.error}</p>
+		<p class="text-red my-2 mx-auto">{form.error}</p>
 	{/if}
 
-	<Button icon="folder-plus" class="btn btn-primary" {loading}>Create</Button>
+	<Button icon="folder-plus" class="btn btn-green ml-auto" {loading}>Create</Button>
 </form>

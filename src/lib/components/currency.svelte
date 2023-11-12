@@ -61,7 +61,7 @@
 		@apply relative;
 	}
 	label::before {
-		@apply absolute right-2 top-1/2 text-neutral-600 font-bold;
+		@apply absolute right-2 top-1/2 text-base-600 font-semibold;
 		content: attr(data-suffix);
 	}
 </style>

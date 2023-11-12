@@ -3,7 +3,7 @@
 	export let links: NonNullable<App.PageData['breadcrumbs']>;
 </script>
 
-<nav aria-label="breadcrumb" class="text-sm my-8 flex gap-2">
+<nav aria-label="breadcrumb" class="text-sm my-2 flex gap-2 sticky top-12">
 	{#each links as { href, icon, title }, index}
 		{#if href}
 			<a {href} class="inline-flex items-center gap-0.5">

@@ -1,22 +1,29 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Button from '$lib/components/button.svelte';
 	import Currency from '$lib/components/currency.svelte';
+
+	import type { PageData } from './$types';
+
+	export let data: PageData;
 </script>
 
-<div class="grid grid-cols-2 gap-4 p-4">
+<!-- <pre>{JSON.stringify(data, null, 2)}</pre> -->
+
+<div class="grid grid-cols-2 gap-4 p-4 max-w-xl rounded-lg bg-bg-2">
 	<label class="input-label">
 		text
-		<input type="text" class="input" />
+		<input type="text" class="input" placeholder="Blabla blub"/>
 	</label>
 
 	<label class="input-label">
 		date
-		<input type="date" class="input" />
+		<input type="date" class="input" placeholder="Blabla blub"/>
 	</label>
 
 	<label class="input-label">
 		number
-		<input type="number" class="input" />
+		<input type="number" class="input" placeholder="Blabla blub"/>
 	</label>
 
 	<Currency name="currency" class="input-label">currency</Currency>
@@ -30,26 +37,27 @@
 		</select>
 	</label>
 
-	<label class="checkbox-label">
-		checkbox
-		<input type="checkbox" />
+  <label class="input-label">
+		disabled
+		<input type="text" class="input" disabled placeholder="Blabla blub"/>
 	</label>
 
-	<Button class="btn btn-primary">Primary</Button>
-	<Button class="btn btn-primary" disabled>Disabled</Button>
+	<Button class="btn btn-blue">Blue</Button>
+  
+	<Button class="btn btn-green">Green</Button>
+  
+	<Button class="btn btn-red">Red</Button>
+  
+	<Button class="btn btn-ghost">Ghost</Button>
 
-	<Button class="btn btn-secondary">Secondary</Button>
-	<Button class="btn btn-secondary" disabled>Disabled</Button>
-	
-  <Button class="btn btn-ghost">Ghost</Button>
-  <Button class="btn btn-ghost" disabled>Disabled</Button>
-	
-  <Button class="btn btn-danger">Danger</Button>
-  <Button class="btn btn-danger" disabled>Disabled</Button>
+	<Button class="btn btn-blue" disabled>Disabled</Button>
 
-	<Button icon="feather" class="btn">With Icon</Button>
+	<Button icon="feather" class="btn btn-ghost">With Icon</Button>
 
 	<Button loading={true} class="btn">Loading</Button>
 
-  <a href="/" class="btn">Link as Button</a>
+	<Button class="btn btn-ghost btn-sm m-auto">Small</Button>
+	<Button class="btn btn-ghost btn-xs m-auto">smaller</Button>
+
+	<a href="/" class="btn btn-ghost">Link as Button</a>
 </div>

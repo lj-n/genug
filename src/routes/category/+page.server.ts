@@ -2,14 +2,7 @@ import { withAuth } from '$lib/server/auth';
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = withAuth(() => {
-	const breadcrumbs: App.Breadcrumb[] = [
-		{ icon: 'home', title: 'Home', href: '/' },
-		{ title: 'Categories' }
-	];
-
-	return { breadcrumbs };
-});
+export const load: PageServerLoad = withAuth(() => {});
 
 export const actions = {
 	default: withAuth(async ({ request }, user) => {

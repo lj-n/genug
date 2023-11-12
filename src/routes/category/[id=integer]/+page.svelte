@@ -1,9 +1,11 @@
 <script lang="ts">
+	import type { ActionData, PageData } from './$types';
+	import { onMount } from 'svelte';
+	import { Chart } from 'chart.js/auto';
 	import { enhance } from '$app/forms';
 	import Button from '$lib/components/button.svelte';
 	import Currency from '$lib/components/currency.svelte';
 	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
-	import type { ActionData, PageData } from './$types';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -20,246 +22,296 @@
 
 	$: canBeRetired =
 		data.category.budgetSum + data.category.transactionSum === 0;
+
+	let canvas: HTMLCanvasElement;
+
+	onMount(() => {
+		const chart = new Chart(canvas, {
+			type: 'bar',
+			options: {
+				scales: {
+					yAxis: {
+						reverse: true,
+						ticks: {
+							callback(tickValue) {
+								return formatFractionToLocaleCurrency(Number(tickValue));
+							}
+						}
+					}
+				},
+				maintainAspectRatio: false,
+				events: [],
+				plugins: {
+					tooltip: {
+						enabled: false
+					}
+				}
+			},
+			data: {
+				labels: data.category.lastMonths.map(({ date }) => date),
+				datasets: [
+					{
+						label: 'Transaction Sum',
+						data: data.category.lastMonths.map(({ sum }) => sum),
+						backgroundColor: '#4385BE',
+						borderRadius: 2,
+						yAxisID: 'yAxis'
+					}
+				]
+			}
+		});
+
+		return () => {
+			chart.destroy();
+		};
+	});
 </script>
 
-<div class="card md:col-span-3 border-indigo-200">
-	<h1 id="category-{data.category.id}" class="scroll-mt-20 md:scroll-mt-100">
-		{data.category.name}
-	</h1>
-	<p class="mb-8">Description: {data.category.description || '~'}</p>
+<h1 id="category-{data.category.id}" class="scroll-mt-20 md:scroll-mt-80">
+	{data.category.name}
+</h1>
+<span class="text-sm text-tx-2 mt-2">Created: {data.category.createdAt}</span>
+<p class="mb-8 mt-4 text-lg text-tx-2">{data.category.description || ''}</p>
 
-	<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-		<div
-			class="lg:col-span-2 grid grid-cols-2 gap-2 rounded-md border border-neutral-200 p-4"
+<div class="grid grid-cols-3 gap-4 divide-x divide-ui-3">
+	<div class="px-4 lg:px-8 flex flex-col">
+		<span class="font-semibold text-3xl lg:text-5xl"
+			>{data.category.transactionCount}</span
 		>
-			<h2 class="col-span-2">Details</h2>
+		<span class="text-tx-2">Related Transactions</span>
+	</div>
 
-			{#if data.category.goal}
-				<span>Goal</span>
-				<span class="font-semibold tabular-nums text-right">
-					{formatFractionToLocaleCurrency(data.category.goal)}
-				</span>
-			{/if}
+	<div class="px-4 lg:px-8 flex flex-col">
+		<span class="font-semibold text-3xl lg:text-5xl tabular-nums">
+			{formatFractionToLocaleCurrency(data.category.transactionSum)}
+		</span>
+		<span class="text-tx-2">Total Flow</span>
+	</div>
 
-			<span>Created at</span>
-			<span class="font-semibold text-right">
-				{data.category.createdAt}
-			</span>
+	<div class="px-4 lg:px-8 flex flex-col">
+		<span class="font-semibold text-3xl lg:text-5xl tabular-nums">
+			{formatFractionToLocaleCurrency(data.category.budgetSum)}
+		</span>
+		<span class="text-tx-2">Total Budget</span>
+	</div>
+</div>
 
-			<span>Related Transactions Count</span>
-			<span class="font-semibold tabular-nums text-right">
-				{data.category.transactionCount}
-			</span>
+<div class="relative w-full h-60 my-12">
+	<canvas
+		aria-label="Sum of transactions in the last 12 months"
+		bind:this={canvas}
+	/>
+</div>
 
-			<span>Related Transactions Sum</span>
-			<span class="font-semibold tabular-nums text-right">
-				{formatFractionToLocaleCurrency(data.category.transactionSum)}
-			</span>
+<div
+	class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-x lg:divide-y-0 divide-ui-3"
+>
+	<form
+		action="?/updateCategory"
+		method="post"
+		class="flex flex-col gap-4 p-4 lg:p-8"
+		use:enhance={() => {
+			updateLoading = true;
+			return async ({ update }) => {
+				updateLoading = false;
+				update();
+			};
+		}}
+	>
+		<h2>Update Category</h2>
 
-			<span>Related Budget Sum</span>
-			<span class="font-semibold tabular-nums text-right">
-				{formatFractionToLocaleCurrency(data.category.budgetSum)}
-			</span>
-		</div>
-
-		<form
-			action="?/updateCategory"
-			method="post"
-			class="flex flex-col gap-4 rounded-md border border-neutral-200 p-4"
-			use:enhance={() => {
-				updateLoading = true;
-				return async ({ update }) => {
-					updateLoading = false;
-					update();
-				};
-			}}
-		>
-			<h2>Update Category</h2>
-
-			<label class="input-label">
-				Name
-				<input type="text" name="name" class="input" disabled={updateLoading} />
-			</label>
-
-			<label class="input-label">
-				Description
-				<input
-					type="text"
-					name="description"
-					class="input"
-					disabled={updateLoading}
-				/>
-			</label>
-
-			<Currency
-				name="goal"
-				class="input-label"
+		<label class="input-label">
+			Name
+			<input
+				type="text"
+				name="name"
+				class="input"
 				disabled={updateLoading}
-				value={data.category.goal || 0}
-			>
-				Set a goal in this category (0 to remove goal)
-			</Currency>
+				placeholder="New Category Name"
+			/>
+		</label>
+
+		<label class="input-label">
+			Description
+			<input
+				type="text"
+				name="description"
+				class="input"
+				placeholder="New Category Description"
+				disabled={updateLoading}
+			/>
+		</label>
+
+		<Currency
+			name="goal"
+			class="input-label"
+			disabled={updateLoading}
+			value={data.category.goal || 0}
+		>
+			Set a goal in this category (0 to remove goal)
+		</Currency>
+
+		<Button
+			type="submit"
+			class="btn btn-blue mt-auto"
+			icon="chevrons-right"
+			loading={updateLoading}
+		>
+			Update Category
+		</Button>
+	</form>
+
+	<form
+		action="?/retireCategory"
+		method="post"
+		class="flex flex-col gap-4 p-4 lg:p-8"
+		use:enhance={() => {
+			retireLoading = true;
+			return async ({ update }) => {
+				retireLoading = false;
+				update();
+			};
+		}}
+	>
+		<input type="hidden" name="retired" value={!data.category.retired} />
+		{#if !data.category.retired}
+			<h2>Retire this Category</h2>
+
+			<p>
+				Have you reached your goal? Do you no longer need this category? Instead
+				of deleting it, you can retire it. You will keep your statistics and
+				records, but the category will no longer be displayed in your budgets,
+				transactions, etc..
+			</p>
+
+			{#if canBeRetired}
+				<blockquote>
+					Don't worry, you can always revert this decision.
+				</blockquote>
+			{:else}
+				<blockquote>
+					You have to even out the budgeted sum and the sum of transactions to
+					retire this category. (Check the category details)
+				</blockquote>
+			{/if}
 
 			<Button
 				type="submit"
-				class="btn btn-secondary mt-auto"
-				icon="chevrons-right"
-				loading={updateLoading}
+				icon="sunset"
+				class="btn btn-blue mt-auto"
+				loading={retireLoading}
+				disabled={!canBeRetired}
 			>
-				Update Category
+				Retire Category
 			</Button>
-		</form>
+		{:else}
+			<h2>Unretire this Category</h2>
 
-		<form
-			action="?/retireCategory"
-			method="post"
-			class="flex flex-col gap-2 rounded-md border border-neutral-200 p-4"
-			use:enhance={() => {
-				retireLoading = true;
-				return async ({ update }) => {
-					retireLoading = false;
-					update();
-				};
-			}}
-		>
-			<input type="hidden" name="retired" value={!data.category.retired} />
-			{#if !data.category.retired}
-				<h2>Retire this Category</h2>
+			<p>If you want to use this category again, click the button below.</p>
 
-				<p>
-					Have you reached your goal? Do you no longer need this category?
-					Instead of deleting it, you can retire it. You will keep your
-					statistics and records, but the category will no longer be displayed
-					in your budgets, transactions, etc..
-				</p>
-
-				{#if canBeRetired}
-					<blockquote>
-						Don't worry, you can always revert this decision.
-					</blockquote>
-				{:else}
-					<blockquote>
-						You have to even out the budgeted sum and the sum of transactions to
-						retire this category. (Check the category details)
-					</blockquote>
-				{/if}
-
-				<Button
-					type="submit"
-					icon="sunset"
-					class="btn btn-secondary mt-auto"
-					loading={retireLoading}
-					disabled={!canBeRetired}
-				>
-					Retire Category
-				</Button>
-			{:else}
-				<h2>Unretire this Category</h2>
-
-				<p>If you want to use this category again, click the button below.</p>
-
-				<Button icon="sunrise" class="btn btn-secondary mt-auto" type="submit">
-					Unretire Category
-				</Button>
-			{/if}
-		</form>
-	</div>
-
-	<h2 class="mt-8 text-center text-red-500">Danger Zone ⚡</h2>
-	<p class="mb-4 text-center text-red-500 font-bold">
-		Warning: These actions can not be undone!
-	</p>
-
-	<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-		<form
-			action="?/moveTransactions"
-			method="post"
-			class="flex flex-col gap-4 p-4 border-2 border-red-500 border-dashed rounded-md bg-red-50"
-			use:enhance={() => {
-				moveTransactionLoading = true;
-				return async ({ update }) => {
-					moveTransactionLoading = false;
-					update();
-				};
-			}}
-		>
-			<h3>Move Transactions to Another Category</h3>
-
-			<label class="input-label">
-				Select another Category
-				<select name="newCategoryId" class="input" required>
-					<option selected disabled>Select Category Here</option>
-					{#each data.otherCategories as category (category.id)}
-						<option value={category.id}>{category.name}</option>
-					{/each}
-				</select>
-			</label>
-
-			<p id="warning-label">
-				Please type <b>{data.category.name}</b> to confirm:
-			</p>
-
-			<input
-				bind:value={moveTransactionInput}
-				type="text"
-				name="categoryName"
-				class="input w-full"
-				aria-labelledby="warning-label"
-				required
-			/>
-
-			{#if form?.moveTransactionError}
-				<p class="text-red-500 my-2">{form.moveTransactionError}</p>
-			{/if}
-
-			<Button
-				class="btn btn-danger ml-auto mt-2"
-				icon="chevrons-right"
-				loading={moveTransactionLoading}
-				disabled={!moveTransactionReady}
-			>
-				Move Transactions
+			<Button icon="sunrise" class="btn btn-blue mt-auto" type="submit">
+				Unretire Category
 			</Button>
-		</form>
+		{/if}
+	</form>
+</div>
 
-		<form
-			action="?/removeCategory"
-			method="post"
-			class="flex flex-col gap-4 p-4 border-2 border-red-500 border-dashed rounded-md bg-red-50"
-			use:enhance={() => {
-				removeCategoryLoading = true;
-				return async ({ update }) => {
-					removeCategoryLoading = false;
-					update();
-				};
-			}}
+<h2 class="mt-4 text-center text-red-light">Danger Zone</h2>
+<p class="mb-4 text-center text-red-light font-bold">
+	Warning: These actions can not be undone!
+</p>
+
+<div
+	class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-x lg:divide-y-0 divide-red-light"
+>
+	<form
+		action="?/moveTransactions"
+		method="post"
+		class="flex flex-col gap-4 p-4 lg:p-8"
+		use:enhance={() => {
+			moveTransactionLoading = true;
+			return async ({ update }) => {
+				moveTransactionLoading = false;
+				update();
+			};
+		}}
+	>
+		<h3>Move Transactions to Another Category</h3>
+
+		<label class="input-label">
+			Select another Category
+			<select name="newCategoryId" class="input" required>
+				<option selected disabled>Select Category Here</option>
+				{#each data.otherCategories as category (category.id)}
+					<option value={category.id}>{category.name}</option>
+				{/each}
+			</select>
+		</label>
+
+		<p id="warning-label">
+			Please type <b>{data.category.name}</b> to confirm:
+		</p>
+
+		<input
+			bind:value={moveTransactionInput}
+			type="text"
+			name="categoryName"
+			class="input w-full"
+			aria-labelledby="warning-label"
+			required
+		/>
+
+		{#if form?.moveTransactionError}
+			<p class="text-red-500 my-2">{form.moveTransactionError}</p>
+		{/if}
+
+		<Button
+			class="btn btn-red ml-auto mt-2"
+			icon="chevrons-right"
+			loading={moveTransactionLoading}
+			disabled={!moveTransactionReady}
 		>
-			<h3>Delete Category</h3>
+			Move Transactions
+		</Button>
+	</form>
 
-			<p>
-				Please type <b>{data.category.name}</b> to confirm:
-			</p>
+	<form
+		action="?/removeCategory"
+		method="post"
+		class="flex flex-col gap-4 p-4 lg:p-8"
+		use:enhance={() => {
+			removeCategoryLoading = true;
+			return async ({ update }) => {
+				removeCategoryLoading = false;
+				update();
+			};
+		}}
+	>
+		<h3>Delete Category</h3>
 
-			<input
-				bind:value={removeCategoryInput}
-				type="text"
-				name="categoryName"
-				class="input w-full"
-				aria-labelledby="warning-label"
-			/>
+		<p>
+			Please type <b>{data.category.name}</b> to confirm:
+		</p>
 
-			{#if form?.removeCategoryError}
-				<p class="text-red-500 my-2">{form.removeCategoryError}</p>
-			{/if}
+		<input
+			bind:value={removeCategoryInput}
+			type="text"
+			name="categoryName"
+			class="input w-full"
+			aria-labelledby="warning-label"
+		/>
 
-			<Button
-				class="btn btn-danger ml-auto mt-auto"
-				icon="trash"
-				loading={removeCategoryLoading}
-				disabled={!removeCategoryReady}
-			>
-				Delete Category
-			</Button>
-		</form>
-	</div>
+		{#if form?.removeCategoryError}
+			<p class="text-red-500 my-2">{form.removeCategoryError}</p>
+		{/if}
+
+		<Button
+			class="btn btn-red ml-auto mt-auto"
+			icon="trash"
+			loading={removeCategoryLoading}
+			disabled={!removeCategoryReady}
+		>
+			Delete Category
+		</Button>
+	</form>
 </div>

@@ -7,10 +7,11 @@
 } */
 
 html {
-	font-family: Seravek, 'Gill Sans Nova', Ubuntu, Calibri, 'DejaVu Sans',
-		source-sans-pro, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-		'Segoe UI Symbol', 'Noto Color Emoji';
+	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'IBM Plex Sans',
+		Segoe UI, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+		'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
 
 @layer base {
 	h1 {
@@ -29,89 +30,52 @@ html {
 		@apply hover:underline;
 	}
 	blockquote {
-		@apply items-center bg-neutral-200 p-2 pl-4 text-sm my-2 italic rounded-md overflow-hidden flex;
-		@apply relative after:absolute after:h-full after:w-1.5 after:left-0 after:top-0 after:bg-indigo-300;
+		@apply items-center bg-bg-2 p-2 px-4 text-sm my-2 italic rounded-md overflow-hidden flex;
+		@apply relative after:absolute after:h-full after:w-1.5 after:left-0 after:top-0 after:bg-blue-light;
 		@apply before:content-["🛸_<"] before:pr-2 before:whitespace-nowrap before:not-italic;
 	}
 }
 
 @layer components {
-	.btn {
-		display: inline-flex;
-		gap: theme(spacing.2);
-		align-items: center;
-		justify-content: center;
-		border-radius: theme(borderRadius.md);
-		padding: theme(spacing.2) theme(spacing.8);
-	}
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-8 py-2;
+    @apply disabled:bg-bg-2 disabled:text-tx-3 disabled:hover:bg-bg-2 disabled:border disabled:border-ui;
+  }
 
-	.btn:hover {
-		background-color: theme(backgroundColor.neutral.200);
-	}
+  .btn-sm {
+    @apply text-sm px-4 py-1;
+  }
 
-	.btn:active {
-		background-color: theme(backgroundColor.neutral.100);
-	}
+  .btn-xs {
+    @apply text-xs px-2 py-0.5;
+  }
 
-	.btn-primary {
-		border-width: theme(borderWidth.DEFAULT);
-		color: theme(textColor.emerald.950);
-		border-color: theme(borderColor.emerald.600);
-		background-color: theme(backgroundColor.emerald.400);
-	}
-	.btn-primary:hover {
-		border-color: theme(borderColor.emerald.700);
-		background-color: theme(backgroundColor.emerald.500);
-	}
+  .btn-ghost {
+    @apply hover:bg-ui active:bg-ui-2;
+  }
 
-	.btn-secondary {
-		border-width: theme(borderWidth.DEFAULT);
-		color: theme(textColor.white);
-		border-color: theme(borderColor.indigo.600);
-		background-color: theme(backgroundColor.indigo.400);
-	}
-	.btn-secondary:hover {
-		border-color: theme(borderColor.indigo.700);
-		background-color: theme(backgroundColor.indigo.500);
-	}
+  .btn-blue {
+    @apply text-base-paper bg-blue-light hover:bg-blue;
+  }
 
-	.btn-danger {
-		border-width: theme(borderWidth.DEFAULT);
-		color: theme(textColor.red.950);
-		border-color: theme(borderColor.red.600);
-		background-color: theme(backgroundColor.red.400);
-	}
-	.btn-danger:hover {
-		border-color: theme(borderColor.red.700);
-		background-color: theme(backgroundColor.red.500);
-	}
+  .btn-green {
+    @apply text-base-paper bg-green-light hover:bg-green;
+  }
 
-	.btn:disabled,
-	.input:disabled {
-		background-color: theme(backgroundColor.neutral.200);
-		border-color: theme(borderColor.neutral.300);
-		color: theme(textColor.neutral.400);
-	}
+  .btn-red {
+    @apply text-base-paper bg-red-light hover:bg-red;
+  }
 
-	.input {
-		background-color: theme(backgroundColor.neutral.50);
-		border-width: theme(borderWidth.DEFAULT);
-		border-color: theme(borderColor.neutral.400);
-		border-radius: theme(borderRadius.md);
-		padding: theme(padding.2);
-	}
+  .input {
+    @apply border border-ui bg-bg rounded-lg p-2 placeholder:text-tx-3;
+    @apply focus:outline-none focus:ring focus:ring-yellow-light;
+    @apply disabled:bg-bg-2 disabled:text-tx-3 disabled:hover:bg-bg-2;
+  }
 
-	.input-label {
-		display: flex;
-		flex-direction: column;
-		width: 100%;
-	}
-
-	.card {
-		background-color: theme(backgroundColor.neutral.50);
-		border-width: theme(borderWidth.DEFAULT);
-		border-color: theme(borderColor.neutral.300);
-		border-radius: theme(borderRadius.md);
-		padding: theme(padding.4);
-	}
+  .input-label {
+    @apply flex flex-col w-full px-2 text-sm;
+  }
+  .input-label > .input {
+    @apply -mx-2 text-base;
+  }
 }

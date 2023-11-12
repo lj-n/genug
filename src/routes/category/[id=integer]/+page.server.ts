@@ -18,28 +18,17 @@ import { and, eq } from 'drizzle-orm';
 
 export const load: PageServerLoad = withAuth(async ({ params }, user) => {
 	const category = user.category.getDetailed(Number(params.id));
-	console.log('🛸 < file: +page.server.ts:18 < category =', category);
 
 	if (!category) {
 		throw error(404, 'Category not found.');
 	}
-
-	const breadcrumbs: App.Breadcrumb[] = [
-		{ icon: 'home', title: 'Home', href: '/' },
-		{ title: 'Categories', href: '/category' },
-		{ title: category.name }
-	];
 
 	const allCategories = user.category.getAll();
 	const otherCategories = allCategories.filter(
 		({ id }) => id !== Number(params.id)
 	);
 
-	return {
-		breadcrumbs,
-		category,
-		otherCategories
-	};
+	return { category, otherCategories };
 });
 
 export const actions = {
@@ -122,8 +111,8 @@ export const actions = {
 		}
 	}),
 
-  removeCategory: withAuth(async({ params, request}, user ) => {
-    const formData = await request.formData();
+	removeCategory: withAuth(async ({ params, request }, user) => {
+		const formData = await request.formData();
 		const categoryName = formData.get('categoryName')?.toString();
 
 		const category = user.category.get(Number(params.id));
@@ -157,6 +146,5 @@ export const actions = {
 		}
 
 		throw redirect(302, '/category');
-
-  })
+	})
 } satisfies Actions;
