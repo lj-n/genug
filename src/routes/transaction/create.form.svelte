@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { enhance } from "$app/forms";
 	import Button from "$lib/components/button.svelte";
 	import Currency from "$lib/components/currency.svelte";
 	import Feather from "$lib/components/feather.svelte";
@@ -22,6 +23,7 @@
 		action="?/create"
 		method="post"
 		class="flex flex-col gap-2 mt-4 p-4 border border-ui focus-within:border-green-light rounded-lg"
+    use:enhance
 	>
 		<label class="input-label">
 			Account
@@ -44,7 +46,7 @@
 
 		<label class="input-label">
 			Date
-			<input type="date" name="date" class="input" />
+			<input type="date" name="date" class="input" value={new Date().toISOString().slice(0, 10)} />
 		</label>
 
 		<label class="input-label">

@@ -3,6 +3,9 @@
 	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
 	import Feather from '$lib/components/feather.svelte';
 	import CreateForm from './create.form.svelte';
+	import { flip } from 'svelte/animate';
+	import { fade, scale } from 'svelte/transition';
+	import { enhance } from '$app/forms';
 	export let data: PageData;
 </script>
 
@@ -10,14 +13,14 @@
 
 <h1 class="my-4 text-2xl">Transactions</h1>
 
-<div class="table-wrapper">
+<div class="table-wrapper mb-8 shadow">
 	<table>
 		<thead class="sr-only lg:not-sr-only">
 			<tr>
 				<th scope="col" class="text-left">Date</th>
 				<th scope="col" class="text-left">Account</th>
 				<th scope="col" class="text-left">Category</th>
-				<th scope="col" class="text-center">Description</th>
+				<th scope="col" class="text-left">Description</th>
 				<th scope="col" class="text-right">Flow</th>
 				<th scope="col" class="text-right">Validated</th>
 				<th />
@@ -25,7 +28,7 @@
 		</thead>
 		<tbody>
 			{#each data.transactions as transaction (transaction.id)}
-				<tr>
+				<tr animate:flip={{ duration: 300 }} transition:fade={{duration: 300}}>
 					<td data-label="Date" class="order-5">{transaction.date}</td>
 					<td data-label="Account" class="order-6"
 						>{transaction.account.name}</td
@@ -35,21 +38,18 @@
 					</td>
 					<td data-label="Description" class="order-7 text-tx-2">
 						{transaction.description}
-						Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ex, perferendis.
-						Fugiat voluptates cupiditate aliquid, error assumenda quas recusandae
-						cum quibusdam quam illo soluta libero voluptatibus a architecto neque
-						sunt omnis?
 					</td>
 					<td data-label="Flow" class="order-3 tabular-nums font-semibold">
 						{formatFractionToLocaleCurrency(transaction.flow)}
 					</td>
 					<td data-label="Validated" class="order-2">
-						<form action="?/validate" method="post">
+						<form action="?/validate" method="post" use:enhance>
 							<input
 								type="hidden"
 								name="validated"
 								value={!transaction.validated}
 							/>
+							<input type="hidden" name="id" value={transaction.id} />
 							{#if transaction.validated}
 								<button
 									type="submit"
@@ -65,14 +65,38 @@
 						</form>
 					</td>
 					<td data-label="Actions" class="order-8">
-						<a
-							href="/transaction/edit/{transaction.id}"
-							title="Edit Transaction"
-							class="btn btn-ghost btn-sm"
-						>
-							<Feather name="edit" />
-							edit
-						</a>
+						<div class="inline-flex gap-2">
+							<a
+								href="/transaction/edit/{transaction.id}"
+								title="Edit Transaction"
+								class="btn btn-ghost btn-sm"
+							>
+								<Feather name="edit" />
+							</a>
+
+							<form
+								action="?/remove"
+								method="post"
+								use:enhance={({ cancel }) => {
+									if (!window.confirm('Delete transaction?')) {
+										cancel();
+									}
+
+									return async ({ update }) => {
+										update();
+									};
+								}}
+							>
+								<input type="hidden" name="id" value={transaction.id} />
+								<button
+									type="submit"
+									class="btn btn-ghost btn-sm text-red-light"
+									aria-label="Remove Transaction"
+								>
+									<Feather name="trash" />
+								</button>
+							</form>
+						</div>
 					</td>
 				</tr>
 			{/each}
@@ -87,7 +111,7 @@
 		}
 
 		table {
-			@apply border-collapse;
+			@apply border-collapse w-full;
 		}
 
 		thead tr th {
@@ -95,12 +119,18 @@
 		}
 
 		tbody tr td {
-			@apply py-2 px-4 border-b border-ui;
+			@apply py-2 px-4 border-b border-ui bg-bg;
 		}
 
-    tbody tr:last-child td {
-      @apply border-none;
-    }
+		tbody tr:last-child td {
+			@apply border-none;
+		}
+
+		td[data-label='Flow'],
+		td[data-label='Validated'],
+		td[data-label='Actions'] {
+			@apply text-right;
+		}
 	}
 
 	@media (max-width: theme(screens.lg)) {
