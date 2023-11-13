@@ -42,13 +42,13 @@
 
 ## How it works
 
-- Used database is SQLite
-- Webapp is built with SvelteKit
-- All transactions are saved with a [fractional monetary unit](https://www.thefreedictionary.com/fractional+monetary+unit)
+- SQLite Datanase
+- SvelteKit with progressive enhancement (should work without javascript)
+- All transactions are saved as [fractional monetary unit](https://www.thefreedictionary.com/fractional+monetary+unit)
 
 ## Install with Docker
 
-Cuild the docker image with:
+Build the docker image with:
 
 ```sh
 docker build -t genug .
@@ -68,7 +68,7 @@ docker run -dp 127.0.0.1:3000:3000 --mount type=volume,src=genug-db,target=/app/
 
 ## Updating
 
-Create a new image and start the container. Databse migration will be run automatically.
+Create a new image and start the container. Database migrations will be run automatically.
 
 ## Development
 
@@ -87,7 +87,7 @@ npm run dev
 
 ### Changing database tables
 
-The ORM used for typesafty and migrations is [drizzle](https://orm.drizzle.team/).
+The used ORM is [drizzle](https://orm.drizzle.team/).
 After changes to the tables defined in `/src/lib/server/schema/tables.ts` run the following command to generate migration files.
 
 ```sh
