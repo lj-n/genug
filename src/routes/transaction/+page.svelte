@@ -5,7 +5,6 @@
 	import CreateForm from './create.form.svelte';
 	import Pagination from './pagination.svelte';
 	import { flip } from 'svelte/animate';
-	import { fade } from 'svelte/transition';
 	import { enhance } from '$app/forms';
 	export let data: PageData;
 </script>

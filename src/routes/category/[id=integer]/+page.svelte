@@ -4,8 +4,7 @@
 	import { Chart } from 'chart.js/auto';
 	import { enhance } from '$app/forms';
 	import Button from '$lib/components/button.svelte';
-	import Currency from '$lib/components/currency.svelte';
-	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
+	import { currencyInputProps, formatFractionToLocaleCurrency } from '$lib/components/utils';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -142,14 +141,18 @@
 			/>
 		</label>
 
-		<Currency
-			name="goal"
-			class="input-label"
-			disabled={updateLoading}
-			value={data.category.goal || 0}
-		>
+		<label class="input-label">
 			Set a goal in this category (0 to remove goal)
-		</Currency>
+			<input
+				type="text"
+				name="goal"
+				class="input"
+				placeholder="0"
+				disabled={updateLoading}
+				value={data.category.goal || 0}
+        {...currencyInputProps}
+			/>
+		</label>
 
 		<Button
 			type="submit"
