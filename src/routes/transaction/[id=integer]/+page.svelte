@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import Button from '$lib/components/button.svelte';
-	import Currency from '$lib/components/currency.svelte';
+	import { currencyInputProps } from '$lib/components/utils';
 	import type { ActionData, PageData } from './$types';
 
 	export let data: PageData;
@@ -54,9 +54,16 @@
 		/>
 	</label>
 
-	<Currency name="flow" class="input-label" value={data.transaction.flow}
-		>Flow</Currency
-	>
+	<label class="input-label">
+		Flow
+		<input
+			type="text"
+			name="flow"
+			class="input"
+			value={data.transaction.flow}
+			{...currencyInputProps}
+		/>
+	</label>
 
 	{#if form?.error}
 		<p class="text-red-light mx-auto">{form.error}</p>

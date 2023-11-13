@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { enhance } from "$app/forms";
 	import Button from "$lib/components/button.svelte";
-	import Currency from "$lib/components/currency.svelte";
 	import Feather from "$lib/components/feather.svelte";
+	import { currencyInputProps } from "$lib/components/utils";
 	import type { SelectUserAccount, SelectUserCategory } from "$lib/server/schema/tables";
 
   export let accounts: SelectUserAccount[]
@@ -54,7 +54,10 @@
 			<input type="text" name="description" class="input" />
 		</label>
 
-		<Currency name="flow" class="input-label">Flow</Currency>
+		<label class="input-label">
+			Flow
+			<input type="text" name="flow" class="input" {...currencyInputProps} />
+		</label>
 
 		<Button type="submit" class="btn btn-green mt-2" icon="file-plus">
 			Create

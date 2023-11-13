@@ -30,3 +30,8 @@ export function getLastMonthsNames(n = 12): { name: string; date: string }[] {
 
 	return months;
 }
+
+export const currencyInputProps = {
+	pattern: '^\\d+$',
+	title: 'Please enter only digits (fractional monetary units)'
+};
