@@ -42,7 +42,7 @@
 
 ## How it works
 
-- SQLite Datanase
+- SQLite Database
 - SvelteKit with progressive enhancement (should work without javascript)
 - All transactions are saved as [fractional monetary unit](https://www.thefreedictionary.com/fractional+monetary+unit)
 
