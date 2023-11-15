@@ -58,6 +58,11 @@
 	</summary>
 
 	<div class="p-4 flex flex-col gap-4">
+		<blockquote class="w-fit mx-auto">
+			Click the labels to select/deselect filter. Click the reset button on the
+			bottom to deselect all.
+		</blockquote>
+
 		<div class="flex flex-col gap-1">
 			<span class="font-semibold">
 				Accounts
@@ -101,7 +106,7 @@
 						/>
 						<button
 							type="submit"
-							class="peer-checked:border-ui peer-checked:font-normal border font-semibold bg-bg-2 hover:bg-ui border-blue-light px-2 py-0.5 rounded-full text-xs"
+							class="peer-checked:border-ui border bg-bg-2 hover:bg-ui border-blue-light px-2 py-0.5 rounded-full text-xs"
 							aria-label="Remove or Add this Account to Filters"
 						>
 							{account.name}
@@ -153,7 +158,7 @@
 						/>
 						<button
 							type="submit"
-							class="peer-checked:border-ui peer-checked:font-normal border font-semibold bg-bg-2 hover:bg-ui border-blue-light px-2 py-0.5 rounded-full text-xs"
+							class="peer-checked:border-ui border bg-bg-2 hover:bg-ui border-blue-light px-2 py-0.5 rounded-full text-xs"
 							aria-label="Remove or add this category to filters"
 						>
 							{category.name}

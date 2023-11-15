@@ -1,3 +1,6 @@
+import type { SubmitFunction } from '@sveltejs/kit';
+import type { Writable } from 'svelte/store';
+
 type Locale = 'en-US' | 'de-DE';
 type Currency = 'EUR' | 'USD';
 
@@ -31,7 +34,36 @@ export function getLastMonthsNames(n = 12): { name: string; date: string }[] {
 	return months;
 }
 
+/**
+ * Props for a text input to only allow digits.
+ */
 export const currencyInputProps = {
 	pattern: '^\\d+$',
 	title: 'Please enter only digits (fractional monetary units)'
 };
+
+/**
+ * Returns a SubmitFunction to be used with SvelteKit `enhance` action.
+ * Sets the loading state after 300ms to prevent flickering on quick responses.
+ * Sets an attribute `data-submitting` on the form element.
+ */
+export function withLoading(store: Writable<boolean>): SubmitFunction {
+	return ({ cancel, formElement }) => {
+		if (formElement.hasAttribute('data-submitting')) {
+			cancel();
+		}
+
+		formElement.setAttribute('data-submitting', '');
+
+		const timeout = setTimeout(() => {
+			store.set(true);
+		}, 300);
+
+		return async ({ update }) => {
+			clearTimeout(timeout);
+			formElement.removeAttribute('data-submitting');
+			store.set(false);
+			update();
+		};
+	};
+}

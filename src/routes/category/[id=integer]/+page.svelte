@@ -225,7 +225,7 @@
 </p>
 
 <div
-	class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-x lg:divide-y-0 divide-red-light"
+	class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-x lg:divide-y-0 divide-ui-3"
 >
 	<form
 		action="?/moveTransactions"
@@ -239,7 +239,7 @@
 			};
 		}}
 	>
-		<h3>Move Transactions to Another Category</h3>
+		<h3 class="text-red-light">Move Transactions to Another Category</h3>
 
 		<label class="input-label">
 			Select another Category
@@ -290,7 +290,7 @@
 			};
 		}}
 	>
-		<h3>Delete Category</h3>
+		<h3 class="text-red-light">Delete Category</h3>
 
 		<p>
 			Please type <b>{data.category.name}</b> to confirm:

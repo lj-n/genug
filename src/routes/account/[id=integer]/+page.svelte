@@ -1,72 +1,84 @@
 <script lang="ts">
-	import type { ActionData, PageData } from './$types';
 	import { enhance } from '$app/forms';
 	import Button from '$lib/components/button.svelte';
-	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
+	import Feather from '$lib/components/feather.svelte';
+	import {
+		formatFractionToLocaleCurrency,
+		withLoading
+	} from '$lib/components/utils';
+	import { writable } from 'svelte/store';
+	import type { PageData, ActionData } from './$types';
 
 	export let data: PageData;
 	export let form: ActionData;
 
-	let updateLoading = false;
-	let moveTransactionLoading = false;
-	let removeAccountLoading = false;
+	$: ({ account } = data);
+
+	const updateLoading = writable(false);
+	const moveTransactionLoading = writable(false);
+	const removeAccountLoading = writable(false);
 
 	let moveTransactionInput = '';
 	let removeAccountInput = '';
 
-	$: moveTransactionReady = moveTransactionInput === data.account.details.name;
-	$: removeAccountReady = removeAccountInput === data.account.details.name;
+	$: moveTransactionReady = moveTransactionInput === account.details.name;
+	$: removeAccountReady = removeAccountInput === account.details.name;
 </script>
 
-<div class="grid md:grid-cols-2 gap-4">
-	<div
-		class="p-4 border border-neutral-400 rounded-lg bg-neutral-50 flex flex-col gap-4"
-	>
-		<h1>{data.account.details.name}</h1>
+<a href="/account" class="btn btn-ghost btn-sm w-fit mt-4">
+	<Feather name="corner-up-left" />
+	Go Back
+</a>
 
-		<p>Description: {data.account.details.description || '~'}</p>
+<h1 class="mt-8 mb-2 border-b border-ui">{account.details.name}</h1>
+<span class="text-tx-2 text-sm">Created At: {account.details.createdAt}</span>
+<span class="text-tx-2">{account.details.description || ''}</span>
 
-		<div class="grid grid-cols-2 h-fit max-w-sm">
-			<h2 class="col-span-2">Details</h2>
-
-			<span>Related Transactions Count</span>
-			<span class="font-semibold tabular-nums text-right">
-				{data.account.transactions.count}
-			</span>
-
-			<span>Validated Transactions Sum</span>
-			<span class="font-semibold tabular-nums text-right">
-				{formatFractionToLocaleCurrency(data.account.transactions.validatedSum)}
-			</span>
-
-			<span>Pending Transactions Sum</span>
-			<span class="font-semibold tabular-nums text-right">
-				{formatFractionToLocaleCurrency(data.account.transactions.pendingSum)}
-			</span>
-
-			<span>Account Balance</span>
-			<span class="font-semibold tabular-nums text-right">
-				{formatFractionToLocaleCurrency(
-					data.account.transactions.validatedSum +
-						data.account.transactions.pendingSum
-				)}
-			</span>
-		</div>
+<div
+	class="flex flex-col md:flex-row gap-2 md:gap-4 items-end ml-auto md:mx-auto mt-8 mb-12"
+>
+	<div class="flex flex-col items-end w-fit">
+		<span class="tabular-nums font-semibold text-4xl">
+			{formatFractionToLocaleCurrency(account.transactions.validatedSum)}
+		</span>
+		<span class="leading-tight text-tx-2">Validated Balance</span>
 	</div>
 
+	<span class="text-tx-2 mb-auto text-4xl font-bold hidden md:block">+</span>
+
+	<div class="flex flex-col items-end w-fit mb-4 md:mb-0">
+		<span
+			class="tabular-nums font-semibold text-4xl"
+			class:text-green-light={account.transactions.pendingSum > 0}
+			class:text-red-light={account.transactions.pendingSum < 0}
+		>
+			{formatFractionToLocaleCurrency(account.transactions.pendingSum)}
+		</span>
+		<span class="leading-tight text-tx-2">Pending Balance</span>
+	</div>
+
+	<span class="text-tx-2 mb-auto text-4xl font-bold hidden md:block">=</span>
+
+	<div
+		class="flex flex-col items-end w-fit border-t-2 border-tx-2 md:border-none"
+	>
+		<span class="tabular-nums font-bold text-4xl">
+			{formatFractionToLocaleCurrency(
+				account.transactions.validatedSum + account.transactions.pendingSum
+			)}
+		</span>
+		<span class="leading-tight text-tx-2">Working Balance</span>
+	</div>
+</div>
+
+<div class="flex flex-col gap-4 md:gap-8 max-w-xl w-full mx-auto">
 	<form
 		action="?/updateAccount"
 		method="post"
-		class="flex flex-col gap-4 p-4 border border-neutral-400 rounded-md bg-neutral-50"
-		use:enhance={() => {
-			updateLoading = true;
-			return async ({ update }) => {
-				updateLoading = false;
-				update();
-			};
-		}}
+		class="flex flex-col gap-4"
+		use:enhance={withLoading(updateLoading)}
 	>
-		<h2>Update Account</h2>
+		<h2>Update Account Details</h2>
 
 		<label class="input-label">
 			Name
@@ -76,7 +88,6 @@
 				id="name"
 				class="input"
 				placeholder="Account Name"
-				disabled={updateLoading}
 			/>
 		</label>
 
@@ -88,7 +99,6 @@
 				id="description"
 				class="input"
 				placeholder="What is this account for?"
-				disabled={updateLoading}
 			/>
 		</label>
 
@@ -98,33 +108,23 @@
 
 		<Button
 			icon="arrow-up"
-			class="btn btn-secondary ml-auto mt-2"
-			loading={updateLoading}
+			class="btn btn-blue ml-auto mt-2"
+			loading={$updateLoading}
 		>
-			Update Account Details
+			Update
 		</Button>
 	</form>
-</div>
 
-<h2 class="mt-8 text-red-500">Danger Zone ⚡</h2>
-<p class="mb-4 text-red-500 font-bold">
-	Warning: These actions can not be undone!
-</p>
-
-<div class="grid md:grid-cols-2 gap-4 mb-8">
 	<form
 		action="?/moveTransactions"
 		method="post"
-		class="flex flex-col gap-4 p-4 border border-red-500 rounded-md bg-neutral-50"
-		use:enhance={() => {
-			moveTransactionLoading = true;
-			return async ({ update }) => {
-				moveTransactionLoading = false;
-				update();
-			};
-		}}
+		class="flex flex-col gap-4"
+		use:enhance={withLoading(moveTransactionLoading)}
 	>
-		<h3>Move Transactions to Another Account</h3>
+		<h2 class="text-red-light">Move Transactions to Another Account</h2>
+		<blockquote class="danger">
+			Careful! This action cannot be undone.
+		</blockquote>
 
 		<label class="input-label">
 			Select another Account
@@ -136,27 +136,30 @@
 			</select>
 		</label>
 
-		<p id="warning-label">
-			Please type <b>{data.account.details.name}</b> to confirm:
-		</p>
-		<input
-			bind:value={moveTransactionInput}
-			type="text"
-			name="accountName"
-			class="input w-full"
-			aria-labelledby="warning-label"
-			required
-		/>
+		<div>
+			<label for="move-transactions">
+				Type <b>{data.account.details.name}</b> to confirm.
+			</label>
+
+			<input
+				bind:value={moveTransactionInput}
+				type="text"
+				name="accountName"
+				id="move-transactions"
+				class="input w-full"
+				placeholder="Type name of account"
+				required
+			/>
+		</div>
 
 		{#if form?.moveTransactionError}
-			<p class="text-red-500 my-2">{form.moveTransactionError}</p>
+			<p class="text-red-light my-2">{form.moveTransactionError}</p>
 		{/if}
 
 		<Button
-			class="btn btn-danger ml-auto mt-2"
+			class="btn btn-red ml-auto mt-2"
 			icon="chevrons-right"
-			loading={moveTransactionLoading}
-			disabled={!moveTransactionReady}
+			loading={$moveTransactionLoading}
 		>
 			Move Transactions
 		</Button>
@@ -165,39 +168,40 @@
 	<form
 		action="?/removeAccount"
 		method="post"
-		class="flex flex-col gap-4 p-4 border border-red-500 rounded-md bg-neutral-50"
-		use:enhance={() => {
-			removeAccountLoading = true;
-			return async ({ update }) => {
-				removeAccountLoading = false;
-				update();
-			};
-		}}
+		class="flex flex-col gap-4"
+		use:enhance={withLoading(removeAccountLoading)}
 	>
-		<h3>
+		<h2 class="text-red-light">
 			Delete Account and its Transactions ({data.account.transactions.count})
-		</h3>
+		</h2>
+		<blockquote class="danger">
+			Careful! This action cannot be undone.
+		</blockquote>
 
-		<p>
-			Please type <b>{data.account.details.name}</b> to confirm:
-		</p>
-		<input
-			bind:value={removeAccountInput}
-			type="text"
-			name="accountName"
-			class="input w-full"
-			aria-labelledby="warning-label"
-		/>
+		<div>
+			<label for="remove-transactions">
+				Type <b>{data.account.details.name}</b> to confirm.
+			</label>
 
-    {#if form?.removeAccountError}
-			<p class="text-red-500 my-2">{form.removeAccountError}</p>
+			<input
+				bind:value={moveTransactionInput}
+				type="text"
+				name="accountName"
+				id="remove-transactions"
+				class="input w-full"
+				placeholder="Type name of account"
+				required
+			/>
+		</div>
+
+		{#if form?.removeAccountError}
+			<p class="text-red-light my-2">{form.removeAccountError}</p>
 		{/if}
 
 		<Button
-			class="btn btn-danger ml-auto mt-2"
+			class="btn btn-red ml-auto mt-2"
 			icon="trash"
-			loading={removeAccountLoading}
-			disabled={!removeAccountReady}
+			loading={$removeAccountLoading}
 		>
 			Delete Account
 		</Button>
