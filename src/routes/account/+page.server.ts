@@ -1,17 +1,9 @@
+import type { Actions, PageServerLoad } from './$types';
 import { withAuth } from '$lib/server/auth';
 import { fail } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = withAuth(async (_, user) => {
-	const breadcrumbs: App.Breadcrumb[] = [
-		{ icon: 'home', title: 'Home', href: '/' },
-		{ title: 'Accounts' }
-	];
-
-	return {
-		breadcrumbs,
-		accounts: user.account.getBalances()
-	};
+	return { accounts: user.account.getBalances() };
 });
 
 export const actions = {
@@ -21,7 +13,7 @@ export const actions = {
 		const description = formData.get('description')?.toString();
 
 		if (!name) {
-			return fail(400, { description, error: 'Missing account name' });
+			return fail(400, { description, name, error: 'Missing account name' });
 		}
 
 		try {

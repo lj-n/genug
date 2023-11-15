@@ -12,21 +12,11 @@ export const load: PageServerLoad = withAuth(async ({ params }, user) => {
 		throw error(404, 'Account not found.');
 	}
 
-	const allAccounts = user.account.getAll();
-	const otherAccounts = allAccounts.filter(
-		({ id }) => id !== Number(params.id)
-	);
-
-	const breadcrumbs: App.Breadcrumb[] = [
-		{ icon: 'home', title: 'Home', href: '/' },
-		{ title: 'Accounts', href: '/account' },
-		{ title: account.details.name }
-	];
-
 	return {
-		breadcrumbs,
 		account,
-		otherAccounts
+		otherAccounts: user.account
+			.getAll()
+			.filter((acc) => acc.id !== Number(params.id))
 	};
 });
 
@@ -57,6 +47,7 @@ export const actions = {
 		const formData = await request.formData();
 		const accountName = formData.get('accountName')?.toString();
 		const newAccountId = formData.get('newAccountId')?.toString();
+		console.log("🛸 < file: +page.server.ts:50 < newAccountId =", newAccountId);
 
 		const account = user.account.get(Number(params.id));
 
@@ -64,9 +55,16 @@ export const actions = {
 			return fail(400, {
 				newAccountId,
 				accountName,
-				moveTransactionError: 'Wrong account name.'
+				moveTransactionError: 'The account name does not match.'
 			});
 		}
+
+    if(!newAccountId) {
+      return fail(400, {
+        accountName,
+				moveTransactionError: 'No new account selected.'
+      })
+    }
 
 		try {
 			db.update(schema.userTransaction)

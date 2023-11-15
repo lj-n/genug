@@ -5,6 +5,7 @@ import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
 import { schema } from '$lib/server/schema';
 import { fail } from '@sveltejs/kit';
+import type { SQL } from 'drizzle-orm';
 
 export const load: PageServerLoad = withAuth(({ url }, user) => {
 	const { searchParams } = url;
@@ -12,9 +13,22 @@ export const load: PageServerLoad = withAuth(({ url }, user) => {
 	const limit = Number(searchParams.get('limit')) || 20;
 	const offset = Number(searchParams.get('offset')) || 0;
 	const page = Number(searchParams.get('page')) || 1;
+	const accounts = searchParams.getAll('a').map((q) => Number(q));
+	const categories = searchParams.getAll('c').map((q) => Number(q));
 
 	const transactions = db.query.userTransaction.findMany({
-		where: (transaction, { eq }) => eq(transaction.userId, user.id),
+		where: (transaction, { and, eq, inArray }) => {
+			const filter: SQL[] = [eq(transaction.userId, user.id)];
+
+			if (accounts.length) {
+				filter.push(inArray(transaction.accountId, accounts));
+			}
+			if (categories.length) {
+				filter.push(inArray(transaction.categoryId, categories));
+			}
+
+			return and(...filter);
+		},
 		orderBy: (transaction, { asc, desc }) => [
 			asc(transaction.validated),
 			desc(transaction.date),

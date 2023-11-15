@@ -6,6 +6,7 @@
 	import Pagination from './pagination.svelte';
 	import { flip } from 'svelte/animate';
 	import { enhance } from '$app/forms';
+	import Filter from './filter.svelte';
 	export let data: PageData;
 </script>
 
@@ -13,7 +14,7 @@
 
 <h1 class="my-4 text-2xl">Transactions</h1>
 
-<Pagination page={data.page} />
+<Filter categories={data.categories} accounts={data.accounts} />
 
 <div class="table-wrapper">
 	<table>
@@ -30,11 +31,11 @@
 		</thead>
 		<tbody>
 			{#each data.transactions as transaction (transaction.id)}
-				<tr animate:flip={{ duration: 300 }}>
+				<tr animate:flip={{ duration: 200 }}>
 					<td data-label="Date" class="order-5">{transaction.date}</td>
-					<td data-label="Account" class="order-6"
-						>{transaction.account.name}</td
-					>
+					<td data-label="Account" class="order-6">
+						{transaction.account.name}
+					</td>
 					<td data-label="Category" class="order-1">
 						{transaction.category?.name || 'No Category'}
 					</td>
@@ -106,12 +107,12 @@
 	</table>
 </div>
 
-<Pagination page={data.page} /> 
+<Pagination />
 
 <style lang="postcss">
 	@media (min-width: theme(screens.lg)) {
 		.table-wrapper {
-			@apply border border-ui rounded-lg shadow;
+			@apply border border-ui rounded-lg;
 		}
 
 		table {

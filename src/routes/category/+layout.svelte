@@ -10,7 +10,7 @@
 
 <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-8 py-4">
 	<div
-		class="flex flex-col gap-2 md:max-h-[40rem] md:overflow-y-auto md:sticky md:top-14"
+		class="flex flex-col gap-2 md:max-h-[40rem] md:overflow-y-auto md:sticky md:top-14 md:pr-2"
 	>
 		<a
 			href={$page.params.id ? '/category' : '/'}

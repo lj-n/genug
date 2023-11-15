@@ -34,6 +34,9 @@ html {
 		@apply relative after:absolute after:h-full after:w-1.5 after:left-0 after:top-0 after:bg-blue-light;
 		@apply before:content-["🛸_<"] before:pr-2 before:whitespace-nowrap before:not-italic;
 	}
+  blockquote.danger {
+    @apply after:bg-red-light;
+  }
 }
 
 @layer components {
@@ -43,11 +46,11 @@ html {
   }
 
   .btn-sm {
-    @apply text-sm px-4 py-1;
+    @apply text-sm px-2 py-1;
   }
 
   .btn-xs {
-    @apply text-xs px-2 py-0.5;
+    @apply text-xs px-1 py-0.5;
   }
 
   .btn-ghost {
