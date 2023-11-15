@@ -103,6 +103,11 @@ const categoriesWithBudget = db
 			eq(schema.userTransaction.categoryId, schema.userCategory.id)
 		)
 	)
-	.where(eq(schema.userCategory.userId, sql.placeholder('userId')))
+	.where(
+		and(
+			eq(schema.userCategory.userId, sql.placeholder('userId')),
+			eq(schema.userCategory.retired, false)
+		)
+	)
 	.groupBy(({ category }) => category.id)
 	.prepare();
