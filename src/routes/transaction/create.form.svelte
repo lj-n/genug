@@ -1,17 +1,21 @@
 <script lang="ts">
-	import { enhance } from "$app/forms";
-	import Button from "$lib/components/button.svelte";
-	import Feather from "$lib/components/feather.svelte";
-	import { currencyInputProps } from "$lib/components/utils";
-	import type { SelectUserAccount, SelectUserCategory } from "$lib/server/schema/tables";
+	import { enhance } from '$app/forms';
+	import Button from '$lib/components/button.svelte';
+	import Feather from '$lib/components/feather.svelte';
+	import { currencyInputProps } from '$lib/components/utils';
+	import type {
+		SelectUserAccount,
+		SelectUserCategory
+	} from '$lib/server/schema/tables';
 
-  export let accounts: SelectUserAccount[]
-  export let categories: SelectUserCategory[]
-
+	export let accounts: SelectUserAccount[];
+	export let categories: SelectUserCategory[];
 </script>
 
 <details class="group my-8 max-w-md w-full">
-	<summary class="select-none cursor-pointer btn btn-ghost group-open:btn-sm px-2">
+	<summary
+		class="select-none cursor-pointer btn btn-ghost group-open:btn-sm px-2"
+	>
 		<span class="group-open:hidden inline-flex items-center gap-2">
 			<Feather name="file-plus" />
 			Create Transaction
@@ -23,7 +27,7 @@
 		action="?/create"
 		method="post"
 		class="flex flex-col gap-2 mt-4 p-4 border border-ui focus-within:border-green-light rounded-lg"
-    use:enhance
+		use:enhance
 	>
 		<label class="input-label">
 			Account
@@ -46,7 +50,12 @@
 
 		<label class="input-label">
 			Date
-			<input type="date" name="date" class="input" value={new Date().toISOString().slice(0, 10)} />
+			<input
+				type="date"
+				name="date"
+				class="input"
+				value={new Date().toISOString().slice(0, 10)}
+			/>
 		</label>
 
 		<label class="input-label">
@@ -56,7 +65,13 @@
 
 		<label class="input-label">
 			Flow
-			<input type="text" name="flow" class="input" {...currencyInputProps} />
+			<input
+				type="text"
+				name="flow"
+				class="input"
+				title={currencyInputProps.title}
+				pattern={currencyInputProps.pattern}
+			/>
 		</label>
 
 		<Button type="submit" class="btn btn-green mt-2" icon="file-plus">

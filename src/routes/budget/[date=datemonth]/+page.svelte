@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { getMonthYear } from '$lib/components/date.utils';
+	import Feather from '$lib/components/feather.svelte';
 	import {
 		currencyInputProps,
 		formatFractionToLocaleCurrency
@@ -8,7 +10,22 @@
 	export let data: PageData;
 </script>
 
-<h1 class="my-8">Budget {data.month}</h1>
+<h1 class="text-5xl mx-auto mt-8">{data.formattedDate}</h1>
+<div class="mt-4 mb-8 mx-auto flex gap-4">
+	<a href="/budget/{data.previousMonth}" class="btn btn-blue btn-sm">
+		<Feather name="chevrons-left" />
+		Previous
+	</a>
+
+	{#if data.formattedDate !== getMonthYear(new Date())}
+		<a href="/budget" class="btn btn-ghost btn-sm">today</a>
+	{/if}
+
+	<a href="/budget/{data.nextMonth}" class="btn btn-blue btn-sm">
+		Next
+		<Feather name="chevrons-right" />
+	</a>
+</div>
 
 <div class="table-wrapper">
 	<table>
@@ -59,8 +76,9 @@
 									name="budget"
 									class="input input-sm max-w-[5rem]"
 									aria-label="Update Budget Value"
-									{...currencyInputProps}
 									value={budget.budget}
+									title={currencyInputProps.title}
+									pattern={currencyInputProps.pattern}
 								/>
 
 								<button type="submit" class="btn btn-sm btn-blue">

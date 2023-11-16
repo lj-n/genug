@@ -6,7 +6,7 @@ import type {
 	SelectUserCategory,
 	UpdateUserCategory
 } from '../schema/tables';
-import { getLastMonthsNames } from '$lib/components/utils';
+import { getPreviousMonthsWithNames } from '$lib/components/date.utils';
 
 const userCategoryFindFirst = db.query.userCategory
 	.findFirst({
@@ -52,20 +52,32 @@ const userCategoryWithTransactionsFindMany = db.query.userCategory
 	})
 	.prepare();
 
-const categorySums = db
+const budgetSumForCategory = db
 	.select({
-		transactionCount: sql<number>`coalesce(count(${schema.userTransaction.flow}), 0)`,
-		transactionSum: sql<number>`coalesce(sum(${schema.userTransaction.flow}), 0)`,
-		budgetSum: sql<number>`coalesce(sum(${schema.userBudget.amount}), 0)`
+		sum: sql<number>`coalesce(sum(${schema.userBudget.amount}), 0)`
+	})
+	.from(schema.userCategory)
+	.leftJoin(
+		schema.userBudget,
+		eq(schema.userBudget.categoryId, schema.userCategory.id)
+	)
+	.where(
+		and(
+			eq(schema.userCategory.userId, sql.placeholder('userId')),
+			eq(schema.userCategory.id, sql.placeholder('categoryId'))
+		)
+	)
+	.prepare();
+
+const transactionCountAndSumForCategory = db
+	.select({
+		count: sql<number>`coalesce(count(${schema.userTransaction.flow}), 0)`,
+		sum: sql<number>`coalesce(sum(${schema.userTransaction.flow}), 0)`
 	})
 	.from(schema.userCategory)
 	.leftJoin(
 		schema.userTransaction,
 		eq(schema.userTransaction.categoryId, schema.userCategory.id)
-	)
-	.leftJoin(
-		schema.userBudget,
-		eq(schema.userBudget.categoryId, schema.userCategory.id)
 	)
 	.where(
 		and(
@@ -116,19 +128,29 @@ export function useUserCategory(userId: string) {
 
 	function getDetailed(categoryId: number) {
 		const category = get(categoryId);
-		const sums = categorySums.get({ userId, categoryId });
-		const lastMonths = getLastMonthsNames(12)
+		const transactions = transactionCountAndSumForCategory.get({
+			userId,
+			categoryId
+		});
+		const budgets = budgetSumForCategory.get({ userId, categoryId });
+
+		if (!category || !transactions || !budgets) {
+			return undefined;
+		}
+
+		const lastMonths = getPreviousMonthsWithNames(12)
 			.reverse()
 			.map(({ date, name }) => ({
 				name,
-        date,
+				date,
 				...transactionSumAndCountForMonth.get({
 					month: date,
 					userId,
 					categoryId
 				})
 			}));
-		return category && sums && { ...category, ...sums, lastMonths };
+
+		return { ...category, transactions, budgetSum: budgets.sum, lastMonths };
 	}
 
 	function getWithTransactions(categoryId: number) {
