@@ -1,4 +1,4 @@
-name: Tests 🧪
+name: Tests
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    name: Run tests 🏃‍♂️
+    name: run tests 🏃‍♂️
     runs-on: ubuntu-latest
 
     strategy:
