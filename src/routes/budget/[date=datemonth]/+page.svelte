@@ -56,6 +56,11 @@
 	</a>
 </div>
 
+<div class="my-4 mx-auto text-2xl font-bold text-right">
+	<h2>Not yet assigned:</h2>
+	{formatFractionToLocaleCurrency(data.assignable)}
+</div>
+
 <div class="table-wrapper">
 	<table bind:this={table}>
 		<thead>

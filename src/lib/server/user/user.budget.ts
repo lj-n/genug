@@ -1,4 +1,4 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, gt, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { schema } from '../schema';
 import type { SelectUserBudget } from '../schema/tables';
@@ -52,7 +52,15 @@ export function useUserBudget(userId: string) {
 		return categoriesWithBudget.all({ userId, month });
 	}
 
-	return { set, get };
+	function getAssignableBalance() {
+		const transactionSum = transactionSumQuery.get({ userId });
+		console.log("🛸 < file: user.budget.ts:57 < transactionSum =", transactionSum);
+		const budgetSum = budgetSumQuery.get({ userId });
+		console.log("🛸 < file: user.budget.ts:59 < budgetSum =", budgetSum);
+		return (transactionSum?.value || 0) - (budgetSum?.value || 0);
+	}
+
+	return { set, get, getAssignableBalance };
 }
 
 /**
@@ -110,4 +118,23 @@ const categoriesWithBudget = db
 		)
 	)
 	.groupBy(({ category }) => category.id)
+	.prepare();
+
+const transactionSumQuery = db
+	.select({
+		value: sql<number>`coalesce(sum(${schema.userTransaction.flow}), 0)`
+	})
+	.from(schema.userTransaction)
+	.where(and(
+    eq(schema.userTransaction.userId, sql.placeholder('userId')),
+    gt(schema.userTransaction.flow, 0)
+  ))
+	.prepare();
+
+const budgetSumQuery = db
+	.select({
+		value: sql<number>`coalesce(sum(${schema.userBudget.amount}), 0)`
+	})
+	.from(schema.userBudget)
+	.where(eq(schema.userBudget.userId, sql.placeholder('userId')))
 	.prepare();

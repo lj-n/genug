@@ -15,6 +15,7 @@ export const load: PageServerLoad = withAuth(({ params }, user) => {
 
 	return {
 		budgets: user.budget.get(params.date),
+    assignable: user.budget.getAssignableBalance(),
 		previousMonth,
 		nextMonth,
 		formattedDate,
