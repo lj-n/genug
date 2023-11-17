@@ -51,7 +51,7 @@
 Build the docker image with:
 
 ```sh
-docker build -t genug .
+docker build --build-arg ORIGIN_URL=https://custom-genug.com  -t genug .
 ```
 
 Create a volume to persist the database:

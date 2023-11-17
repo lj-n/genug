@@ -18,9 +18,9 @@ export function formatFractionToLocaleCurrency(
  * Props for a text input to only allow digits.
  */
 export const currencyInputProps = {
-	pattern: '^\\d+$',
+	pattern: '^(-?\\d+|\\d+)$',
 	title: 'Please enter only digits (fractional monetary units)'
-};
+};  
 
 /**
  * Returns a SubmitFunction to be used with SvelteKit `enhance` action.
