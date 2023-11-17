@@ -22,9 +22,11 @@ COPY /drizzle drizzle/
 COPY start.sh .
 RUN chmod +x start.sh
 
+ARG ORIGIN_URL=http://localhost:3000
+
 EXPOSE 3000
 
 ENV NODE_ENV=production
-ENV ORIGIN=http://localhost:3000
+ENV ORIGIN=$ORIGIN_URL
 
 CMD [ "./start.sh" ]

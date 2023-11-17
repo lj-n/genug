@@ -4,7 +4,10 @@
 	import { Chart } from 'chart.js/auto';
 	import { enhance } from '$app/forms';
 	import Button from '$lib/components/button.svelte';
-	import { currencyInputProps, formatFractionToLocaleCurrency } from '$lib/components/utils';
+	import {
+		currencyInputProps,
+		formatFractionToLocaleCurrency
+	} from '$lib/components/utils';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -20,7 +23,7 @@
 	$: removeCategoryReady = removeCategoryInput === data.category.name;
 
 	$: canBeRetired =
-		data.category.budgetSum + data.category.transactionSum === 0;
+		data.category.budgetSum + data.category.transactions.sum === 0;
 
 	let canvas: HTMLCanvasElement;
 
@@ -75,14 +78,14 @@
 <div class="grid grid-cols-3 gap-4 divide-x divide-ui-3">
 	<div class="px-4 lg:px-8 flex flex-col">
 		<span class="font-semibold text-3xl lg:text-5xl"
-			>{data.category.transactionCount}</span
+			>{data.category.transactions.count}</span
 		>
 		<span class="text-tx-2">Related Transactions</span>
 	</div>
 
 	<div class="px-4 lg:px-8 flex flex-col">
 		<span class="font-semibold text-3xl lg:text-5xl tabular-nums">
-			{formatFractionToLocaleCurrency(data.category.transactionSum)}
+			{formatFractionToLocaleCurrency(data.category.transactions.sum)}
 		</span>
 		<span class="text-tx-2">Total Flow</span>
 	</div>
@@ -150,7 +153,8 @@
 				placeholder="0"
 				disabled={updateLoading}
 				value={data.category.goal || 0}
-        {...currencyInputProps}
+				title={currencyInputProps.title}
+				pattern={currencyInputProps.pattern}
 			/>
 		</label>
 
