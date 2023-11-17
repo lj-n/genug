@@ -14,13 +14,17 @@ export function formatFractionToLocaleCurrency(
 	);
 }
 
+export function getPercentage(value: number, total: number): number {
+	return parseFloat(((value / total) * 100).toFixed(2));
+}
+
 /**
  * Props for a text input to only allow digits.
  */
 export const currencyInputProps = {
 	pattern: '^(-?\\d+|\\d+)$',
 	title: 'Please enter only digits (fractional monetary units)'
-};  
+};
 
 /**
  * Returns a SubmitFunction to be used with SvelteKit `enhance` action.
