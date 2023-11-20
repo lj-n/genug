@@ -19,26 +19,27 @@
 <br />
 <br />
 
-## Features (MVP)
+## Features
 
-### Budgeting
+### Categories
 
-- Transactions
-- Categories
-- Accounts
-- Monthly Budgets
-- Statistics
+Define categories such as food, rent, leisure, etc. to organize and track your expenses in a structured way.
 
-### Teams
+### Transactions
 
-- All features above can be shared in a team
-- Different roles with permissions
+Create, update or delete detailed transactions to get an accurate and up-to-date overview of your expenses.
 
-### Administration
+### Accounts
 
-- Every instance has an admin
-- Registration for new users can be turned off
-- Teams can be turned off
+Each transaction is linked to a specific account, so you can easily keep an eye on your account balances.
+
+### Budget
+
+Plan your spending every month for each category. Know what your money's doing.
+
+### Teams (Coming soon)
+
+This feature enables multiple users to work together on budgeting. Accounts, Categories, Transactions and Budget can be used as a team.
 
 ## How it works
 
@@ -66,11 +67,23 @@ Start the container:
 docker run -dp 127.0.0.1:3000:3000 --mount type=volume,src=genug-db,target=/app/data/ genug
 ```
 
+> By default [Sveltekit will accept](https://kit.svelte.dev/docs/adapter-node#environment-variables-origin-protocolheader-and-hostheader) connections on `0.0.0.0` using port 3000. You can pass the `ORIGIN` environment variable in the docker build like this:
+>
+> ```sh
+> docker build --build-arg ORIGIN_URL=https://my-url.com  -t genug .
+> ```
+
 ## Updating
 
 Create a new image and start the container. Database migrations will be run automatically.
 
 ## Development
+
+Install dependencies
+
+```sh
+npm install
+```
 
 Create a `/data` directory and run the drizzle migration. This will create a sqlite database `/data/genug.db` with the defined tables from `/src/lib/server/schema/tables.ts`.
 
@@ -99,3 +112,7 @@ To apply the changes to the database run:
 ```sh
 npm run drizzle:migrate
 ```
+
+## Why
+
+This app was created for personal use. Everyone is free to use **genug** as they see fit.
