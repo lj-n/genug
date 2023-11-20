@@ -43,9 +43,8 @@ This feature enables multiple users to work together on budgeting. Accounts, Cat
 
 ## How it works
 
-- SQLite Database
-- SvelteKit with progressive enhancement (should work without javascript)
-- All transactions are saved as [fractional monetary unit](https://www.thefreedictionary.com/fractional+monetary+unit)
+- SQLite Database for storing data
+- SvelteKit Webapp with focus on progressive enhancement
 
 ## Install with Docker
 
