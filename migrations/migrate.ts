@@ -6,7 +6,7 @@ try {
 	console.log('Running database migrations 📜');
 
 	migrate(drizzle(new Database('data/genug.db')), {
-		migrationsFolder: 'drizzle'
+		migrationsFolder: 'migrations'
 	});
 
 	console.log('Migrated successfully ✔️');
