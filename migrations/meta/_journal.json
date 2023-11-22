@@ -8,6 +8,27 @@
       "when": 1700506921252,
       "tag": "0000_regular_exodus",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1700557885991,
+      "tag": "0001_brown_puma",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1700561865107,
+      "tag": "0002_wooden_harrier",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1700678827178,
+      "tag": "0003_real_husk",
+      "breakpoints": true
     }
   ]
 }

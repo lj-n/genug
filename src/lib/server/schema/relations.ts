@@ -10,10 +10,15 @@ import {
 	teamAccount,
 	teamCategory,
 	teamTransaction,
-	teamBudget
+	teamBudget,
+  userProfile
 } from './tables';
 
-export const userRelations = relations(user, ({ many }) => ({
+export const userRelations = relations(user, ({ many, one }) => ({
+  profile: one(userProfile, {
+    fields: [user.id],
+    references: [userProfile.id]
+  }),
 	teams: many(teamMember),
 	accounts: many(userAccount),
 	categories: many(userCategory),

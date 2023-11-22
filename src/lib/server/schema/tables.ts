@@ -3,7 +3,8 @@ import {
 	sqliteTable,
 	text,
 	integer,
-	primaryKey
+	primaryKey,
+	blob
 } from 'drizzle-orm/sqlite-core';
 
 export const session = sqliteTable('user_session', {
@@ -36,6 +37,19 @@ export const token = sqliteTable('token', {
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
 	expires: integer('expires', { mode: 'number' }).notNull()
+});
+
+export const userProfile = sqliteTable('user_profile', {
+	id: integer('id', { mode: 'number' }).primaryKey(),
+	userId: text('user_id', { length: 15 })
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	image: blob('image', { mode: 'buffer' }),
+	imageType: text('image_type'),
+	theme: text('theme', { enum: ['light', 'dark', 'system'] })
+		.notNull()
+		.default('system'),
+	categoryOrder: text('category_order', { mode: 'json' }).$type<number[]>()
 });
 
 export const userCategory = sqliteTable('user_category', {

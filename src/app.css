@@ -6,12 +6,18 @@
   color-scheme: dark light;
 } */
 
+.squircle {
+	mask-size: contain;
+	mask-repeat: no-repeat;
+	mask-position: center;
+	mask-image: url("data:image/svg+xml,%3csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M100 0C20 0 0 20 0 100s20 100 100 100 100-20 100-100S180 0 100 0Z'/%3e%3c/svg%3e");
+}
+
 html {
 	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'IBM Plex Sans',
 		Segoe UI, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
 		'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
-
 
 @layer base {
 	h1 {
@@ -34,59 +40,91 @@ html {
 		@apply relative after:absolute after:h-full after:w-1.5 after:left-0 after:top-0 after:bg-blue-light;
 		@apply before:content-["🛸_<"] before:pr-2 before:whitespace-nowrap before:not-italic;
 	}
-  blockquote.danger {
-    @apply after:bg-red-light;
-  }
+	blockquote.danger {
+		@apply after:bg-red-light;
+	}
 }
 
 @layer components {
-  .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-8 py-2;
-    @apply disabled:bg-bg-2 disabled:text-tx-3 disabled:hover:bg-bg-2 disabled:border disabled:border-ui;
-  }
+	.btn {
+		@apply inline-flex items-center justify-center gap-2 rounded-lg px-8 py-2 cursor-pointer;
+		@apply disabled:bg-bg-2 disabled:text-tx-3 disabled:hover:bg-bg-2 disabled:border disabled:border-ui;
+	}
 
-  .btn-sm {
-    @apply text-sm px-2 py-1;
-  }
+	.btn-sm {
+		@apply text-sm px-2 py-1;
+	}
 
-  .btn-xs {
-    @apply text-xs px-1 py-0.5;
-  }
+	.btn-xs {
+		@apply text-xs px-1 py-0.5;
+	}
 
-  .btn-ghost {
-    @apply hover:bg-ui active:bg-ui-2;
-  }
+	.btn-ghost {
+		@apply hover:bg-ui active:bg-ui-2;
+	}
 
-  .btn-blue {
-    @apply text-base-paper bg-blue-light hover:bg-blue;
-  }
+	.btn-blue {
+		@apply text-base-paper bg-blue-light hover:bg-blue;
+	}
 
-  .btn-green {
-    @apply text-base-paper bg-green-light hover:bg-green;
-  }
+	.btn-green {
+		@apply text-base-paper bg-green-light hover:bg-green;
+	}
 
-  .btn-red {
-    @apply text-base-paper bg-red-light hover:bg-red;
-  }
+	.btn-orange {
+		@apply text-base-paper bg-orange-light hover:bg-orange;
+	}
 
-  .input {
-    @apply border border-ui bg-bg rounded-lg p-2 placeholder:text-tx-3;
-    @apply focus:outline-none focus:ring focus:ring-yellow-light;
-    @apply disabled:bg-bg-2 disabled:text-tx-3 disabled:hover:bg-bg-2;
-  }
+	.btn-yellow {
+		@apply text-base-paper bg-yellow-light hover:bg-yellow;
+	}
 
-  .input-sm {
-    @apply text-sm px-2 py-1;
-  }
+	.btn-cyan {
+		@apply text-base-paper bg-cyan-light hover:bg-cyan;
+	}
 
-  .input-xs {
-    @apply text-xs px-1 py-0.5;
-  }
+	.btn-purple {
+		@apply text-base-paper bg-purple-light hover:bg-purple;
+	}
 
-  .input-label {
-    @apply flex flex-col w-full px-2 text-sm;
-  }
-  .input-label > .input {
-    @apply -mx-2 text-base;
-  }
+	.btn-magenta {
+		@apply text-base-paper bg-magenta-light hover:bg-magenta;
+	}
+
+	.btn-red {
+		@apply text-base-paper bg-red-light hover:bg-red;
+	}
+
+	.btn-disabled {
+		@apply bg-bg-2 text-tx-3 hover:bg-bg-2 border border-ui;
+	}
+
+	.input {
+		@apply border border-ui bg-bg rounded-lg p-2 placeholder:text-tx-3;
+		@apply focus:outline-none focus:ring focus:ring-yellow-light;
+		@apply disabled:bg-bg-2 disabled:text-tx-3 disabled:hover:bg-bg-2;
+	}
+
+	.input-sm {
+		@apply text-sm px-2 py-1;
+	}
+
+	.input-xs {
+		@apply text-xs px-1 py-0.5;
+	}
+
+	.input-label {
+		@apply flex flex-col w-full px-2 text-sm;
+	}
+	.input-label > .input {
+		@apply -mx-2 text-base;
+	}
+
+	.avatar {
+		@apply squircle aspect-square;
+	}
+	.avatar > img {
+		@apply bg-ui-3 bg-no-repeat bg-center;
+		@apply w-full h-full object-contain;
+	}
 }

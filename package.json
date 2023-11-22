@@ -12,7 +12,7 @@
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"format": "prettier --plugin-search-dir . --write .",
 		"migrations:generate": "drizzle-kit generate:sqlite",
-		"migrations:push": "vite-node drizzle/migrate.ts",
+		"migrations:push": "vite-node migrations/migrate.ts",
 		"test": "vitest run --no-threads"
 	},
 	"devDependencies": {

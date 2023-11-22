@@ -1,0 +1,1 @@
+ALTER TABLE user_profile ADD `theme` text DEFAULT 'system' NOT NULL;

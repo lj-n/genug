@@ -1,14 +1,6 @@
+import { isNameAlreadyInUse } from '$lib/server/auth';
 import { useUserAuth } from '$lib/server/user';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
-import { LuciaError } from 'lucia';
-import { SqliteError } from 'better-sqlite3';
-
-function isNameAlreadyInUse(e: unknown) {
-	return (
-		(e instanceof SqliteError && e.code === 'SQLITE_CONSTRAINT_UNIQUE') ||
-		(e instanceof LuciaError && e.message === 'AUTH_DUPLICATE_KEY_ID')
-	);
-}
 
 export const actions = {
 	async default({ request, locals }) {

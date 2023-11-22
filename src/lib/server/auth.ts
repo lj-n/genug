@@ -1,6 +1,8 @@
-import { lucia } from 'lucia';
+import { LuciaError, lucia } from 'lucia';
 import { sveltekit } from 'lucia/middleware';
 import { betterSqlite3 } from '@lucia-auth/adapter-sqlite';
+import { SqliteError } from 'better-sqlite3';
+
 import { dev } from '$app/environment';
 import {
 	redirect,
@@ -35,4 +37,12 @@ export function withAuth<Event extends ServerLoadEvent | RequestEvent, Out>(
 
 		return fn(event, userClient(session.user.userId));
 	};
+}
+
+/** Check if error indicates that username is already taken */
+export function isNameAlreadyInUse(e: unknown) {
+	return (
+		(e instanceof SqliteError && e.code === 'SQLITE_CONSTRAINT_UNIQUE') ||
+		(e instanceof LuciaError && e.message === 'AUTH_DUPLICATE_KEY_ID')
+	);
 }

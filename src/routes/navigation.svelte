@@ -30,11 +30,6 @@
 		Accounts
 	</a>
 
-	<a href="/team" class="flex gap-1 items-center text-sm">
-		<Feather name="users" />
-		Teams
-	</a>
-
 	<a href="/signout" class="flex gap-1 items-center text-sm ml-auto">
 		<Feather name="log-out" />
 		Sign Out
@@ -73,50 +68,27 @@
 	<div
 		class="absolute top-[calc(100%+1rem)] right-4 backdrop-blur bg-bg-2 border border-ui-3 shadow rounded-lg hidden peer-checked:grid grid-cols-2 gap-4 p-4"
 	>
-		<a
-			href="/budget"
-			class="btn btn-sm btn-ghost"
-		>
+		<a href="/budget" class="btn btn-sm btn-ghost">
 			<Feather name="pie-chart" />
 			Budget
 		</a>
 
-		<a
-			href="/transaction"
-			class="btn btn-sm btn-ghost"
-		>
+		<a href="/transaction" class="btn btn-sm btn-ghost">
 			<Feather name="credit-card" />
 			Transactions
 		</a>
 
-		<a
-			href="/category"
-			class="btn btn-sm btn-ghost"
-		>
+		<a href="/category" class="btn btn-sm btn-ghost">
 			<Feather name="folder" />
 			Categories
 		</a>
 
-		<a
-			href="/account"
-			class="btn btn-sm btn-ghost"
-		>
+		<a href="/account" class="btn btn-sm btn-ghost">
 			<Feather name="book" />
 			Accounts
 		</a>
 
-		<a
-			href="/team"
-			class="btn btn-sm btn-ghost"
-		>
-			<Feather name="users" />
-			Teams
-		</a>
-
-		<a
-			href="/signout"
-			class="btn btn-sm btn-ghost"
-		>
+		<a href="/signout" class="btn btn-sm btn-ghost">
 			<Feather name="log-out" />
 			Sign Out
 		</a>
