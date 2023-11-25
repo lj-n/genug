@@ -1,7 +1,7 @@
 import { LuciaError, lucia } from 'lucia';
 import { sveltekit } from 'lucia/middleware';
 import { betterSqlite3 } from '@lucia-auth/adapter-sqlite';
-import { SqliteError } from 'better-sqlite3';
+import { SqliteError, type Database } from 'better-sqlite3';
 
 import { dev } from '$app/environment';
 import {
@@ -13,18 +13,22 @@ import {
 import { sqlite } from './db';
 import { userClient } from './user';
 
-export const auth = lucia({
-	env: dev ? 'DEV' : 'PROD',
-	adapter: betterSqlite3(sqlite, {
-		user: 'user',
-		key: 'user_key',
-		session: 'user_session'
-	}),
-	middleware: sveltekit(),
-	getUserAttributes: (user) => ({ name: user.name })
-});
+export function createAuth(client: Database) {
+	return lucia({
+		env: dev ? 'DEV' : 'PROD',
+		adapter: betterSqlite3(client, {
+			user: 'user',
+			key: 'user_key',
+			session: 'user_session'
+		}),
+		middleware: sveltekit(),
+		getUserAttributes: (user) => ({ name: user.name })
+	});
+}
 
-export type Auth = typeof auth;
+export const auth = createAuth(sqlite);
+
+export type Auth = ReturnType<typeof createAuth>;
 
 /** Use to protect Server routes */
 export function withAuth<Event extends ServerLoadEvent | RequestEvent, Out>(

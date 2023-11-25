@@ -2,21 +2,17 @@ import {
 	drizzle,
 	type BetterSQLite3Database
 } from 'drizzle-orm/better-sqlite3';
-import Database from 'better-sqlite3';
-import { schema } from './schema';
-import { sql } from 'drizzle-orm';
+import SQLiteDatabase from 'better-sqlite3';
+import { schema } from '$lib/server/schema';
+import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 
-const testing = import.meta.env.MODE === 'test';
+export type Database = BetterSQLite3Database<typeof schema>;
 
-const databaseFile = testing ? 'test.db' : 'data/genug.db';
+export const sqlite = new SQLiteDatabase('data/genug.db');
 
-export const sqlite = new Database(databaseFile);
-
-export const db: BetterSQLite3Database<typeof schema> = drizzle(sqlite, {
+export const db: Database = drizzle(sqlite, {
 	schema,
 	logger: false
 });
 
-export const setForeignKeysPragma = () => {
-	db.run(sql`pragma foreign_keys = TRUE`);
-};
+migrate(db, { migrationsFolder: 'migrations' });
