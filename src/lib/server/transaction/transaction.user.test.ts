@@ -77,7 +77,7 @@ describe('user transactions', () => {
 });
 
 describe('transfer transactions', () => {
-	test('transfer transactions', () => {
+	test('transfer transaction between user accounts', () => {
 		const account1 = createUserAccount(db, {
 			userId,
 			name: 'Temporary Account 1'
@@ -126,7 +126,7 @@ describe('transfer transactions', () => {
 		});
 	});
 
-  /**
-   * TODO: Transfer transaction to team account
-   */
+	// test('transfer transaction to team account', () => {
+	//
+	// })
 });

@@ -10,6 +10,7 @@ import {
 	updateUserAccount
 } from './account.user';
 import { useTestDatabase } from '$testing/create.test.db';
+import { createUserTransaction, deleteUserTransaction } from '../transaction/transaction.user';
 
 let db: Database;
 let userId: string;
@@ -94,7 +95,42 @@ describe('user account balance', () => {
 		expect(balance).toStrictEqual({ validated: 0, pending: 0, working: 0 });
 	});
 
-  /** 
-   * TODO: Create some transaction and test aggregation
-   */
+	test('account balance after adding transactions', () => {
+		createUserTransaction(db, {
+			userId,
+			accountId,
+			flow: 500,
+			validated: true
+		});
+		createUserTransaction(db, {
+			userId,
+			accountId,
+			flow: -300,
+			validated: false
+		});
+		const transaction = createUserTransaction(db, {
+			userId,
+			accountId,
+			flow: -200,
+			validated: false
+		});
+
+		let balance = getUserAccountBalance(db, userId, accountId);
+
+		expect(balance).toStrictEqual({
+			validated: 500,
+			pending: -500,
+			working: 0
+		});
+
+    deleteUserTransaction(db, userId, transaction.id);
+
+    balance = getUserAccountBalance(db, userId, accountId);
+
+		expect(balance).toStrictEqual({
+      validated: 500,
+      pending: -300,
+      working: 200
+    });
+	});
 });
