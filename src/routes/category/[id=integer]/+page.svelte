@@ -23,7 +23,7 @@
 	$: removeCategoryReady = removeCategoryInput === data.category.name;
 
 	$: canBeRetired =
-		data.category.budgetSum + data.category.transactions.sum === 0;
+		data.budgetSum + data.transactions.sum === 0;
 
 	let canvas: HTMLCanvasElement;
 
@@ -50,11 +50,11 @@
 				}
 			},
 			data: {
-				labels: data.category.lastMonths.map(({ date }) => date),
+				labels: data.lastMonthsStats.map(({ date }) => date),
 				datasets: [
 					{
 						label: 'Transaction Sum',
-						data: data.category.lastMonths.map(({ sum }) => sum),
+						data: data.lastMonthsStats.map(({ sum }) => sum),
 						backgroundColor: '#4385BE',
 						borderRadius: 2,
 						yAxisID: 'yAxis'
@@ -78,21 +78,21 @@
 <div class="grid grid-cols-3 gap-4 divide-x divide-ui-3">
 	<div class="px-4 lg:px-8 flex flex-col">
 		<span class="font-semibold text-3xl lg:text-5xl"
-			>{data.category.transactions.count}</span
+			>{data.transactions.count}</span
 		>
 		<span class="text-tx-2">Related Transactions</span>
 	</div>
 
 	<div class="px-4 lg:px-8 flex flex-col">
 		<span class="font-semibold text-3xl lg:text-5xl tabular-nums">
-			{formatFractionToLocaleCurrency(data.category.transactions.sum)}
+			{formatFractionToLocaleCurrency(data.transactions.sum)}
 		</span>
 		<span class="text-tx-2">Total Flow</span>
 	</div>
 
 	<div class="px-4 lg:px-8 flex flex-col">
 		<span class="font-semibold text-3xl lg:text-5xl tabular-nums">
-			{formatFractionToLocaleCurrency(data.category.budgetSum)}
+			{formatFractionToLocaleCurrency(data.budgetSum)}
 		</span>
 		<span class="text-tx-2">Total Budget</span>
 	</div>

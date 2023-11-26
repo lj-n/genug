@@ -1,9 +1,17 @@
-import { withAuth } from '$lib/server/auth';
+import { protectRoute } from '$lib/server/auth';
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { schema } from '$lib/server/schema';
 import { and, eq } from 'drizzle-orm';
+import {
+	getUserCategories,
+	getUserCategory,
+	getUserCategoryBudgetSum,
+	getUserCategoryLastMonthStats,
+	getUserCategoryTransactionInfo,
+  updateUserCategory
+} from '$lib/server/category';
 
 /**
  * Data needed:
@@ -16,23 +24,37 @@ import { and, eq } from 'drizzle-orm';
  *  - All Transactions in last n months
  */
 
-export const load: PageServerLoad = withAuth(async ({ params }, user) => {
-	const category = user.category.getDetailed(Number(params.id));
+export const load: PageServerLoad = protectRoute(
+	async ({ params }, { userId }) => {
+		const category = getUserCategory(db, userId, Number(params.id));
 
-	if (!category) {
-		throw error(404, 'Category not found.');
+		if (!category) {
+			throw error(404, 'Category not found.');
+		}
+
+		return {
+			category,
+			transactions: getUserCategoryTransactionInfo(
+				db,
+				userId,
+				Number(params.id)
+			),
+			budgetSum: getUserCategoryBudgetSum(db, userId, Number(params.id)),
+			lastMonthsStats: getUserCategoryLastMonthStats(
+				db,
+				userId,
+				Number(params.id),
+				12
+			),
+			otherCategories: getUserCategories(db, userId).filter(
+				(cat) => cat.id !== Number(params.id)
+			)
+		};
 	}
-
-	const allCategories = user.category.getAll();
-	const otherCategories = allCategories.filter(
-		({ id }) => id !== Number(params.id)
-	);
-
-	return { category, otherCategories };
-});
+);
 
 export const actions = {
-	updateCategory: withAuth(async ({ params, request }, user) => {
+	updateCategory: protectRoute(async ({ params, request }, { userId }) => {
 		const formData = await request.formData();
 		let name = formData.get('name')?.toString();
 		let description = formData.get('description')?.toString();
@@ -47,11 +69,11 @@ export const actions = {
 			name ||= undefined;
 			description ||= undefined;
 
-			user.category.update(Number(params.id), {
-				name,
-				description,
-				goal: Number(goal) || null
-			});
+      updateUserCategory(db, userId, Number(params.id), {
+        name,
+        description,
+        goal: Number(goal) || null
+      });
 		} catch (_e) {
 			return fail(500, {
 				updateCategoryError: 'Something went wrong, please try again.'
@@ -59,7 +81,7 @@ export const actions = {
 		}
 	}),
 
-	retireCategory: withAuth(async ({ params, request }, user) => {
+	retireCategory: protectRoute(async ({ params, request }, { userId }) => {
 		const formData = await request.formData();
 		const retired = formData.get('retired')?.toString();
 
@@ -68,9 +90,10 @@ export const actions = {
 		}
 
 		try {
-			user.category.update(Number(params.id), {
-				retired: retired === 'true'
-			});
+
+      updateUserCategory(db, userId, Number(params.id), {
+        retired: retired === 'true'
+      });
 		} catch (_e) {
 			return fail(500, {
 				updateCategoryError: 'Something went wrong, please try again.'
@@ -78,12 +101,12 @@ export const actions = {
 		}
 	}),
 
-	moveTransactions: withAuth(async ({ params, request }, user) => {
+	moveTransactions: protectRoute(async ({ params, request }, { userId }) => {
 		const formData = await request.formData();
 		const categoryName = formData.get('categoryName')?.toString();
 		const newCategoryId = formData.get('newCategoryId')?.toString();
 
-		const category = user.category.get(Number(params.id));
+		const category = getUserCategory(db, userId, Number(params.id));
 
 		if (!category || category.name !== categoryName) {
 			return fail(400, {
@@ -100,7 +123,7 @@ export const actions = {
 				})
 				.where(
 					and(
-						eq(schema.userTransaction.userId, user.id),
+						eq(schema.userTransaction.userId, userId),
 						eq(schema.userTransaction.categoryId, category.id)
 					)
 				)
@@ -111,11 +134,11 @@ export const actions = {
 		}
 	}),
 
-	removeCategory: withAuth(async ({ params, request }, user) => {
+	removeCategory: protectRoute(async ({ params, request }, { userId }) => {
 		const formData = await request.formData();
 		const categoryName = formData.get('categoryName')?.toString();
 
-		const category = user.category.get(Number(params.id));
+		const category = getUserCategory(db, userId, Number(params.id));
 
 		if (!category || category.name !== categoryName) {
 			return fail(400, {
@@ -129,7 +152,7 @@ export const actions = {
 				db.delete(schema.userTransaction)
 					.where(
 						and(
-							eq(schema.userTransaction.userId, user.id),
+							eq(schema.userTransaction.userId, userId),
 							eq(schema.userTransaction.categoryId, category.id)
 						)
 					)

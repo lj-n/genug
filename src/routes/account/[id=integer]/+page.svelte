@@ -12,8 +12,6 @@
 	export let data: PageData;
 	export let form: ActionData;
 
-	$: ({ account } = data);
-
 	const updateLoading = writable(false);
 	const moveTransactionLoading = writable(false);
 	const removeAccountLoading = writable(false);
@@ -21,8 +19,8 @@
 	let moveTransactionInput = '';
 	let removeAccountInput = '';
 
-	$: moveTransactionReady = moveTransactionInput === account.details.name;
-	$: removeAccountReady = removeAccountInput === account.details.name;
+	$: moveTransactionReady = moveTransactionInput === data.account.name;
+	$: removeAccountReady = removeAccountInput === data.account.name;
 </script>
 
 <a href="/account" class="btn btn-ghost btn-sm w-fit mt-4">
@@ -30,16 +28,16 @@
 	Go Back
 </a>
 
-<h1 class="mt-8 mb-2 border-b border-ui">{account.details.name}</h1>
-<span class="text-tx-2 text-sm">Created At: {account.details.createdAt}</span>
-<span class="text-tx-2">{account.details.description || ''}</span>
+<h1 class="mt-8 mb-2 border-b border-ui">{data.account.name}</h1>
+<span class="text-tx-2 text-sm">Created At: {data.account.createdAt}</span>
+<span class="text-tx-2">{data.account.description || ''}</span>
 
 <div
 	class="flex flex-col md:flex-row gap-2 md:gap-4 items-end ml-auto md:mx-auto mt-8 mb-12"
 >
 	<div class="flex flex-col items-end w-fit">
 		<span class="tabular-nums font-semibold text-4xl">
-			{formatFractionToLocaleCurrency(account.transactions.validatedSum)}
+			{formatFractionToLocaleCurrency(data.transactionInfo.validatedSum)}
 		</span>
 		<span class="leading-tight text-tx-2">Validated Balance</span>
 	</div>
@@ -49,10 +47,10 @@
 	<div class="flex flex-col items-end w-fit mb-4 md:mb-0">
 		<span
 			class="tabular-nums font-semibold text-4xl"
-			class:text-green-light={account.transactions.pendingSum > 0}
-			class:text-red-light={account.transactions.pendingSum < 0}
+			class:text-green-light={data.transactionInfo.pendingSum > 0}
+			class:text-red-light={data.transactionInfo.pendingSum < 0}
 		>
-			{formatFractionToLocaleCurrency(account.transactions.pendingSum)}
+			{formatFractionToLocaleCurrency(data.transactionInfo.pendingSum)}
 		</span>
 		<span class="leading-tight text-tx-2">Pending Balance</span>
 	</div>
@@ -64,7 +62,7 @@
 	>
 		<span class="tabular-nums font-bold text-4xl">
 			{formatFractionToLocaleCurrency(
-				account.transactions.validatedSum + account.transactions.pendingSum
+				data.transactionInfo.validatedSum + data.transactionInfo.pendingSum
 			)}
 		</span>
 		<span class="leading-tight text-tx-2">Working Balance</span>
@@ -138,7 +136,7 @@
 
 		<div>
 			<label for="move-transactions">
-				Type <b>{data.account.details.name}</b> to confirm.
+				Type <b>{data.account.name}</b> to confirm.
 			</label>
 
 			<input
@@ -172,7 +170,7 @@
 		use:enhance={withLoading(removeAccountLoading)}
 	>
 		<h2 class="text-red-light">
-			Delete Account and its Transactions ({data.account.transactions.count})
+			Delete Account and its Transactions ({data.transactionInfo.count})
 		</h2>
 		<blockquote class="danger">
 			Careful! This action cannot be undone.
@@ -180,11 +178,11 @@
 
 		<div>
 			<label for="remove-transactions">
-				Type <b>{data.account.details.name}</b> to confirm.
+				Type <b>{data.account.name}</b> to confirm.
 			</label>
 
 			<input
-				bind:value={moveTransactionInput}
+				bind:value={removeAccountInput}
 				type="text"
 				name="accountName"
 				id="remove-transactions"

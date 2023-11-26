@@ -1,27 +1,42 @@
-import { withAuth } from '$lib/server/auth';
+import { protectRoute } from '$lib/server/auth';
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { schema } from '$lib/server/schema';
 import { and, eq } from 'drizzle-orm';
+import {
+	getUserAccount,
+	getUserAccountTransactionInfo,
+	getUserAccounts,
+	updateUserAccount
+} from '$lib/server/account';
 
-export const load: PageServerLoad = withAuth(async ({ params }, user) => {
-	const account = user.account.getDetails(Number(params.id));
+export const load: PageServerLoad = protectRoute(
+	async ({ params }, { userId }) => {
+		const account = getUserAccount(db, userId, Number(params.id));
 
-	if (!account) {
-		throw error(404, 'Account not found.');
+		if (!account) {
+			throw error(404, 'Account not found.');
+		}
+
+		const transactionInfo = getUserAccountTransactionInfo(
+			db,
+			userId,
+			Number(params.id)
+		);
+
+		return {
+			account,
+			transactionInfo,
+			otherAccounts: getUserAccounts(db, userId).filter(
+				(acc) => acc.id !== Number(params.id)
+			)
+		};
 	}
-
-	return {
-		account,
-		otherAccounts: user.account
-			.getAll()
-			.filter((acc) => acc.id !== Number(params.id))
-	};
-});
+);
 
 export const actions = {
-	updateAccount: withAuth(async ({ params, request }, user) => {
+	updateAccount: protectRoute(async ({ params, request }, { userId }) => {
 		const formData = await request.formData();
 		let name = formData.get('name')?.toString();
 		let description = formData.get('description')?.toString();
@@ -35,7 +50,7 @@ export const actions = {
 			name ||= undefined;
 			description ||= undefined;
 
-			user.account.update(Number(params.id), { name, description });
+			updateUserAccount(db, userId, Number(params.id), { name, description });
 		} catch (_e) {
 			return fail(500, {
 				updateAccountError: 'Something went wrong, please try again.'
@@ -43,13 +58,12 @@ export const actions = {
 		}
 	}),
 
-	moveTransactions: withAuth(async ({ params, request }, user) => {
+	moveTransactions: protectRoute(async ({ params, request }, { userId }) => {
 		const formData = await request.formData();
 		const accountName = formData.get('accountName')?.toString();
 		const newAccountId = formData.get('newAccountId')?.toString();
-		console.log("🛸 < file: +page.server.ts:50 < newAccountId =", newAccountId);
 
-		const account = user.account.get(Number(params.id));
+		const account = getUserAccount(db, userId, Number(params.id));
 
 		if (!account || account.name !== accountName) {
 			return fail(400, {
@@ -59,12 +73,12 @@ export const actions = {
 			});
 		}
 
-    if(!newAccountId) {
-      return fail(400, {
-        accountName,
+		if (!newAccountId) {
+			return fail(400, {
+				accountName,
 				moveTransactionError: 'No new account selected.'
-      })
-    }
+			});
+		}
 
 		try {
 			db.update(schema.userTransaction)
@@ -73,7 +87,7 @@ export const actions = {
 				})
 				.where(
 					and(
-						eq(schema.userTransaction.userId, user.id),
+						eq(schema.userTransaction.userId, userId),
 						eq(schema.userTransaction.accountId, account.id)
 					)
 				)
@@ -84,11 +98,11 @@ export const actions = {
 		}
 	}),
 
-	removeAccount: withAuth(async ({ params, request }, user) => {
+	removeAccount: protectRoute(async ({ params, request }, { userId }) => {
 		const formData = await request.formData();
 		const accountName = formData.get('accountName')?.toString();
 
-		const account = user.account.get(Number(params.id));
+		const account = getUserAccount(db, userId, Number(params.id));
 
 		if (!account || account.name !== accountName) {
 			return fail(400, {
@@ -102,7 +116,7 @@ export const actions = {
 				db.delete(schema.userTransaction)
 					.where(
 						and(
-							eq(schema.userTransaction.userId, user.id),
+							eq(schema.userTransaction.userId, userId),
 							eq(schema.userTransaction.accountId, account.id)
 						)
 					)

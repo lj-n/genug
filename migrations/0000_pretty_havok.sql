@@ -103,6 +103,13 @@ CREATE TABLE `user_account` (
 	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
+CREATE TABLE `user_avatar` (
+	`user_id` text(15) PRIMARY KEY NOT NULL,
+	`image` blob NOT NULL,
+	`image_type` text NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
 CREATE TABLE `user_budget` (
 	`user_id` text(15) NOT NULL,
 	`category_id` integer NOT NULL,
@@ -121,6 +128,14 @@ CREATE TABLE `user_category` (
 	`created_at` text DEFAULT CURRENT_DATE NOT NULL,
 	`goal` integer,
 	`retired` integer DEFAULT false NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `user_settings` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`user_id` text(15) NOT NULL,
+	`theme` text DEFAULT 'system' NOT NULL,
+	`category_order` text,
 	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint

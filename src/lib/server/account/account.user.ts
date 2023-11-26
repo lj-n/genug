@@ -133,7 +133,7 @@ type AccountBalance = {
 export function getUserAccountBalance(
 	database: Database,
 	userId: string,
-	accountId: number,
+	accountId: number
 ): AccountBalance {
 	const result = database
 		.select({
@@ -188,4 +188,45 @@ export function getUserAccountsWithBalance(
 		pending,
 		working: validated + pending
 	}));
+}
+
+/**
+ * Retrieves transaction information for a user account.
+ * @param database The database instance.
+ * @param userId The ID of the user.
+ * @param accountId The ID of the account to retrieve transaction information for.
+ * @returns An object containing the count, validated sum, and pending sum of transactions for the account.
+ * @throws Error if the account with the specified ID is not found.
+ */
+export function getUserAccountTransactionInfo(
+	database: Database,
+	userId: string,
+	accountId: number
+): {
+	count: number;
+	validatedSum: number;
+	pendingSum: number;
+} {
+	const result = database
+		.select({
+			count: sql<number>`coalesce(count(${schema.userTransaction.flow}), 0)`,
+			validatedSum: sql<number>`coalesce(sum(CASE WHEN ${schema.userTransaction.validated} = 1 THEN ${schema.userTransaction.flow} ELSE 0 END) ,0)`,
+			pendingSum: sql<number>`coalesce(sum(CASE WHEN ${schema.userTransaction.validated} = 0 THEN ${schema.userTransaction.flow} ELSE 0 END) ,0)`
+		})
+		.from(schema.userAccount)
+		.leftJoin(
+			schema.userTransaction,
+			eq(schema.userTransaction.accountId, schema.userAccount.id)
+		)
+		.where(
+			and(
+				eq(schema.userAccount.id, accountId),
+				eq(schema.userAccount.userId, userId)
+			)
+		)
+		.get();
+
+	if (!result) throw new Error(`Account with id (${accountId}) not found.`);
+
+	return result;
 }

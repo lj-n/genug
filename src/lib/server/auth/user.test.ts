@@ -6,8 +6,8 @@ import {
 	createUser,
 	createUserSession,
 	deleteUser,
-	getUserProfile,
-	updateUserProfile
+	getUserSettings,
+	updateUserSettings
 } from './user';
 import { useTestDatabase } from '$testing/create.test.db';
 
@@ -64,24 +64,24 @@ describe('user', () => {
 	test('get user profile', async () => {
 		const session = await createUserSession(auth, username, password);
 
-		const profile = getUserProfile(db, session.user.userId);
+		const profile = getUserSettings(db, session.user.userId);
 
 		expect(profile.userId).toBe(session.user.userId);
 
-		expect(() => getUserProfile(db, 'wrong_user_id')).toThrowError(
+		expect(() => getUserSettings(db, 'wrong_user_id')).toThrowError(
 			`User with id (wrong_user_id) not found.`
 		);
 	});
 
 	test('update user profile', async () => {
 		const session = await createUserSession(auth, username, password);
-		const profile = updateUserProfile(db, session.user.userId, {
+		const profile = updateUserSettings(db, session.user.userId, {
 			theme: 'dark'
 		});
 
 		expect(profile.theme).toBe('dark');
 		expect(() =>
-			updateUserProfile(db, 'wrong_user_id', { theme: 'light' })
+    updateUserSettings(db, 'wrong_user_id', { theme: 'light' })
 		).toThrowError('User with id (wrong_user_id) not found.');
 	});
 

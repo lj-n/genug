@@ -34,7 +34,7 @@ export async function createUser(
 		});
 
 		database
-			.insert(schema.userProfile)
+			.insert(schema.userSettings)
 			.values({
 				userId: user.userId
 			})
@@ -90,14 +90,18 @@ export function deleteUser(database: Database, userId: string): string {
  * @returns The user profile object.
  * @throws Error if the user with the specified ID is not found.
  */
-export function getUserProfile(
+export function getUserSettings(
 	database: Database,
 	userId: string
-): typeof schema.userProfile.$inferSelect {
+): Omit<typeof schema.userSettings.$inferSelect, 'id'> {
 	const profile = database
-		.select()
-		.from(schema.userProfile)
-		.where(eq(schema.userProfile.userId, userId))
+		.select({
+			theme: schema.userSettings.theme,
+			categoryOrder: schema.userSettings.categoryOrder,
+			userId: schema.userSettings.userId
+		})
+		.from(schema.userSettings)
+		.where(eq(schema.userSettings.userId, userId))
 		.get();
 
 	if (!profile) throw new Error(`User with id (${userId}) not found.`);
@@ -113,15 +117,15 @@ export function getUserProfile(
  * @returns The updated user profile object.
  * @throws Error if the user with the specified ID is not found.
  */
-export function updateUserProfile(
+export function updateUserSettings(
 	database: Database,
 	userId: string,
-	updates: Omit<typeof schema.userProfile.$inferInsert, 'userId' | 'id'>
-): typeof schema.userProfile.$inferSelect {
+	updates: Omit<typeof schema.userSettings.$inferInsert, 'userId' | 'id'>
+): typeof schema.userSettings.$inferSelect {
 	const profile = database
-		.update(schema.userProfile)
+		.update(schema.userSettings)
 		.set(updates)
-		.where(eq(schema.userProfile.userId, userId))
+		.where(eq(schema.userSettings.userId, userId))
 		.returning()
 		.get();
 

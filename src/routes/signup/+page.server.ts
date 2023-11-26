@@ -1,5 +1,5 @@
-import { isNameAlreadyInUse } from '$lib/server/auth';
-import { useUserAuth } from '$lib/server/user';
+import { auth, createUser, isNameAlreadyInUse } from '$lib/server/auth';
+import { db } from '$lib/server/db';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
 
 export const actions = {
@@ -19,8 +19,7 @@ export const actions = {
 		}
 
 		try {
-			const { createUser } = useUserAuth();
-			const { session } = await createUser(username, password);
+			const { session } = await createUser(db, auth, username, password);
 			locals.auth.setSession(session);
 		} catch (error) {
 			if (isNameAlreadyInUse(error)) {

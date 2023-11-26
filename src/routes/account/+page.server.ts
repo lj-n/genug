@@ -1,13 +1,20 @@
 import type { Actions, PageServerLoad } from './$types';
-import { withAuth } from '$lib/server/auth';
 import { fail } from '@sveltejs/kit';
+import { db } from '$lib/server/db';
+import { protectRoute } from '$lib/server/auth/utils';
+import {
+	createUserAccount,
+	getUserAccountsWithBalance
+} from '$lib/server/account';
 
-export const load: PageServerLoad = withAuth(async (_, user) => {
-	return { accounts: user.account.getBalances() };
+export const load: PageServerLoad = protectRoute(async (_, { userId }) => {
+	return {
+		accounts: getUserAccountsWithBalance(db, userId)
+	};
 });
 
 export const actions = {
-	default: withAuth(async ({ request }, user) => {
+	default: protectRoute(async ({ request }, { userId }) => {
 		const formData = await request.formData();
 		const name = formData.get('name')?.toString();
 		const description = formData.get('description')?.toString();
@@ -17,7 +24,7 @@ export const actions = {
 		}
 
 		try {
-			const account = user.account.create({ name, description });
+			const account = createUserAccount(db, { userId, name, description });
 			return { success: true, account };
 		} catch (_e) {
 			return fail(500, {
