@@ -6,11 +6,13 @@
 
 	function reloadAvatar() {
 		const avatars = document.querySelectorAll(
-			'img[src|="/avatar"]'
+			'img[src^="/avatar"]'
 		) as NodeListOf<HTMLImageElement>;
 
+		const timestamp = new Date().getTime();
+
 		avatars.forEach((avatar) => {
-			avatar.src = `/avatar?t=${new Date().getTime()}`;
+			avatar.src = `/avatar?t=${timestamp}`;
 		});
 	}
 </script>
@@ -22,8 +24,12 @@
 	<h1>{data.user?.name}</h1>
 </div>
 
-<div class="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3 md:gap-4 lg:gap-8">
-	<div class="flex flex-col gap-2 md:gap-4 items-center border border-ui rounded-lg p-2">
+<div
+	class="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3 md:gap-4 lg:gap-8"
+>
+	<div
+		class="flex flex-col gap-2 md:gap-4 items-center border border-ui rounded-lg p-2"
+	>
 		<h2>Profile Image</h2>
 		<div class="avatar w-2/3">
 			<img src="/avatar" alt="user-avatar" />
@@ -37,6 +43,7 @@
 
 		<form
 			action="?/updateAvatar"
+			enctype="multipart/form-data"
 			method="post"
 			class="peer-open:max-h-12 max-h-0 transition-all overflow-hidden"
 			use:enhance={() => {
@@ -94,16 +101,31 @@
 		<h2 class="mx-auto">Settings</h2>
 
 		<form action="?/changeTheme" method="post" class="flex gap-2" use:enhance>
-      <span class="mr-auto text-tx-2">Theme</span>
-			<button type="submit" name="theme" value="light" class="btn btn-ghost btn-sm">
+			<span class="mr-auto text-tx-2">Theme</span>
+			<button
+				type="submit"
+				name="theme"
+				value="light"
+				class="btn btn-ghost btn-sm"
+			>
 				<Feather name="sun" />
 			</button>
 
-			<button type="submit" name="theme" value="system" class="btn btn-ghost btn-sm">
+			<button
+				type="submit"
+				name="theme"
+				value="system"
+				class="btn btn-ghost btn-sm"
+			>
 				<Feather name="monitor" />
 			</button>
 
-			<button type="submit" name="theme" value="dark" class="btn btn-ghost btn-sm">
+			<button
+				type="submit"
+				name="theme"
+				value="dark"
+				class="btn btn-ghost btn-sm"
+			>
 				<Feather name="moon" />
 			</button>
 		</form>

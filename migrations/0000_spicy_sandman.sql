@@ -105,8 +105,8 @@ CREATE TABLE `user_account` (
 --> statement-breakpoint
 CREATE TABLE `user_avatar` (
 	`user_id` text(15) PRIMARY KEY NOT NULL,
-	`image` blob NOT NULL,
-	`image_type` text NOT NULL,
+	`image` blob,
+	`image_type` text,
 	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint

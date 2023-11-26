@@ -4,7 +4,11 @@ import { useTestDatabase } from '$testing/create.test.db';
 import { createUserAccount } from '../account/account.user';
 import { createUserCategory } from '../category/category.user';
 import { createUserTransaction } from '../transaction/transaction.user';
-import { getUserBudgets, setUserBudget } from './budget.user';
+import {
+	getUnassignedUserBudget,
+	getUserBudgets,
+	setUserBudget
+} from './budget.user';
 import type { schema } from '../schema';
 
 let db: Database;
@@ -175,5 +179,19 @@ describe('user budgets', () => {
 			activity: 0,
 			rest: 600
 		});
+	});
+
+	test('get unassigned budget value', () => {
+		const value = getUnassignedUserBudget(db, userId);
+		expect(value).toBe(-2700);
+
+		createUserTransaction(db, {
+			userId,
+			accountId,
+			flow: 5500,
+			validated: true
+		});
+
+		expect(getUnassignedUserBudget(db, userId)).toBe(2800);
 	});
 });

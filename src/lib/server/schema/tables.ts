@@ -50,13 +50,23 @@ export const userSettings = sqliteTable('user_settings', {
 	categoryOrder: text('category_order', { mode: 'json' }).$type<number[]>()
 });
 
-export const userAvatar = sqliteTable('user_avatar', {
-	userId: text('user_id', { length: 15 })
-		.primaryKey()
-		.references(() => user.id, { onDelete: 'cascade' }),
-	image: blob('image', { mode: 'buffer' }).notNull(),
-	imageType: text('image_type').notNull()
-});
+export const userAvatar = sqliteTable(
+	'user_avatar',
+	{
+		userId: text('user_id', { length: 15 })
+			.notNull()
+			.references(() => user.id, {
+				onDelete: 'cascade'
+			}),
+		image: blob('image', { mode: 'buffer' }),
+		imageType: text('image_type')
+	},
+	(table) => {
+		return {
+			pk: primaryKey(table.userId)
+		};
+	}
+);
 
 export const userCategory = sqliteTable('user_category', {
 	id: integer('id', { mode: 'number' }).primaryKey(),

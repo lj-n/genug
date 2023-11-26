@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "9be54e8f-9ce7-4bb2-9b5a-83c8aa3d8fc8",
+  "id": "825db4fb-dd7d-41c1-b583-2ce338c327eb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "user_key": {
@@ -749,14 +749,14 @@
           "name": "image",
           "type": "blob",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "image_type": {
           "name": "image_type",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         }
       },

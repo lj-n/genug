@@ -1,32 +1,33 @@
-import { withAuth } from '$lib/server/auth';
+import { protectRoute } from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import { icons } from 'feather-icons';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = withAuth(({ setHeaders }, user) => {
-	const profile = profileQuery.get({ userId: user.id });
+export const GET: RequestHandler = protectRoute(
+	({ setHeaders }, { userId }) => {
+		const avatar = avatarQuery.get({ userId });
 
-	const imageBlob = profile?.image;
-	const imageType = profile?.imageType;
+		const imageBlob = avatar?.image;
+		const imageType = avatar?.imageType;
 
-	if (!imageBlob || !imageType) {
-		/** Return default user avatar */
-		const svgString = icons.smile.toSvg({ width: '14px' });
-		setHeaders({ 'Content-Type': 'image/svg+xml' });
-		return new Response(svgString);
+		if (!imageBlob || !imageType) {
+			/** Return default user avatar */
+			const svgString = icons.smile.toSvg({ width: '14px' });
+			setHeaders({ 'Content-Type': 'image/svg+xml' });
+			return new Response(svgString);
+		}
+
+		setHeaders({
+			'Content-Type': imageType,
+			'Content-Length': imageBlob.byteLength.toString()
+		});
+
+		return new Response(imageBlob);
 	}
+);
 
-	setHeaders({
-		'Content-Type': imageType,
-		'Content-Length': imageBlob.byteLength.toString()
-	});
-
-	return new Response(imageBlob);
-});
-
-const profileQuery = db.query.userProfile
+const avatarQuery = db.query.userAvatar
 	.findFirst({
-		where: (profile, { eq, sql }) =>
-			eq(profile.userId, sql.placeholder('userId'))
+		where: (avatar, { eq, sql }) => eq(avatar.userId, sql.placeholder('userId'))
 	})
 	.prepare();

@@ -125,11 +125,12 @@ export function getUserBudgets(
  * @param userId The ID of the user.
  * @returns The unassigned budget amount.
  */
-export function getUnassignedBudget(
+export function getUnassignedUserBudget(
 	database: Database,
 	userId: string
 ): number {
-	return database.get(sql<number>`
+	const result = database.get<{ sum: number }>(sql<{ sum: number }>`
+    select
     coalesce(
       (
         select sum(${schema.userTransaction.flow})
@@ -148,5 +149,8 @@ export function getUnassignedBudget(
       ),
       0
     )
+    as sum
   `);
+
+	return result.sum;
 }

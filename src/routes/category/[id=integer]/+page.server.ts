@@ -10,23 +10,13 @@ import {
 	getUserCategoryBudgetSum,
 	getUserCategoryLastMonthStats,
 	getUserCategoryTransactionInfo,
-  updateUserCategory
+	updateUserCategory
 } from '$lib/server/category';
-
-/**
- * Data needed:
- *  - Category
- *
- *  - Related Transaction Count
- *  - Related Transaction Sum
- *  - Related Budget Amount Sum
- *
- *  - All Transactions in last n months
- */
 
 export const load: PageServerLoad = protectRoute(
 	async ({ params }, { userId }) => {
-		const category = getUserCategory(db, userId, Number(params.id));
+		const categoryId = Number(params.id);
+		const category = getUserCategory(db, userId, categoryId);
 
 		if (!category) {
 			throw error(404, 'Category not found.');
@@ -34,20 +24,16 @@ export const load: PageServerLoad = protectRoute(
 
 		return {
 			category,
-			transactions: getUserCategoryTransactionInfo(
-				db,
-				userId,
-				Number(params.id)
-			),
-			budgetSum: getUserCategoryBudgetSum(db, userId, Number(params.id)),
+			transactions: getUserCategoryTransactionInfo(db, userId, categoryId),
+			budgetSum: getUserCategoryBudgetSum(db, userId, categoryId),
 			lastMonthsStats: getUserCategoryLastMonthStats(
 				db,
 				userId,
-				Number(params.id),
+				categoryId,
 				12
 			),
 			otherCategories: getUserCategories(db, userId).filter(
-				(cat) => cat.id !== Number(params.id)
+				(cat) => cat.id !== categoryId
 			)
 		};
 	}
@@ -69,11 +55,11 @@ export const actions = {
 			name ||= undefined;
 			description ||= undefined;
 
-      updateUserCategory(db, userId, Number(params.id), {
-        name,
-        description,
-        goal: Number(goal) || null
-      });
+			updateUserCategory(db, userId, Number(params.id), {
+				name,
+				description,
+				goal: Number(goal) || null
+			});
 		} catch (_e) {
 			return fail(500, {
 				updateCategoryError: 'Something went wrong, please try again.'
@@ -90,10 +76,9 @@ export const actions = {
 		}
 
 		try {
-
-      updateUserCategory(db, userId, Number(params.id), {
-        retired: retired === 'true'
-      });
+			updateUserCategory(db, userId, Number(params.id), {
+				retired: retired === 'true'
+			});
 		} catch (_e) {
 			return fail(500, {
 				updateCategoryError: 'Something went wrong, please try again.'

@@ -133,3 +133,25 @@ export function updateUserSettings(
 
 	return profile;
 }
+
+export function setUserAvatar(
+	database: Database,
+	userId: string,
+	data: { image: Buffer; imageType: string } | null
+): void {
+	const avatar = database
+		.insert(schema.userAvatar)
+		.values({
+			userId,
+			image: data?.image || null,
+			imageType: data?.imageType || null
+		})
+		.onConflictDoUpdate({
+			target: [schema.userAvatar.userId],
+			set: { image: data?.image || null, imageType: data?.imageType || null }
+		})
+		.returning()
+		.get();
+
+	if (!avatar) throw new Error(`User with id (${userId}) not found.`);
+}

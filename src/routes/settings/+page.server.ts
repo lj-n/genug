@@ -1,18 +1,22 @@
-import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { auth, isNameAlreadyInUse, withAuth } from '$lib/server/auth';
+import { fail } from '@sveltejs/kit';
+import {
+	auth,
+	isNameAlreadyInUse,
+	protectRoute,
+	setUserAvatar,
+	updateUserSettings
+} from '$lib/server/auth';
 import { db } from '$lib/server/db';
-import { schema } from '$lib/server/schema';
-import { eq } from 'drizzle-orm';
 
 const IMAGE_TYPES = ['image/gif', 'image/jpeg', 'image/png'];
 
-export const load: PageServerLoad = withAuth(async () => {
-	return {};
+export const load: PageServerLoad = protectRoute(async (_, user) => {
+	return { user };
 });
 
 export const actions = {
-	updateAvatar: withAuth(async ({ request }, user) => {
+	updateAvatar: protectRoute(async ({ request }, { userId }) => {
 		const formData = await request.formData();
 		const image = formData.get('image');
 
@@ -22,32 +26,29 @@ export const actions = {
 			});
 		}
 
-		db.update(schema.userProfile)
-			.set({
+		try {
+			setUserAvatar(db, userId, {
 				image: Buffer.from(await image.arrayBuffer()),
 				imageType: image.type
-			})
-			.where(eq(schema.userProfile.userId, user.id))
-			.returning()
-			.get();
+			});
+		} catch {
+			return fail(500, { error: 'Oops, something went wrong.' });
+		}
 
 		return { success: true };
 	}),
 
-	removeAvatar: withAuth((_, user) => {
-		db.update(schema.userProfile)
-			.set({
-				image: null,
-				imageType: null
-			})
-			.where(eq(schema.userProfile.userId, user.id))
-			.returning()
-			.get();
+	removeAvatar: protectRoute((_, { userId }) => {
+		try {
+			setUserAvatar(db, userId, null);
+		} catch {
+			return fail(500, { error: 'Oops, something went wrong.' });
+		}
 
 		return { success: true };
 	}),
 
-	changeTheme: withAuth(async ({ request }, user) => {
+	changeTheme: protectRoute(async ({ request }, { userId }) => {
 		const formData = await request.formData();
 		const theme = formData.get('theme')?.toString();
 
@@ -61,17 +62,13 @@ export const actions = {
 			if (theme !== 'light' && theme !== 'dark' && theme !== 'system') {
 				throw new Error('invalid theme');
 			}
-			db.update(schema.userProfile)
-				.set({ theme })
-				.where(eq(schema.userProfile.userId, user.id))
-				.returning()
-				.get();
+			updateUserSettings(db, userId, { theme });
 		} catch (error) {
 			return fail(500, { changeThemeError: 'Something went wrong.' });
 		}
 	}),
 
-	changeUsername: withAuth(async ({ request }, user) => {
+	changeUsername: protectRoute(async ({ request }, { userId }) => {
 		const formData = await request.formData();
 		const username = formData.get('username')?.toString();
 
@@ -82,7 +79,7 @@ export const actions = {
 		}
 
 		try {
-			await auth.updateUserAttributes(user.id, { name: username });
+			await auth.updateUserAttributes(userId, { name: username });
 		} catch (error) {
 			if (isNameAlreadyInUse(error)) {
 				return fail(403, {
@@ -97,7 +94,7 @@ export const actions = {
 		}
 	}),
 
-	changePassword: withAuth(async ({ request }) => {
+	changePassword: protectRoute(async ({ request }) => {
 		const formData = await request.formData();
 		const password = formData.get('password')?.toString();
 
