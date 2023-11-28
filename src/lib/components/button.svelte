@@ -12,11 +12,12 @@
 	export let loading = false;
 </script>
 
-<button {...$$restProps}>
+<button on:click {...$$restProps} data-loading={loading || null}>
 	{#if loading}
-		<Feather name="loader" class="animate-spin" />
+		<Feather name="loader" class="spin" />
 	{:else if icon}
 		<Feather name={icon} />
 	{/if}
+
 	<slot />
 </button>

@@ -4,4 +4,12 @@
 	export let data: PageData;
 </script>
 
-<h1 class="my-8">👋 Hi there {data.user?.name}!</h1>
+<h1>👋 Hi there {data.user?.name}!</h1>
+
+<div>content</div>
+
+<style>
+	div {
+		height: 2000px;
+	}
+</style>

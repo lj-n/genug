@@ -1,0 +1,217 @@
+/* CSS RESET */
+* {
+	margin: 0;
+}
+
+*,
+::before,
+::after {
+	box-sizing: border-box;
+	border-width: 0;
+	border-style: solid;
+	border-color: var(--ui-normal-color);
+}
+
+body {
+	line-height: 1.5;
+	-webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+	display: block;
+	max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+	font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	overflow-wrap: break-word;
+}
+
+/* CSS VARIABLES */
+:root {
+	/* BASE COLORS */
+	--base-white-color: #fffcf0;
+	--base-50-color: #f2f0e5;
+	--base-100-color: #e6e4d9;
+	--base-150-color: #dad8ce;
+	--base-200-color: #cecdc3;
+	--base-300-color: #b7b5ac;
+	--base-500-color: #878580;
+	--base-600-color: #6f6e69;
+	--base-700-color: #575653;
+	--base-800-color: #403e3c;
+	--base-850-color: #343331;
+	--base-900-color: #282726;
+	--base-950-color: #1c1b1a;
+	--base-black-color: #100f0f;
+
+	/* ACCENT COLORS */
+	--red-color: #af3029;
+	--orange-color: #bc5215;
+	--yellow-color: #ad8301;
+	--green-color: #66800b;
+	--cyan-color: #24837b;
+	--blue-color: #205ea6;
+	--purple-color: #5e409d;
+	--magenta-color: #a02f6f;
+
+	/* UI COLORS */
+	--background-color: var(--base-white-color);
+	--foreground-color: var(--base-50-color);
+	--text-normal-color: var(--base-black-color);
+	--text-muted-color: var(--base-600-color);
+	--text-fainted-color: var(--base-300-color);
+	--ui-normal-color: var(--base-100-color);
+	--ui-hover-color: var(--base-150-color);
+	--ui-active-color: var(--base-200-color);
+
+	/* FONTS */
+	--font-sans-serif: 'Open Sans', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto,
+		'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
+		'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+	--font-serif: Georgia, serif;
+	--font-mono: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+		'Courier New', monospace;
+
+	/* SPACING */
+	--spacing-xs: 0.25rem;
+	--spacing-sm: 0.5rem;
+	--spacing-base: 1rem;
+	--spacing-lg: 1.5rem;
+	--spacing-xl: 2rem;
+	--spacing-2xl: 3rem;
+	--spacing-3xl: 4rem;
+	--spacing-4xl: 6rem;
+	--spacing-5xl: 8rem;
+
+	/* RADIUS */
+	--radius-sm: 0.125rem;
+	--radius-md: 0.25rem;
+	--radius-lg: 0.5rem;
+	--radius-xl: 0.75rem;
+	--radius-2xl: 1rem;
+	--radius-3xl: 1.5rem;
+	--radius-full: 9999px;
+	--radius-default: var(--radius-xl);
+
+	/* BREAKPOINTS */
+	--breakpoint-sm: 640px;
+	--breakpoint-md: 768px;
+	--breakpoint-lg: 1024px;
+	--breakpoint-xl: 1280px;
+}
+
+[data-dark-mode] {
+	--background-color: var(--base-black-color);
+	--foreground-color: var(--base-950-color);
+	--text-normal-color: var(--base-200-color);
+	--text-muted-color: var(--base-500-color);
+	--text-fainted-color: var(--base-700-color);
+	--ui-normal-color: var(--base-900-color);
+	--ui-hover-color: var(--base-850-color);
+	--ui-active-color: var(--base-800-color);
+
+	--red-color: #d14d41;
+	--orange-color: #da702c;
+	--yellow-color: #d0a215;
+	--green-color: #879a39;
+	--cyan-color: #3aa99f;
+	--blue-color: #4385be;
+	--purple-color: #8b7ec8;
+	--magenta-color: #ce5d97;
+}
+
+/* BASE STYLES */
+html {
+	font-family: var(--font-sans-serif);
+	overscroll-behavior: none;
+}
+
+body {
+	position: relative;
+	margin: 0 auto;
+	padding: 0 var(--spacing-sm);
+	display: flex;
+	flex-direction: column;
+	max-width: 80rem;
+	min-height: 100vh;
+	background-color: var(--background-color);
+	color: var(--text-normal-color);
+}
+
+h1 {
+	font-size: 2.25rem;
+	font-weight: 700;
+	line-height: 2.5rem;
+}
+h2 {
+	font-size: 1.5rem;
+	font-weight: 600;
+	line-height: 2rem;
+}
+h3 {
+	font-size: 1.25rem;
+	font-weight: 600;
+	line-height: 1.75rem;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+a:not(.btn):hover {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+p.error {
+	margin: var(--spacing-base) auto;
+	color: var(--red-color);
+	text-align: center;
+}
+
+.mx {
+	margin-left: auto;
+	margin-right: auto;
+}
+.my {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+.ml {
+	margin-left: auto;
+}
+.mr {
+	margin-right: auto;
+}
+.mt {
+	margin-top: auto;
+}
+.mb {
+	margin-bottom: auto;
+}
+
+.spin {
+	animation: spin 4s linear infinite;
+}
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}

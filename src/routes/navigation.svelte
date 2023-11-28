@@ -1,96 +1,149 @@
-<script>
+<script lang="ts">
 	import Feather from '$lib/components/feather.svelte';
 </script>
 
-<nav
-	aria-label="desktop-navigation"
-	class="hidden md:flex gap-4 h-10 items-center sticky top-0 z-30 backdrop-blur bg-bg/80 py-2"
->
-	<a href="/" class="mr-auto">
+<nav aria-label="Desktop-Navigation" class="navigation-desktop">
+	<a href="/" class="mr">
 		<img src="/logo.svg" alt="genug logo" width={100} />
 	</a>
 
-	<a href="/budget" class="flex gap-1 items-center text-sm">
-		<Feather name="pie-chart" />
-		Budget
-	</a>
+	<a href="/budget"> Budget </a> |
 
-	<a href="/transaction" class="flex gap-1 items-center text-sm">
-		<Feather name="credit-card" />
-		Transactions
-	</a>
+	<a href="/transaction"> Transactions </a> |
 
-	<a href="/category" class="flex gap-1 items-center text-sm">
-		<Feather name="folder" />
-		Categories
-	</a>
+	<a href="/category"> Categories </a> |
 
-	<a href="/account" class="flex gap-1 items-center text-sm">
-		<Feather name="book" />
-		Accounts
-	</a>
+	<a href="/account"> Accounts </a>
 
-	<a href="/signout" class="flex gap-1 items-center text-sm ml-auto">
-		<Feather name="log-out" />
-		Sign Out
-	</a>
+	<div class="avatar ml">
+		<img src="/avatar" alt="user-avatar" />
+	</div>
+
+	<div class="action-buttons">
+		<a href="/settings" title="User Settings">
+			<Feather name="settings" />
+		</a>
+
+		<a href="/signout" title="Sign out">
+			<Feather name="log-out" />
+		</a>
+	</div>
 </nav>
 
-<nav
-	aria-label="mobile-navigation"
-	class="md:hidden flex items-center justify-between sticky top-0 z-30 backdrop-blur bg-bg/80 py-2 px-4 border-b border-ui -mx-2"
->
+<nav aria-label="Mobile-Navigation" class="navigation-mobile">
 	<input
-		id="mobile-navigation-toggle"
+		id="nav-toggle"
 		type="checkbox"
 		class="peer appearance-none opacity-0 fixed h-0 w-0"
 	/>
 
-	<a href="/" class="mr-auto">
+	<a href="/" class="mr">
 		<img src="/logo.svg" alt="genug logo" width={80} />
 	</a>
 
-	<label
-		for="mobile-navigation-toggle"
-		aria-label="open mobile navigation"
-		class="peer-checked:hidden cursor-pointer"
-	>
+	<label for="nav-toggle" aria-label="Open Mobile Navigation">
 		<Feather name="menu" />
 	</label>
-	<label
-		for="mobile-navigation-toggle"
-		aria-label="close mobile navigation"
-		class="hidden peer-checked:block cursor-pointer"
-	>
+
+	<label for="nav-toggle" aria-label="Close Mobile Navigation">
 		<Feather name="x" />
 	</label>
 
-	<div
-		class="absolute top-[calc(100%+1rem)] right-4 backdrop-blur bg-bg-2 border border-ui-3 shadow rounded-lg hidden peer-checked:grid grid-cols-2 gap-4 p-4"
-	>
-		<a href="/budget" class="btn btn-sm btn-ghost">
-			<Feather name="pie-chart" />
-			Budget
-		</a>
+	<div class="navigation-mobile-content">
+		<a href="/budget"> Budget </a>
 
-		<a href="/transaction" class="btn btn-sm btn-ghost">
-			<Feather name="credit-card" />
-			Transactions
-		</a>
+		<a href="/transaction"> Transactions </a>
 
-		<a href="/category" class="btn btn-sm btn-ghost">
-			<Feather name="folder" />
-			Categories
-		</a>
+		<a href="/category"> Categories </a>
 
-		<a href="/account" class="btn btn-sm btn-ghost">
-			<Feather name="book" />
-			Accounts
-		</a>
+		<a href="/account"> Accounts </a>
 
-		<a href="/signout" class="btn btn-sm btn-ghost">
-			<Feather name="log-out" />
-			Sign Out
-		</a>
+		<a href="/settings"> Settings </a>
+
+		<a href="/signout"> Sign Out </a>
 	</div>
 </nav>
+
+<style>
+	@media (min-width: 768px) {
+		.navigation-desktop {
+			display: flex;
+		}
+		.navigation-mobile {
+			display: none;
+		}
+	}
+
+	.navigation-desktop {
+		display: none;
+		gap: 1rem;
+		align-items: center;
+		background-color: var(--background-color);
+		padding: 0.5rem 0;
+	}
+	.navigation-desktop .avatar {
+		width: 3rem;
+	}
+	.navigation-desktop .action-buttons {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		gap: var(--spacing-xs);
+	}
+	.navigation-desktop .action-buttons a:hover {
+		color: var(--cyan-color);
+	}
+
+	.navigation-mobile {
+		position: sticky;
+		top: 0;
+		z-index: 30;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.5rem 1rem;
+		border-bottom: 1px solid var(--ui-normal-color);
+		background-color: var(--foreground-color);
+		margin: 0 -0.5rem;
+	}
+	#nav-toggle {
+		opacity: 0;
+		position: fixed;
+		height: 0;
+		width: 0;
+	}
+
+	/* hide burger icon when mobile nav is open */
+	#nav-toggle:checked ~ label[aria-label='Open Mobile Navigation'] {
+		display: none;
+	}
+
+	label[aria-label='Close Mobile Navigation'] {
+		display: none;
+	}
+	/* display x icon when mobile nav is open */
+	#nav-toggle:checked ~ label[aria-label='Close Mobile Navigation'] {
+		display: block;
+	}
+
+	.navigation-mobile-content {
+		display: none;
+		flex-direction: column;
+		position: absolute;
+		top: 100%;
+		width: 100%;
+		left: 0;
+		right: 0;
+		background: var(--foreground-color);
+		border: 1px solid var(--ui-normal-color);
+		border-bottom-left-radius: var(--radius-default);
+		border-bottom-right-radius: var(--radius-default);
+		padding: var(--spacing-base);
+		gap: var(--spacing-sm);
+		align-items: flex-end;
+	}
+
+	#nav-toggle:checked ~ .navigation-mobile-content {
+		display: flex;
+	}
+</style>

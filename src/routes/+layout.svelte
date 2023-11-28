@@ -2,7 +2,9 @@
 	import type { LayoutData } from './$types';
 	import Navigation from './navigation.svelte';
 
-	import '../app.css';
+	import '../styles/fonts.css';
+	import '../styles/base.css';
+	import '../styles/components.css';
 
 	export let data: LayoutData;
 </script>
