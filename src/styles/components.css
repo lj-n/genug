@@ -132,6 +132,7 @@
   padding: var(--spacing-sm);
   font-size: 1rem;
   background-color: var(--foreground-color);
+  color: inherit;
 }
 .input:is(:focus, :hover) {
   border-color: var(--ui-active-color);

@@ -65,14 +65,7 @@
 </nav>
 
 <style>
-	@media (min-width: 768px) {
-		.navigation-desktop {
-			display: flex;
-		}
-		.navigation-mobile {
-			display: none;
-		}
-	}
+	
 
 	.navigation-desktop {
 		display: none;
@@ -145,5 +138,14 @@
 
 	#nav-toggle:checked ~ .navigation-mobile-content {
 		display: flex;
+	}
+
+  @media (min-width: 768px) {
+		.navigation-desktop {
+			display: flex;
+		}
+		.navigation-mobile {
+			display: none;
+		}
 	}
 </style>
