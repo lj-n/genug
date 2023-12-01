@@ -50,15 +50,6 @@
 </div>
 
 <style>
-	.wrapper {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 1rem;
-		width: fit-content;
-		padding: 1rem;
-		max-width: 20rem;
-	}
-
 	.avatar {
 		width: 5rem;
 		height: 5rem;
