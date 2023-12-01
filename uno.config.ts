@@ -73,6 +73,18 @@ export default defineConfig({
 			}
 		}
 	},
+	preflights: [
+		{
+			getCSS: () => `
+				.squircle {
+					mask-size: contain;
+					mask-repeat: no-repeat;
+					mask-position: center;
+					mask-image: url("data:image/svg+xml,%3csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M100 0C20 0 0 20 0 100s20 100 100 100 100-20 100-100S180 0 100 0Z'/%3e%3c/svg%3e");
+				}
+			`
+		}
+	],
 	rules: [
 		[
 			/^shadow-block-(\d+)$/,
@@ -107,7 +119,9 @@ export default defineConfig({
 			input: `
 				border-(1 ui-normal) p-2 text-base text-inherit fg rounded-xl w-full 
 				dark:(border-ui-normal-dark) hover:focus:border-ui-hover placeholder:text-muted
-			`
+			`,
+			avatar: "aspect-square squircle"
+			
 		},
 		[
 			/^btn-(.*)$/,
