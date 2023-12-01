@@ -1,15 +1,27 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import Button from '$lib/components/button.svelte';
-	import type { ActionData } from './$types';
+	import type { ActionData, PageData } from './$types';
 
+	export let data: PageData;
 	export let form: ActionData;
 
 	let loading = false;
 </script>
 
+<h1>Categories</h1>
 
-<div></div>
+<div class="category-list">
+	{#each data.categories as category (category.id) }
+		<div class="flex">
+			<div class="">
+
+			</div>
+			<span>{category.name}</span>
+			<span>{category.description}</span>
+		</div>
+	{/each}
+</div>
 
 <form
 	method="post"
@@ -40,3 +52,19 @@
 
 	<Button icon="folder-plus" class="btn btn-green ml-auto" {loading}>Create</Button>
 </form>
+
+<style>
+	.category-list {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-base);
+	}
+	.category-list__element {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-sm);
+		padding: var(--spacing-sm);
+		border-radius: var(--radius-default);
+		border: 1px solid var(--ui-normal-color);
+	}
+</style>

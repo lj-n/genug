@@ -1,10 +1,15 @@
 <script lang="ts">
 	import Button from '$lib/components/button.svelte';
+
+	const toggleDarkMode = () => {
+		document.documentElement.classList.toggle('dark');
+	};
 </script>
 
-<div class="wrapper">
-	<Button icon="key" class="btn">Login</Button>
+<div class="bg flex flex-wrap gap-2 h-screen p-8">
+	<Button icon="key" class="btn" on:click={toggleDarkMode}>toggle dark</Button>
 	<Button icon="key" class="btn btn-blue">Login</Button>
+	<Button icon="key" class="btn btn-green">Login</Button>
 	<Button icon="key" class="btn btn-yellow">Login</Button>
 	<Button icon="key" class="btn btn-orange">Login</Button>
 	<Button icon="key" class="btn btn-cyan">Login</Button>
@@ -30,16 +35,18 @@
 	<label class="input-label">
 		Select
 		<select class="input">
-      <option>Option 1</option>
-      <option>Option 2</option>
-      <option>Option 3</option>
-    </select>
+			<option>Option 1</option>
+			<option>Option 2</option>
+			<option>Option 3</option>
+		</select>
 	</label>
 
-  <a href="/testing">Simple Link</a>
-  <a href="/testing" class="btn">As Button</a>
+	<a href="/testing" class="link">Simple Link</a>
+	<a href="/testing" class="link">Simple Link</a>
+	<a href="/testing" class="link">Simple Link</a>
+	<a href="/testing" class="btn">As Button</a>
 
-  <div class="info">Hier ist eine kleine Info.</div>
+	<div class="info">Hier ist eine kleine Info.</div>
 </div>
 
 <style>

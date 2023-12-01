@@ -88,33 +88,6 @@ h6 {
 	--font-serif: Georgia, serif;
 	--font-mono: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
 		'Courier New', monospace;
-
-	/* SPACING */
-	--spacing-xs: 0.25rem;
-	--spacing-sm: 0.5rem;
-	--spacing-base: 1rem;
-	--spacing-lg: 1.5rem;
-	--spacing-xl: 2rem;
-	--spacing-2xl: 3rem;
-	--spacing-3xl: 4rem;
-	--spacing-4xl: 6rem;
-	--spacing-5xl: 8rem;
-
-	/* RADIUS */
-	--radius-sm: 0.125rem;
-	--radius-md: 0.25rem;
-	--radius-lg: 0.5rem;
-	--radius-xl: 0.75rem;
-	--radius-2xl: 1rem;
-	--radius-3xl: 1.5rem;
-	--radius-full: 9999px;
-	--radius-default: var(--radius-xl);
-
-	/* BREAKPOINTS */
-	--breakpoint-sm: 640px;
-	--breakpoint-md: 768px;
-	--breakpoint-lg: 1024px;
-	--breakpoint-xl: 1280px;
 }
 
 [data-dark-mode] {
@@ -156,9 +129,9 @@ body {
 }
 
 h1 {
-	font-size: 2.25rem;
+	font-size: 2rem;
 	font-weight: 700;
-	line-height: 2.5rem;
+	line-height: 2.25rem;
 }
 h2 {
 	font-size: 1.5rem;
@@ -206,6 +179,19 @@ p.error {
 .mb {
 	margin-bottom: auto;
 }
+.flex {
+	display: flex;
+}
+.flex-row {
+	flex-direction: row;
+}
+.flex-col {
+	flex-direction: column;
+}
+.flex-wrap {
+	flex-wrap: wrap;
+}
+
 
 .spin {
 	animation: spin 4s linear infinite;
