@@ -12,100 +12,111 @@
 
 <CreateForm accounts={data.accounts} categories={data.categories} />
 
-<h1 class="my-4 text-2xl">Transactions</h1>
+<h1 class="my-4 text-2xl font-bold">Transactions</h1>
 
 <Filter categories={data.categories} accounts={data.accounts} />
 
-<div class="table-wrapper">
-	<table>
-		<thead class="sr-only lg:not-sr-only">
-			<tr>
-				<th scope="col" class="text-left">Date</th>
-				<th scope="col" class="text-left">Account</th>
-				<th scope="col" class="text-left">Category</th>
-				<th scope="col" class="text-left">Description</th>
-				<th scope="col" class="text-right">Flow</th>
-				<th scope="col" class="text-right">Validated</th>
-				<th />
-			</tr>
-		</thead>
-		<tbody>
-			{#each data.transactions as transaction (transaction.id)}
-				<tr animate:flip={{ duration: 200 }}>
-					<td data-label="Date" class="order-5">{transaction.date}</td>
-					<td data-label="Account" class="order-6">
-						{transaction.account.name}
-					</td>
-					<td data-label="Category" class="order-1">
-						{transaction.category?.name || 'No Category'}
-					</td>
-					<td data-label="Description" class="order-7 text-tx-2">
-						{transaction.description}
-					</td>
-					<td data-label="Flow" class="order-3 tabular-nums font-semibold">
-						{formatFractionToLocaleCurrency(transaction.flow)}
-					</td>
-					<td data-label="Validated" class="order-2">
-						<form action="?/validate" method="post" use:enhance>
-							<input
-								type="hidden"
-								name="validated"
-								value={!transaction.validated}
-							/>
+<table class="block lg:(table w-full)">
+	<thead class="sr-only lg:not-sr-only">
+		<tr class="block lg:(table-row text-sm)">
+			<th scope="col" class="text-left px-2 py-4">Date</th>
+			<th scope="col" class="text-left px-2 py-4">Account</th>
+			<th scope="col" class="text-left px-2 py-4">Category</th>
+			<th scope="col" class="text-left px-2 py-4">Description</th>
+			<th scope="col" class="text-right px-2 py-4">Flow</th>
+			<th scope="col" class="text-right px-2 py-4">Validated</th>
+			<th scope="col" class="sr-only">Actions</th>
+		</tr>
+	</thead>
+
+	<tbody>
+		{#each data.transactions as transaction (transaction.id)}
+			<tr
+				animate:flip={{ duration: 200 }}
+				class="block lg:table-row lg:[&>td]:hover:fg"
+			>
+				<td data-label="Date" class="lg:(p-2 rounded-l-lg)">
+					{transaction.date}
+				</td>
+				<td data-label="Account" class="lg:p-2">
+					{transaction.account.name}
+				</td>
+				<td data-label="Category" class="lg:(p-2)">
+					{transaction.category?.name || 'No Category'}
+				</td>
+				<td data-label="Description" class="lg:(p-2)">
+					{transaction.description}
+				</td>
+				<td
+					data-label="Flow"
+					class="lg:(text-right p-2) tabular-nums font-semibold"
+				>
+					{formatFractionToLocaleCurrency(transaction.flow)}
+				</td>
+				<td data-label="Validated" class="lg:(text-right p-2)">
+					<form action="?/validate" method="post" use:enhance>
+						<input
+							type="hidden"
+							name="validated"
+							value={!transaction.validated}
+						/>
+						<input type="hidden" name="id" value={transaction.id} />
+						{#if transaction.validated}
+							<button
+								type="submit"
+								class="font-semibold text-xs border text-green border-green dark:(text-green-dark border-green-dark hover:bg-green-dark/05) px-2 py-0.5 rounded-full hover:bg-green/05"
+							>
+								validated
+							</button>
+						{:else}
+							<button
+								type="submit"
+								class="font-semibold text-xs border text-orange border-orange dark:(text-orange-dark border-orange-dark hover:bg-orange-dark/05) px-2 py-0.5 rounded-full hover:bg-orange/05"
+							>
+								not validated
+							</button>
+						{/if}
+					</form>
+				</td>
+				<td data-label="Actions" class="lg:(p-2 rounded-r-lg)">
+					<div class="flex gap-2 items-center w-fit ml-auto">
+						<a
+							href="/transaction/{transaction.id}"
+							title="Edit"
+							class="btn-sm text-muted hover:text-normal"
+						>
+							<Feather name="edit" />
+						</a>
+
+						<form
+							action="?/remove"
+							method="post"
+							use:enhance={({ cancel }) => {
+								if (!window.confirm('Delete transaction?')) {
+									cancel();
+								}
+
+								return async ({ update }) => {
+									update();
+								};
+							}}
+						>
 							<input type="hidden" name="id" value={transaction.id} />
-							{#if transaction.validated}
-								<button
-									type="submit"
-									class="text-green-light font-semibold text-sm"
-								>
-									validated
-								</button>
-							{:else}
-								<button type="submit" class="text-tx-2 text-sm">
-									not validated
-								</button>
-							{/if}
+							<button
+								type="submit"
+								class="btn-sm text-muted hover:text-normal"
+								title="Delete"
+								aria-label="Delete Transaction"
+							>
+								<Feather name="trash" />
+							</button>
 						</form>
-					</td>
-					<td data-label="Actions" class="order-8">
-						<div class="inline-flex gap-2">
-							<a
-								href="/transaction/{transaction.id}"
-								title="Edit Transaction"
-								class="btn btn-ghost btn-sm"
-							>
-								<Feather name="edit" />
-							</a>
-
-							<form
-								action="?/remove"
-								method="post"
-								use:enhance={({ cancel }) => {
-									if (!window.confirm('Delete transaction?')) {
-										cancel();
-									}
-
-									return async ({ update }) => {
-										update();
-									};
-								}}
-							>
-								<input type="hidden" name="id" value={transaction.id} />
-								<button
-									type="submit"
-									class="btn btn-ghost btn-sm text-red-light"
-									aria-label="Remove Transaction"
-								>
-									<Feather name="trash" />
-								</button>
-							</form>
-						</div>
-					</td>
-				</tr>
-			{/each}
-		</tbody>
-	</table>
-</div>
+					</div>
+				</td>
+			</tr>
+		{/each}
+	</tbody>
+</table>
 
 <Pagination />
 

@@ -120,6 +120,7 @@ export default defineConfig({
 				data-[loading]:hover:(translate-0 shadow-block-0 border-ui-normal cursor-wait)
 				disabled:(fg text-muted translate-0 shadow-block-0 border-ui-normal cursor-not-allowed)
 			`,
+			'btn-ghost': 'bg-transparent border-transparent shadow-none',
 			'btn-sm': 'text-sm py-1 px-2',
 			'input-label': 'flex flex-col w-full text-normal',
 			input: `
