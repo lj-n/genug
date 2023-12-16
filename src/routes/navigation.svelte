@@ -1,10 +1,33 @@
 <script lang="ts">
 	import Feather from '$lib/components/feather.svelte';
+	import { onMount } from 'svelte';
+
+	let mobileNavigation: HTMLElement;
+
+	onMount(() => {
+		const links = mobileNavigation.querySelectorAll('a');
+		const toggle = mobileNavigation.querySelector<HTMLInputElement>('input');
+
+		const closeMobileNavigation = () => {
+			if (!toggle) return;
+			toggle.checked = false;
+		};
+
+		links.forEach((link) => {
+			link.addEventListener('click', closeMobileNavigation);
+		});
+
+		return () => {
+			links.forEach((link) => {
+				link.removeEventListener('click', closeMobileNavigation);
+			});
+		};
+	});
 </script>
 
 <nav
 	aria-label="Desktop-Navigation"
-	class="hidden md:flex gap-2 items-center bg py-2"
+	class="hidden md:flex gap-2 items-center backdrop-blur-md bg-base-white/80 py-2 sticky top-0 z-30 border-b border-ui-normal dark:(bg-base-black/80 border-ui-normal-dark)"
 >
 	<a href="/" class="mr-auto">
 		<img src="/logo.svg" alt="genug logo" width={100} />
@@ -34,6 +57,7 @@
 <nav
 	aria-label="Mobile-Navigation"
 	class="flex md:hidden sticky top-0 z-30 justify-between items-center border-b border-ui-normal fg px-2 py-4 -mx-2"
+	bind:this={mobileNavigation}
 >
 	<input id="nav-toggle" type="checkbox" class="peer opacity-0 fixed h-0 w-0" />
 
