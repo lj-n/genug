@@ -17,7 +17,10 @@ export const actions = {
 		const password = data.get('password')?.toString();
 
 		if (!username || !password) {
-			return fail(400, { error: 'Please provide a username and password.' });
+			return fail(400, {
+				username,
+				error: 'Please provide a username and password.'
+			});
 		}
 
 		try {

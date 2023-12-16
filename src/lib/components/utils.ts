@@ -24,7 +24,7 @@ export function getPercentage(value: number, total: number): number {
 export const currencyInputProps = {
 	pattern: '^(-?\\d+|\\d+)$',
 	title: 'Please enter only digits (fractional monetary units)'
-};
+} as const;
 
 /**
  * Returns a SubmitFunction to be used with SvelteKit `enhance` action.

@@ -109,8 +109,8 @@
 
 <Pagination />
 
-<style lang="postcss">
-	@media (min-width: theme(screens.lg)) {
+<style>
+	/* @media (min-width: theme(screens.lg)) {
 		.table-wrapper {
 			@apply border border-ui rounded-lg;
 		}
@@ -192,5 +192,5 @@
 		td[data-label='Actions'] {
 			@apply order-7 ml-auto;
 		}
-	}
+	} */
 </style>

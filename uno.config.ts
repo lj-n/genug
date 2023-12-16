@@ -1,13 +1,19 @@
 import { defineConfig, presetUno } from 'unocss';
 import extractorSvelte from '@unocss/extractor-svelte';
-
 import transformerVariantGroup from '@unocss/transformer-variant-group';
 
 export default defineConfig({
 	transformers: [transformerVariantGroup()],
 	extractors: [extractorSvelte()],
+	content: {
+		filesystem: ['./src/app.html']
+
+	},
 	presets: [presetUno({ preflight: true })],
 	theme: {
+		fontFamily: {
+			'open-sans': "'Open Sans'"
+		},
 		colors: {
 			base: {
 				white: '#fffcf0',
@@ -73,19 +79,17 @@ export default defineConfig({
 			}
 		}
 	},
-	preflights: [
-		{
-			getCSS: () => `
-				.squircle {
-					mask-size: contain;
-					mask-repeat: no-repeat;
-					mask-position: center;
-					mask-image: url("data:image/svg+xml,%3csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M100 0C20 0 0 20 0 100s20 100 100 100 100-20 100-100S180 0 100 0Z'/%3e%3c/svg%3e");
-				}
-			`
-		}
-	],
 	rules: [
+		[
+			'squircle',
+			{
+				'mask-size': 'contain',
+				'mask-repeat': 'no-repeat',
+				'mask-position': 'center',
+				'mask-image': `url("data:image/svg+xml,%3csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M100 0C20 0 0 20 0 100s20 100 100 100 100-20 100-100S180 0 100 0Z'/%3e%3c/svg%3e")`
+			}
+		],
+
 		[
 			/^shadow-block-(\d+)$/,
 			([, d]) => ({
@@ -100,28 +104,35 @@ export default defineConfig({
 			'text-normal': 'text-base-black dark:text-base-200',
 			'text-muted': 'text-base-600 dark:text-base-500',
 			'text-faint': 'text-base-300 dark:text-base-700',
+			'text-error': 'text-red dark:text-red-dark',
 			bg: 'bg-base-white dark:bg-base-black',
 			fg: 'bg-base-50 dark:bg-base-950',
-			link: 'text-normal decoration-2 underline decoration-base-black dark:decoration-base-200 hover:decoration-wavy',
+			link: 'text-normal decoration-wavy decoration-base-black dark:decoration-base-200 hover:underline',
 			btn: `
 				py-2 px-4 rounded-xl
-				flex items-center gap-2
+				flex items-center justify-center gap-2
 				w-fit h-fit font-semibold text-normal cursor-pointer
 				transition-all duration-150
 				translate-0 hover:-translate-2px
-				border-(1 ui-normal hover:ui-hover) dark:(border-ui-normal-dark hover:border-ui-hover-dark)
+				border-(1 ui-normal) hover:border-ui-hover dark:(border-ui-normal-dark hover:border-ui-hover-dark)
 				shadow-(block-0 ui-hover) hover:shadow-block-4 dark:shadow-ui-hover-dark
 				active:(translate-0 shadow-block-0)
 				data-[loading]:hover:(translate-0 shadow-block-0 border-ui-normal cursor-wait)
 				disabled:(fg text-muted translate-0 shadow-block-0 border-ui-normal cursor-not-allowed)
 			`,
-			'input-label': 'flex flex-col px-2 w-full text-normal',
+			'btn-sm': 'text-sm py-1 px-2',
+			'input-label': 'flex flex-col w-full text-normal',
 			input: `
-				border-(1 ui-normal) p-2 text-base text-inherit fg rounded-xl w-full 
+				border-(1 ui-normal) p-2 text-base text-inherit bg rounded-xl w-full 
 				dark:(border-ui-normal-dark) hover:focus:border-ui-hover placeholder:text-muted
 			`,
-			avatar: "aspect-square squircle"
-			
+			avatar:
+				'aspect-square squircle [&>img]:(w-full h-full object-cover bg-no-repeat bg-center fg)',
+			info: `
+				flex items-center border border-ui-normal px-4 py-2 w-fit rounded text-xs overflow-hidden relative h-fit
+				after:(content-[''] absolute h-full w-2 bg-ui-normal left-0 top-0) after:absolute
+				dark:(border-ui-normal-dark after:bg-ui-normal-dark)
+			`
 		},
 		[
 			/^btn-(.*)$/,
@@ -130,6 +141,17 @@ export default defineConfig({
 					return `
 						shadow-${c} text-${c} hover:border-${c} dark:(shadow-${c}-dark text-${c}-dark hover:border-${c}-dark)
 						disabled:(bg-ui-normal shadow-block-0 text-muted hover:border-ui-normal cursor-not-allowed)
+					`;
+				}
+			}
+		],
+		[
+			/^info-(.*)$/,
+			([, c], { theme }) => {
+				if (theme.colors && Object.keys(theme.colors).includes(c)) {
+					return `
+						border-${c} dark:border-${c}-dark after:bg-${c} dark:after:bg-${c}-dark 
+						[&>svg]:text-${c} dark:[&>svg]:text-${c}-dark
 					`;
 				}
 			}

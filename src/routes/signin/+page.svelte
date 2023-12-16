@@ -10,14 +10,24 @@
 	let loading = writable(false);
 </script>
 
-<form method="post" use:enhance={withLoading(loading)}>
-	<div class="logo">
+<form
+	method="post"
+	use:enhance={withLoading(loading)}
+	class="m-auto w-full max-w-sm flex flex-col gap-4"
+>
+	<div class="w-2/3 mx-auto mb-8">
 		<img src="/logo.svg" alt="genug logo" />
 	</div>
 
 	<label class="input-label">
 		Username
-		<input type="text" name="username" id="username" class="input" />
+		<input
+			type="text"
+			name="username"
+			id="username"
+			class="input"
+			value={form?.username || ''}
+		/>
 	</label>
 
 	<label class="input-label">
@@ -26,31 +36,14 @@
 	</label>
 
 	{#if form?.error}
-		<p class="error">
+		<p class="text-error mx-auto text-center">
 			{form.error}
 		</p>
 	{/if}
 
-	<Button icon="key" class="btn btn-blue mx" loading={$loading}>Login</Button>
+	<Button icon="key" class="btn btn-blue w-full" loading={$loading}>
+		Login
+	</Button>
 
-	<a href="/signup" class="mx">Create New User</a>
+	<a href="/signup" class="link mx-auto">Create New User</a>
 </form>
-
-<style>
-	form {
-		width: 100%;
-		max-width: 20rem;
-		margin: auto;
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-base);
-	}
-
-	.logo {
-		width: 66%;
-		margin: 0 auto;
-	}
-	.logo > img {
-		width: 100%;
-	}
-</style>

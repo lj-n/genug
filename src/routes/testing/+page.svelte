@@ -15,6 +15,7 @@
 	<Button icon="key" class="btn btn-cyan">Login</Button>
 	<Button icon="key" class="btn btn-red">Login</Button>
 	<Button icon="key" class="btn btn-magenta">Login</Button>
+	<Button icon="key" class="btn btn-magenta btn-sm">Login</Button>
 	<Button icon="key" class="btn btn-magenta" loading={true}>Login</Button>
 	<Button icon="key" class="btn btn-green" disabled>Login</Button>
 

@@ -10,8 +10,12 @@
 	let loading = writable(false);
 </script>
 
-<form method="post" use:enhance={withLoading(loading)}>
-	<div class="logo">
+<form
+	method="post"
+	use:enhance={withLoading(loading)}
+	class="m-auto w-full max-w-sm flex flex-col gap-4"
+>
+	<div class="w-2/3 mx-auto mb-8">
 		<img src="/logo.svg" alt="genug logo" />
 	</div>
 
@@ -26,33 +30,14 @@
 	</label>
 
 	{#if form?.error}
-		<p class="error">
+		<p class="text-error mx-auto text-center">
 			{form.error}
 		</p>
 	{/if}
 
-	<Button icon="user-plus" class="btn btn-green mx" loading={$loading}>
+	<Button icon="user-plus" class="btn btn-green w-full" loading={$loading}>
 		Create User
 	</Button>
 
-	<a href="/signin" class="mx">Already registered?</a>
+	<a href="/signin" class="link mx-auto">Already registered?</a>
 </form>
-
-<style>
-	form {
-		width: 100%;
-		max-width: 20rem;
-		margin: auto;
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-base);
-	}
-
-	.logo {
-		width: 66%;
-		margin: 0 auto;
-	}
-	.logo > img {
-		width: 100%;
-	}
-</style>

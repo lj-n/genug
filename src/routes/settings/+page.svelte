@@ -45,7 +45,7 @@
 			action="?/updateAvatar"
 			enctype="multipart/form-data"
 			method="post"
-			class="peer-open:max-h-12 max-h-0 transition-all overflow-hidden"
+			class="peer-open:max-h-20 max-h-0 transition-all overflow-hidden"
 			use:enhance={() => {
 				return async ({ update, formElement }) => {
 					update();
