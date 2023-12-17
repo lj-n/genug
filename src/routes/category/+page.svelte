@@ -15,14 +15,14 @@
 </script>
 
 <div class="flex flex-wrap py-8 gap-8">
-	<div class="order-2 grow rounded-xl max-w-2xl min-w-sm mx-auto">
-		<h1 class="font-semibold text-xl">Categories</h1>
-		<div class="flex flex-col gap-2">
+	<div class="grow">
+		<h1 class="font-bold text-2xl">Categories</h1>
+		<div class="flex flex-col gap-1 mt-8">
 			{#each data.categories as category (category.id)}
 				<div
 					animate:flip
 					transition:scale
-					class="first:pt-8 last:border-none py-4 flex flex-col border-ui-normal border-b bg hover:border-ui-hover"
+					class="p-2 flex flex-col border-ui-normal border rounded-xl bg hover:border-ui-hover dark:(border-ui-normal-dark hover:border-ui-hover-dark)"
 				>
 					<span>{category.name}</span>
 					<span class="text-muted text-sm">{category.description || ''}</span>
@@ -43,7 +43,7 @@
 		class="mx-auto flex flex-col gap-4 w-full max-w-sm"
 		use:enhance={withLoading(loading)}
 	>
-		<h2 class="font-semibold text-xl mb-4">Create Category</h2>
+		<h2 class="font-semibold text-lg mb-4">Create Category</h2>
 
 		<label class="input-label">
 			Name

@@ -78,6 +78,11 @@
 	});
 </script>
 
+<a href="/category" class="btn btn-sm mt-4">
+	<Feather name="arrow-left" />
+	Back to Categories
+</a>
+
 <span class="mt-8 text-muted text-xs w-fit mx-auto">
 	Created at {formattedDate}
 </span>
