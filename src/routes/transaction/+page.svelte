@@ -15,7 +15,7 @@
 
 <Filter categories={data.categories} accounts={data.accounts} />
 
-<h1 class="my-4 text-2xl font-bold scroll-mt-20">Transactions</h1>
+<h1 class="my-4 text-2xl font-bold">Transactions</h1>
 
 <table class="block lg:(table border-collapse w-full)">
 	<thead class="sr-only lg:not-sr-only">

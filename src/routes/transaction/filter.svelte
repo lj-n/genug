@@ -154,154 +154,28 @@
 	</div>
 </div>
 
-<!-- <details class="group my-4 rounded-lg w-fit text-sm">
-	<summary class="select-none btn btn-sm btn-ghost">
-		<Feather
-			name="filter"
-			class={filterCount > 0 ? 'fill-base-100 dark:fill-base-800' : ''}
+<!-- <form action="/transaction{$page.url.search}" method="get" class="my-2">
+	{#each categories as category}
+		<input
+			type="checkbox"
+			name="c"
+			value={category.id}
+			checked={false}
+			class="hidden"
 		/>
-		Filter
-		{#if filterCount > 0}
-			({filterCount})
-		{/if}
-		<Feather name="chevron-up" class="hidden ml-auto group-open:block" />
-	</summary>
+	{/each}
+	{#each accounts as account}
+		<input
+			type="checkbox"
+			name="a"
+			value={account.id}
+			checked={false}
+			class="hidden"
+		/>
+	{/each}
 
-	<div class="p-2 flex flex-col gap-2">
-		<span class="text-muted">
-			Click the labels to select/deselect accounts and categories.
-		</span>
-
-		<form action="/transaction{$page.url.search}" method="get" class="my-2">
-			{#each categories as category}
-				<input
-					type="checkbox"
-					name="c"
-					value={category.id}
-					checked={false}
-					class="hidden"
-				/>
-			{/each}
-			{#each accounts as account}
-				<input
-					type="checkbox"
-					name="a"
-					value={account.id}
-					checked={false}
-					class="hidden"
-				/>
-			{/each}
-
-			<button type="submit" class="btn btn-sm text-xs">
-				<Feather name="rotate-ccw" />
-				Reset All Filter
-			</button>
-		</form>
-
-		<div class="flex flex-col gap-1">
-			<span class="font-semibold">
-				Filter Accounts
-				{#if filterCountAccounts > 0}
-					({filterCountAccounts})
-				{/if}
-			</span>
-			<div class="flex flex-wrap gap-2">
-				{#each sortedAccounts as account (account.id)}
-					<form
-						action="/transaction{$page.url.search}"
-						method="get"
-						animate:flip={{ duration: 200 }}
-					>
-						{#each categories as category (category.id)}
-							<input
-								type="checkbox"
-								name="c"
-								value={category.id}
-								checked={filterCategories.includes(category.id.toString())}
-								class="hidden"
-							/>
-						{/each}
-
-						{#each accounts.filter((c) => c.id !== account.id) as otherAccount (otherAccount.id)}
-							<input
-								type="checkbox"
-								name="a"
-								value={otherAccount.id}
-								checked={filterAccounts.includes(otherAccount.id.toString())}
-								class="hidden"
-							/>
-						{/each}
-
-						<input
-							type="checkbox"
-							name="a"
-							value={account.id}
-							class="hidden peer"
-							checked={!filterAccounts.includes(account.id.toString())}
-						/>
-						<button
-							type="submit"
-							class="peer-checked:border-ui border bg-bg-2 hover:bg-ui border-blue-light px-2 py-0.5 rounded-full text-xs"
-							aria-label="Remove or Add this Account to Filters"
-						>
-							{account.name}
-						</button>
-					</form>
-				{/each}
-			</div>
-		</div>
-
-		<div class="flex flex-col gap-1">
-			<span class="font-semibold">
-				Filter Categories
-				{#if filterCountCategories > 0}
-					({filterCountCategories})
-				{/if}
-			</span>
-			<div class="flex flex-wrap gap-2">
-				{#each sortedCategories as category (category.id)}
-					<form
-						action="/transaction{$page.url.search}"
-						method="get"
-						animate:flip={{ duration: 200 }}
-					>
-						{#each accounts as account (account.id)}
-							<input
-								type="checkbox"
-								name="a"
-								value={account.id}
-								checked={filterAccounts.includes(account.id.toString())}
-								class="hidden"
-							/>
-						{/each}
-
-						{#each categories.filter((c) => c.id !== category.id) as otherCategory (otherCategory.id)}
-							<input
-								type="checkbox"
-								name="c"
-								value={otherCategory.id}
-								checked={filterCategories.includes(otherCategory.id.toString())}
-								class="hidden"
-							/>
-						{/each}
-
-						<input
-							type="checkbox"
-							name="c"
-							value={category.id}
-							class="hidden peer"
-							checked={!filterCategories.includes(category.id.toString())}
-						/>
-						<button
-							type="submit"
-							class="peer-checked:border-ui border bg-bg-2 hover:bg-ui border-blue-light px-2 py-0.5 rounded-full text-xs"
-							aria-label="Remove or add this category to filters"
-						>
-							{category.name}
-						</button>
-					</form>
-				{/each}
-			</div>
-		</div>
-	</div>
-</details> -->
+	<button type="submit" class="btn btn-sm text-xs">
+		<Feather name="rotate-ccw" />
+		Reset All Filter
+	</button>
+</form> -->
