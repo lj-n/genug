@@ -12,7 +12,11 @@
 	export let data: PageData;
 	export let form: ActionData;
 
-	$: ({ account } = data);
+	const formattedDate = new Intl.DateTimeFormat('en-US', {
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric'
+	}).format(new Date(data.account.createdAt));
 
 	const updateLoading = writable(false);
 	const moveTransactionLoading = writable(false);
@@ -21,64 +25,68 @@
 	let moveTransactionInput = '';
 	let removeAccountInput = '';
 
-	$: moveTransactionReady = moveTransactionInput === account.details.name;
-	$: removeAccountReady = removeAccountInput === account.details.name;
+	$: moveTransactionReady = moveTransactionInput === data.account.name;
+	$: removeAccountReady = removeAccountInput === data.account.name;
 </script>
 
-<a href="/account" class="btn btn-ghost btn-sm w-fit mt-4">
-	<Feather name="corner-up-left" />
-	Go Back
+<a href="/account" class="btn btn-sm mt-4">
+	<Feather name="arrow-left" />
+	Back to Accounts
 </a>
 
-<h1 class="mt-8 mb-2 border-b border-ui">{account.details.name}</h1>
-<span class="text-tx-2 text-sm">Created At: {account.details.createdAt}</span>
-<span class="text-tx-2">{account.details.description || ''}</span>
+<span class="mt-8 text-muted text-xs w-fit mx-auto">
+	Created at {formattedDate}
+</span>
+<h1 class="font-bold text-3xl mx-auto">{data.account.name}</h1>
+<span class="text-xl text-muted mb-8 mx-auto">
+	{data.account.description || ''}
+</span>
 
 <div
 	class="flex flex-col md:flex-row gap-2 md:gap-4 items-end ml-auto md:mx-auto mt-8 mb-12"
 >
 	<div class="flex flex-col items-end w-fit">
 		<span class="tabular-nums font-semibold text-4xl">
-			{formatFractionToLocaleCurrency(account.transactions.validatedSum)}
+			{formatFractionToLocaleCurrency(data.transactionInfo.validatedSum)}
 		</span>
-		<span class="leading-tight text-tx-2">Validated Balance</span>
+		<span class="leading-tight text-muted">Validated Balance</span>
 	</div>
 
-	<span class="text-tx-2 mb-auto text-4xl font-bold hidden md:block">+</span>
+	<span class="text-muted mb-auto text-4xl font-bold hidden md:block">+</span>
 
 	<div class="flex flex-col items-end w-fit mb-4 md:mb-0">
 		<span
 			class="tabular-nums font-semibold text-4xl"
-			class:text-green-light={account.transactions.pendingSum > 0}
-			class:text-red-light={account.transactions.pendingSum < 0}
+			class:text-green-light={data.transactionInfo.pendingSum > 0}
+			class:text-red-light={data.transactionInfo.pendingSum < 0}
 		>
-			{formatFractionToLocaleCurrency(account.transactions.pendingSum)}
+			{formatFractionToLocaleCurrency(data.transactionInfo.pendingSum)}
 		</span>
-		<span class="leading-tight text-tx-2">Pending Balance</span>
+		<span class="leading-tight text-muted">Pending Balance</span>
 	</div>
 
-	<span class="text-tx-2 mb-auto text-4xl font-bold hidden md:block">=</span>
+	<span class="text-muted mb-auto text-4xl font-bold hidden md:block">=</span>
 
 	<div
-		class="flex flex-col items-end w-fit border-t-2 border-tx-2 md:border-none"
+		class="flex flex-col items-end w-fit border-t-2 border-ui-normal dark:border-ui-normal-dark md:border-none"
 	>
 		<span class="tabular-nums font-bold text-4xl">
 			{formatFractionToLocaleCurrency(
-				account.transactions.validatedSum + account.transactions.pendingSum
+				data.transactionInfo.validatedSum + data.transactionInfo.pendingSum
 			)}
 		</span>
-		<span class="leading-tight text-tx-2">Working Balance</span>
+		<span class="leading-tight text-muted">Working Balance</span>
 	</div>
 </div>
 
-<div class="flex flex-col gap-4 md:gap-8 max-w-xl w-full mx-auto">
+<div class="flex flex-col gap-4 md:gap-12 max-w-xl w-full mx-auto py-8">
 	<form
 		action="?/updateAccount"
 		method="post"
 		class="flex flex-col gap-4"
 		use:enhance={withLoading(updateLoading)}
 	>
-		<h2>Update Account Details</h2>
+		<h2 class="font-semibold text-lg">Update Account Details</h2>
 
 		<label class="input-label">
 			Name
@@ -103,7 +111,7 @@
 		</label>
 
 		{#if form?.updateAccountError}
-			<p class="text-red-600 my-2">{form.updateAccountError}</p>
+			<p class="text-error text-center my-2">{form.updateAccountError}</p>
 		{/if}
 
 		<Button
@@ -121,7 +129,7 @@
 		class="flex flex-col gap-4"
 		use:enhance={withLoading(moveTransactionLoading)}
 	>
-		<h2 class="text-red-light">Move Transactions to Another Account</h2>
+		<h2 class="font-semibold text-lg">Move Transactions to Another Account</h2>
 		<blockquote class="danger">
 			Careful! This action cannot be undone.
 		</blockquote>
@@ -138,7 +146,7 @@
 
 		<div>
 			<label for="move-transactions">
-				Type <b>{data.account.details.name}</b> to confirm.
+				Type <b>{data.account.name}</b> to confirm.
 			</label>
 
 			<input
@@ -153,7 +161,7 @@
 		</div>
 
 		{#if form?.moveTransactionError}
-			<p class="text-red-light my-2">{form.moveTransactionError}</p>
+			<p class="text-error text-center my-2">{form.moveTransactionError}</p>
 		{/if}
 
 		<Button
@@ -171,8 +179,8 @@
 		class="flex flex-col gap-4"
 		use:enhance={withLoading(removeAccountLoading)}
 	>
-		<h2 class="text-red-light">
-			Delete Account and its Transactions ({data.account.transactions.count})
+		<h2 class="font-semibold text-lg">
+			Delete Account and its Transactions ({data.transactionInfo.count})
 		</h2>
 		<blockquote class="danger">
 			Careful! This action cannot be undone.
@@ -180,11 +188,11 @@
 
 		<div>
 			<label for="remove-transactions">
-				Type <b>{data.account.details.name}</b> to confirm.
+				Type <b>{data.account.name}</b> to confirm.
 			</label>
 
 			<input
-				bind:value={moveTransactionInput}
+				bind:value={removeAccountInput}
 				type="text"
 				name="accountName"
 				id="remove-transactions"
@@ -195,7 +203,7 @@
 		</div>
 
 		{#if form?.removeAccountError}
-			<p class="text-red-light my-2">{form.removeAccountError}</p>
+			<p class="text-error text-center my-2">{form.removeAccountError}</p>
 		{/if}
 
 		<Button

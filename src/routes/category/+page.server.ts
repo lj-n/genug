@@ -1,11 +1,15 @@
-import { withAuth } from '$lib/server/auth';
-import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
+import { fail } from '@sveltejs/kit';
+import { protectRoute } from '$lib/server/auth';
+import { createUserCategory, getUserCategories } from '$lib/server/category';
+import { db } from '$lib/server/db';
 
-export const load: PageServerLoad = withAuth(() => {});
+export const load: PageServerLoad = protectRoute(async (_, { userId }) => {
+	return { categories: getUserCategories(db, userId) };
+});
 
 export const actions = {
-	default: withAuth(async ({ request }, user) => {
+	default: protectRoute(async ({ request }, { userId }) => {
 		const formData = await request.formData();
 		const name = formData.get('name')?.toString();
 		let description = formData.get('description')?.toString();
@@ -16,7 +20,9 @@ export const actions = {
 
 		try {
 			description ||= undefined;
-			const category = user.category.create({
+
+			const category = createUserCategory(db, {
+				userId,
 				name,
 				description
 			});

@@ -6,7 +6,7 @@ COPY . .
 RUN mkdir data
 
 # Right now we have to run the database migration once, for the build to work
-RUN npm run drizzle:migrate
+RUN npm run migrations:push
 RUN npm run build
 RUN npm prune --production
 
@@ -18,7 +18,7 @@ COPY package.json .
 
 # Copy default database setup and migrations
 COPY --from=builder /app/data data/
-COPY /drizzle drizzle/
+COPY /migrations migrations/
 
 COPY start.sh .
 RUN chmod +x start.sh

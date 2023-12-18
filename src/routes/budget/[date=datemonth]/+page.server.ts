@@ -1,9 +1,15 @@
-import { withAuth } from '$lib/server/auth';
-import { fail } from '@sveltejs/kit';
+import { protectRoute } from '$lib/server/auth';
+import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getMonthInFormat, getMonthYear } from '$lib/components/date.utils';
+import {
+	getUnassignedUserBudget,
+	getUserBudgets,
+	setUserBudget
+} from '$lib/server/budget';
+import { db } from '$lib/server/db';
 
-export const load: PageServerLoad = withAuth(({ params }, user) => {
+export const load: PageServerLoad = protectRoute(({ params }, { userId }) => {
 	const currentDate = new Date(params.date);
 	const formattedDate = getMonthYear(currentDate);
 
@@ -14,17 +20,17 @@ export const load: PageServerLoad = withAuth(({ params }, user) => {
 	const nextMonth = getMonthInFormat(currentDate);
 
 	return {
-		budgets: user.budget.get(params.date),
-    assignable: user.budget.getAssignableBalance(),
+		budgets: getUserBudgets(db, userId, params.date),
+		assignable: getUnassignedUserBudget(db, userId),
 		previousMonth,
 		nextMonth,
 		formattedDate,
-    date: params.date
+		date: params.date
 	};
 });
 
 export const actions = {
-	default: withAuth(async ({ params, request }, user) => {
+	default: protectRoute(async ({ params, request }, { userId }) => {
 		const formData = await request.formData();
 		const categoryId = formData.get('categoryId')?.toString();
 		const budget = formData.get('budget')?.toString();
@@ -38,17 +44,16 @@ export const actions = {
 		}
 
 		try {
-			user.budget.set({
+			setUserBudget(db, userId, {
 				categoryId: Number(categoryId),
-				date: params.date,
-				amount: parseInt(budget)
+				amount: parseInt(budget),
+				date: params.date
 			});
-		} catch (er) {
-			console.log('🛸 < file: +page.server.ts:31 < er =', er);
+		} catch {
 			return fail(500, { error: 'Oops, something went wrong.' });
-			//
 		}
 
 		return { success: true };
+		// throw redirect(303, `/budget/${params.date}`);
 	})
 } satisfies Actions;

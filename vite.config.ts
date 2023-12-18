@@ -1,11 +1,20 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vitest/config';
+import { browserslistToTargets } from 'lightningcss';
+import browserslist from 'browserslist';
+import UnoCSS from 'unocss/vite';
 
 export default defineConfig({
-	plugins: [sveltekit()],
+	plugins: [UnoCSS(), sveltekit()],
 	test: {
-		include: ['tests/**/*.{test,spec}.{js,ts}'],
-		globals: true,
-		globalSetup: 'tests/setup.ts'
+		include: ['src/**/*.{test,spec}.{js,ts}'],
+		exclude: ['src/testing']
+	},
+	css: {
+		transformer: 'lightningcss',
+		lightningcss: { targets: browserslistToTargets(browserslist('>= 0.25%')) }
+	},
+	build: {
+		cssMinify: 'lightningcss'
 	}
 });

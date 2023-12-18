@@ -1,4 +1,4 @@
-import { withAuth } from '$lib/server/auth';
+import { protectRoute } from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
@@ -6,8 +6,15 @@ import type { Actions, PageServerLoad } from './$types';
 import { schema } from '$lib/server/schema';
 import { fail } from '@sveltejs/kit';
 import type { SQL } from 'drizzle-orm';
+import { getUserAccounts } from '$lib/server/account';
+import { getUserCategories } from '$lib/server/category';
+import {
+	createUserTransaction,
+	deleteUserTransaction,
+	updateUserTransaction
+} from '$lib/server/transaction';
 
-export const load: PageServerLoad = withAuth(({ url }, user) => {
+export const load: PageServerLoad = protectRoute(({ url }, { userId }) => {
 	const { searchParams } = url;
 
 	const limit = Number(searchParams.get('limit')) || 20;
@@ -18,7 +25,7 @@ export const load: PageServerLoad = withAuth(({ url }, user) => {
 
 	const transactions = db.query.userTransaction.findMany({
 		where: (transaction, { and, eq, inArray }) => {
-			const filter: SQL[] = [eq(transaction.userId, user.id)];
+			const filter: SQL[] = [eq(transaction.userId, userId)];
 
 			if (accounts.length) {
 				filter.push(inArray(transaction.accountId, accounts));
@@ -47,13 +54,13 @@ export const load: PageServerLoad = withAuth(({ url }, user) => {
 		offset,
 		page,
 		transactions,
-		accounts: user.account.getAll(),
-		categories: user.category.getAll()
+		accounts: getUserAccounts(db, userId),
+		categories: getUserCategories(db, userId)
 	};
 });
 
 export const actions = {
-	create: withAuth(async ({ request }, user) => {
+	create: protectRoute(async ({ request }, { userId }) => {
 		const formData = Object.fromEntries((await request.formData()).entries());
 		const parsed = requestSchema.safeParse(formData);
 
@@ -65,7 +72,10 @@ export const actions = {
 		}
 
 		try {
-			const transaction = user.transaction.create(parsed.data);
+			const transaction = createUserTransaction(db, {
+				userId,
+				...parsed.data
+			});
 			return { success: true, transaction };
 		} catch (er) {
 			console.log('🛸 < file: +page.server.ts:53 < er =', er);
@@ -73,7 +83,7 @@ export const actions = {
 		}
 	}),
 
-	validate: withAuth(async ({ request }, user) => {
+	validate: protectRoute(async ({ request }, { userId }) => {
 		const formData = await request.formData();
 		const transactionId = formData.get('id')?.toString();
 		const validated = formData.get('validated')?.toString();
@@ -83,17 +93,21 @@ export const actions = {
 		}
 
 		try {
-			const transaction = user.transaction.update(Number(transactionId), {
-				validated: validated === 'true'
-			});
-
+			const transaction = updateUserTransaction(
+				db,
+				userId,
+				Number(transactionId),
+				{
+					validated: validated === 'true'
+				}
+			);
 			return { success: true, transaction };
 		} catch {
 			return fail(500, { validateError: 'Oops, something went wrong.' });
 		}
 	}),
 
-	remove: withAuth(async ({ request }, user) => {
+	remove: protectRoute(async ({ request }, { userId }) => {
 		const formData = await request.formData();
 		const transactionId = formData.get('id')?.toString();
 
@@ -102,7 +116,11 @@ export const actions = {
 		}
 
 		try {
-			const transaction = user.transaction.remove(Number(transactionId));
+			const transaction = deleteUserTransaction(
+				db,
+				userId,
+				Number(transactionId)
+			);
 			return { success: true, transaction };
 		} catch {
 			return fail(500, { removeError: 'Oops, something went wrong.' });

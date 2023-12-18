@@ -1,29 +1,38 @@
-import { withAuth } from '$lib/server/auth';
-import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
+import { error, fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
+import { protectRoute } from '$lib/server/auth';
+import {
+	getUserTransaction,
+	updateUserTransaction
+} from '$lib/server/transaction';
+import { getUserCategories } from '$lib/server/category';
+import { getUserAccounts } from '$lib/server/account';
+import { db } from '$lib/server/db';
 
-export const load: PageServerLoad = withAuth(async ({ params }, user) => {
-	const transaction = user.transaction.get(Number(params.id));
+export const load: PageServerLoad = protectRoute(
+	async ({ params }, { userId }) => {
+		const transaction = getUserTransaction(db, userId, Number(params.id));
 
-	if (!transaction) {
-		throw error(404, 'Transaction not found');
+		if (!transaction) {
+			throw error(404, 'Transaction not found');
+		}
+
+		return {
+			transaction,
+			categories: getUserCategories(db, userId),
+			accounts: getUserAccounts(db, userId)
+		};
 	}
-
-	return {
-		transaction,
-		categories: user.category.getAll(),
-		accounts: user.account.getAll()
-	};
-});
+);
 
 export const actions = {
-	default: withAuth(async ({ params, request }, user) => {
+	default: protectRoute(async ({ params, request }, { userId }) => {
 		const formData = Object.fromEntries((await request.formData()).entries());
 		const parsed = updateSchema.safeParse(formData);
 
 		if (!parsed.success) {
-      console.log(parsed.error)
+			console.log(parsed.error);
 			return fail(400, {
 				...formData,
 				error: 'Please provide valid values.'
@@ -31,9 +40,8 @@ export const actions = {
 		}
 
 		try {
-			user.transaction.update(Number(params.id), parsed.data);
-		} catch (er) {
-			console.log('🛸 < file: +page.server.ts:53 < er =', er);
+			updateUserTransaction(db, userId, Number(params.id), parsed.data);
+		} catch {
 			return fail(500, { error: 'Oops, something went wrong.' });
 		}
 

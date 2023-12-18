@@ -1,39 +1,77 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import Button from '$lib/components/button.svelte';
-	import type { ActionData } from './$types';
+	import Feather from '$lib/components/feather.svelte';
+	import { flip } from 'svelte/animate';
+	import type { ActionData, PageData } from './$types';
+	import { scale } from 'svelte/transition';
+	import { withLoading } from '$lib/components/utils';
+	import { writable } from 'svelte/store';
 
+	export let data: PageData;
 	export let form: ActionData;
 
-	let loading = false;
+	const loading = writable(false);
 </script>
 
-<form
-	method="post"
-	class="mx-auto md:col-span-3 flex flex-col gap-4 w-full max-w-sm"
-	use:enhance={() => {
-		loading = true;
-		return async ({ update }) => {
-			loading = false;
-			update();
-		};
-	}}
->
-	<h1>Create Category</h1>
+<div class="flex flex-wrap py-8 gap-8">
+	<div class="grow">
+		<h1 class="font-bold text-2xl">Categories</h1>
+		<div class="flex flex-col gap-1 mt-8">
+			{#each data.categories as category (category.id)}
+				<div
+					animate:flip
+					transition:scale
+					class="p-2 flex flex-col border-ui-normal border rounded-xl bg hover:border-ui-hover dark:(border-ui-normal-dark hover:border-ui-hover-dark)"
+				>
+					<span>{category.name}</span>
+					<span class="text-muted text-sm">{category.description || ''}</span>
+					<a
+						href="/category/{category.id}"
+						class="btn btn-sm ml-auto text-xs text-muted hover:text-normal"
+					>
+						<Feather name="corner-right-up" />
+						Details
+					</a>
+				</div>
+			{/each}
+		</div>
+	</div>
 
-	<label class="input-label">
-		Name
-		<input type="text" name="name" class="input" disabled={loading} required placeholder="Groceries"/>
-	</label>
+	<form
+		method="post"
+		class="mx-auto flex flex-col gap-4 w-full max-w-sm"
+		use:enhance={withLoading(loading)}
+	>
+		<h2 class="font-semibold text-lg mb-4">Create Category</h2>
 
-	<label class="input-label">
-		Description (optional)
-		<input type="text" name="description" class="input" disabled={loading} placeholder="food, household products, etc."/>
-	</label>
+		<label class="input-label">
+			Name
+			<input
+				type="text"
+				name="name"
+				class="input"
+				required
+				placeholder="Groceries"
+			/>
+		</label>
 
-	{#if form?.error}
-		<p class="text-red my-2 mx-auto">{form.error}</p>
-	{/if}
+		<label class="input-label">
+			Description (optional)
+			<input
+				type="text"
+				name="description"
+				class="input"
+				placeholder="food, household products, etc."
+			/>
+		</label>
 
-	<Button icon="folder-plus" class="btn btn-green ml-auto" {loading}>Create</Button>
-</form>
+		{#if form?.error}
+			<p class="text-red my-2 mx-auto">{form.error}</p>
+		{/if}
+
+		<Button icon="folder-plus" class="btn btn-green ml-auto" loading={$loading}>
+			Create
+		</Button>
+	</form>
+</div>

@@ -1,33 +1,33 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import Button from '$lib/components/button.svelte';
 	import type { ActionData } from './$types';
+	import { writable } from 'svelte/store';
+	import { enhance } from '$app/forms';
+	import { withLoading } from '$lib/components/utils';
+	import Button from '$lib/components/button.svelte';
 
 	export let form: ActionData;
 
-	let loading = false;
+	let loading = writable(false);
 </script>
 
 <form
 	method="post"
-	class="max-w-sm w-full bg-bg-2 m-auto flex flex-col items-center gap-4 p-4 border border-ui rounded-lg focus-within:border-ui-3"
-	use:enhance={() => {
-		loading = true;
-		return async ({ update }) => {
-			loading = false;
-			update();
-		};
-	}}
+	use:enhance={withLoading(loading)}
+	class="m-auto w-full max-w-sm flex flex-col gap-4"
 >
-	<div class="w-2/3">
-		<img src="/logo.svg" alt="genug logo" class="w-full" />
+	<div class="w-2/3 mx-auto mb-8">
+		<img src="/logo.svg" alt="genug logo" />
 	</div>
-
-	<h1>Login</h1>
 
 	<label class="input-label">
 		Username
-		<input type="text" name="username" id="username" class="input" />
+		<input
+			type="text"
+			name="username"
+			id="username"
+			class="input"
+			value={form?.username || ''}
+		/>
 	</label>
 
 	<label class="input-label">
@@ -36,14 +36,14 @@
 	</label>
 
 	{#if form?.error}
-		<div class="flex mt-4">
-			<p class="mx-auto text-red-600 my-4 text-center">
-				{form.error}
-			</p>
-		</div>
+		<p class="text-error mx-auto text-center">
+			{form.error}
+		</p>
 	{/if}
 
-	<Button icon="key" class="btn btn-blue mt-2" {loading}>Login</Button>
+	<Button icon="key" class="btn btn-blue w-full" loading={$loading}>
+		Login
+	</Button>
 
-	<a href="/signup">Create New User</a>
+	<a href="/signup" class="link mx-auto">Create New User</a>
 </form>

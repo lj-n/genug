@@ -1,7 +1,7 @@
-import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { useUserAuth } from '$lib/server/user';
+import { fail, redirect } from '@sveltejs/kit';
 import { LuciaError } from 'lucia';
+import { auth, createUserSession } from '$lib/server/auth';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const session = await locals.auth.validate();
@@ -17,12 +17,14 @@ export const actions = {
 		const password = data.get('password')?.toString();
 
 		if (!username || !password) {
-			return fail(400, { error: 'Please provide a username and password.' });
+			return fail(400, {
+				username,
+				error: 'Please provide a username and password.'
+			});
 		}
 
 		try {
-			const { login } = useUserAuth();
-			const session = await login(username, password);
+			const session = await createUserSession(auth, username, password);
 			locals.auth.setSession(session);
 		} catch (error) {
 			if (error instanceof LuciaError) {

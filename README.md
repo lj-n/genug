@@ -88,7 +88,7 @@ Create a `/data` directory and run the drizzle migration. This will create a sql
 
 ```sh
 mkdir data
-npm run drizzle:migrate
+npm run migrations:push
 ```
 
 Start the local dev server with:
@@ -103,13 +103,13 @@ The used ORM is [drizzle](https://orm.drizzle.team/).
 After changes to the tables defined in `/src/lib/server/schema/tables.ts` run the following command to generate migration files.
 
 ```sh
-npm run drizzle:gen
+npm run migrations:generate
 ```
 
 To apply the changes to the database run:
 
 ```sh
-npm run drizzle:migrate
+npm run migrations:push
 ```
 
 ## Why

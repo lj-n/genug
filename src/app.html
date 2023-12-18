@@ -1,18 +1,12 @@
 <!DOCTYPE html>
-<html
-	lang="en"
-	class="antialiased bg-bg text-tx overscroll-none"
->
+<html lang="en" class="overscroll-none font-open-sans">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
 		<meta name="viewport" content="width=device-width" />
 		%sveltekit.head%
 	</head>
-	<body
-		data-sveltekit-preload-data="hover"
-		class="mx-auto max-w-7xl min-h-screen flex flex-col px-2 relative"
-	>
-		<div style="display: contents">%sveltekit.body%</div>
+	<body data-sveltekit-preload-data="hover" class="bg text-normal max-w-7xl min-h-screen mx-auto flex flex-col px-2">
+		<div class="contents">%sveltekit.body%</div>
 	</body>
 </html>

@@ -2,7 +2,7 @@ import type { Config } from 'drizzle-kit';
 
 export default {
 	schema: './src/lib/server/schema/*',
-	out: './drizzle',
+	out: './migrations',
 	driver: 'better-sqlite',
 	dbCredentials: {
 		url: './data/genug.db'
