@@ -61,8 +61,8 @@
 			name="flow"
 			class="input"
 			value={data.transaction.flow}
-      title={currencyInputProps.title}
-      pattern={currencyInputProps.pattern}
+			title={currencyInputProps.title}
+			pattern={currencyInputProps.pattern}
 		/>
 	</label>
 

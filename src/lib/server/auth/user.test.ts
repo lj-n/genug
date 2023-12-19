@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from 'vitest';
 
 import type { Database } from '../db';
-import type { Auth } from '../auth';
+import type { Auth } from '.';
 import {
 	createUser,
 	createUserSession,
@@ -81,7 +81,7 @@ describe('user', () => {
 
 		expect(profile.theme).toBe('dark');
 		expect(() =>
-    updateUserSettings(db, 'wrong_user_id', { theme: 'light' })
+			updateUserSettings(db, 'wrong_user_id', { theme: 'light' })
 		).toThrowError('User with id (wrong_user_id) not found.');
 	});
 

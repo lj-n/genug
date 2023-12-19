@@ -1,1 +1,1 @@
-export * from './category.user'
+export * from './category.user';

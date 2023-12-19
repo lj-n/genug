@@ -19,7 +19,7 @@ export const load: PageServerLoad = protectRoute(
 		const category = getUserCategory(db, userId, categoryId);
 
 		if (!category) {
-			throw error(404, 'Category not found.');
+			error(404, 'Category not found.');
 		}
 
 		return {
@@ -153,6 +153,6 @@ export const actions = {
 			fail(500, { removeCategoryError: 'Something went wrong, sorry.' });
 		}
 
-		throw redirect(302, '/category');
+		redirect(302, '/category');
 	})
 } satisfies Actions;

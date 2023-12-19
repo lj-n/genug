@@ -11,14 +11,13 @@ declare global {
 			breadcrumbs?: Breadcrumb[];
 		}
 		// interface Platform {}
-    type Breadcrumb = {
-      icon?: import('feather-icons').FeatherIconNames;
-      href?: string;
-      title: string;
-    }
+		type Breadcrumb = {
+			icon?: import('feather-icons').FeatherIconNames;
+			href?: string;
+			title: string;
+		};
 	}
 }
-
 
 /// <reference types="lucia" />
 declare global {

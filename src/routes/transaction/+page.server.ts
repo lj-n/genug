@@ -23,31 +23,33 @@ export const load: PageServerLoad = protectRoute(({ url }, { userId }) => {
 	const accounts = searchParams.getAll('a').map((q) => Number(q));
 	const categories = searchParams.getAll('c').map((q) => Number(q));
 
-	const transactions = db.query.userTransaction.findMany({
-		where: (transaction, { and, eq, inArray }) => {
-			const filter: SQL[] = [eq(transaction.userId, userId)];
+	const transactions = db.query.userTransaction
+		.findMany({
+			where: (transaction, { and, eq, inArray }) => {
+				const filter: SQL[] = [eq(transaction.userId, userId)];
 
-			if (accounts.length) {
-				filter.push(inArray(transaction.accountId, accounts));
-			}
-			if (categories.length) {
-				filter.push(inArray(transaction.categoryId, categories));
-			}
+				if (accounts.length) {
+					filter.push(inArray(transaction.accountId, accounts));
+				}
+				if (categories.length) {
+					filter.push(inArray(transaction.categoryId, categories));
+				}
 
-			return and(...filter);
-		},
-		orderBy: (transaction, { asc, desc }) => [
-			asc(transaction.validated),
-			desc(transaction.date),
-			desc(transaction.createdAt)
-		],
-		limit,
-		offset: (page - 1) * limit,
-		with: {
-			account: true,
-			category: true
-		}
-	});
+				return and(...filter);
+			},
+			orderBy: (transaction, { asc, desc }) => [
+				asc(transaction.validated),
+				desc(transaction.date),
+				desc(transaction.createdAt)
+			],
+			limit,
+			offset: (page - 1) * limit,
+			with: {
+				account: true,
+				category: true
+			}
+		})
+		.sync();
 
 	return {
 		limit,

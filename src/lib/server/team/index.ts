@@ -25,6 +25,6 @@ export const teamClient = (teamId: number, userId: string) => {
 		account: useTeamAccount(teamId),
 		budget: useTeamBudget(teamId),
 		transaction: useTeamTransaction(teamId),
-    auth
+		auth
 	};
 };

@@ -7,7 +7,6 @@ export default defineConfig({
 	extractors: [extractorSvelte()],
 	content: {
 		filesystem: ['./src/app.html']
-
 	},
 	presets: [presetUno({ preflight: true })],
 	theme: {

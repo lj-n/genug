@@ -239,21 +239,21 @@ export function getUserCategoryTransactionInfoForMonth(
  * @throws Error if the category with the specified ID is not found.
  */
 export function getUserCategoryLastMonthStats(
-  database: Database,
-  userId: string,
-  categoryId: number,
-  n: number
+	database: Database,
+	userId: string,
+	categoryId: number,
+	n: number
 ) {
-  return getPreviousMonthsWithNames(n).map(({ name, date }) => {
-    return {
-      name,
-      date,
-      ...getUserCategoryTransactionInfoForMonth(
-        database,
-        userId,
-        categoryId,
-        date
-      )
-    };
-  });
+	return getPreviousMonthsWithNames(n).map(({ name, date }) => {
+		return {
+			name,
+			date,
+			...getUserCategoryTransactionInfoForMonth(
+				database,
+				userId,
+				categoryId,
+				date
+			)
+		};
+	});
 }

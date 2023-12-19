@@ -6,17 +6,17 @@ export const GET: RequestHandler = async ({ setHeaders, locals }) => {
 	const session = await locals.auth.validate();
 
 	const defaultAvatar = icons.smile.toSvg({ width: '14px' });
-	
+
 	if (!session) {
 		setHeaders({ 'Content-Type': 'image/svg+xml' });
 		return new Response(defaultAvatar);
 	}
-	
+
 	const avatar = avatarQuery.get({ userId: session.user.userId });
-	
+
 	const imageBlob = avatar?.image;
 	const imageType = avatar?.imageType;
-	
+
 	if (!imageBlob || !imageType) {
 		setHeaders({ 'Content-Type': 'image/svg+xml' });
 		return new Response(defaultAvatar);

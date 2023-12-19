@@ -33,6 +33,6 @@ export const actions = {
 			return fail(500, { username, error: 'Something went wrong, oops.' });
 		}
 
-		throw redirect(302, '/');
+		redirect(302, '/');
 	}
 } satisfies Actions;

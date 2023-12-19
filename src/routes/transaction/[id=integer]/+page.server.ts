@@ -15,7 +15,7 @@ export const load: PageServerLoad = protectRoute(
 		const transaction = getUserTransaction(db, userId, Number(params.id));
 
 		if (!transaction) {
-			throw error(404, 'Transaction not found');
+			error(404, 'Transaction not found');
 		}
 
 		return {
@@ -45,7 +45,7 @@ export const actions = {
 			return fail(500, { error: 'Oops, something went wrong.' });
 		}
 
-		throw redirect(307, '/transaction');
+		redirect(307, '/transaction');
 	})
 } satisfies Actions;
 

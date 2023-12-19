@@ -16,12 +16,12 @@ import { createTransferTransactions } from './transaction.utils';
 let db: Database;
 let userId: string;
 
-beforeAll(async () => {
+beforeAll(() => {
 	const { database, client, testUser } = useTestDatabase();
 	db = database;
 	userId = testUser.id;
 
-	return async () => {
+	return () => {
 		client.close();
 	};
 });

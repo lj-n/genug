@@ -10,17 +10,20 @@ import {
 	updateUserAccount
 } from './account.user';
 import { useTestDatabase } from '$testing/create.test.db';
-import { createUserTransaction, deleteUserTransaction } from '../transaction/transaction.user';
+import {
+	createUserTransaction,
+	deleteUserTransaction
+} from '../transaction/transaction.user';
 
 let db: Database;
 let userId: string;
 
-beforeAll(async () => {
+beforeAll(() => {
 	const { database, client, testUser } = useTestDatabase();
 	db = database;
 	userId = testUser.id;
 
-	return async () => {
+	return () => {
 		client.close();
 	};
 });
@@ -123,14 +126,14 @@ describe('user account balance', () => {
 			working: 0
 		});
 
-    deleteUserTransaction(db, userId, transaction.id);
+		deleteUserTransaction(db, userId, transaction.id);
 
-    balance = getUserAccountBalance(db, userId, accountId);
+		balance = getUserAccountBalance(db, userId, accountId);
 
 		expect(balance).toStrictEqual({
-      validated: 500,
-      pending: -300,
-      working: 200
-    });
+			validated: 500,
+			pending: -300,
+			working: 200
+		});
 	});
 });
