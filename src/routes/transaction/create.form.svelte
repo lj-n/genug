@@ -54,7 +54,12 @@
 
 	<label class="input-label text-sm">
 		Description
-		<input type="text" name="description" class="input text-sm" placeholder=""/>
+		<input
+			type="text"
+			name="description"
+			class="input text-sm"
+			placeholder=""
+		/>
 	</label>
 
 	<label class="input-label text-sm">
@@ -69,7 +74,11 @@
 		/>
 	</label>
 
-	<Button type="submit" class="btn w-full text-sm btn-green mt-auto ml-auto" icon="file-plus">
+	<Button
+		type="submit"
+		class="btn w-full text-sm btn-green mt-auto ml-auto"
+		icon="file-plus"
+	>
 		Create
 	</Button>
 </form>

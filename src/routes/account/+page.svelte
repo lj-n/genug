@@ -5,7 +5,10 @@
 	import { flip } from 'svelte/animate';
 	import type { ActionData, PageData } from './$types';
 	import { scale } from 'svelte/transition';
-	import { formatFractionToLocaleCurrency, withLoading } from '$lib/components/utils';
+	import {
+		formatFractionToLocaleCurrency,
+		withLoading
+	} from '$lib/components/utils';
 	import { writable } from 'svelte/store';
 
 	export let data: PageData;
@@ -30,7 +33,9 @@
 					<div class="flex items-end mt-4">
 						<div class="flex flex-col">
 							<span class="font-semibold tabular-nums leading-4">
-								{formatFractionToLocaleCurrency(account.validated + account.pending)}
+								{formatFractionToLocaleCurrency(
+									account.validated + account.pending
+								)}
 							</span>
 							<span class="text-muted text-xs">Balance</span>
 						</div>

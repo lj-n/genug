@@ -81,7 +81,7 @@ describe('user', () => {
 
 		expect(profile.theme).toBe('dark');
 		expect(() =>
-    updateUserSettings(db, 'wrong_user_id', { theme: 'light' })
+			updateUserSettings(db, 'wrong_user_id', { theme: 'light' })
 		).toThrowError('User with id (wrong_user_id) not found.');
 	});
 
