@@ -51,7 +51,7 @@ This feature enables multiple users to work together on budgeting. Accounts, Cat
 Build the docker image with:
 
 ```sh
-docker build --build-arg ORIGIN_URL=https://custom-genug.com  -t genug .
+docker build -t genug .
 ```
 
 Create a volume to persist the database:
