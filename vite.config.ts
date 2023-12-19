@@ -5,10 +5,15 @@ import browserslist from 'browserslist';
 import UnoCSS from 'unocss/vite';
 
 export default defineConfig({
-	plugins: [UnoCSS(), sveltekit()],
+	plugins: [
+		/** Disable unocss plugin for tests https://github.com/vitest-dev/vitest/issues/2008 */
+		process.env.NODE_ENV !== 'test' && UnoCSS(),
+		sveltekit()
+	],
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}'],
-		exclude: ['src/testing']
+		exclude: ['src/testing'],
+		pool: 'forks'
 	},
 	css: {
 		transformer: 'lightningcss',

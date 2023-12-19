@@ -11,7 +11,7 @@ export const load: PageServerLoad = withAuth(async ({ params }, user) => {
 
 		return { userId: user.id, members: getMembers(), role: getRole(), ...team };
 	} catch (_e) {
-		throw error(404, 'Team not found');
+		error(404, 'Team not found');
 	}
 });
 

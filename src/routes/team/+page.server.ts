@@ -31,6 +31,6 @@ export const actions = {
 			});
 		}
 
-		throw redirect(302, `/team/${newTeam.id}`);
+		redirect(302, `/team/${newTeam.id}`);
 	})
 } satisfies Actions;

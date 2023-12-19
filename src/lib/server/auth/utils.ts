@@ -34,7 +34,7 @@ export function protectRoute<Event extends RequestEvent, Out>(
 		const session = await event.locals.auth.validate();
 
 		if (!session) {
-			throw redirect(302, redirectTo);
+			redirect(302, redirectTo);
 		}
 
 		const profile = getUserSettings(db, session.user.userId);

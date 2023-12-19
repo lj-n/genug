@@ -16,7 +16,7 @@ export const load: PageServerLoad = protectRoute(
 		const account = getUserAccount(db, userId, Number(params.id));
 
 		if (!account) {
-			throw error(404, 'Account not found.');
+			error(404, 'Account not found.');
 		}
 
 		const transactionInfo = getUserAccountTransactionInfo(
@@ -132,6 +132,6 @@ export const actions = {
 			fail(500, { removeAccountError: 'Something went wrong, sorry.' });
 		}
 
-		throw redirect(302, '/account');
+		redirect(302, '/account');
 	})
 } satisfies Actions;

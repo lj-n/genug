@@ -1,17 +1,23 @@
-import { useTestDatabase } from "$testing/create.test.db";
-import { beforeAll, describe, expect, test } from "vitest";
-import type { Database } from "../db";
-import { createUserCategory, deleteUserCategory, getUserCategories, getUserCategory, updateUserCategory } from "./category.user";
+import { useTestDatabase } from '$testing/create.test.db';
+import { beforeAll, describe, expect, test } from 'vitest';
+import type { Database } from '../db';
+import {
+	createUserCategory,
+	deleteUserCategory,
+	getUserCategories,
+	getUserCategory,
+	updateUserCategory
+} from './category.user';
 
 let db: Database;
 let userId: string;
 
-beforeAll(async () => {
+beforeAll(() => {
 	const { database, client, testUser } = useTestDatabase();
 	db = database;
 	userId = testUser.id;
 
-	return async () => {
+	return () => {
 		client.close();
 	};
 });

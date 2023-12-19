@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from 'vitest';
 
 import type { Database } from '../db';
-import type { Auth } from '../auth';
+import type { Auth } from '.';
 import {
 	createUser,
 	createUserSession,
