@@ -20,12 +20,6 @@ COPY package.json .
 COPY --from=builder /app/data data/
 COPY /migrations migrations/
 
-# Create user in database if information is provided
-RUN --mount=type=secret,id=username \
-    USERNAME=$(cat /run/secrets/username)
-RUN --mount=type=secret,id=userpassword \
-    USERPASSWORD=$(cat /run/secrets/userpassword)
-
 COPY create.user.ts .
 COPY start.sh .
 RUN chmod +x start.sh
@@ -37,4 +31,4 @@ EXPOSE $ORIGIN_PORT
 ENV NODE_ENV=production
 ENV ORIGIN=$ORIGIN_URL
 
-CMD ["./start.sh"]
+ENTRYPOINT ["./start.sh"]

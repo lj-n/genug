@@ -49,10 +49,3 @@
 
 	<div class="info">Hier ist eine kleine Info.</div>
 </div>
-
-<style>
-	.avatar {
-		width: 5rem;
-		height: 5rem;
-	}
-</style>
