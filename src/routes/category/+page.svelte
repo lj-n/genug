@@ -14,6 +14,10 @@
 	const loading = writable(false);
 </script>
 
+<svelte:head>
+	<title>Categories</title>
+</svelte:head>
+
 <div class="flex flex-wrap py-8 gap-8">
 	<div class="grow">
 		<h1 class="font-bold text-2xl">Categories</h1>

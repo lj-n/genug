@@ -4,12 +4,9 @@
 	export let data: PageData;
 </script>
 
+
+<svelte:head>
+	<title>genug</title>
+</svelte:head>
+
 <h1>👋 Hi there {data.user?.name}!</h1>
-
-<div>content</div>
-
-<style>
-	div {
-		height: 2000px;
-	}
-</style>

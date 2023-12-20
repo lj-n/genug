@@ -24,10 +24,11 @@
 
 	let moveTransactionInput = '';
 	let removeAccountInput = '';
-
-	$: moveTransactionReady = moveTransactionInput === data.account.name;
-	$: removeAccountReady = removeAccountInput === data.account.name;
 </script>
+
+<svelte:head>
+	<title>Account | {data.account.name}</title>
+</svelte:head>
 
 <a href="/account" class="btn btn-sm mt-4">
 	<Feather name="arrow-left" />

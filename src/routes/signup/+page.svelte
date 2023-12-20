@@ -10,6 +10,10 @@
 	let loading = writable(false);
 </script>
 
+<svelte:head>
+	<title>Create User</title>
+</svelte:head>
+
 <form
 	method="post"
 	use:enhance={withLoading(loading)}

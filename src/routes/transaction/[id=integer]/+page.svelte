@@ -8,6 +8,10 @@
 	export let form: ActionData;
 </script>
 
+<svelte:head>
+	<title>Transaction | Edit</title>
+</svelte:head>
+
 <form
 	method="post"
 	use:enhance

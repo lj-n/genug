@@ -17,6 +17,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Settings</title>
+</svelte:head>
+
 <div class="flex gap-4 items-center my-8">
 	<div class="avatar w-16">
 		<img src="/avatar" alt="user-avatar" />
