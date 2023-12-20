@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - ".changeset/**"
+      - ".github/workflows/release.yaml"
+  workflow_dispatch:
 
 permissions:
   pull-requests: write
