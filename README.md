@@ -51,7 +51,7 @@ This feature enables multiple users to work together on budgeting. Accounts, Cat
 Build the docker image with:
 
 ```sh
-docker build --build-arg ORIGIN_URL=https://custom-genug.com  -t genug .
+docker build -t genug .
 ```
 
 Create a volume to persist the database:
@@ -63,8 +63,10 @@ docker volume create genug-db
 Start the container:
 
 ```sh
-docker run -dp 127.0.0.1:3000:3000 --mount type=volume,src=genug-db,target=/app/data/ genug
+docker run -dp 127.0.0.1:3000:3000 --mount type=volume,src=genug-db,target=/app/data/ genug <username> <password>
 ```
+
+_If you provide username and password params, a user will be created for you. This is optional but can be useful if user-creation is disabled in your instance._
 
 > By default [Sveltekit will accept](https://kit.svelte.dev/docs/adapter-node#environment-variables-origin-protocolheader-and-hostheader) connections on `0.0.0.0` using port 3000. You can pass the `ORIGIN` environment variable in the docker build like this:
 >
