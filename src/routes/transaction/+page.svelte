@@ -11,6 +11,10 @@
 	export let data: PageData;
 </script>
 
+<svelte:head>
+	<title>Transactions</title>
+</svelte:head>
+
 <CreateForm accounts={data.accounts} categories={data.categories} />
 
 <Filter categories={data.categories} accounts={data.accounts} />

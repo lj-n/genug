@@ -10,6 +10,10 @@
 	let loading = writable(false);
 </script>
 
+<svelte:head>
+	<title>Login</title>
+</svelte:head>
+
 <form
 	method="post"
 	use:enhance={withLoading(loading)}

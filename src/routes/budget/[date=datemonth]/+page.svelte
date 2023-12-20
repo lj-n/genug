@@ -12,6 +12,10 @@
 	export let data: PageData;
 </script>
 
+<svelte:head>
+	<title>Budget | {data.formattedDate}</title>
+</svelte:head>
+
 <div class="flex my-8 justify-between">
 	<div class="flex flex-col gap-4">
 		<h1 class="text-2xl font-bold">Budget {data.formattedDate}</h1>

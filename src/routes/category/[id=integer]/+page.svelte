@@ -78,6 +78,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Category | {data.category.name}</title>
+</svelte:head>
+
 <a href="/category" class="btn btn-sm mt-4">
 	<Feather name="arrow-left" />
 	Back to Categories
