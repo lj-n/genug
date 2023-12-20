@@ -16,3 +16,4 @@ package
 **/.env
 data
 tests
+static/docs_images
