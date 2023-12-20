@@ -4,7 +4,6 @@
 	export let data: PageData;
 </script>
 
-
 <svelte:head>
 	<title>genug</title>
 </svelte:head>
