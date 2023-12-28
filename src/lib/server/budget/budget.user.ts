@@ -119,11 +119,13 @@ export function getUserBudgets(
 }
 
 /**
- * Retrieves the unassigned budget amount for a specific user from the database.
- * The unassigned budget amount is calculated by subtracting the sum of positive transaction flows from the sum of user budget amounts.
+ * Retrieves the unassigned budget for a specific user from the database.
+ * The unassigned budget is calculated by subtracting the sum of positive user transactions
+ * and the sum of user budget amounts from the database.
+ *
  * @param database The database instance.
  * @param userId The ID of the user.
- * @returns The unassigned budget amount.
+ * @returns The unassigned user budget.
  */
 export function getUnassignedUserBudget(
 	database: Database,
@@ -136,7 +138,11 @@ export function getUnassignedUserBudget(
         select sum(${schema.userTransaction.flow})
         from ${schema.userTransaction}
         where ${schema.userTransaction.userId} = ${userId}
-        and ${schema.userTransaction.flow} > 0
+		and (
+			${schema.userTransaction.flow} > 0
+			or
+			${schema.userTransaction.categoryId} is null
+		)
       ),
       0
     )
