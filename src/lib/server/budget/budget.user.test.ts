@@ -191,7 +191,14 @@ describe('user budgets', () => {
 			flow: 5500,
 			validated: true
 		});
-
 		expect(getUnassignedUserBudget(db, userId)).toBe(2800);
+
+		createUserTransaction(db, {
+			userId,
+			accountId,
+			flow: -1000,
+			validated: true
+		})
+		expect(getUnassignedUserBudget(db, userId)).toBe(1800);
 	});
 });
