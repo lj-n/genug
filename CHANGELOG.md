@@ -1,5 +1,11 @@
 # genug
 
+## 1.0.3
+
+### Patch Changes
+
+- 40ea734: fix calculation of not yet assigned values
+
 ## 1.0.2
 
 ### Patch Changes
