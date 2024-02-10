@@ -5,9 +5,9 @@
 	export let data: PageData;
 
 	function reloadAvatar() {
-		const avatars = document.querySelectorAll(
+		const avatars = document.querySelectorAll<HTMLImageElement>(
 			'img[src^="/avatar"]'
-		) as NodeListOf<HTMLImageElement>;
+		);
 
 		const timestamp = new Date().getTime();
 
@@ -64,7 +64,6 @@
 					name="image"
 					id="avatar"
 					accept="image/*"
-					capture="user"
 					required
 					class="peer opacity-0 absolute top-0 left-0"
 				/>

@@ -198,7 +198,7 @@ describe('user budgets', () => {
 			accountId,
 			flow: -1000,
 			validated: true
-		})
+		});
 		expect(getUnassignedUserBudget(db, userId)).toBe(1800);
 	});
 });
