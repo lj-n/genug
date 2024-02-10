@@ -1,5 +1,5 @@
 import { protectRoute } from '$lib/server/auth';
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getMonthInFormat, getMonthYear } from '$lib/components/date.utils';
 import {
@@ -54,6 +54,5 @@ export const actions = {
 		}
 
 		return { success: true };
-		// throw redirect(303, `/budget/${params.date}`);
 	})
 } satisfies Actions;

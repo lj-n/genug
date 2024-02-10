@@ -1,10 +1,8 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import { getMonthYear } from '$lib/components/date.utils';
 	import Feather from '$lib/components/feather.svelte';
 	import BudgetForm from './budget.form.svelte';
 	import {
-		currencyInputProps,
 		formatFractionToLocaleCurrency,
 		getPercentage
 	} from '$lib/components/utils';

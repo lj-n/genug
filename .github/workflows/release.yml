@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - ".changeset/**"
-      - ".github/workflows/release.yaml"
+      - '.changeset/**'
+      - '.github/workflows/release.yaml'
   workflow_dispatch:
 
 permissions:
