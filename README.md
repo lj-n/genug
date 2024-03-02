@@ -95,7 +95,7 @@ If you have `sqlite3` installed on your machine, you can also use the [backup.sh
 Example cronjob to run the backup script every day:
 
 ```sh
-
+0 0 * * * /path/to/genug/backup.sh
 ```
 
 ## Development
