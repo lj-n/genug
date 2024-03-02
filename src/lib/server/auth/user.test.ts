@@ -31,7 +31,7 @@ describe('user', () => {
 		const { user, session } = await createUser(db, auth, username, password);
 
 		expect(user.name).toBe(username);
-		expect(session.state).toBe('active');
+		expect(session.fresh).toBe(true);
 
 		await expect(
 			/** Username already taken */
@@ -39,34 +39,31 @@ describe('user', () => {
 		).rejects.toThrowError();
 	});
 
-	test('create user session with key', async () => {
-		const session = await createUserSession(auth, username, password);
+	test('create user session', async () => {
+		const session = await createUserSession(db, auth, username, password);
 		expect(session).toBeDefined();
 
 		await expect(
 			/** Invalid key */
-			() => createUserSession(auth, username, 'wrong password')
+			() => createUserSession(db, auth, username, 'wrong password')
 		).rejects.toThrowError();
 	});
 
 	test('invalidate user session', async () => {
-		const session = await createUserSession(auth, username, password);
-		await auth.invalidateAllUserSessions(session.user.userId);
+		const session = await createUserSession(db, auth, username, password);
+		await auth.invalidateUserSessions(session.userId);
 
-		await expect(() =>
-			auth.getSession(session.sessionId)
-		).rejects.toThrowError();
-		await expect(() =>
-			auth.validateSession(session.sessionId)
-		).rejects.toThrowError();
+		const invalidSession = await auth.validateSession(session.id);
+		expect(invalidSession.session).toBeNull();
+		expect(invalidSession.user).toBeNull();
 	});
 
 	test('get user profile', async () => {
-		const session = await createUserSession(auth, username, password);
+		const session = await createUserSession(db, auth, username, password);
 
-		const profile = getUserSettings(db, session.user.userId);
+		const profile = getUserSettings(db, session.userId);
 
-		expect(profile.userId).toBe(session.user.userId);
+		expect(profile.userId).toBe(session.userId);
 
 		expect(() => getUserSettings(db, 'wrong_user_id')).toThrowError(
 			`User with id (wrong_user_id) not found.`
@@ -74,8 +71,8 @@ describe('user', () => {
 	});
 
 	test('update user profile', async () => {
-		const session = await createUserSession(auth, username, password);
-		const profile = updateUserSettings(db, session.user.userId, {
+		const session = await createUserSession(db, auth, username, password);
+		const profile = updateUserSettings(db, session.userId, {
 			theme: 'dark'
 		});
 
@@ -86,14 +83,14 @@ describe('user', () => {
 	});
 
 	test('delete user', async () => {
-		const session = await createUserSession(auth, username, password);
+		const session = await createUserSession(db, auth, username, password);
 
-		const id = deleteUser(db, session.user.userId);
+		const id = deleteUser(db, session.userId);
 
-		expect(id).toBe(session.user.userId);
+		expect(id).toBe(session.userId);
 
 		await expect(() =>
-			createUserSession(auth, username, password)
+			createUserSession(db, auth, username, password)
 		).rejects.toThrowError();
 
 		expect(() => deleteUser(db, id)).toThrowError(

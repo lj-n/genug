@@ -1,4 +1,4 @@
-import type { Session, User } from 'lucia';
+import { generateId, LegacyScrypt, type Session, type User } from 'lucia';
 import type { Auth } from '../auth';
 import type { Database } from '../db';
 import { schema } from '../schema';
@@ -19,27 +19,27 @@ export async function createUser(
 	password: string
 ): Promise<{ user: User; session: Session }> {
 	return database.transaction(async () => {
-		const user = await auth.createUser({
-			key: {
-				providerId: 'username',
-				providerUserId: username.toLowerCase(),
-				password
-			},
-			attributes: { name: username }
-		});
+		const userId = generateId(15);
 
-		const session = await auth.createSession({
-			userId: user.userId,
-			attributes: {}
-		});
+		const user = database
+			.insert(schema.user)
+			.values({
+				id: userId,
+				name: username,
+				hashedPassword: await new LegacyScrypt().hash(password)
+			})
+			.returning()
+			.get();
 
 		database
 			.insert(schema.userSettings)
 			.values({
-				userId: user.userId
+				userId
 			})
 			.returning()
 			.get();
+
+		const session = await auth.createSession(userId, {});
 
 		return { user, session };
 	});
@@ -47,18 +47,34 @@ export async function createUser(
 
 /**
  * Creates a new user session using the provided authentication credentials.
+ * @param database The database instance.
  * @param auth The authentication instance.
  * @param username The username of the user.
  * @param password The password of the user.
  * @returns A promise that resolves to the created session.
  */
 export async function createUserSession(
+	database: Database,
 	auth: Auth,
 	username: string,
 	password: string
 ): Promise<Session> {
-	const key = await auth.useKey('username', username.toLowerCase(), password);
-	return await auth.createSession({ userId: key.userId, attributes: {} });
+	const user = database
+		.select()
+		.from(schema.user)
+		.where(eq(schema.user.name, username))
+		.get();
+
+	if (!user) throw new Error('User not found.');
+
+	const validPassword = await new LegacyScrypt().verify(
+		user.hashedPassword,
+		password
+	);
+
+	if (!validPassword) throw new Error('Invalid username or password.');
+
+	return await auth.createSession(user.id, {});
 }
 
 /**
