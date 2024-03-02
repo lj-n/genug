@@ -23,6 +23,25 @@
   <img src="static/docs_images/genug_preview.gif" alt="gif of different genug pages" width="600"  />
 </p>
 
+## Table of Contents
+
+- [Table of Contents](#table-of-contents)
+- [Features](#features)
+  - [Categories](#categories)
+  - [Transactions](#transactions)
+  - [Accounts](#accounts)
+  - [Budget](#budget)
+  - [Teams (Coming soon)](#teams-coming-soon)
+- [How it works](#how-it-works)
+- [Install](#install)
+- [Updating](#updating)
+- [Backups](#backups)
+- [Development](#development)
+  - [Prequisites](#prequisites)
+  - [Setup](#setup)
+  - [Changing database tables](#changing-database-tables)
+- [Why I did this](#why-i-did-this)
+
 ## Features
 
 ### Categories
@@ -68,6 +87,17 @@ docker build --build-arg ORIGIN_URL=https://my-url.com  -t genug .
 Pull the latest changes from the repository and repeat the steps from the install section.
 Database migration will be run automatically inside the docker container.
 
+## Backups
+
+If you want to backup your data, simply copy the `genug.db` file from the docker volume to a safe location.
+If you have `sqlite3` installed on your machine, you can also use the [backup.sh](backup.sh) script to create a backup of the database. (Change the `DB_FILE` and `BACKUP_DIR` variables to your needs)
+
+Example cronjob to run the backup script every day:
+
+```sh
+
+```
+
 ## Development
 
 ### Prequisites
@@ -86,7 +116,7 @@ The used ORM is [Drizzle ORM](https://orm.drizzle.team/).
 After changes to the tables defined in `/src/lib/server/schema/tables.ts` run `npm run migrations:generate` to generate migration files.
 To apply these changes to the database run `npm run migrations:push`.
 
-## Why
+## Why I did this
 
 This app was created for personal use and learning purposes.
 Everyone is free to use **genug** as they see fit.
