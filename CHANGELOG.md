@@ -1,5 +1,11 @@
 # genug
 
+## 1.0.5
+
+### Patch Changes
+
+- 2a7d204: Hotfix: Correctly migrate database to new auth tables.
+
 ## 1.0.4
 
 ### Patch Changes
