@@ -13,6 +13,6 @@ WHERE `id` IN (
 );--> statement-breakpoint
 
 DROP TABLE `user_key`;--> statement-breakpoint
-ALTER TABLE user_session ADD `expires_at` integer NOT NULL;--> statement-breakpoint
+ALTER TABLE user_session ADD `expires_at` integer DEFAULT 0 NOT NULL;--> statement-breakpoint
 ALTER TABLE `user_session` DROP COLUMN `active_expires`;--> statement-breakpoint
 ALTER TABLE `user_session` DROP COLUMN `idle_expires`;

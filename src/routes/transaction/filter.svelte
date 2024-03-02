@@ -30,8 +30,8 @@
 			return aIsSelected && !bIsSelected
 				? -1
 				: !aIsSelected && bIsSelected
-				? 1
-				: 0;
+					? 1
+					: 0;
 		};
 	}
 </script>

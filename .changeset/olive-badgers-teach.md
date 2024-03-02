@@ -1,5 +1,5 @@
 ---
-"genug": patch
+'genug': patch
 ---
 
 Update Dependencies.
