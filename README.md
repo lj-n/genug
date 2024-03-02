@@ -19,39 +19,27 @@
 <br />
 <br />
 
+<p align="center">
+  <img src="static/docs_images/genug_preview.gif" alt="gif of different genug pages" width="600"  />
+</p>
+
 ## Features
 
 ### Categories
 
 Define categories such as food, rent, leisure, etc. to organize and track your expenses in a structured way.
 
-<p align="center">
-  <img src="static/docs_images/Category_Screenshot.png" alt="Screenshot of the Category Page" width="600"  />
-</p>
-
 ### Transactions
 
 Create, update or delete detailed transactions to get an accurate and up-to-date overview of your expenses.
-
-<p align="center">
-  <img src="static/docs_images/Transaction_Screenshot.png" alt="Screenshot of the Transaction Page" width="600"  />
-</p>
 
 ### Accounts
 
 Each transaction is linked to a specific account, so you can easily keep an eye on your account balances.
 
-<p align="center">
-  <img src="static/docs_images/Account_Screenshot.png" alt="Screenshot of the Account Page" width="600"  />
-</p>
-
 ### Budget
 
 Plan your spending every month for each category. Know what your money's doing.
-
-<p align="center">
-  <img src="static/docs_images/Budget_Screenshot.png" alt="Screenshot of the Budget Page" width="600"  />
-</p>
 
 ### Teams (Coming soon)
 
