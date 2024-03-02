@@ -1,7 +1,7 @@
 import SQLiteDatabase from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
-import { generateRandomString } from 'lucia/utils';
+import { generateId } from 'lucia';
 
 import { schema } from '$lib/server/schema';
 import { createAuth } from '$lib/server/auth';
@@ -26,8 +26,9 @@ export function useTestDatabase() {
 	const testUser = database
 		.insert(schema.user)
 		.values({
-			id: generateRandomString(15),
-			name: 'Test User'
+			id: generateId(15),
+			name: 'Test User',
+			hashedPassword: '1234567890'
 		})
 		.returning()
 		.get();

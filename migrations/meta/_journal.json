@@ -8,6 +8,13 @@
       "when": 1701015760487,
       "tag": "0000_spicy_sandman",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1709386827738,
+      "tag": "0001_faulty_electro",
+      "breakpoints": true
     }
   ]
 }

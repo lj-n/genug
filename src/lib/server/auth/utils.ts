@@ -1,4 +1,4 @@
-import { LuciaError, type User } from 'lucia';
+import type { User } from 'lucia';
 import { SqliteError } from 'better-sqlite3';
 import { redirect, type RequestEvent } from '@sveltejs/kit';
 import { getUserSettings } from './user';
@@ -11,10 +11,7 @@ import type { schema } from '../schema';
  * @returns True if the error indicates a name already in use, false otherwise.
  */
 export function isNameAlreadyInUse(e: unknown) {
-	return (
-		(e instanceof SqliteError && e.code === 'SQLITE_CONSTRAINT_UNIQUE') ||
-		(e instanceof LuciaError && e.message === 'AUTH_DUPLICATE_KEY_ID')
-	);
+	return e instanceof SqliteError && e.code === 'SQLITE_CONSTRAINT_UNIQUE';
 }
 
 /**
@@ -31,14 +28,14 @@ export function protectRoute<Event extends RequestEvent, Out>(
 	{ redirectTo = '/signin' }: { redirectTo?: string } = {}
 ) {
 	return async (event: Event): Promise<Out> => {
-		const session = await event.locals.auth.validate();
+		const user = event.locals.user;
 
-		if (!session) {
+		if (!user) {
 			redirect(302, redirectTo);
 		}
 
-		const profile = getUserSettings(db, session.user.userId);
+		const profile = getUserSettings(db, user.id);
 
-		return fn(event, { ...session.user, ...profile });
+		return fn(event, { ...user, ...profile });
 	};
 }

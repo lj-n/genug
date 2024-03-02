@@ -1,17 +1,20 @@
 import type { PageServerLoad, Actions } from './$types';
 import { fail, redirect } from '@sveltejs/kit';
-import { LuciaError } from 'lucia';
-import { auth, createUserSession } from '$lib/server/auth';
+import {
+	auth,
+	createUserSession,
+	setSvelteKitSessionCookie
+} from '$lib/server/auth';
+import { db } from '$lib/server/db';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const session = await locals.auth.validate();
-	if (session) {
+	if (locals.user) {
 		redirect(302, '/');
 	}
 };
 
 export const actions = {
-	async default({ request, locals }) {
+	async default({ request, cookies }) {
 		const data = await request.formData();
 		const username = data.get('username')?.toString();
 		const password = data.get('password')?.toString();
@@ -24,17 +27,13 @@ export const actions = {
 		}
 
 		try {
-			const session = await createUserSession(auth, username, password);
-			locals.auth.setSession(session);
-		} catch (error) {
-			if (error instanceof LuciaError) {
-				return fail(401, {
-					username,
-					error: 'You have entered an invalid username or password.'
-				});
-			}
-
-			return fail(500, { username, error: 'Something went wrong, oops.' });
+			const session = await createUserSession(db, auth, username, password);
+			setSvelteKitSessionCookie(cookies, session);
+		} catch (err) {
+			return fail(401, {
+				username,
+				error: 'You have entered an invalid username or password.'
+			});
 		}
 
 		redirect(302, '/');

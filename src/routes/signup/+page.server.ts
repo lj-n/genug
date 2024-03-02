@@ -1,9 +1,21 @@
-import { auth, createUser, isNameAlreadyInUse } from '$lib/server/auth';
+import {
+	auth,
+	createUser,
+	isNameAlreadyInUse,
+	setSvelteKitSessionCookie
+} from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
+
+export const load: PageServerLoad = async ({ locals }) => {
+	if (locals.user) {
+		redirect(302, '/');
+	}
+};
 
 export const actions = {
-	async default({ request, locals }) {
+	async default({ request, cookies }) {
 		const data = await request.formData();
 		const username = data.get('username')?.toString();
 		const password = data.get('password')?.toString();
@@ -20,7 +32,7 @@ export const actions = {
 
 		try {
 			const { session } = await createUser(db, auth, username, password);
-			locals.auth.setSession(session);
+			setSvelteKitSessionCookie(cookies, session);
 		} catch (error) {
 			if (isNameAlreadyInUse(error)) {
 				return fail(400, {

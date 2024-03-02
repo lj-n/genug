@@ -12,21 +12,13 @@ export const session = sqliteTable('user_session', {
 	userId: text('user_id', { length: 15 })
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
-	activeExpires: integer('active_expires', { mode: 'number' }).notNull(),
-	idleExpires: integer('idle_expires', { mode: 'number' }).notNull()
-});
-
-export const key = sqliteTable('user_key', {
-	id: text('id', { length: 255 }).primaryKey(),
-	userId: text('user_id', { length: 15 })
-		.notNull()
-		.references(() => user.id, { onDelete: 'cascade' }),
-	hashedPassword: text('hashed_password', { length: 255 })
+	expiresAt: integer('expires_at', { mode: 'number' }).notNull()
 });
 
 export const user = sqliteTable('user', {
 	id: text('id', { length: 15 }).primaryKey(),
-	name: text('name', { length: 255 }).notNull().unique()
+	name: text('name', { length: 255 }).notNull().unique(),
+	hashedPassword: text('hashed_password', { length: 255 }).notNull()
 });
 
 export type SelectUser = typeof user.$inferSelect;
