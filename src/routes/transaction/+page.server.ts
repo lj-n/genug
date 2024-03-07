@@ -4,10 +4,8 @@ import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
 import { schema } from '$lib/server/schema';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import type { SQL } from 'drizzle-orm';
-import { getUserAccounts } from '$lib/server/account';
-import { getUserCategories } from '$lib/server/category';
 import {
 	createUserTransaction,
 	deleteUserTransaction,
@@ -17,7 +15,7 @@ import {
 export const load: PageServerLoad = protectRoute(({ url }, { userId }) => {
 	const { searchParams } = url;
 
-	const limit = Number(searchParams.get('limit')) || 20;
+	const limit = Number(searchParams.get('limit')) || 30;
 	const offset = Number(searchParams.get('offset')) || 0;
 	const page = Number(searchParams.get('page')) || 1;
 	const accounts = searchParams.getAll('a').map((q) => Number(q));
@@ -55,9 +53,7 @@ export const load: PageServerLoad = protectRoute(({ url }, { userId }) => {
 		limit,
 		offset,
 		page,
-		transactions,
-		accounts: getUserAccounts(db, userId),
-		categories: getUserCategories(db, userId)
+		transactions
 	};
 });
 
@@ -74,15 +70,14 @@ export const actions = {
 		}
 
 		try {
-			const transaction = createUserTransaction(db, {
+			createUserTransaction(db, {
 				userId,
 				...parsed.data
 			});
-			return { success: true, transaction };
-		} catch (er) {
-			console.log('🛸 < file: +page.server.ts:53 < er =', er);
+		} catch (err) {
 			return fail(500, { createError: 'Oops, something went wrong.' });
 		}
+		redirect(302, '/transaction');
 	}),
 
 	validate: protectRoute(async ({ request }, { userId }) => {

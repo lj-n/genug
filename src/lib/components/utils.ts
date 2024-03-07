@@ -1,4 +1,5 @@
 import type { SubmitFunction } from '@sveltejs/kit';
+import type { Action } from 'svelte/action';
 import type { Writable } from 'svelte/store';
 
 type Locale = 'en-US' | 'de-DE';
@@ -23,7 +24,8 @@ export function getPercentage(value: number, total: number): number {
  */
 export const currencyInputProps = {
 	pattern: '^(-?\\d+|\\d+)$',
-	title: 'Please enter only digits (fractional monetary units)'
+	title: 'Please enter only digits (fractional monetary units)',
+	information: 'Enter only fractional monetary units. (e.g. 100 for $1.00)'
 } as const;
 
 /**
@@ -51,3 +53,32 @@ export function withLoading(store: Writable<boolean>): SubmitFunction {
 		};
 	};
 }
+
+/**
+ * Svelte Action that an event listener to the document that triggers the provided callback function
+ * when a click event occurs outside of the specified element.
+ *
+ * @param node - The element to check for click events outside of.
+ * @param fn - The callback function to be executed when a click event occurs outside of the elemen
+ */
+export const clickOutside: Action<HTMLElement, (node: HTMLElement) => void> = (
+	node,
+	fn
+) => {
+	function onClick(event: MouseEvent) {
+		if (!node.contains(event.target as Node)) {
+			fn(node);
+		}
+	}
+
+	document.addEventListener('click', onClick);
+
+	return {
+		update(newFn) {
+			fn = newFn;
+		},
+		destroy() {
+			document.removeEventListener('click', onClick);
+		}
+	};
+};

@@ -1,12 +1,12 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
-	import Feather from '$lib/components/feather.svelte';
-	import CreateForm from './create.form.svelte';
-	import Pagination from './pagination.svelte';
 	import { flip } from 'svelte/animate';
 	import { enhance } from '$app/forms';
-	import Filter from './filter.svelte';
+	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
+	import Feather from '$lib/components/feather.svelte';
+	import Pagination from './transaction.pagination.svelte';
+	import Filter from './transaction.filter.svelte';
+	import AccountBalances from './transaction.balances.svelte';
 
 	export let data: PageData;
 </script>
@@ -15,13 +15,31 @@
 	<title>Transactions</title>
 </svelte:head>
 
-<CreateForm accounts={data.accounts} categories={data.categories} />
+<h1 class="mt-4 text-2xl font-bold">Transactions</h1>
 
-<Filter categories={data.categories} accounts={data.accounts} />
+<div class="flex justify-end m-4">
+	<details class="grow max-w-md">
+		<summary class="ml-auto text-right mb-2 text-sm w-fit cursor-pointer">
+			Show Balances
+		</summary>
+		<AccountBalances accounts={data.accounts} />
+	</details>
+</div>
 
-<h1 class="my-4 text-2xl font-bold">Transactions</h1>
+<div class="flex flex-col gap-4 md:(flex-row gap-2) items-center">
+	<Filter data={data.accounts} label="Accounts" key="a" />
+	<Filter data={data.categories} label="Categories" key="c" />
 
-<table class="block lg:(table border-collapse w-full)">
+	<a
+		href="/transaction/create"
+		class="btn text-sm btn-green ml-auto w-full my-4 md:(w-fit my-0)"
+	>
+		<Feather name="plus-circle" />
+		New Transaction
+	</a>
+</div>
+
+<table class="block mt-4 lg:(mt-0 table border-collapse w-full)">
 	<thead class="sr-only lg:not-sr-only">
 		<tr class="block lg:(table-row text-sm)">
 			<th scope="col" class="text-left px-2 py-4">Date</th>
