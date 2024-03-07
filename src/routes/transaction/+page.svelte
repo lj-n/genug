@@ -16,17 +16,20 @@
 
 <h1 class="my-4 text-2xl font-bold">Transactions</h1>
 
-<div class="flex gap-2 items-center">
+<div class="flex flex-col gap-4 md:(flex-row gap-2) items-center">
 	<Filter data={data.accounts} label="Accounts" key="a" />
 	<Filter data={data.categories} label="Categories" key="c" />
 
-	<a href="/transaction/create" class="btn text-sm btn-green ml-auto">
+	<a
+		href="/transaction/create"
+		class="btn text-sm btn-green ml-auto w-full my-4 md:(w-fit my-0)"
+	>
 		<Feather name="plus-circle" />
 		New Transaction
 	</a>
 </div>
 
-<table class="block lg:(table border-collapse w-full)">
+<table class="block mt-4 lg:(mt-0 table border-collapse w-full)">
 	<thead class="sr-only lg:not-sr-only">
 		<tr class="block lg:(table-row text-sm)">
 			<th scope="col" class="text-left px-2 py-4">Date</th>
