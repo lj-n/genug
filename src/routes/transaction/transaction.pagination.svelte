@@ -22,7 +22,7 @@
 </script>
 
 {#key $page.url}
-	<div class="flex my-2 gap-2 items-center ml-auto">
+	<div class="flex my-4 gap-2 items-center ml-auto">
 		<a href={getPrevPageHref()} class="btn btn-ghost btn-sm">
 			<Feather name="arrow-left" />
 		</a>

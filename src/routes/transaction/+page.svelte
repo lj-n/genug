@@ -1,12 +1,11 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
-	import Feather from '$lib/components/feather.svelte';
-	import CreateForm from './create.form.svelte';
-	import Pagination from './pagination.svelte';
 	import { flip } from 'svelte/animate';
 	import { enhance } from '$app/forms';
-	import Filter from './filter.svelte';
+	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
+	import Feather from '$lib/components/feather.svelte';
+	import Pagination from './transaction.pagination.svelte';
+	import Filter from './transaction.filter.svelte';
 
 	export let data: PageData;
 </script>
@@ -15,11 +14,17 @@
 	<title>Transactions</title>
 </svelte:head>
 
-<CreateForm accounts={data.accounts} categories={data.categories} />
-
-<Filter categories={data.categories} accounts={data.accounts} />
-
 <h1 class="my-4 text-2xl font-bold">Transactions</h1>
+
+<div class="flex gap-2 items-center">
+	<Filter data={data.accounts} label="Accounts" key="a" />
+	<Filter data={data.categories} label="Categories" key="c" />
+
+	<a href="/transaction/create" class="btn text-sm btn-green ml-auto">
+		<Feather name="plus-circle" />
+		New Transaction
+	</a>
+</div>
 
 <table class="block lg:(table border-collapse w-full)">
 	<thead class="sr-only lg:not-sr-only">
