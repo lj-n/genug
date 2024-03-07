@@ -1,14 +1,15 @@
-#!/bin/sh
+# Set the path to the SQLite database
+DATABASE_PATH="/path/to/your/database.db"
+# exmaple "/var/lib/docker/volumes/genug-db/_data/genug.db"
 
-# The path to the sqlite database file.
-DB_FILE="/var/lib/docker/volumes/genug-db/_data/genug.db"
+# Set the path to the backup directory
+BACKUP_PATH="/path/to/your/backup/directory"
 
-# The directory to store the backups.
-BACKUP_DIR="$HOME/genug-backups"
+# Get the current date
+CURRENT_DATE=$(date +%Y%m%d)
 
-mkdir -p $BACKUP_DIR
+# Create a backup
+sqlite3 $DATABASE_PATH ".backup '${BACKUP_PATH}/backup_${CURRENT_DATE}.db'"
 
-sqlite3 $DB_FILE ".backup $BACKUP_DIR/$(date +'%Y-%m-%d-%H-%M-%S').db"
-
-# Delete backups older than 7 days.
-find $BACKUP_DIR -type f -mtime +7 -exec rm {} \;
+# Delete backups older than 7 days
+find $BACKUP_PATH -name "backup_*.db" -type f -mtime +7 -exec rm {} \;
