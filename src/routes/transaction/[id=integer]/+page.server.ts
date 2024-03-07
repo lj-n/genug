@@ -56,6 +56,7 @@ const updateSchema = z.object({
 		.int()
 		.transform((c) => c || null),
 	date: z.coerce.date().transform((dt) => dt.toISOString().slice(0, 10)),
+	description: z.string().optional(),
 	flow: z.coerce.number().int(),
 	validated: z.coerce.boolean()
 });
