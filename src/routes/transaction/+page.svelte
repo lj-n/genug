@@ -6,6 +6,7 @@
 	import Feather from '$lib/components/feather.svelte';
 	import Pagination from './transaction.pagination.svelte';
 	import Filter from './transaction.filter.svelte';
+	import AccountBalances from './transaction.balances.svelte';
 
 	export let data: PageData;
 </script>
@@ -14,7 +15,16 @@
 	<title>Transactions</title>
 </svelte:head>
 
-<h1 class="my-4 text-2xl font-bold">Transactions</h1>
+<h1 class="mt-4 text-2xl font-bold">Transactions</h1>
+
+<div class="flex justify-end m-4">
+	<details class="grow max-w-md">
+		<summary class="ml-auto text-right mb-2 text-sm w-fit cursor-pointer">
+			Show Balances
+		</summary>
+		<AccountBalances accounts={data.accounts} />
+	</details>
+</div>
 
 <div class="flex flex-col gap-4 md:(flex-row gap-2) items-center">
 	<Filter data={data.accounts} label="Accounts" key="a" />

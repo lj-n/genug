@@ -53,7 +53,10 @@
 	}
 </script>
 
-<details class="hidden md:block relative text-sm" use:clickOutside={closeDetails}>
+<details
+	class="hidden md:block relative text-sm"
+	use:clickOutside={closeDetails}
+>
 	<summary
 		class="list-none cursor-pointer hover:fg px-1 rounded flex items-center gap-2 px-2 py-1 rounded border border-ui-normal"
 	>
