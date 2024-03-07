@@ -1,5 +1,13 @@
 # genug
 
+## 1.0.7
+
+### Patch Changes
+
+- 0a5d2d9: Hide Filter in Detail Element. Create peculiar create transaction route.
+- fd74220: Add account balance overview to transaction page.
+- bd580f4: Fix: Updating a transaction description is no longer ignored.
+
 ## 1.0.6
 
 ### Patch Changes
