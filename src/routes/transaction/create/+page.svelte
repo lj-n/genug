@@ -71,6 +71,7 @@
 			class="input"
 			title={currencyInputProps.title}
 			pattern={currencyInputProps.pattern}
+			inputmode="numeric"
 			placeholder="0"
 		/>
 	</label>
