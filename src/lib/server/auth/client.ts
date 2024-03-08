@@ -21,7 +21,10 @@ export function createAuth(client: Database) {
 	return new Lucia(adapter, {
 		sessionCookie: { attributes: { secure: !dev } },
 		sessionExpiresIn: new TimeSpan(30, 'd'),
-		getUserAttributes: (user) => ({ name: user.name })
+		getUserAttributes: (user) => ({
+			name: user.name,
+			isAdmin: Boolean(user.is_admin)
+		})
 	});
 }
 
@@ -65,4 +68,5 @@ declare module 'lucia' {
 
 interface DatabaseUserAttributes {
 	name: string;
+	is_admin: number;
 }

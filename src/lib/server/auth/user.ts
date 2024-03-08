@@ -150,6 +150,14 @@ export function updateUserSettings(
 	return profile;
 }
 
+/**
+ * Sets the avatar for a user in the database.
+ * 
+ * @param database - The database instance.
+ * @param userId - The ID of the user.
+ * @param data - The avatar data, including the image buffer and image type.
+ * @throws Error if the user with the given ID is not found.
+ */
 export function setUserAvatar(
 	database: Database,
 	userId: string,
@@ -170,4 +178,26 @@ export function setUserAvatar(
 		.get();
 
 	if (!avatar) throw new Error(`User with id (${userId}) not found.`);
+}
+
+/**
+ * Sets the password for a user in the database.
+ * @param database - The database instance.
+ * @param userId - The ID of the user.
+ * @param password - The new password for the user.
+ * @throws Error if the user with the given ID is not found.
+ */
+export async function setUserPassword(
+	database: Database,
+	userId: string,
+	password: string
+) {
+	const user = database
+		.update(schema.user)
+		.set({ hashedPassword: await new LegacyScrypt().hash(password) })
+		.where(eq(schema.user.id, userId))
+		.returning()
+		.get();
+
+	if (!user) throw new Error(`User with id (${userId}) not found.`);
 }

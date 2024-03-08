@@ -2,7 +2,7 @@ import Database from 'better-sqlite3';
 import { LegacyScrypt, generateId } from 'lucia';
 
 /**
- * This scripts can be used to create a user from the command line.
+ * This scripts can be used to create an admin user from the command line.
  */
 
 try {
@@ -14,10 +14,19 @@ try {
 	}
 
 	const hasedPassword = await new LegacyScrypt().hash(password);
-	const userId = generateId(15);
-
 	const db = Database('data/genug.db');
 
+	const user = db.prepare('SELECT * FROM user WHERE name = ?').get(username);
+	if (user) {
+		db.prepare(
+			'UPDATE user SET hashed_password = ?, is_admin = ? WHERE name = ?'
+		).run(hasedPassword, 1, username);
+
+		console.log(`Updated user ${username}`);
+		process.exit(0);
+	}
+
+	const userId = generateId(15);
 	const createUser = db.transaction(() => {
 		db.prepare('INSERT INTO user VALUES (?, ?, ?)').run(
 			userId,
@@ -33,14 +42,6 @@ try {
 	console.log(`Created user ${username}`);
 	process.exit(0);
 } catch (e) {
-	if (
-		e instanceof Database.SqliteError &&
-		e.code === 'SQLITE_CONSTRAINT_UNIQUE'
-	) {
-		console.log('Username already in use');
-		process.exit(0);
-	}
-
 	console.log(e);
 	process.exit(1);
 }

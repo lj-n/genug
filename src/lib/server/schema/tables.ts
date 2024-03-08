@@ -18,6 +18,7 @@ export const session = sqliteTable('user_session', {
 export const user = sqliteTable('user', {
 	id: text('id', { length: 15 }).primaryKey(),
 	name: text('name', { length: 255 }).notNull().unique(),
+	isAdmin: integer('is_admin', { mode: 'boolean' }).default(false).notNull(),
 	hashedPassword: text('hashed_password', { length: 255 }).notNull()
 });
 
