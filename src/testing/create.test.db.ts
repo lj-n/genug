@@ -33,10 +33,22 @@ export function useTestDatabase() {
 		.returning()
 		.get();
 
+	/** Create a second test user */
+	const testUser2 = database
+		.insert(schema.user)
+		.values({
+			id: generateId(15),
+			name: 'Test User 2',
+			hashedPassword: '1234567890'
+		})
+		.returning()
+		.get();
+
 	return {
 		database,
 		auth,
 		testUser,
+		testUser2,
 		client
 	} as const;
 }

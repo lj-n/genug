@@ -11,13 +11,18 @@ import {
 	teamCategory,
 	teamTransaction,
 	teamBudget,
-	userSettings
+	userSettings,
+	userAvatar
 } from './tables';
 
 export const userRelations = relations(user, ({ many, one }) => ({
 	profile: one(userSettings, {
 		fields: [user.id],
-		references: [userSettings.id]
+		references: [userSettings.userId]
+	}),
+	avatar: one(userAvatar, {
+		fields: [user.id],
+		references: [userAvatar.userId]
 	}),
 	teams: many(teamMember),
 	accounts: many(userAccount),

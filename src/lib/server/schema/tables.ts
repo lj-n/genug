@@ -56,7 +56,7 @@ export const userAvatar = sqliteTable(
 	},
 	(table) => {
 		return {
-			pk: primaryKey(table.userId)
+			pk: primaryKey({ columns: [table.userId] })
 		};
 	}
 );
@@ -142,7 +142,7 @@ export const userBudget = sqliteTable(
 	},
 	(table) => {
 		return {
-			pk: primaryKey(table.userId, table.categoryId, table.date)
+			pk: primaryKey({ columns: [table.userId, table.categoryId, table.date] })
 		};
 	}
 );
@@ -175,7 +175,7 @@ export const teamMember = sqliteTable(
 	},
 	(table) => {
 		return {
-			pk: primaryKey(table.userId, table.teamId)
+			pk: primaryKey({ columns: [table.userId, table.teamId] })
 		};
 	}
 );
@@ -267,7 +267,7 @@ export const teamBudget = sqliteTable(
 	},
 	(table) => {
 		return {
-			pk: primaryKey(table.teamId, table.categoryId, table.date)
+			pk: primaryKey({ columns: [table.teamId, table.categoryId, table.date] })
 		};
 	}
 );
