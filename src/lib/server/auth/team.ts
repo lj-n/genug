@@ -15,7 +15,7 @@ export function createTeam(
 	database: Database,
 	userId: string,
 	name: string,
-	description: string
+	description?: string
 ) {
 	return database.transaction(() => {
 		const team = database
@@ -220,11 +220,35 @@ export function getTeam(database: Database, teamId: number) {
 							columns: {
 								id: true,
 								name: true
-							},
-							with: {
-								avatar: true
 							}
 						}
+					}
+				}
+			}
+		})
+		.sync();
+}
+
+/**
+ * Retrieves the teams that a user belongs to from the database.
+ *
+ * @param database The database instance.
+ * @param userId The ID of the user.
+ * @returns A promise that resolves to an array of teams.
+ */
+export function getUserTeams(database: Database, userId: string) {
+	return database.query.teamMember
+		.findMany({
+			where: (member, { eq }) => eq(member.userId, userId),
+			columns: {
+				role: true
+			},
+			with: {
+				team: {
+					columns: {
+						id: true,
+						name: true,
+						description: true
 					}
 				}
 			}

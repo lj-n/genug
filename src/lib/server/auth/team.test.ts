@@ -8,6 +8,7 @@ import {
 	deleteTeam,
 	getTeam,
 	getTeamRole,
+	getUserTeams,
 	inviteUserToTeam,
 	removeTeamMember
 } from './team';
@@ -53,6 +54,11 @@ describe('team', () => {
 		expect(team).toBeDefined();
 		expect(team?.id).toBe(teamId);
 		expect(team?.members.length).toBe(1);
+	});
+
+	test('get user teams', () => {
+		const userTeams = getUserTeams(db, userId);
+		expect(userTeams.length).toBe(1);
 	});
 
 	test('invite user to team', () => {

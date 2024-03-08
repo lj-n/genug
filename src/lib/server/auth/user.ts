@@ -152,7 +152,7 @@ export function updateUserSettings(
 
 /**
  * Sets the avatar for a user in the database.
- * 
+ *
  * @param database - The database instance.
  * @param userId - The ID of the user.
  * @param data - The avatar data, including the image buffer and image type.

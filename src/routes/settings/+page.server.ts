@@ -1,13 +1,14 @@
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import {
-	auth,
 	isNameAlreadyInUse,
 	protectRoute,
 	setUserAvatar,
 	updateUserSettings
 } from '$lib/server/auth';
 import { db } from '$lib/server/db';
+import { schema } from '$lib/server/schema';
+import { eq } from 'drizzle-orm';
 
 const IMAGE_TYPES = ['image/gif', 'image/jpeg', 'image/png'];
 
@@ -79,7 +80,12 @@ export const actions = {
 		}
 
 		try {
-			await auth.updateUserAttributes(userId, { name: username });
+			/** TODO: Create update function for this! */
+			db.update(schema.user)
+				.set({ name: username })
+				.where(eq(schema.user.id, userId))
+				.returning()
+				.get();
 		} catch (error) {
 			if (isNameAlreadyInUse(error)) {
 				return fail(403, {

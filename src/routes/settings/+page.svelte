@@ -23,9 +23,9 @@
 
 <div class="flex gap-4 items-center my-8">
 	<div class="avatar w-16">
-		<img src="/avatar" alt="user-avatar" />
+		<img src="/avatar?u={data.user.id}" alt="user-avatar" />
 	</div>
-	<h1>{data.user?.name}</h1>
+	<h1>{data.user.name}</h1>
 </div>
 
 <div
@@ -36,7 +36,7 @@
 	>
 		<h2>Profile Image</h2>
 		<div class="avatar w-2/3">
-			<img src="/avatar" alt="user-avatar" />
+			<img src="/avatar?u={data.user.id}" alt="user-avatar" />
 		</div>
 
 		<details class="peer">
