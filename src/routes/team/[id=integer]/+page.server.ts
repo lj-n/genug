@@ -1,11 +1,13 @@
 import {
+	acceptTeamInvitation,
+	cancelTeamInvitation,
 	getTeam,
 	getTeamRole,
 	inviteUserToTeam,
 	protectRoute
 } from '$lib/server/auth';
 import { db, type Database } from '$lib/server/db';
-import { error, fail } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { schema } from '$lib/server/schema';
 import { and, eq, isNull, like } from 'drizzle-orm';
@@ -38,6 +40,8 @@ export const load: PageServerLoad = protectRoute(({ params, url }, user) => {
 });
 
 export const actions: Actions = {
+	update: protectRoute(async ({ request, params }, user) => {}),
+
 	invite: protectRoute(async ({ request, params }, user) => {
 		const formData = await request.formData();
 		const userId = formData.get('userId')?.toString();
@@ -60,6 +64,24 @@ export const actions: Actions = {
 		} catch (error) {
 			return fail(500, { error: 'Something went wrong, please try again.' });
 		}
+	}),
+
+	accept: protectRoute(async ({ params }, user) => {
+		try {
+			acceptTeamInvitation(db, Number(params.id), user.id);
+			return { success: true };
+		} catch (error) {
+			return fail(500, { error: 'Something went wrong, please try again.' });
+		}
+	}),
+
+	decline: protectRoute(async ({ params }, user) => {
+		try {
+			cancelTeamInvitation(db, Number(params.id), user.id);
+		} catch (error) {
+			return fail(500, { error: 'Something went wrong, please try again.' });
+		}
+		redirect(302, 'teams');
 	})
 };
 

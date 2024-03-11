@@ -28,37 +28,5 @@ export const actions: Actions = {
 		} catch (error) {
 			return fail(500, { error: 'Something went wrong, please try again.' });
 		}
-	}),
-
-	accept: protectRoute(async ({ request }, user) => {
-		const formData = await request.formData();
-		const teamId = formData.get('teamId')?.toString();
-
-		if (!teamId) {
-			return fail(400, { error: 'Team ID is required' });
-		}
-
-		try {
-			acceptTeamInvitation(db, Number(teamId), user.id);
-			return { success: true };
-		} catch (error) {
-			return fail(500, { error: 'Something went wrong, please try again.' });
-		}
-	}),
-
-	decline: protectRoute(async ({ request }, user) => {
-		const formData = await request.formData();
-		const teamId = formData.get('teamId')?.toString();
-
-		if (!teamId) {
-			return fail(400, { error: 'Team ID is required' });
-		}
-
-		try {
-			cancelTeamInvitation(db, Number(teamId), user.id);
-			return { success: true };
-		} catch (error) {
-			return fail(500, { error: 'Something went wrong, please try again.' });
-		}
 	})
 };
