@@ -44,11 +44,42 @@ export function useTestDatabase() {
 		.returning()
 		.get();
 
+	/** Create a test team */
+	const testTeam = database.transaction(() => {
+		const team = database
+			.insert(schema.team)
+			.values({
+				name: 'Test Team',
+				description: 'Test Team Description'
+			})
+			.returning()
+			.get();
+
+		database
+			.insert(schema.teamMember)
+			.values([
+				{
+					teamId: team.id,
+					userId: testUser.id,
+					role: 'OWNER'
+				},
+				{
+					teamId: team.id,
+					userId: testUser2.id,
+					role: 'MEMBER'
+				}
+			])
+			.execute();
+
+		return team;
+	});
+
 	return {
 		database,
 		auth,
 		testUser,
 		testUser2,
+		testTeam,
 		client
 	} as const;
 }

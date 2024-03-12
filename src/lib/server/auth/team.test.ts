@@ -58,7 +58,7 @@ describe('team', () => {
 
 	test('get user teams', () => {
 		const userTeams = getUserTeams(db, userId);
-		expect(userTeams.length).toBe(1);
+		expect(userTeams.length).toBe(2); // test team exists by default
 	});
 
 	test('invite user to team', () => {

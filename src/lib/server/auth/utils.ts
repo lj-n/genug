@@ -7,6 +7,7 @@ import type { schema } from '../schema';
 
 /**
  * Checks if the given error indicates that a name is already in use.
+ *
  * @param e The error object to check.
  * @returns True if the error indicates a name already in use, false otherwise.
  */
@@ -16,6 +17,7 @@ export function isNameAlreadyInUse(e: unknown) {
 
 /**
  * Protects a route by validating the user's session and providing the current user's profile.
+ *
  * @param fn The function to execute if the route is protected.
  * @param redirectTo The URL to redirect to if the user is not authenticated. Default is '/signin'.
  * @returns A promise that resolves to the result of the protected route function.

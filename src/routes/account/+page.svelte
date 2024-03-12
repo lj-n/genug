@@ -57,6 +57,7 @@
 	</div>
 
 	<form
+		action="?/create"
 		method="post"
 		class="mx-auto flex flex-col gap-4 w-full max-w-sm"
 		use:enhance={withLoading(loading)}
@@ -69,7 +70,7 @@
 				type="text"
 				name="name"
 				class="input"
-				value={form?.name || ''}
+				value={form?.data?.name ?? ''}
 				required
 				placeholder="Savings Account"
 			/>
@@ -81,9 +82,23 @@
 				type="text"
 				name="description"
 				class="input"
-				value={form?.description || ''}
+				value={form?.data?.description ?? ''}
 				placeholder="Account at Bank xyz"
 			/>
+		</label>
+
+		<p class="mt-6 text-muted text-sm">
+			Do you want this account to be a team account?
+		</p>
+
+		<label class="input-label text-sm">
+			Team
+			<select name="teamId" class="input text-xs">
+				<option value={null}>No Team</option>
+				{#each data.teams as { team } (team.id)}
+					<option value={team.id}>{team.name}</option>
+				{/each}
+			</select>
 		</label>
 
 		{#if form?.error}
