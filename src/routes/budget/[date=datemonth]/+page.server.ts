@@ -2,11 +2,6 @@ import { protectRoute } from '$lib/server/auth';
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getMonthInFormat, getMonthYear } from '$lib/components/date.utils';
-import {
-	getUnassignedUserBudget,
-	getUserBudgets,
-	setUserBudget
-} from '$lib/server/budget';
 import { db } from '$lib/server/db';
 import { getBudget, getSleepingMoney, setBudget } from '$lib/server/budgets';
 

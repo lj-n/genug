@@ -1,7 +1,6 @@
 import { and, eq, gt, isNull, lte, ne, or, sql } from 'drizzle-orm';
 import type { Database } from './db';
 import { schema } from './schema';
-import { getTeamRole } from './auth';
 import { getCategory } from './categories';
 
 /**

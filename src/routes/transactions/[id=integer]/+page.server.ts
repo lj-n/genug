@@ -57,12 +57,7 @@ export const actions = {
 		}
 
 		try {
-			const transaction = updateTransaction(
-				db,
-				user.id,
-				Number(params.id),
-				parsed.data
-			);
+			updateTransaction(db, user.id, Number(params.id), parsed.data);
 		} catch (error) {
 			if (error instanceof TransactionNotAllowedError) {
 				return fail(403, {

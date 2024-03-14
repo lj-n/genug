@@ -1,5 +1,5 @@
 ---
-"genug": minor
+'genug': minor
 ---
 
 Add Teams Page.

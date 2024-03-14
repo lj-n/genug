@@ -4,8 +4,7 @@ import {
 	text,
 	integer,
 	primaryKey,
-	blob,
-	unique
+	blob
 } from 'drizzle-orm/sqlite-core';
 
 export const session = sqliteTable('user_session', {

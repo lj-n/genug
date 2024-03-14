@@ -19,11 +19,11 @@
 	}).format(new Date(data.account.createdAt));
 
 	const updateLoading = writable(false);
-	const moveTransactionLoading = writable(false);
-	const removeAccountLoading = writable(false);
+	// const moveTransactionLoading = writable(false);
+	// const removeAccountLoading = writable(false);
 
-	let moveTransactionInput = '';
-	let removeAccountInput = '';
+	// let moveTransactionInput = '';
+	// let removeAccountInput = '';
 </script>
 
 <svelte:head>

@@ -80,7 +80,7 @@ export const budgetRelations = relations(budget, ({ one }) => ({
 export const teamRelations = relations(team, ({ many }) => ({
 	members: many(teamMember),
 	accounts: many(account),
-	categories: many(category),
+	categories: many(category)
 }));
 
 export const teamMemberRelations = relations(teamMember, ({ one }) => ({

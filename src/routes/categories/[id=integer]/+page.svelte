@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ActionData, PageData } from './$types';
-	import { onMount } from 'svelte';
-	import { Chart } from 'chart.js/auto';
+	// import { onMount } from 'svelte';
+	// import { Chart } from 'chart.js/auto';
 	import { enhance } from '$app/forms';
 	import Button from '$lib/components/button.svelte';
 	import {
@@ -23,13 +23,13 @@
 
 	let updateLoading = writable(false);
 	let retireLoading = writable(false);
-	let moveTransactionLoading = writable(false);
-	let removeCategoryLoading = writable(false);
-	let moveTransactionInput = '';
-	let removeCategoryInput = '';
+	// let moveTransactionLoading = writable(false);
+	// let removeCategoryLoading = writable(false);
+	// let moveTransactionInput = '';
+	// let removeCategoryInput = '';
 
-	$: moveTransactionReady = moveTransactionInput === data.category.name;
-	$: removeCategoryReady = removeCategoryInput === data.category.name;
+	// $: moveTransactionReady = moveTransactionInput === data.category.name;
+	// $: removeCategoryReady = removeCategoryInput === data.category.name;
 
 	$: canBeRetired = data.budgetSum + data.transactionSum === 0;
 

@@ -1,9 +1,4 @@
-import {
-	acceptTeamInvitation,
-	cancelTeamInvitation,
-	createTeam,
-	protectRoute
-} from '$lib/server/auth';
+import { createTeam, protectRoute } from '$lib/server/auth';
 import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
 import { db } from '$lib/server/db';

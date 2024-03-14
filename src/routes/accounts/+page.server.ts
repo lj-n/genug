@@ -7,7 +7,7 @@ import { zfd } from 'zod-form-data';
 import { getTeamRole } from '$lib/server/auth';
 import { schema } from '$lib/server/schema';
 
-export const load: PageServerLoad = protectRoute(async ({ parent }, user) => {
+export const load: PageServerLoad = protectRoute(async (_, user) => {
 	return {
 		teams: db.query.teamMember
 			.findMany({

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { zfd } from 'zod-form-data';
 import type { Database } from './db';
 import { schema } from './schema';
-import { SQL, and, asc, desc, eq, inArray, is, ne, or } from 'drizzle-orm';
+import { SQL, and, asc, desc, eq, inArray, ne, or } from 'drizzle-orm';
 
 /**
  * The schema for parsing the searchParams on the transactions page.

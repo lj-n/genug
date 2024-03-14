@@ -43,10 +43,10 @@
 	class="max-w-md w-full mx-auto my-4 flex flex-col gap-2 rounded-xl border border-ui-normal p-4"
 	use:enhance={withLoading(loading)}
 >
-<h1 class="my-4 text-2xl font-bold flex items-center gap-4 mx-auto">
-	<Feather name="file-plus" />
-	Create New Transaction
-</h1>
+	<h1 class="my-4 text-2xl font-bold flex items-center gap-4 mx-auto">
+		<Feather name="file-plus" />
+		Create New Transaction
+	</h1>
 
 	<label class="input-label text-sm">
 		Account
@@ -103,11 +103,8 @@
 	<div class="flex justify-between">
 		<a href="/transactions" class="btn">Cancel</a>
 
-		<Button
-			type="submit"
-			class="btn btn-green"
-			icon="plus"
-			loading={$loading}>Create</Button
+		<Button type="submit" class="btn btn-green" icon="plus" loading={$loading}
+			>Create</Button
 		>
 	</div>
 </form>
