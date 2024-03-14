@@ -1,0 +1,4 @@
+TEAM RELEASE TODOS:
+
+- delete + move transaction from account/category within user/team
+- 

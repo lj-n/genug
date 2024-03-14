@@ -234,12 +234,24 @@ export function getTeam(database: Database, teamId: number) {
  *
  * @param database The database instance.
  * @param userId The ID of the user.
+ * @param withInvited Whether to include teams that the user has been invited to.
  * @returns A promise that resolves to an array of teams.
  */
-export function getUserTeams(database: Database, userId: string) {
+export function getTeams(
+	database: Database,
+	userId: string,
+	withInvited = false
+) {
+	const where = withInvited
+		? eq(schema.teamMember.userId, userId)
+		: and(
+				eq(schema.teamMember.userId, userId),
+				ne(schema.teamMember.role, 'INVITED')
+			);
+
 	return database.query.teamMember
 		.findMany({
-			where: (member, { eq }) => eq(member.userId, userId),
+			where,
 			columns: {
 				role: true
 			},

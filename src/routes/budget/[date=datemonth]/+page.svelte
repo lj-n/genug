@@ -40,7 +40,7 @@
 	<div class="flex flex-col items-end">
 		<h2 class="text-muted font-bold">Not Yet Assigned</h2>
 		<span class="font-semibold text-xl tabular-nums">
-			{formatFractionToLocaleCurrency(data.assignable)}
+			{formatFractionToLocaleCurrency(data.sleepingMoney.personal?.sum || 0)}
 		</span>
 	</div>
 </div>
@@ -56,7 +56,7 @@
 	</thead>
 
 	<tbody>
-		{#each data.budgets as budget (budget.category.id)}
+		{#each data.budget as budget (budget.category.id)}
 			<tr>
 				<td class="p-2">
 					<div class="flex flex-col">
@@ -96,7 +96,7 @@
 						href="#target-budget-input-{budget.category.id}"
 						class="py-1 px-4 tabular-nums font-semibold border border-ui-normal rounded hover:(fg) dark:(border-ui-normal-dark)"
 					>
-						{formatFractionToLocaleCurrency(budget.budget)}
+						{formatFractionToLocaleCurrency(budget.budget || 0)}
 					</a>
 				</td>
 
@@ -112,6 +112,6 @@
 	</tbody>
 </table>
 
-{#each data.budgets as budget (budget.category.id)}
+{#each data.budget as budget (budget.category.id)}
 	<BudgetForm {budget} />
 {/each}

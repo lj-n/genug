@@ -2,17 +2,13 @@ import { relations } from 'drizzle-orm';
 import {
 	user,
 	teamMember,
-	userAccount,
-	userCategory,
-	userTransaction,
 	team,
-	userBudget,
-	teamAccount,
-	teamCategory,
-	teamTransaction,
-	teamBudget,
 	userSettings,
-	userAvatar
+	userAvatar,
+	account,
+	category,
+	transaction,
+	budget
 } from './tables';
 
 export const userRelations = relations(user, ({ many, one }) => ({
@@ -25,66 +21,66 @@ export const userRelations = relations(user, ({ many, one }) => ({
 		references: [userAvatar.userId]
 	}),
 	teams: many(teamMember),
-	accounts: many(userAccount),
-	categories: many(userCategory),
-	transactions: many(userTransaction),
-	budgets: many(userBudget)
+	accounts: many(account),
+	categories: many(category),
+	transactions: many(transaction),
+	budgets: many(budget)
 }));
 
-export const userAccountRelations = relations(userAccount, ({ one, many }) => ({
-	user: one(user, {
-		fields: [userAccount.userId],
+export const accountRelations = relations(account, ({ one, many }) => ({
+	creator: one(user, {
+		fields: [account.userId],
 		references: [user.id]
 	}),
-	transactions: many(userTransaction)
+	team: one(team, {
+		fields: [account.teamId],
+		references: [team.id]
+	}),
+	transactions: many(transaction)
 }));
 
-export const userCategoryRelations = relations(
-	userCategory,
-	({ one, many }) => ({
-		user: one(user, {
-			fields: [userCategory.userId],
-			references: [user.id]
-		}),
-		transactions: many(userTransaction)
-	})
-);
-
-export const userTransactionRelations = relations(
-	userTransaction,
-	({ one }) => ({
-		user: one(user, {
-			fields: [userTransaction.userId],
-			references: [user.id]
-		}),
-		category: one(userCategory, {
-			fields: [userTransaction.categoryId],
-			references: [userCategory.id]
-		}),
-		account: one(userAccount, {
-			fields: [userTransaction.accountId],
-			references: [userAccount.id]
-		})
-	})
-);
-
-export const userBudgetRelations = relations(userBudget, ({ one }) => ({
-	user: one(user, {
-		fields: [userBudget.userId],
+export const categoryRelations = relations(category, ({ one, many }) => ({
+	creator: one(user, {
+		fields: [category.userId],
 		references: [user.id]
 	}),
-	category: one(userCategory, {
-		fields: [userBudget.categoryId],
-		references: [userCategory.id]
+	team: one(team, {
+		fields: [category.teamId],
+		references: [team.id]
+	}),
+	transactions: many(transaction)
+}));
+
+export const transactionRelations = relations(transaction, ({ one }) => ({
+	creator: one(user, {
+		fields: [transaction.userId],
+		references: [user.id]
+	}),
+	category: one(category, {
+		fields: [transaction.categoryId],
+		references: [category.id]
+	}),
+	account: one(account, {
+		fields: [transaction.accountId],
+		references: [account.id]
+	})
+}));
+
+export const budgetRelations = relations(budget, ({ one }) => ({
+	creator: one(user, {
+		fields: [budget.userId],
+		references: [user.id]
+	}),
+	category: one(category, {
+		fields: [budget.categoryId],
+		references: [category.id]
 	})
 }));
 
 export const teamRelations = relations(team, ({ many }) => ({
 	members: many(teamMember),
-	accounts: many(teamAccount),
-	categories: many(teamCategory),
-	transactions: many(teamTransaction),
-	budgets: many(teamBudget)
+	accounts: many(account),
+	categories: many(category),
 }));
 
 export const teamMemberRelations = relations(teamMember, ({ one }) => ({
@@ -95,70 +91,5 @@ export const teamMemberRelations = relations(teamMember, ({ one }) => ({
 	team: one(team, {
 		fields: [teamMember.teamId],
 		references: [team.id]
-	})
-}));
-
-export const teamAccountRelations = relations(teamAccount, ({ one, many }) => ({
-	team: one(team, {
-		fields: [teamAccount.teamId],
-		references: [team.id]
-	}),
-	createdBy: one(user, {
-		fields: [teamAccount.createdBy],
-		references: [user.id]
-	}),
-	transactions: many(teamTransaction)
-}));
-
-export const teamCategoryRelations = relations(
-	teamCategory,
-	({ one, many }) => ({
-		team: one(team, {
-			fields: [teamCategory.teamId],
-			references: [team.id]
-		}),
-		createdBy: one(user, {
-			fields: [teamCategory.createdBy],
-			references: [user.id]
-		}),
-		budgets: many(teamBudget),
-		transactions: many(teamTransaction)
-	})
-);
-
-export const teamTransactionRelations = relations(
-	teamTransaction,
-	({ one }) => ({
-		team: one(team, {
-			fields: [teamTransaction.teamId],
-			references: [team.id]
-		}),
-		category: one(teamCategory, {
-			fields: [teamTransaction.categoryId],
-			references: [teamCategory.id]
-		}),
-		account: one(teamAccount, {
-			fields: [teamTransaction.accountId],
-			references: [teamAccount.id]
-		}),
-		createdBy: one(user, {
-			fields: [teamTransaction.createdBy],
-			references: [user.id]
-		})
-	})
-);
-
-export const teamBudgetRelations = relations(teamBudget, ({ one }) => ({
-	team: one(team, {
-		fields: [teamBudget.teamId],
-		references: [team.id]
-	}),
-	category: one(teamCategory, {
-		fields: [teamBudget.categoryId],
-		references: [teamCategory.id]
-	}),
-	setBy: one(user, {
-		fields: [teamBudget.setBy],
-		references: [user.id]
 	})
 }));

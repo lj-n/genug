@@ -3,10 +3,10 @@
 	import Button from '$lib/components/button.svelte';
 	import Feather from '$lib/components/feather.svelte';
 	import { currencyInputProps } from '$lib/components/utils';
-	import type { getUserBudgets } from '$lib/server/budget';
+	import type { getBudget } from '$lib/server/budgets';
 	import { writable } from 'svelte/store';
 
-	export let budget: ReturnType<typeof getUserBudgets>[number];
+	export let budget: ReturnType<typeof getBudget>[number];
 
 	let loading = writable(false);
 </script>

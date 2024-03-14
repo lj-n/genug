@@ -37,13 +37,13 @@
 
 	<a href="/budget" class="link"> Budget </a> |
 
-	<a href="/transaction" class="link"> Transactions </a> |
+	<a href="/transactions" class="link"> Transactions </a> |
 
-	<a href="/category" class="link"> Categories </a> |
+	<a href="/categories" class="link"> Categories </a> |
 
-	<a href="/account" class="link"> Accounts </a> |
+	<a href="/accounts" class="link"> Accounts </a> |
 
-	<a href="/team" class="link"> Teams </a>
+	<a href="/teams" class="link"> Teams </a>
 
 	<div class="avatar ml-auto w-12">
 		<img src="/avatar?u={userId}" alt="user-avatar" />
@@ -90,13 +90,13 @@
 	>
 		<a href="/budget"> Budget </a>
 
-		<a href="/transaction"> Transactions </a>
+		<a href="/transactions"> Transactions </a>
 
-		<a href="/category"> Categories </a>
+		<a href="/categories"> Categories </a>
 
-		<a href="/account"> Accounts </a>
+		<a href="/accounts"> Accounts </a>
 
-		<a href="/team"> Teams </a>
+		<a href="/teams"> Teams </a>
 
 		<a href="/settings"> Settings </a>
 

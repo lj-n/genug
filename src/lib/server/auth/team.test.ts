@@ -8,7 +8,7 @@ import {
 	deleteTeam,
 	getTeam,
 	getTeamRole,
-	getUserTeams,
+	getTeams,
 	inviteUserToTeam,
 	removeTeamMember
 } from './team';
@@ -57,7 +57,7 @@ describe('team', () => {
 	});
 
 	test('get user teams', () => {
-		const userTeams = getUserTeams(db, userId);
+		const userTeams = getTeams(db, userId);
 		expect(userTeams.length).toBe(2); // test team exists by default
 	});
 

@@ -8,8 +8,9 @@ import {
 	setUserBudget
 } from '$lib/server/budget';
 import { db } from '$lib/server/db';
+import { getBudget, getSleepingMoney, setBudget } from '$lib/server/budgets';
 
-export const load: PageServerLoad = protectRoute(({ params }, { userId }) => {
+export const load: PageServerLoad = protectRoute(({ params }, user) => {
 	const currentDate = new Date(params.date);
 	const formattedDate = getMonthYear(currentDate);
 
@@ -20,8 +21,8 @@ export const load: PageServerLoad = protectRoute(({ params }, { userId }) => {
 	const nextMonth = getMonthInFormat(currentDate);
 
 	return {
-		budgets: getUserBudgets(db, userId, params.date),
-		assignable: getUnassignedUserBudget(db, userId),
+		budget: getBudget(db, user.id, params.date),
+		sleepingMoney: getSleepingMoney(db, user.id),
 		previousMonth,
 		nextMonth,
 		formattedDate,
@@ -30,7 +31,7 @@ export const load: PageServerLoad = protectRoute(({ params }, { userId }) => {
 });
 
 export const actions = {
-	default: protectRoute(async ({ params, request }, { userId }) => {
+	default: protectRoute(async ({ params, request }, user) => {
 		const formData = await request.formData();
 		const categoryId = formData.get('categoryId')?.toString();
 		const budget = formData.get('budget')?.toString();
@@ -44,12 +45,13 @@ export const actions = {
 		}
 
 		try {
-			setUserBudget(db, userId, {
+			setBudget(db, user.id, {
 				categoryId: Number(categoryId),
-				amount: parseInt(budget),
+				amount: Number(budget),
 				date: params.date
 			});
-		} catch {
+		} catch (error) {
+			console.log(error);
 			return fail(500, { error: 'Oops, something went wrong.' });
 		}
 

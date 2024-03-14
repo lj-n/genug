@@ -109,12 +109,11 @@ export function deleteUser(database: Database, userId: string): string {
 export function getUserSettings(
 	database: Database,
 	userId: string
-): Omit<typeof schema.userSettings.$inferSelect, 'id'> {
+): Omit<typeof schema.userSettings.$inferSelect, 'id' | 'userId'> {
 	const profile = database
 		.select({
 			theme: schema.userSettings.theme,
-			categoryOrder: schema.userSettings.categoryOrder,
-			userId: schema.userSettings.userId
+			categoryOrder: schema.userSettings.categoryOrder
 		})
 		.from(schema.userSettings)
 		.where(eq(schema.userSettings.userId, userId))

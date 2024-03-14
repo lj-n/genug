@@ -138,18 +138,18 @@ export function getUserCategoryTransactionInfo(
 } {
 	const result = database
 		.select({
-			count: sql<number>`coalesce(count(${schema.userTransaction.flow}), 0)`,
-			sum: sql<number>`coalesce(sum(${schema.userTransaction.flow}), 0)`
+			count: sql<number>`coalesce(count(${schema.transaction.flow}), 0)`,
+			sum: sql<number>`coalesce(sum(${schema.transaction.flow}), 0)`
 		})
-		.from(schema.userCategory)
+		.from(schema.category)
 		.leftJoin(
-			schema.userTransaction,
-			eq(schema.userTransaction.categoryId, schema.userCategory.id)
+			schema.transaction,
+			eq(schema.transaction.categoryId, schema.category.id)
 		)
 		.where(
 			and(
-				eq(schema.userCategory.userId, userId),
-				eq(schema.userCategory.id, categoryId)
+				eq(schema.category.userId, userId),
+				eq(schema.category.id, categoryId)
 			)
 		)
 		.get();

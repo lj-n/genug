@@ -25,7 +25,8 @@ export function isNameAlreadyInUse(e: unknown) {
 export function protectRoute<Event extends RequestEvent, Out>(
 	fn: (
 		event: Event,
-		currentUser: User & Omit<typeof schema.userSettings.$inferSelect, 'id'>
+		currentUser: User &
+			Omit<typeof schema.userSettings.$inferSelect, 'id' | 'userId'>
 	) => Out,
 	{ redirectTo = '/signin' }: { redirectTo?: string } = {}
 ) {
