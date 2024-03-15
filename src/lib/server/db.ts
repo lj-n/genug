@@ -11,5 +11,5 @@ export const sqlite = new SQLiteDatabase('data/genug.db');
 
 export const db: Database = drizzle(sqlite, {
 	schema,
-	logger: false
+	logger: false,
 });

@@ -23,8 +23,8 @@ export const user = sqliteTable('user', {
 });
 
 export const userSettings = sqliteTable('user_settings', {
-	id: integer('id', { mode: 'number' }).primaryKey(),
 	userId: text('user_id', { length: 15 })
+		.primaryKey()
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
 	theme: text('theme', { enum: ['light', 'dark', 'system'] })

@@ -19,22 +19,8 @@
     {
       "idx": 2,
       "version": "5",
-      "when": 1709897402388,
-      "tag": "0002_tricky_killraven",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1710368397815,
-      "tag": "0003_tough_naoko",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1710453339609,
-      "tag": "0004_orange_champions",
+      "when": 1710528328373,
+      "tag": "0002_tan_glorian",
       "breakpoints": true
     }
   ]
