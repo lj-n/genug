@@ -9,18 +9,21 @@ import {
 	getTeamRole,
 	createTeamMember,
 	removeTeamMember,
-	updateTeamMemberRole
+	updateTeamMemberRole,
+	findUsersNotInTeam
 } from './teams';
+import { generateId, type User } from 'lucia';
+import { schema } from './schema';
 
 let db: Database;
-let userId: string;
-let user2Id: string;
+let user: User;
+let user2: User;
 
 beforeEach(() => {
 	const { database, client, testUser, testUser2 } = useTestDatabase();
 	db = database;
-	userId = testUser.id;
-	user2Id = testUser2.id;
+	user = testUser;
+	user2 = testUser2;
 
 	return () => {
 		client.close();
@@ -32,7 +35,7 @@ describe('team', () => {
 		const teamName = 'Test Team';
 		const teamDescription = 'Test Team Description';
 
-		const team = createTeam(db, userId, teamName, teamDescription);
+		const team = createTeam(db, user.id, teamName, teamDescription);
 
 		expect(team.id).toBeDefined();
 		expect(team.name).toBe(teamName);
@@ -43,13 +46,13 @@ describe('team', () => {
 	});
 
 	test('get team role', () => {
-		const team = createTeam(db, userId, 'teamName', 'teamDescription');
-		expect(getTeamRole(db, team.id, userId)).toBe('OWNER');
+		const team = createTeam(db, user.id, 'teamName', 'teamDescription');
+		expect(getTeamRole(db, team.id, user.id)).toBe('OWNER');
 		expect(getTeamRole(db, team.id, 'not-owner')).toBe(null);
 	});
 
 	test('get team', () => {
-		const team = createTeam(db, userId, 'teamName', 'teamDescription');
+		const team = createTeam(db, user.id, 'teamName', 'teamDescription');
 
 		expect(getTeam(db, team.id)).toBeDefined();
 		expect(getTeam(db, team.id)?.id).toBe(team.id);
@@ -57,61 +60,94 @@ describe('team', () => {
 	});
 
 	test('get user teams', () => {
-		createTeam(db, userId, 'teamName', 'teamDescription');
-		const userTeams = getTeams(db, userId);
+		createTeam(db, user.id, 'teamName', 'teamDescription');
+		const userTeams = getTeams(db, user.id);
 		expect(userTeams.length).toBe(1);
 	});
 
 	test('invite user to team', () => {
-		const team = createTeam(db, userId, 'teamName', 'teamDescription');
+		const team = createTeam(db, user.id, 'teamName', 'teamDescription');
 
-		createTeamMember(db, team.id, user2Id, 'INVITED');
-		expect(getTeamRole(db, team.id, user2Id)).toBe('INVITED');
+		createTeamMember(db, team.id, user2.id, 'INVITED');
+		expect(getTeamRole(db, team.id, user2.id)).toBe('INVITED');
 
-		expect(() => createTeamMember(db, team.id, userId, 'INVITED')).toThrow();
+		expect(() => createTeamMember(db, team.id, user.id, 'INVITED')).toThrow();
 		expect(() =>
 			createTeamMember(db, team.id, 'non-existing-user', 'INVITED')
 		).toThrow();
-		expect(() => createTeamMember(db, -1, user2Id, 'INVITED')).toThrow();
+		expect(() => createTeamMember(db, -1, user2.id, 'INVITED')).toThrow();
 	});
 
 	test('accept team invite', () => {
-		const team = createTeam(db, userId, 'teamName', 'teamDescription');
+		const team = createTeam(db, user.id, 'teamName', 'teamDescription');
 
-		createTeamMember(db, team.id, user2Id, 'INVITED');
-		updateTeamMemberRole(db, team.id, user2Id, 'MEMBER');
+		createTeamMember(db, team.id, user2.id, 'INVITED');
+		updateTeamMemberRole(db, team.id, user2.id, 'MEMBER');
 
-		expect(getTeamRole(db, team.id, user2Id)).toBe('MEMBER');
+		expect(getTeamRole(db, team.id, user2.id)).toBe('MEMBER');
 		expect(getTeam(db, team.id)?.members.length).toBe(2);
 	});
 
 	test('remove team member', () => {
-		const team = createTeam(db, userId, 'teamName', 'teamDescription');
+		const team = createTeam(db, user.id, 'teamName', 'teamDescription');
 
-		createTeamMember(db, team.id, user2Id, 'INVITED');
+		createTeamMember(db, team.id, user2.id, 'INVITED');
 
-		expect(() => removeTeamMember(db, team.id, userId)).toThrow();
+		expect(() => removeTeamMember(db, team.id, user.id)).toThrow();
 
-		removeTeamMember(db, team.id, user2Id);
+		removeTeamMember(db, team.id, user2.id);
 
 		expect(getTeam(db, team.id)?.members.length).toBe(1);
-		expect(getTeamRole(db, team.id, user2Id)).toBe(null);
+		expect(getTeamRole(db, team.id, user2.id)).toBe(null);
 	});
 
 	test('cancel team invite', () => {
-		const team = createTeam(db, userId, 'teamName', 'teamDescription');
+		const team = createTeam(db, user.id, 'teamName', 'teamDescription');
 
-		createTeamMember(db, team.id, user2Id, 'INVITED');
-		removeTeamMember(db, team.id, user2Id);
+		createTeamMember(db, team.id, user2.id, 'INVITED');
+		removeTeamMember(db, team.id, user2.id);
 
-		expect(getTeamRole(db, team.id, user2Id)).toBe(null);
+		expect(getTeamRole(db, team.id, user2.id)).toBe(null);
 	});
 
 	test('delete team', () => {
-		const team = createTeam(db, userId, 'teamName', 'teamDescription');
+		const team = createTeam(db, user.id, 'teamName', 'teamDescription');
 
 		deleteTeam(db, team.id);
 		expect(getTeam(db, team.id)).toBeUndefined();
-		expect(getTeamRole(db, team.id, userId)).toBe(null);
+		expect(getTeamRole(db, team.id, user.id)).toBe(null);
+	});
+
+	test('find users not in team', () => {
+		const name1 = 'ABCDEF';
+		const name2 = 'DEFGHI';
+		const owner = db
+			.insert(schema.user)
+			.values([
+				{
+					id: generateId(15),
+					name: name1,
+					hashedPassword: '1234567890'
+				},
+				{
+					id: generateId(15),
+					name: name2,
+					hashedPassword: '1234567890'
+				}
+			])
+			.returning()
+			.get();
+
+		const team = createTeam(db, owner.id, 'teamName', 'teamDescription');
+
+		expect(findUsersNotInTeam(db, team.id, name1).length).toBe(0);
+		expect(findUsersNotInTeam(db, team.id, name2).length).toBe(1);
+		expect(findUsersNotInTeam(db, team.id, 'non-existing-user').length).toBe(0);
+		expect(findUsersNotInTeam(db, team.id, 'FGH')).toMatchObject([
+			{ name: name2 }
+		]);
+		expect(findUsersNotInTeam(db, team.id, 'fgh').length).toBe(1);
+		expect(findUsersNotInTeam(db, team.id, 'GHIX').length).toBe(0);
+		expect(findUsersNotInTeam(db, team.id, '').length).toBe(3); // 2 users from test db
 	});
 });
