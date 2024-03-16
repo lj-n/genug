@@ -1,6 +1,6 @@
 import { and, eq, ne } from 'drizzle-orm';
-import type { Database } from '../db';
-import { schema } from '../schema';
+import type { Database } from './db';
+import { schema } from './schema';
 
 /**
  * Creates a new team in the database.

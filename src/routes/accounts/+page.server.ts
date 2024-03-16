@@ -4,7 +4,7 @@ import { db } from '$lib/server/db';
 import { protectRoute } from '$lib/server/auth/utils';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
-import { getTeamRole } from '$lib/server/auth';
+import { getTeamRole } from '$lib/server/teams';
 import { schema } from '$lib/server/schema';
 
 export const load: PageServerLoad = protectRoute(async (_, user) => {

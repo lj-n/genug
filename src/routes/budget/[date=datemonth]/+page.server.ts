@@ -46,7 +46,6 @@ export const actions = {
 				date: params.date
 			});
 		} catch (error) {
-			console.log(error);
 			return fail(500, { error: 'Oops, something went wrong.' });
 		}
 

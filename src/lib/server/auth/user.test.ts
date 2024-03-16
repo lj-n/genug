@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 
 import type { Database } from '../db';
 import type { Auth } from '.';
@@ -11,10 +11,13 @@ import {
 } from './user';
 import { useTestDatabase } from '$testing/create.test.db';
 
+const username = 'Testinguser';
+const password = 'password';
+
 let db: Database;
 let auth: Auth;
 
-beforeAll(() => {
+beforeEach(() => {
 	const test = useTestDatabase();
 	db = test.database;
 	auth = test.auth;
@@ -24,9 +27,6 @@ beforeAll(() => {
 });
 
 describe('user', () => {
-	const username = 'Testinguser';
-	const password = 'password';
-
 	test('create user', async () => {
 		const { user, session } = await createUser(db, auth, username, password);
 
@@ -40,16 +40,20 @@ describe('user', () => {
 	});
 
 	test('create user session', async () => {
+		await createUser(db, auth, username, password);
+
 		const session = await createUserSession(db, auth, username, password);
+
 		expect(session).toBeDefined();
 
-		await expect(
-			/** Invalid key */
-			() => createUserSession(db, auth, username, 'wrong password')
+		await expect(() =>
+			createUserSession(db, auth, username, 'wrong password')
 		).rejects.toThrowError();
 	});
 
 	test('invalidate user session', async () => {
+		await createUser(db, auth, username, password);
+
 		const session = await createUserSession(db, auth, username, password);
 		await auth.invalidateUserSessions(session.userId);
 
@@ -59,6 +63,8 @@ describe('user', () => {
 	});
 
 	test('get user profile', async () => {
+		await createUser(db, auth, username, password);
+
 		const session = await createUserSession(db, auth, username, password);
 
 		const profile = getUserSettings(db, session.userId);
@@ -71,6 +77,8 @@ describe('user', () => {
 	});
 
 	test('update user profile', async () => {
+		await createUser(db, auth, username, password);
+
 		const session = await createUserSession(db, auth, username, password);
 		const profile = updateUserSettings(db, session.userId, {
 			theme: 'dark'
@@ -83,6 +91,8 @@ describe('user', () => {
 	});
 
 	test('delete user', async () => {
+		await createUser(db, auth, username, password);
+
 		const session = await createUserSession(db, auth, username, password);
 
 		const id = deleteUser(db, session.userId);

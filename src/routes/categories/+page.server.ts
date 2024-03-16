@@ -1,6 +1,7 @@
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
-import { getTeamRole, getTeams, protectRoute } from '$lib/server/auth';
+import { protectRoute } from '$lib/server/auth';
+import { getTeams, getTeamRole } from '$lib/server/teams';
 import { db } from '$lib/server/db';
 import { zfd } from 'zod-form-data';
 import { z } from 'zod';

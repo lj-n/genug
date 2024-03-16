@@ -41,9 +41,9 @@ export function getBudget(database: Database, userId: string, date: string) {
 	const result = database
 		.select({
 			category: schema.category,
-			budget: schema.budget.amount,
+			budget: sql<number>`coalesce(${schema.budget.amount}, 0)`,
 			activity: sql<number>`coalesce(sum(${schema.transaction.flow}), 0)`,
-			rest: sql<number>`${budgetSumSQ.sum} + ${transactionSumSQ.sum}`
+			rest: sql<number>`coalesce(${budgetSumSQ.sum}, 0) + coalesce(${transactionSumSQ.sum}, 0)`
 		})
 		.from(schema.category)
 		.leftJoin(budgetSumSQ, eq(schema.category.id, budgetSumSQ.categoryId))
@@ -87,6 +87,7 @@ export function getBudget(database: Database, userId: string, date: string) {
 	return result;
 }
 
+/** Sets the budget amount for a specific category and month. */
 export function setBudget(
 	database: Database,
 	userId: string,
@@ -95,7 +96,7 @@ export function setBudget(
 	return database.transaction(() => {
 		const userOwnsCategory = getCategory(database, userId, budget.categoryId);
 		if (!userOwnsCategory) {
-			throw new Error('User does not own the category');
+			throw new Error('Category not found.');
 		}
 
 		if (budget.amount === 0) {
@@ -128,27 +129,20 @@ export function setBudget(
 	});
 }
 
-/**
- * Calculates the amount of money that is yet to be budgeted for the teams.
- *
- * @param database The database object.
- * @param userId The user ID.
- * @returns  An array of objects containing team ID, team name, and the amount of sleeping money.
- */
-function aggregateTeamSleepingMoney(database: Database, userId: string) {
-	/** Sums the positive transaction flows for the teams */
-	const positiveTransactionSum = database
+/** Calculates the amount of money that is yet to be budgeted for the teams. */
+function aggregateTeamSleepingMoney(
+	database: Database,
+	userId: string
+): { id: number; name: string; sum: number }[] {
+	/** Sum all transaction that belong to a team account and have not category and group by team. */
+	const transactionSum = database
 		.select({
 			teamId: schema.teamMember.teamId,
 			sum: sql<number>`coalesce(sum(${schema.transaction.flow}), 0)`.as(
-				'positiveTransactionSum,'
+				'transactionSum,'
 			)
 		})
 		.from(schema.transaction)
-		.leftJoin(
-			schema.category,
-			eq(schema.category.id, schema.transaction.categoryId)
-		)
 		.leftJoin(
 			schema.account,
 			eq(schema.account.id, schema.transaction.accountId)
@@ -157,25 +151,20 @@ function aggregateTeamSleepingMoney(database: Database, userId: string) {
 			schema.teamMember,
 			and(
 				eq(schema.teamMember.userId, userId),
-				or(
-					eq(schema.teamMember.teamId, schema.category.teamId),
-					eq(schema.teamMember.teamId, schema.account.teamId)
-				)
+				eq(schema.teamMember.teamId, schema.account.teamId)
 			)
 		)
 		.where(
 			and(
 				eq(schema.teamMember.userId, userId),
 				ne(schema.teamMember.role, 'INVITED'),
-				or(
-					gt(schema.transaction.flow, 0),
-					isNull(schema.transaction.categoryId)
-				)
+				isNull(schema.transaction.categoryId)
 			)
 		)
-		.as('positiveTransactionSum');
+		.groupBy(schema.teamMember.teamId)
+		.as('transactionSum');
 
-	/** Sums the budget amounts for the teams */
+	/** Sum all assigned budgets that belong to a team category and group by team. */
 	const budgetSum = database
 		.select({
 			teamId: schema.teamMember.teamId,
@@ -195,24 +184,22 @@ function aggregateTeamSleepingMoney(database: Database, userId: string) {
 				ne(schema.teamMember.role, 'INVITED')
 			)
 		)
+		.groupBy(schema.teamMember.teamId)
 		.as('budgetSum');
 
-	/** Calculates the amount of money that is yet to be budgeted for the teams */
-	const sleepingMoney = database
+	/** Calculates the amount of money the teams have not yet assigned to a budget. */
+	const unAssigned = database
 		.select({
 			id: schema.team.id,
 			name: schema.team.name,
-			sum: sql<number>`coalesce(${positiveTransactionSum.sum} - ${budgetSum.sum}, 0)`.as(
-				'sleepingMoney'
+			sum: sql<number>`coalesce(${transactionSum.sum}, 0) - coalesce(${budgetSum.sum}, 0)`.as(
+				'unAssigned'
 			)
 		})
 		.from(schema.team)
 		.leftJoin(schema.teamMember, eq(schema.teamMember.teamId, schema.team.id))
 		.leftJoin(budgetSum, eq(budgetSum.teamId, schema.team.id))
-		.leftJoin(
-			positiveTransactionSum,
-			eq(positiveTransactionSum.teamId, schema.team.id)
-		)
+		.leftJoin(transactionSum, eq(transactionSum.teamId, schema.team.id))
 		.where(
 			and(
 				eq(schema.teamMember.userId, userId),
@@ -222,23 +209,20 @@ function aggregateTeamSleepingMoney(database: Database, userId: string) {
 		.groupBy(schema.team.id)
 		.all();
 
-	return sleepingMoney;
+	return unAssigned;
 }
 
-/**
- * Calculates the amount of money that is yet to be budgeted for a user.
- *
- * @param database The database object.
- * @param userId The ID of the user.
- * @returns The amount of money that is yet to be budgeted.
- */
-function aggregateUserSleepingMoney(database: Database, userId: string) {
-	/** Sums the positive transaction flows for the user */
-	const positiveTransactionSum = database
+/** Calculates the amount of money that is yet to be budgeted for a user. */
+function aggregateUserSleepingMoney(
+	database: Database,
+	userId: string
+): number {
+	/** Sum all transaction that belong to a user account and have not category. */
+	const transactionSum = database
 		.select({
 			userId: schema.transaction.userId,
 			sum: sql<number>`coalesce(sum(${schema.transaction.flow}), 0)`.as(
-				'positiveTransactionSum'
+				'transactionSum'
 			)
 		})
 		.from(schema.transaction)
@@ -264,16 +248,13 @@ function aggregateUserSleepingMoney(database: Database, userId: string) {
 			and(
 				eq(schema.transaction.userId, userId),
 				isNull(schema.teamMember.userId),
-				or(
-					gt(schema.transaction.flow, 0),
-					isNull(schema.transaction.categoryId)
-				)
+				isNull(schema.transaction.categoryId)
 			)
 		)
 		.groupBy(schema.transaction.userId)
-		.as('positiveTransactionSum');
+		.as('transactionSum');
 
-	/** Sums the budget amounts for the user */
+	/** Sum all assigned budgets that belong to a user category. */
 	const budgetSum = database
 		.select({
 			sum: sql<number>`coalesce(sum(${schema.budget.amount}), 0)`.as(
@@ -287,25 +268,23 @@ function aggregateUserSleepingMoney(database: Database, userId: string) {
 		)
 		.as('budgetSum');
 
-	/** Calculates the amount of money that is yet to be budgeted for the user */
-	const sleepingMoney = database
+	/** Calculates the amount of money the user has not yet assigned to a budget. */
+	const unAssigned = database
 		.select({
-			sum: sql<number>`${positiveTransactionSum.sum} - ${budgetSum.sum}`.as(
+			sum: sql<number>`coalesce(${transactionSum.sum}, 0) - coalesce(${budgetSum.sum}, 0)`.as(
 				'sleepingMoney'
 			)
 		})
 		.from(budgetSum)
-		.leftJoin(positiveTransactionSum, eq(positiveTransactionSum.userId, userId))
+		.leftJoin(transactionSum, eq(transactionSum.userId, userId))
 		.get();
-	return sleepingMoney;
+
+	return unAssigned?.sum || 0;
 }
 
 /**
  * Gets the amounts of money that is yet to be budgeted.
  * One for the user and one pro team.
- *
- * @param database The database object.
- * @param userId The ID of the user.
  */
 export function getSleepingMoney(database: Database, userId: string) {
 	return {

@@ -1,8 +1,9 @@
-import { createTeam, protectRoute } from '$lib/server/auth';
+import { protectRoute } from '$lib/server/auth';
 import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
 import { db } from '$lib/server/db';
 import type { PageServerLoad } from '../$types';
+import { createTeam } from '$lib/server/teams';
 
 export const load: PageServerLoad = protectRoute(() => {});
 

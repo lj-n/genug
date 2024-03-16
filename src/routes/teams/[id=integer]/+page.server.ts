@@ -1,11 +1,11 @@
+import { protectRoute } from '$lib/server/auth';
 import {
 	acceptTeamInvitation,
 	cancelTeamInvitation,
 	getTeam,
 	getTeamRole,
-	inviteUserToTeam,
-	protectRoute
-} from '$lib/server/auth';
+	inviteUserToTeam
+} from '$lib/server/teams';
 import { db, type Database } from '$lib/server/db';
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';

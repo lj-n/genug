@@ -1,7 +1,7 @@
 import { and, eq, ne, or, sql } from 'drizzle-orm';
 import type { Database } from './db';
 import { schema } from './schema';
-import { getTeamRole } from './auth';
+import { getTeamRole } from './teams';
 
 /**
  * Retrieves the accounts with their balances for a given user.
