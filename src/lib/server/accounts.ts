@@ -3,13 +3,7 @@ import type { Database } from './db';
 import { schema } from './schema';
 import { getTeamRole } from './teams';
 
-/**
- * Retrieves the accounts with their balances for a given user.
- *
- * @param database The database instance.
- * @param userId The ID of the user.
- * @returns An array of accounts with their details.
- */
+/** Retrieves the accounts with their balances for a given user. */
 export function getAccountsWithBalance(
 	database: Database,
 	userId: string
@@ -68,13 +62,6 @@ export function getAccountsWithBalance(
 }
 
 /**
- * Updates an account in the database.
- *
- * @param database The database instance.
- * @param userId The ID of the user performing the update.
- * @param accountId The ID of the account to update.
- * @param update The partial account object containing the fields to update.
- * @returns The updated account.
  * @throws Error if the account is not found or if the user is not the owner of the team the account belongs to.
  */
 export function updateAccount(
@@ -108,7 +95,14 @@ export function updateAccount(
 	});
 }
 
-export function getAccounts(database: Database, userId: string) {
+export function getAccounts(
+	database: Database,
+	userId: string
+): Array<
+	Omit<typeof schema.account.$inferSelect, 'userId' | 'teamId'> & {
+		team: typeof schema.team.$inferSelect | null;
+	}
+> {
 	return database
 		.select({
 			id: schema.account.id,
@@ -135,15 +129,7 @@ export function getAccounts(database: Database, userId: string) {
 		.all();
 }
 
-/**
- * Retrieves an account from the database based on the provided userId and accountId.
- *
- * @param database The database instance.
- * @param userId The user ID.
- * @param accountId The account ID.
- * @returns The selected account or `null` if no account was found.
- */
-export function getAccount(
+function getAccount(
 	database: Database,
 	userId: string,
 	accountId: number

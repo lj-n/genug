@@ -4,6 +4,8 @@ import type { Actions, PageServerLoad } from './$types';
 import { getMonthInFormat, getMonthYear } from '$lib/components/date.utils';
 import { db } from '$lib/server/db';
 import { getBudget, getSleepingMoney, setBudget } from '$lib/server/budgets';
+import { zfd } from 'zod-form-data';
+import { z } from 'zod';
 
 export const load: PageServerLoad = protectRoute(({ params }, user) => {
 	const currentDate = new Date(params.date);
@@ -28,27 +30,26 @@ export const load: PageServerLoad = protectRoute(({ params }, user) => {
 export const actions = {
 	default: protectRoute(async ({ params, request }, user) => {
 		const formData = await request.formData();
-		const categoryId = formData.get('categoryId')?.toString();
-		const budget = formData.get('budget')?.toString();
 
-		if (!categoryId || !budget) {
-			return fail(400, {
-				categoryId,
-				budget,
-				error: 'Category id or budget value missing.'
-			});
+		const schema = zfd.formData({
+			categoryId: zfd.numeric(z.number().int().positive()),
+			budget: zfd.numeric(z.number().int().nonnegative())
+		});
+
+		const parsed = schema.safeParse(formData);
+
+		if (!parsed.success) {
+			return fail(400, { error: 'Invalid input.' });
 		}
 
 		try {
 			setBudget(db, user.id, {
-				categoryId: Number(categoryId),
-				amount: Number(budget),
+				categoryId: parsed.data.categoryId,
+				amount: parsed.data.budget,
 				date: params.date
 			});
 		} catch (error) {
 			return fail(500, { error: 'Oops, something went wrong.' });
 		}
-
-		return { success: true };
 	})
 } satisfies Actions;

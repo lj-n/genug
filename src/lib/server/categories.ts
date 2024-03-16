@@ -130,40 +130,20 @@ export function getCategories(
 }
 
 export function getCategoryDetails(database: Database, categoryId: number) {
-	const transactionSQ = database
-		.select({
-			id: schema.transaction.categoryId,
-			count: sql<number>`coalesce(count(${schema.transaction.id}), 0)`.as(
-				'transactionCount'
-			),
-			sum: sql<number>`coalesce(sum(${schema.transaction.flow}), 0)`.as(
-				'transactionSum'
-			)
-		})
-		.from(schema.transaction)
-		.groupBy(schema.transaction.categoryId)
-		.as('transactionSQ');
-
-	const budgetSQ = database
-		.select({
-			id: schema.budget.categoryId,
-			sum: sql<number>`coalesce(sum(${schema.budget.amount}), 0)`.as(
-				'budgetSum'
-			)
-		})
-		.from(schema.budget)
-		.groupBy(schema.budget.categoryId)
-		.as('budgetSQ');
-
 	const result = database
 		.select({
-			transactionCount: transactionSQ.count,
-			transactionSum: transactionSQ.sum,
-			budgetSum: budgetSQ.sum
+			transactionCount: sql<number>`coalesce(count(${schema.transaction.id}), 0)`,
+			transactionSum: sql<number>`coalesce(sum(${schema.transaction.flow}), 0)`,
+			budgetSum: sql<number>`coalesce(sum(distinct ${schema.budget.amount}), 0)`
 		})
-		.from(transactionSQ)
-		.leftJoin(budgetSQ, eq(budgetSQ.id, categoryId))
-		.where(eq(transactionSQ.id, categoryId))
+		.from(schema.category)
+		.leftJoin(
+			schema.transaction,
+			eq(schema.transaction.categoryId, schema.category.id)
+		)
+		.leftJoin(schema.budget, eq(schema.budget.categoryId, schema.category.id))
+		.groupBy(schema.category.id)
+		.where(eq(schema.category.id, categoryId))
 		.get();
 
 	return result || { transactionCount: 0, transactionSum: 0, budgetSum: 0 };

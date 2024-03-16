@@ -38,9 +38,9 @@
 	</div>
 
 	<div class="flex flex-col items-end">
-		<h2 class="text-muted font-bold">Not Yet Assigned</h2>
+		<h2 class="text-muted font-bold">To Be Assigned</h2>
 		<span class="font-semibold text-xl tabular-nums">
-			{formatFractionToLocaleCurrency(data.sleepingMoney.personal?.sum || 0)}
+			{formatFractionToLocaleCurrency(data.sleepingMoney.personal)}
 		</span>
 	</div>
 </div>
