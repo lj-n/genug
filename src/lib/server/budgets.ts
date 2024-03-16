@@ -1,7 +1,7 @@
 import { and, eq, isNull, lte, ne, or, sql } from 'drizzle-orm';
 import type { Database } from './db';
 import { schema } from './schema';
-import { getCategory } from './categories';
+import { getCategory, sortCategories } from './categories';
 
 /**
  * Retrieves the budget for every category for a specific user and month.
@@ -40,7 +40,9 @@ export function getBudget(database: Database, userId: string, date: string) {
 
 	const result = database
 		.select({
-			category: schema.category,
+			id: schema.category.id,
+			name: schema.category.name,
+			goal: schema.category.goal,
 			budget: sql<number>`coalesce(${schema.budget.amount}, 0)`,
 			activity: sql<number>`coalesce(sum(${schema.transaction.flow}), 0)`,
 			rest: sql<number>`coalesce(${budgetSumSQ.sum}, 0) + coalesce(${transactionSumSQ.sum}, 0)`
@@ -84,7 +86,7 @@ export function getBudget(database: Database, userId: string, date: string) {
 		.groupBy(schema.category.id)
 		.all();
 
-	return result;
+	return sortCategories(database, userId, result);
 }
 
 /** Sets the budget amount for a specific category and month. */

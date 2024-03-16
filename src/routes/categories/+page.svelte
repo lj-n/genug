@@ -8,10 +8,15 @@
 	import { withLoading } from '$lib/components/utils';
 	import { writable } from 'svelte/store';
 
+	import CategoryCard from './category.card.svelte';
+
 	export let data: PageData;
 	export let form: ActionData;
 
 	const loading = writable(false);
+
+	$: activeCategories = data.categories.filter((category) => !category.retired);
+	$: retiredCategories = data.categories.filter((category) => category.retired);
 </script>
 
 <svelte:head>
@@ -22,23 +27,41 @@
 	<div class="grow">
 		<h1 class="font-bold text-2xl">Categories</h1>
 		<div class="flex flex-col gap-1 mt-8">
-			{#each data.categories as category (category.id)}
-				<div
-					animate:flip
-					transition:scale
-					class="p-2 flex flex-col border-ui-normal border rounded-xl bg hover:border-ui-hover dark:(border-ui-normal-dark hover:border-ui-hover-dark)"
-				>
-					<span>{category.name}</span>
-					<span class="text-muted text-sm">{category.description || ''}</span>
-					<a
-						href="/categories/{category.id}"
-						class="btn btn-sm ml-auto text-xs text-muted hover:text-normal"
-					>
-						<Feather name="corner-right-up" />
-						Details
-					</a>
+			{#each activeCategories as category, i (category.id)}
+				<div animate:flip={{ duration: 150 }} transition:scale>
+					<CategoryCard
+						index={i}
+						currentOrder={activeCategories.map((c) => c.id)}
+						{category}
+					/>
 				</div>
 			{/each}
+
+			{#if retiredCategories.length}
+				<details class="group mt-8">
+					<summary
+						class="list-none flex gap-2 cursor-pointer select-none items-center"
+					>
+						<Feather
+							name="chevron-down"
+							class="hidden group-open:block text-lg text-orange"
+						/>
+						<Feather
+							name="chevron-right"
+							class="block group-open:hidden text-lg"
+						/>
+						<h2 class="font-semibold text-muted text-lg">Retired Categories</h2>
+					</summary>
+
+					<div class="flex flex-col gap-1 mt-4">
+						{#each retiredCategories as category (category.id)}
+							<div animate:flip={{ duration: 150 }} transition:scale>
+								<CategoryCard {category} />
+							</div>
+						{/each}
+					</div>
+				</details>
+			{/if}
 		</div>
 	</div>
 
