@@ -2,15 +2,14 @@ import { beforeEach, describe, expect, test } from 'vitest';
 import type { Database } from './db';
 import { useTestDatabase } from '$testing/create.test.db';
 import {
-	acceptTeamInvitation,
-	cancelTeamInvitation,
 	createTeam,
 	deleteTeam,
 	getTeam,
-	getTeamRole,
 	getTeams,
-	inviteUserToTeam,
-	removeTeamMember
+	getTeamRole,
+	createTeamMember,
+	removeTeamMember,
+	updateTeamMemberRole
 } from './teams';
 
 let db: Database;
@@ -66,29 +65,30 @@ describe('team', () => {
 	test('invite user to team', () => {
 		const team = createTeam(db, userId, 'teamName', 'teamDescription');
 
-		inviteUserToTeam(db, team.id, user2Id);
+		createTeamMember(db, team.id, user2Id, 'INVITED');
 		expect(getTeamRole(db, team.id, user2Id)).toBe('INVITED');
 
-		expect(() => inviteUserToTeam(db, team.id, userId)).toThrow();
-		expect(() => inviteUserToTeam(db, team.id, 'non-existing-user')).toThrow();
-		expect(() => inviteUserToTeam(db, -1, user2Id)).toThrow();
+		expect(() => createTeamMember(db, team.id, userId, 'INVITED')).toThrow();
+		expect(() =>
+			createTeamMember(db, team.id, 'non-existing-user', 'INVITED')
+		).toThrow();
+		expect(() => createTeamMember(db, -1, user2Id, 'INVITED')).toThrow();
 	});
 
 	test('accept team invite', () => {
 		const team = createTeam(db, userId, 'teamName', 'teamDescription');
 
-		inviteUserToTeam(db, team.id, user2Id);
-		acceptTeamInvitation(db, team.id, user2Id);
+		createTeamMember(db, team.id, user2Id, 'INVITED');
+		updateTeamMemberRole(db, team.id, user2Id, 'MEMBER');
 
 		expect(getTeamRole(db, team.id, user2Id)).toBe('MEMBER');
 		expect(getTeam(db, team.id)?.members.length).toBe(2);
-		expect(() => acceptTeamInvitation(db, team.id, userId)).toThrow();
 	});
 
 	test('remove team member', () => {
 		const team = createTeam(db, userId, 'teamName', 'teamDescription');
 
-		inviteUserToTeam(db, team.id, user2Id);
+		createTeamMember(db, team.id, user2Id, 'INVITED');
 
 		expect(() => removeTeamMember(db, team.id, userId)).toThrow();
 
@@ -101,8 +101,8 @@ describe('team', () => {
 	test('cancel team invite', () => {
 		const team = createTeam(db, userId, 'teamName', 'teamDescription');
 
-		inviteUserToTeam(db, team.id, user2Id);
-		cancelTeamInvitation(db, team.id, user2Id);
+		createTeamMember(db, team.id, user2Id, 'INVITED');
+		removeTeamMember(db, team.id, user2Id);
 
 		expect(getTeamRole(db, team.id, user2Id)).toBe(null);
 	});

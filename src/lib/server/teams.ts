@@ -1,22 +1,13 @@
-import { and, eq, ne } from 'drizzle-orm';
+import { and, eq, isNull, like, ne } from 'drizzle-orm';
 import type { Database } from './db';
 import { schema } from './schema';
 
-/**
- * Creates a new team in the database.
- *
- * @param database The database instance.
- * @param userId The ID of the user creating the team.
- * @param name The name of the team.
- * @param description The description of the team.
- * @returns The created team object.
- */
 export function createTeam(
 	database: Database,
 	userId: string,
 	name: string,
 	description?: string
-) {
+): typeof schema.team.$inferSelect {
 	return database.transaction(() => {
 		const team = database
 			.insert(schema.team)
@@ -43,17 +34,13 @@ export function createTeam(
 
 /**
  * Retrieves the role of a team member in a given team.
- *
- * @param database - The database instance.
- * @param teamId - The ID of the team.
- * @param userId - The ID of the user.
- * @returns The role of the team member, or null if the team member does not exist.
+ * @returns The role of the user in the team or null if the user is not a member of the team.
  */
 export function getTeamRole(
 	database: Database,
 	teamId: number,
 	userId: string
-) {
+): typeof schema.teamMember.$inferSelect.role | null {
 	const teamMember = database
 		.select()
 		.from(schema.teamMember)
@@ -70,17 +57,13 @@ export function getTeamRole(
 
 /**
  * Removes a team member from the database.
- *
- * @param database The database instance.
- * @param teamId The ID of the team.
- * @param userId The ID of the user to be removed.
- * @throws Error If the member is an owner or not found in the team.
+ * @throws If the user is the owner of the team or not found.
  */
 export function removeTeamMember(
 	database: Database,
 	teamId: number,
 	userId: string
-) {
+): void {
 	const member = database
 		.delete(schema.teamMember)
 		.where(
@@ -99,95 +82,56 @@ export function removeTeamMember(
 }
 
 /**
- * Invites a user to a team.
- *
- * @param database The database object.
- * @param teamId The ID of the team.
- * @param userId The ID of the user to be invited.
- * @returns A promise that resolves to the inserted team member.
+ * Creates a team member.
+ * @throws If the user is already a member of the team or the user/team does not exist.
  */
-export function inviteUserToTeam(
+export function createTeamMember(
 	database: Database,
 	teamId: number,
-	userId: string
-) {
+	userId: string,
+	role: typeof schema.teamMember.$inferInsert.role
+): typeof schema.teamMember.$inferSelect {
 	return database
 		.insert(schema.teamMember)
-		.values({ teamId, userId, role: 'INVITED' })
+		.values({ teamId, userId, role })
 		.returning()
 		.get();
 }
 
 /**
- * Accepts a team invitation for a user.
- *
- * @param database The database instance.
- * @param teamId The ID of the team.
- * @param userId The ID of the user.
- * @throws Throws an error if the member is not found or not invited to the team.
+ * Sets the role of a team member in a given team.
+ * @throws If the user is not a team member.
  */
-export function acceptTeamInvitation(
+export function updateTeamMemberRole(
 	database: Database,
 	teamId: number,
-	userId: string
-) {
+	userId: string,
+	role: typeof schema.teamMember.$inferInsert.role
+): void {
 	const member = database
 		.update(schema.teamMember)
-		.set({ role: 'MEMBER' })
+		.set({ role })
 		.where(
 			and(
 				eq(schema.teamMember.teamId, teamId),
 				eq(schema.teamMember.userId, userId),
-				eq(schema.teamMember.role, 'INVITED')
+				ne(schema.teamMember.role, role)
 			)
 		)
 		.returning()
 		.get();
 
 	if (!member) {
-		throw new Error(`Member not invited to team(${teamId}).`);
-	}
-}
-
-/**
- * Cancels a team invitation for a user.
- *
- * @param database The database instance.
- * @param teamId The ID of the team.
- * @param userId The ID of the user.
- * @throws Throws an error if the member is not found or not invited to the team.
- */
-export function cancelTeamInvitation(
-	database: Database,
-	teamId: number,
-	userId: string
-) {
-	const member = database
-		.delete(schema.teamMember)
-		.where(
-			and(
-				eq(schema.teamMember.teamId, teamId),
-				eq(schema.teamMember.userId, userId),
-				eq(schema.teamMember.role, 'INVITED')
-			)
-		)
-		.returning()
-		.get();
-
-	if (!member) {
-		throw new Error(`Member not invited to team(${teamId}).`);
+		throw new Error(`Member not found in team(${teamId}).`);
 	}
 }
 
 /**
  * Deletes a team from the database.
  * ATTENTION: This action is irreversible and also deletes all team specific data.
- *
- * @param database The database instance.
- * @param teamId The ID of the team to delete.
- * @throws Throws an error if the team is not found.
+ * @throws If the team is not found.
  */
-export function deleteTeam(database: Database, teamId: number) {
+export function deleteTeam(database: Database, teamId: number): void {
 	const team = database
 		.delete(schema.team)
 		.where(eq(schema.team.id, teamId))
@@ -199,49 +143,40 @@ export function deleteTeam(database: Database, teamId: number) {
 	}
 }
 
-/**
- * Retrieves a team from the database based on the team ID.
- *
- * @param database The database instance.
- * @param teamId The ID of the team to retrieve.
- * @returns The team object, also includes member data.
- */
-export function getTeam(database: Database, teamId: number) {
+/** Retrieves a team and its members. */
+export function getTeam(
+	database: Database,
+	teamId: number
+):
+	| (typeof schema.team.$inferSelect & {
+			members: {
+				role: typeof schema.teamMember.$inferSelect.role;
+				user: Pick<typeof schema.user.$inferSelect, 'id' | 'name'>;
+			}[];
+	  })
+	| undefined {
 	return database.query.team
 		.findFirst({
 			where: (team, { eq }) => eq(team.id, teamId),
 			with: {
 				members: {
-					columns: {
-						role: true
-					},
-					with: {
-						user: {
-							columns: {
-								id: true,
-								name: true
-							}
-						}
-					}
+					columns: { role: true },
+					with: { user: { columns: { id: true, name: true } } }
 				}
 			}
 		})
 		.sync();
 }
 
-/**
- * Retrieves the teams that a user belongs to from the database.
- *
- * @param database The database instance.
- * @param userId The ID of the user.
- * @param withInvited Whether to include teams that the user has been invited to.
- * @returns A promise that resolves to an array of teams.
- */
+/** Retrieves the teams that a user belongs to from the database. */
 export function getTeams(
 	database: Database,
 	userId: string,
 	withInvited = false
-) {
+): {
+	role: typeof schema.teamMember.$inferSelect.role;
+	team: typeof schema.team.$inferSelect;
+}[] {
 	const where = withInvited
 		? eq(schema.teamMember.userId, userId)
 		: and(
@@ -252,18 +187,28 @@ export function getTeams(
 	return database.query.teamMember
 		.findMany({
 			where,
-			columns: {
-				role: true
-			},
-			with: {
-				team: {
-					columns: {
-						id: true,
-						name: true,
-						description: true
-					}
-				}
-			}
+			columns: { role: true },
+			with: { team: true }
 		})
 		.sync();
+}
+
+/** Looks up users by name, that are not team member in the given team. */
+export function findUsersNotInTeam(
+	database: Database,
+	teamId: number,
+	query: string
+): Pick<typeof schema.user.$inferSelect, 'id' | 'name'>[] {
+	const sq = database
+		.select()
+		.from(schema.teamMember)
+		.where(eq(schema.teamMember.teamId, teamId))
+		.as('sq');
+
+	return database
+		.select({ id: schema.user.id, name: schema.user.name })
+		.from(schema.user)
+		.leftJoin(sq, eq(schema.user.id, sq.userId))
+		.where(and(like(schema.user.name, `%${query}%`), isNull(sq.userId)))
+		.all();
 }

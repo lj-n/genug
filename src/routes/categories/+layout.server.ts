@@ -5,6 +5,6 @@ import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = protectRoute((_, user) => {
 	return {
-		categories: getCategories(db, user.id)
+		categories: getCategories(db, user.id, true)
 	};
 });

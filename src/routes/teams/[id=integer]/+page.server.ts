@@ -1,10 +1,11 @@
 import { protectRoute } from '$lib/server/auth';
 import {
-	acceptTeamInvitation,
-	cancelTeamInvitation,
+	updateTeamMemberRole,
+	removeTeamMember,
 	getTeam,
 	getTeamRole,
-	inviteUserToTeam
+	createTeamMember,
+	findUsersNotInTeam
 } from '$lib/server/teams';
 import { db, type Database } from '$lib/server/db';
 import { error, fail, redirect } from '@sveltejs/kit';
@@ -28,7 +29,7 @@ export const load: PageServerLoad = protectRoute(({ params, url }, user) => {
 	const searchQuery = url.searchParams.get('query');
 
 	if (searchQuery) {
-		const searchResult = searchUsersNotInTeam(
+		const searchResult = findUsersNotInTeam(
 			db,
 			Number(params.id),
 			searchQuery
@@ -80,7 +81,7 @@ export const actions: Actions = {
 		}
 
 		try {
-			inviteUserToTeam(db, teamId, userId);
+			createTeamMember(db, teamId, userId, 'INVITED');
 			return { success: true };
 		} catch (error) {
 			return fail(500, { error: 'Something went wrong, please try again.' });
@@ -89,7 +90,7 @@ export const actions: Actions = {
 
 	accept: protectRoute(async ({ params }, user) => {
 		try {
-			acceptTeamInvitation(db, Number(params.id), user.id);
+			updateTeamMemberRole(db, Number(params.id), user.id, 'MEMBER');
 			return { success: true };
 		} catch (error) {
 			return fail(500, { error: 'Something went wrong, please try again.' });
@@ -98,7 +99,7 @@ export const actions: Actions = {
 
 	decline: protectRoute(async ({ params }, user) => {
 		try {
-			cancelTeamInvitation(db, Number(params.id), user.id);
+			removeTeamMember(db, Number(params.id), user.id);
 		} catch (error) {
 			return fail(500, { error: 'Something went wrong, please try again.' });
 		}
@@ -106,21 +107,4 @@ export const actions: Actions = {
 	})
 };
 
-function searchUsersNotInTeam(
-	database: Database,
-	teamId: number,
-	query: string
-) {
-	const sq = database
-		.select()
-		.from(schema.teamMember)
-		.where(eq(schema.teamMember.teamId, teamId))
-		.as('sq');
 
-	return database
-		.select({ id: schema.user.id, name: schema.user.name })
-		.from(schema.user)
-		.leftJoin(sq, eq(schema.user.id, sq.userId))
-		.where(and(like(schema.user.name, `%${query}%`), isNull(sq.userId)))
-		.all();
-}
