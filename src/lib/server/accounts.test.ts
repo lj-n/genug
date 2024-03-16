@@ -30,7 +30,7 @@ describe('accounts', () => {
 			.returning()
 			.get();
 
-		const [team, team2] = [
+		const [team] = [
 			createTeam(db, user.id, 'Test Team'),
 			createTeam(db, user.id, 'Test Team 2')
 		];

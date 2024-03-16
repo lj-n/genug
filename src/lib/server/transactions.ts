@@ -4,9 +4,7 @@ import type { Database } from './db';
 import { schema } from './schema';
 import { SQL, and, asc, desc, eq, inArray, ne, or } from 'drizzle-orm';
 
-/**
- * The schema for parsing the searchParams on the transactions page.
- */
+/** The schema for parsing the searchParams on the transactions page. */
 export const transactionFilterSchema = zfd.formData({
 	limit: zfd.numeric(
 		z.number().int().positive().optional().default(30).catch(30)
@@ -26,9 +24,7 @@ export const transactionFilterSchema = zfd.formData({
 		.catch([])
 });
 
-/**
- * Get transactions for a user. Filtered by parsed searchParams.
- */
+/** Get transactions for a user. Filtered by parsed searchParams. */
 export function getTransactions(
 	database: Database,
 	userId: string,
@@ -155,6 +151,11 @@ export function getTransaction(
 		.get();
 }
 
+export class TransactionNotAllowedError extends Error {}
+
+/**
+ * @throws {TransactionNotAllowedError} If category and account do not belong to the same team (or user).
+ */
 export function updateTransaction(
 	database: Database,
 	userId: string,
@@ -181,10 +182,9 @@ export function updateTransaction(
 	});
 }
 
-export class TransactionNotAllowedError extends Error {}
-
 /**
  * Checks if category and account belong to the same team (or user).
+ * @throws {TransactionNotAllowedError} If category and account do not belong to the same team (or user).
  */
 export function checkIfTransactionIsAllowed(
 	database: Database,

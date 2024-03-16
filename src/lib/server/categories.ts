@@ -66,6 +66,7 @@ export function updateCategory(
 	});
 }
 
+/** Sorts the categories based on the users preferences. */
 export function sortCategories<Category extends { id: number }>(
 	database: Database,
 	userId: string,
@@ -91,7 +92,11 @@ export function getCategories(
 	database: Database,
 	userId: string,
 	withRetired = false
-) {
+): Array<
+	Omit<typeof schema.category.$inferSelect, 'userId' | 'teamId'> & {
+		team: typeof schema.team.$inferSelect | null;
+	}
+> {
 	const filter = [
 		or(
 			eq(schema.category.userId, userId),
@@ -129,7 +134,14 @@ export function getCategories(
 	return sortCategories(database, userId, categories);
 }
 
-export function getCategoryDetails(database: Database, categoryId: number) {
+export function getCategoryDetails(
+	database: Database,
+	categoryId: number
+): {
+	transactionCount: number;
+	transactionSum: number;
+	budgetSum: number;
+} {
 	const result = database
 		.select({
 			transactionCount: sql<number>`coalesce(count(${schema.transaction.id}), 0)`,

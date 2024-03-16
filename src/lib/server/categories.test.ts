@@ -27,11 +27,11 @@ beforeEach(() => {
 
 describe('categories', () => {
 	test('get categories', () => {
-		const [team, team2, foreignTeam] = [
-			createTeam(db, user.id, 'Test Team'),
-			createTeam(db, user.id, 'Test Team 2'),
+		const [foreignTeam, team] = [
 			// foreign team (user should not have access to this team)
-			createTeam(db, user2.id, 'Foreign Test Team')
+			createTeam(db, user2.id, 'Foreign Test Team'),
+			createTeam(db, user.id, 'Test Team'),
+			createTeam(db, user.id, 'Test Team 2')
 		];
 
 		// invite user2 to team
@@ -130,7 +130,7 @@ describe('categories', () => {
 		setBudget(db, user.id, {
 			categoryId: category.id,
 			amount: 1000,
-			date: new Date().toISOString().slice(0, 7)
+			date: new Date().toISOString().substring(0, 7)
 		});
 
 		const details = getCategoryDetails(db, category.id);

@@ -7,11 +7,11 @@ import {
 	createTeamMember,
 	findUsersNotInTeam
 } from '$lib/server/teams';
-import { db, type Database } from '$lib/server/db';
+import { db } from '$lib/server/db';
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { schema } from '$lib/server/schema';
-import { and, eq, isNull, like } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
 export const load: PageServerLoad = protectRoute(({ params, url }, user) => {
 	const role = getTeamRole(db, Number(params.id), user.id);
@@ -29,11 +29,7 @@ export const load: PageServerLoad = protectRoute(({ params, url }, user) => {
 	const searchQuery = url.searchParams.get('query');
 
 	if (searchQuery) {
-		const searchResult = findUsersNotInTeam(
-			db,
-			Number(params.id),
-			searchQuery
-		);
+		const searchResult = findUsersNotInTeam(db, Number(params.id), searchQuery);
 		return { team, role, searchResult, query: searchQuery };
 	}
 
@@ -106,5 +102,3 @@ export const actions: Actions = {
 		redirect(302, '/teams');
 	})
 };
-
-
