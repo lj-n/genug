@@ -38,9 +38,9 @@
 	</div>
 
 	<div class="flex flex-col items-end">
-		<h2 class="text-muted font-bold">Not Yet Assigned</h2>
+		<h2 class="text-muted font-bold">To Be Assigned</h2>
 		<span class="font-semibold text-xl tabular-nums">
-			{formatFractionToLocaleCurrency(data.assignable)}
+			{formatFractionToLocaleCurrency(data.sleepingMoney.personal)}
 		</span>
 	</div>
 </div>
@@ -56,15 +56,15 @@
 	</thead>
 
 	<tbody>
-		{#each data.budgets as budget (budget.category.id)}
+		{#each data.budget as budget (budget.id)}
 			<tr>
 				<td class="p-2">
 					<div class="flex flex-col">
-						<span>{budget.category.name}</span>
+						<span>{budget.name}</span>
 
-						{#if budget.category.goal}
+						{#if budget.goal}
 							{@const goalPercentage = Math.min(
-								getPercentage(budget.rest, budget.category.goal),
+								getPercentage(budget.rest, budget.goal),
 								100
 							)}
 							<div
@@ -84,7 +84,7 @@
 								<Feather name="award" />
 
 								<span class="tabular-nums font-semibold">
-									Goal: {formatFractionToLocaleCurrency(budget.category.goal)}
+									Goal: {formatFractionToLocaleCurrency(budget.goal)}
 								</span>
 							</div>
 						{/if}
@@ -93,10 +93,10 @@
 
 				<td class="text-right p-2">
 					<a
-						href="#target-budget-input-{budget.category.id}"
+						href="#target-budget-input-{budget.id}"
 						class="py-1 px-4 tabular-nums font-semibold border border-ui-normal rounded hover:(fg) dark:(border-ui-normal-dark)"
 					>
-						{formatFractionToLocaleCurrency(budget.budget)}
+						{formatFractionToLocaleCurrency(budget.budget || 0)}
 					</a>
 				</td>
 
@@ -112,6 +112,6 @@
 	</tbody>
 </table>
 
-{#each data.budgets as budget (budget.category.id)}
+{#each data.budget as budget (budget.id)}
 	<BudgetForm {budget} />
 {/each}

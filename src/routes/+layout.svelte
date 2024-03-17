@@ -10,7 +10,7 @@
 </script>
 
 {#if data.user}
-	<Navigation />
+	<Navigation userId={data.user.id} />
 {/if}
 
 <slot />

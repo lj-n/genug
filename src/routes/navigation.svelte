@@ -2,6 +2,8 @@
 	import Feather from '$lib/components/feather.svelte';
 	import { onMount } from 'svelte';
 
+	export let userId: string;
+
 	let mobileNavigation: HTMLElement;
 
 	onMount(() => {
@@ -27,7 +29,7 @@
 
 <nav
 	aria-label="Desktop-Navigation"
-	class="hidden md:flex gap-2 items-center backdrop-blur-md bg-base-white/80 py-2 sticky top-0 z-30 border-b border-ui-normal dark:(bg-base-black/80 border-ui-normal-dark)"
+	class="hidden md:(flex mb-8) gap-2 items-center backdrop-blur-md bg-base-white/80 py-2 sticky top-0 z-30 border-b border-ui-normal dark:(bg-base-black/80 border-ui-normal-dark)"
 >
 	<a href="/" class="mr-auto">
 		<img src="/logo.svg" alt="genug logo" width={100} />
@@ -35,14 +37,16 @@
 
 	<a href="/budget" class="link"> Budget </a> |
 
-	<a href="/transaction" class="link"> Transactions </a> |
+	<a href="/transactions" class="link"> Transactions </a> |
 
-	<a href="/category" class="link"> Categories </a> |
+	<a href="/categories" class="link"> Categories </a> |
 
-	<a href="/account" class="link"> Accounts </a>
+	<a href="/accounts" class="link"> Accounts </a> |
+
+	<a href="/teams" class="link"> Teams </a>
 
 	<div class="avatar ml-auto w-12">
-		<img src="/avatar" alt="user-avatar" />
+		<img src="/avatar?u={userId}" alt="user-avatar" />
 	</div>
 
 	<a href="/settings" title="User Settings" class="btn btn-sm">
@@ -86,11 +90,13 @@
 	>
 		<a href="/budget"> Budget </a>
 
-		<a href="/transaction"> Transactions </a>
+		<a href="/transactions"> Transactions </a>
 
-		<a href="/category"> Categories </a>
+		<a href="/categories"> Categories </a>
 
-		<a href="/account"> Accounts </a>
+		<a href="/accounts"> Accounts </a>
+
+		<a href="/teams"> Teams </a>
 
 		<a href="/settings"> Settings </a>
 

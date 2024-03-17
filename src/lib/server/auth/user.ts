@@ -109,13 +109,9 @@ export function deleteUser(database: Database, userId: string): string {
 export function getUserSettings(
 	database: Database,
 	userId: string
-): Omit<typeof schema.userSettings.$inferSelect, 'id'> {
+): typeof schema.userSettings.$inferSelect {
 	const profile = database
-		.select({
-			theme: schema.userSettings.theme,
-			categoryOrder: schema.userSettings.categoryOrder,
-			userId: schema.userSettings.userId
-		})
+		.select()
 		.from(schema.userSettings)
 		.where(eq(schema.userSettings.userId, userId))
 		.get();
@@ -152,7 +148,7 @@ export function updateUserSettings(
 
 /**
  * Sets the avatar for a user in the database.
- * 
+ *
  * @param database - The database instance.
  * @param userId - The ID of the user.
  * @param data - The avatar data, including the image buffer and image type.

@@ -7,8 +7,8 @@ import { schema } from '$lib/server/schema';
 import { createAuth } from '$lib/server/auth';
 
 /**
- * Creates and initializes a test database for unit testing.
- * @returns An object containing the database, authentication client, test user, and a close function.
+ * Creates and initializes database for testing purposes.
+ * @returns An object containing the database, authentication client, users and a close function.
  */
 export function useTestDatabase() {
 	/** Create a temporary database in memory */
@@ -33,10 +33,22 @@ export function useTestDatabase() {
 		.returning()
 		.get();
 
+	/** Create a second test user */
+	const testUser2 = database
+		.insert(schema.user)
+		.values({
+			id: generateId(15),
+			name: 'Test User 2',
+			hashedPassword: '1234567890'
+		})
+		.returning()
+		.get();
+
 	return {
 		database,
 		auth,
 		testUser,
+		testUser2,
 		client
 	} as const;
 }

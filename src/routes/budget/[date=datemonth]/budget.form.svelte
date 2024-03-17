@@ -3,16 +3,16 @@
 	import Button from '$lib/components/button.svelte';
 	import Feather from '$lib/components/feather.svelte';
 	import { currencyInputProps } from '$lib/components/utils';
-	import type { getUserBudgets } from '$lib/server/budget';
+	import type { getBudget } from '$lib/server/budgets';
 	import { writable } from 'svelte/store';
 
-	export let budget: ReturnType<typeof getUserBudgets>[number];
+	export let budget: ReturnType<typeof getBudget>[number];
 
 	let loading = writable(false);
 </script>
 
 <div
-	id="target-budget-input-{budget.category.id}"
+	id="target-budget-input-{budget.id}"
 	class="group pointer-events-none opacity-0 fixed inset-0 flex bg-base-black/20 dark:bg-base-white/10 z-40 transition-opacity target:(opacity-100 pointer-events-auto)"
 >
 	<form
@@ -35,10 +35,10 @@
 
 		<div class="flex flex-col">
 			<span class="muted">Category:</span>
-			<h2 class="font-semibold text-lg">{budget.category.name}</h2>
+			<h2 class="font-semibold text-lg">{budget.name}</h2>
 		</div>
 
-		<input type="hidden" name="categoryId" value={budget.category.id} />
+		<input type="hidden" name="categoryId" value={budget.id} />
 
 		<label class="input-label">
 			<span> New Budget </span>
