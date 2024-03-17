@@ -1,5 +1,13 @@
 # genug
 
+## 1.1.0
+
+### Minor Changes
+
+- 4b66770: Add admin flag + admin panel in app.
+- bd3e8e7: Adds the feature to create teams and collaborate on budgets, categories, accounts and transactions.
+- a52e747: Add Teams Page.
+
 ## 1.0.7
 
 ### Patch Changes
