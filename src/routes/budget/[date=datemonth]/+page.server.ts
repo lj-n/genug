@@ -1,29 +1,32 @@
 import { protectRoute } from '$lib/server/auth';
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { getMonthInFormat, getMonthYear } from '$lib/components/date.utils';
 import { db } from '$lib/server/db';
 import { getBudget, getSleepingMoney, setBudget } from '$lib/server/budgets';
 import { zfd } from 'zod-form-data';
 import { z } from 'zod';
+import {
+	formatDateToYearMonthString,
+	getPreviousAndLastMonth
+} from '$lib/components/date.utils';
 
 export const load: PageServerLoad = protectRoute(({ params }, user) => {
-	const currentDate = new Date(params.date);
-	const formattedDate = getMonthYear(currentDate);
+	const localDate = new Intl.DateTimeFormat('en-US', {
+		month: 'short',
+		year: 'numeric'
+	}).format(new Date(params.date));
 
-	currentDate.setMonth(currentDate.getMonth() - 1);
-	const previousMonth = getMonthInFormat(currentDate);
-
-	currentDate.setMonth(currentDate.getMonth() + 2);
-	const nextMonth = getMonthInFormat(currentDate);
+	const [previousMonth, nextMonth] = getPreviousAndLastMonth(
+		new Date(params.date)
+	);
 
 	return {
 		budget: getBudget(db, user.id, params.date),
 		sleepingMoney: getSleepingMoney(db, user.id),
+		localDate,
 		previousMonth,
 		nextMonth,
-		formattedDate,
-		date: params.date
+		isCurrentMonth: params.date === formatDateToYearMonthString(new Date())
 	};
 });
 

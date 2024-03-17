@@ -105,7 +105,6 @@ export const actions = {
 			(category.teamId !== null || newCategory.teamId !== null) &&
 			category.teamId !== newCategory.teamId
 		) {
-			console.log('category.teamId');
 			return fail(401, {
 				moveTransactionError: 'New category must belong to the same team'
 			});

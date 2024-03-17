@@ -9,7 +9,6 @@ import { schema } from '$lib/server/schema';
 import { eq } from 'drizzle-orm';
 
 export const load: PageServerLoad = protectRoute(async (_, user) => {
-	console.log('CAT ROUTE')
 	return { teams: getTeams(db, user.id) };
 });
 

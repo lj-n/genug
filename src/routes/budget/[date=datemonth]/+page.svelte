@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { getMonthYear } from '$lib/components/date.utils';
 	import Feather from '$lib/components/feather.svelte';
 	import BudgetForm from './budget.form.svelte';
 	import {
@@ -11,22 +10,22 @@
 </script>
 
 <svelte:head>
-	<title>Budget | {data.formattedDate}</title>
+	<title>Budget | {data.localDate}</title>
 </svelte:head>
 
-<div class="flex my-8 justify-between">
+<div class="flex justify-between">
 	<div class="flex flex-col gap-4">
-		<h1 class="text-2xl font-bold">Budget {data.formattedDate}</h1>
+		<h1 class="text-2xl font-bold">Budget {data.localDate}</h1>
 		<div class="flex gap-2">
 			<a
 				href="/budget/{data.previousMonth}"
 				class="btn btn-blue btn-sm font-mono"
 			>
 				<Feather name="chevrons-left" />
-				Prev
+				Previous
 			</a>
 
-			{#if data.formattedDate !== getMonthYear(new Date())}
+			{#if !data.isCurrentMonth}
 				<a href="/budget" class="btn btn-ghost btn-sm">today</a>
 			{/if}
 
@@ -37,15 +36,34 @@
 		</div>
 	</div>
 
-	<div class="flex flex-col items-end">
-		<h2 class="text-muted font-bold">To Be Assigned</h2>
-		<span class="font-semibold text-xl tabular-nums">
-			{formatFractionToLocaleCurrency(data.sleepingMoney.personal)}
-		</span>
+	<div class="flex flex-col gap-2 items-end">
+		<h2 class="text-blue font-bold">Sleeping Money</h2>
+
+		<div class="flex flex-col items-end">
+			<span class="text-muted text-sm">Personal</span>
+			<span
+				class="font-semibold text tabular-nums"
+				class:text-red={data.sleepingMoney.personal < 0}
+			>
+				{formatFractionToLocaleCurrency(data.sleepingMoney.personal)}
+			</span>
+		</div>
+
+		{#each data.sleepingMoney.teams as team (team.id)}
+			<div class="flex flex-col items-end">
+				<span class="text-muted text-sm">{team.name}</span>
+				<span
+					class="font-semibold text tabular-nums"
+					class:text-red={team.sum < 0}
+				>
+					{formatFractionToLocaleCurrency(team.sum)}
+				</span>
+			</div>
+		{/each}
 	</div>
 </div>
 
-<table class="table table-fixed border-collapse">
+<table class="table table-fixed border-collapse border-t border-ui-normal mt-4">
 	<thead>
 		<tr class="text-muted">
 			<th scope="col" class="text-left px-2 py-4">Category Name</th>
@@ -104,7 +122,10 @@
 					{formatFractionToLocaleCurrency(budget.activity)}
 				</td>
 
-				<td class="text-right tabular-nums font-semibold p-2">
+				<td
+					class="text-right tabular-nums font-semibold p-2"
+					class:text-red={budget.rest < 0}
+				>
 					{formatFractionToLocaleCurrency(budget.rest)}
 				</td>
 			</tr>

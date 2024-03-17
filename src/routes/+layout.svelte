@@ -13,4 +13,6 @@
 	<Navigation userId={data.user.id} />
 {/if}
 
-<slot />
+<div class="py-8 flex flex-col">
+	<slot />
+</div>

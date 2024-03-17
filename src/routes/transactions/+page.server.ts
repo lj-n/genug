@@ -46,7 +46,6 @@ export const actions = {
 			.safeParse(formData);
 
 		if (!parsed.success) {
-			console.log(parsed.error);
 			return fail(400, {
 				data: Object.fromEntries(formData),
 				error: 'Invalid Params'

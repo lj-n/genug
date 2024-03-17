@@ -12,8 +12,19 @@ export function getMonthYear(date: Date, locale = 'en-US'): string {
 /**
  * @returns string in `YYYY-MM` format
  */
-export function getMonthInFormat(date: Date): string {
-	return date.toISOString().substring(0, 7);
+export function formatDateToYearMonthString(date: Date): string {
+	return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/**
+ * Returns the previous and last month as formatted YYYY-MM strings.
+ */
+export function getPreviousAndLastMonth(date: Date): [string, string] {
+	date.setMonth(date.getMonth() - 1);
+	const previous = formatDateToYearMonthString(date);
+	date.setMonth(date.getMonth() + 2);
+	const last = formatDateToYearMonthString(date);
+	return [previous, last];
 }
 
 /**
@@ -30,7 +41,7 @@ export function getPreviousMonthsWithNames(
 	for (let i = 0; i < n; i++) {
 		months.push({
 			name: getMonthName(date),
-			date: getMonthInFormat(date)
+			date: formatDateToYearMonthString(date)
 		});
 		date.setMonth(date.getMonth() - 1);
 	}
