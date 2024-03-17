@@ -11,7 +11,7 @@ import {
 	updateCategory
 } from './categories';
 import { setBudget } from './budgets';
-import { getMonthInFormat } from '$lib/components/date.utils';
+import { formatDateToYearMonthString } from '$lib/components/date.utils';
 
 let db: Database;
 let user: User;
@@ -71,6 +71,9 @@ describe('categories', () => {
 		expect(getCategory(db, user.id, category.id)).toEqual(category);
 		expect(getCategory(db, user.id, category2.id)).toEqual(category2);
 		expect(getCategory(db, user2.id, category.id)).toBeNull();
+
+		expect(getCategories(db, user.id)).toHaveLength(3);
+		expect(getCategories(db, user2.id)).toHaveLength(2);
 
 		expect(getCategories(db, user.id)).toMatchObject([
 			{
@@ -252,13 +255,13 @@ describe('categories', () => {
 		setBudget(db, user.id, {
 			categoryId: category.id,
 			amount: 5000,
-			date: getMonthInFormat(lastMonth)
+			date: formatDateToYearMonthString(lastMonth)
 		});
 
 		setBudget(db, user.id, {
 			categoryId: category.id,
 			amount: 5000,
-			date: getMonthInFormat(new Date())
+			date: formatDateToYearMonthString(new Date())
 		});
 
 		const details = getCategoryDetails(db, category.id);

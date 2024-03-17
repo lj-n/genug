@@ -29,7 +29,7 @@
 
 <nav
 	aria-label="Desktop-Navigation"
-	class="hidden md:(flex mb-8) gap-2 items-center backdrop-blur-md bg-base-white/80 py-2 sticky top-0 z-30 border-b border-ui-normal dark:(bg-base-black/80 border-ui-normal-dark)"
+	class="hidden md:flex gap-2 items-center backdrop-blur-md bg-base-white/80 py-2 sticky top-0 z-30 border-b border-ui-normal dark:(bg-base-black/80 border-ui-normal-dark)"
 >
 	<a href="/" class="mr-auto">
 		<img src="/logo.svg" alt="genug logo" width={100} />

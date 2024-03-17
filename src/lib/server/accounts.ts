@@ -126,6 +126,7 @@ export function getAccounts(
 				)
 			)
 		)
+		.groupBy(schema.account.id)
 		.all();
 }
 

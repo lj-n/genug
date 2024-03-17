@@ -34,7 +34,13 @@ export const actions = {
 
 		const parsed = zfd
 			.formData({
-				validated: zfd.text(z.boolean()),
+				validated: zfd.text(
+					z
+						.string()
+						.toLowerCase()
+						.transform((x) => x === 'true')
+						.pipe(z.boolean())
+				),
 				id: zfd.numeric(z.number().int().positive())
 			})
 			.safeParse(formData);

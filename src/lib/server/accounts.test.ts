@@ -4,7 +4,7 @@ import type { Database } from './db';
 import type { User } from 'lucia';
 import { schema } from './schema';
 import { createTeam } from './teams';
-import { getAccountsWithBalance } from './accounts';
+import { getAccounts, getAccountsWithBalance } from './accounts';
 
 let db: Database;
 let user: User;
@@ -193,6 +193,11 @@ describe('accounts', () => {
 			.all();
 
 		const accounts = getAccountsWithBalance(db, user.id);
+
+		expect(accounts).toHaveLength(3);
+		expect(getAccountsWithBalance(db, user2.id)).toHaveLength(1);
+		expect(getAccounts(db, user.id)).toHaveLength(3);
+		expect(getAccounts(db, user2.id)).toHaveLength(1);
 
 		expect(accounts).toMatchObject([
 			{

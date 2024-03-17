@@ -6,7 +6,7 @@ import {
 	createDummyDataWithTeams
 } from '$testing/budget.dummy.data';
 import { getBudget, getSleepingMoney, setBudget } from './budgets';
-import { getMonthInFormat } from '$lib/components/date.utils';
+import { formatDateToYearMonthString } from '$lib/components/date.utils';
 
 let db: Database;
 let userId: string;
@@ -36,10 +36,18 @@ describe('budgets', () => {
 		const budgetPrevious = getBudget(
 			db,
 			userId,
-			getMonthInFormat(previousMonth)
+			formatDateToYearMonthString(previousMonth)
 		);
-		const budgetCurrent = getBudget(db, userId, getMonthInFormat(currentDate));
-		const budgetNext = getBudget(db, userId, getMonthInFormat(nextMonth));
+		const budgetCurrent = getBudget(
+			db,
+			userId,
+			formatDateToYearMonthString(currentDate)
+		);
+		const budgetNext = getBudget(
+			db,
+			userId,
+			formatDateToYearMonthString(nextMonth)
+		);
 		const sleepingMoney = getSleepingMoney(db, userId);
 
 		expect(budgetPrevious).toMatchObject([
@@ -89,44 +97,52 @@ describe('budgets', () => {
 
 		setBudget(db, userId, {
 			categoryId: category1.id,
-			date: getMonthInFormat(previousMonth),
+			date: formatDateToYearMonthString(previousMonth),
 			amount: 900
 		});
 		setBudget(db, userId, {
 			categoryId: category2.id,
-			date: getMonthInFormat(previousMonth),
+			date: formatDateToYearMonthString(previousMonth),
 			amount: 3000
 		});
 
 		setBudget(db, userId, {
 			categoryId: category1.id,
-			date: getMonthInFormat(currentDate),
+			date: formatDateToYearMonthString(currentDate),
 			amount: 0
 		});
 		setBudget(db, userId, {
 			categoryId: category2.id,
-			date: getMonthInFormat(currentDate),
+			date: formatDateToYearMonthString(currentDate),
 			amount: 450
 		});
 
 		setBudget(db, userId, {
 			categoryId: category1.id,
-			date: getMonthInFormat(nextMonth),
+			date: formatDateToYearMonthString(nextMonth),
 			amount: -200
 		});
 		setBudget(db, userId, {
 			categoryId: category2.id,
-			date: getMonthInFormat(nextMonth),
+			date: formatDateToYearMonthString(nextMonth),
 			amount: 4500
 		});
 
 		const budgetPrevious = getBudget(
 			db,
 			userId,
-			getMonthInFormat(previousMonth)
+			formatDateToYearMonthString(previousMonth)
 		);
-		const budgetCurrent = getBudget(db, userId, getMonthInFormat(currentDate));
-		const budgetNext = getBudget(db, userId, getMonthInFormat(nextMonth));
+		const budgetCurrent = getBudget(
+			db,
+			userId,
+			formatDateToYearMonthString(currentDate)
+		);
+		const budgetNext = getBudget(
+			db,
+			userId,
+			formatDateToYearMonthString(nextMonth)
+		);
 		const sleepingMoney = getSleepingMoney(db, userId);
 
 		expect(budgetPrevious).toMatchObject([
@@ -182,10 +198,18 @@ describe('budgets', () => {
 		const budgetPrevious = getBudget(
 			db,
 			userId,
-			getMonthInFormat(previousMonth)
+			formatDateToYearMonthString(previousMonth)
 		);
-		const budgetCurrent = getBudget(db, userId, getMonthInFormat(currentDate));
-		const budgetNext = getBudget(db, userId, getMonthInFormat(nextMonth));
+		const budgetCurrent = getBudget(
+			db,
+			userId,
+			formatDateToYearMonthString(currentDate)
+		);
+		const budgetNext = getBudget(
+			db,
+			userId,
+			formatDateToYearMonthString(nextMonth)
+		);
 		const sleepingMoney = getSleepingMoney(db, userId);
 
 		expect(budgetPrevious).toMatchObject([
@@ -285,78 +309,86 @@ describe('budgets', () => {
 		/** User Category Budgets */
 		setBudget(db, userId, {
 			categoryId: category1.id,
-			date: getMonthInFormat(previousMonth),
+			date: formatDateToYearMonthString(previousMonth),
 			amount: 900
 		});
 		setBudget(db, userId, {
 			categoryId: category2.id,
-			date: getMonthInFormat(previousMonth),
+			date: formatDateToYearMonthString(previousMonth),
 			amount: 3000
 		});
 
 		setBudget(db, userId, {
 			categoryId: category1.id,
-			date: getMonthInFormat(currentDate),
+			date: formatDateToYearMonthString(currentDate),
 			amount: 0
 		});
 		setBudget(db, userId, {
 			categoryId: category2.id,
-			date: getMonthInFormat(currentDate),
+			date: formatDateToYearMonthString(currentDate),
 			amount: 450
 		});
 
 		setBudget(db, userId, {
 			categoryId: category1.id,
-			date: getMonthInFormat(nextMonth),
+			date: formatDateToYearMonthString(nextMonth),
 			amount: -200
 		});
 		setBudget(db, userId, {
 			categoryId: category2.id,
-			date: getMonthInFormat(nextMonth),
+			date: formatDateToYearMonthString(nextMonth),
 			amount: 4500
 		});
 
 		/** Team Category Budgets */
 		setBudget(db, userId, {
 			categoryId: teamCategory1.id,
-			date: getMonthInFormat(previousMonth),
+			date: formatDateToYearMonthString(previousMonth),
 			amount: 1000
 		});
 		setBudget(db, userId, {
 			categoryId: teamCategory2.id,
-			date: getMonthInFormat(previousMonth),
+			date: formatDateToYearMonthString(previousMonth),
 			amount: 0
 		});
 
 		setBudget(db, userId, {
 			categoryId: teamCategory1.id,
-			date: getMonthInFormat(currentDate),
+			date: formatDateToYearMonthString(currentDate),
 			amount: 1000
 		});
 		setBudget(db, userId, {
 			categoryId: teamCategory2.id,
-			date: getMonthInFormat(currentDate),
+			date: formatDateToYearMonthString(currentDate),
 			amount: 5000
 		});
 
 		setBudget(db, userId, {
 			categoryId: teamCategory1.id,
-			date: getMonthInFormat(nextMonth),
+			date: formatDateToYearMonthString(nextMonth),
 			amount: 900
 		});
 		setBudget(db, userId, {
 			categoryId: teamCategory2.id,
-			date: getMonthInFormat(nextMonth),
+			date: formatDateToYearMonthString(nextMonth),
 			amount: -200
 		});
 
 		const budgetPrevious = getBudget(
 			db,
 			userId,
-			getMonthInFormat(previousMonth)
+			formatDateToYearMonthString(previousMonth)
 		);
-		const budgetCurrent = getBudget(db, userId, getMonthInFormat(currentDate));
-		const budgetNext = getBudget(db, userId, getMonthInFormat(nextMonth));
+		const budgetCurrent = getBudget(
+			db,
+			userId,
+			formatDateToYearMonthString(currentDate)
+		);
+		const budgetNext = getBudget(
+			db,
+			userId,
+			formatDateToYearMonthString(nextMonth)
+		);
 		const sleepingMoney = getSleepingMoney(db, userId);
 
 		expect(budgetPrevious).toMatchObject([
@@ -460,7 +492,7 @@ describe('budgets', () => {
 		expect(() =>
 			setBudget(db, userId, {
 				categoryId: teamCategory3.id,
-				date: getMonthInFormat(previousMonth),
+				date: formatDateToYearMonthString(previousMonth),
 				amount: 900
 			})
 		).toThrowError('Category not found.');
