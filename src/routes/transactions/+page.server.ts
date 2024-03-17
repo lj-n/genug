@@ -24,7 +24,7 @@ export const load: PageServerLoad = protectRoute(({ url }, user) => {
 		transactions: getTransactions(db, user.id, filter),
 		accounts: getAccountsWithBalance(db, user.id),
 		categories: getCategories(db, user.id),
-		teams: getTeams(db, user.id),
+		teams: getTeams(db, user.id)
 	};
 });
 

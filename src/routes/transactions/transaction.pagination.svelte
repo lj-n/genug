@@ -23,7 +23,11 @@
 
 {#key $page.url}
 	<div class="flex my-4 gap-2 items-center ml-auto">
-		<a href={getPrevPageHref()} class="btn btn-ghost btn-sm" data-sveltekit-keepfocus>
+		<a
+			href={getPrevPageHref()}
+			class="btn btn-ghost btn-sm"
+			data-sveltekit-keepfocus
+		>
 			<Feather name="arrow-left" />
 		</a>
 
@@ -31,7 +35,11 @@
 			Page: {currentPage}
 		</span>
 
-		<a href={getNextPageHref()} class="btn btn-ghost btn-sm" data-sveltekit-keepfocus>
+		<a
+			href={getNextPageHref()}
+			class="btn btn-ghost btn-sm"
+			data-sveltekit-keepfocus
+		>
 			<Feather name="arrow-right" />
 		</a>
 	</div>

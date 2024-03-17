@@ -31,7 +31,7 @@
   - [Transactions](#transactions)
   - [Accounts](#accounts)
   - [Budget](#budget)
-  - [Teams (Coming soon)](#teams-coming-soon)
+  - [Teams](#teams)
 - [How it works](#how-it-works)
 - [Install](#install)
 - [Updating](#updating)
@@ -60,9 +60,9 @@ Each transaction is linked to a specific account, so you can easily keep an eye 
 
 Plan your spending every month for each category. Know what your money's doing.
 
-### Teams (Coming soon)
+### Teams
 
-This feature enables multiple users to work together on budgeting. Accounts, Categories, Transactions and Budget can be used as a team.
+Teams enables multiple users to work together on budgeting. Users in teams can collaborate on the same budget and share categories, accounts and transactions.
 
 ## How it works
 

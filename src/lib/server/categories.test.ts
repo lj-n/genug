@@ -8,7 +8,6 @@ import {
 	getCategories,
 	getCategory,
 	getCategoryDetails,
-	getCategoryLastMonthStats,
 	updateCategory
 } from './categories';
 import { setBudget } from './budgets';
