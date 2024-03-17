@@ -19,11 +19,11 @@
 	}).format(new Date(data.account.createdAt));
 
 	const updateLoading = writable(false);
-	// const moveTransactionLoading = writable(false);
-	// const removeAccountLoading = writable(false);
+	const moveTransactionLoading = writable(false);
+	const removeAccountLoading = writable(false);
 
-	// let moveTransactionInput = '';
-	// let removeAccountInput = '';
+	let moveTransactionInput = '';
+	let removeAccountInput = '';
 </script>
 
 <svelte:head>
@@ -35,9 +35,12 @@
 	Back to Accounts
 </a>
 
-<span class="mt-8 text-muted text-xs w-fit mx-auto">
-	Created at {formattedDate}
-</span>
+<div class="mt-8 text-muted text-xs w-fit mx-auto">
+	<span> Created at {formattedDate} </span>
+	{#if data.account.team}
+		<span class="text-blue px-2"> by Team {data.account.team.name} </span>
+	{/if}
+</div>
 <h1 class="font-bold text-3xl mx-auto">{data.account.name}</h1>
 <span class="text-xl text-muted mb-8 mx-auto">
 	{data.account.description || ''}
@@ -124,7 +127,7 @@
 		</Button>
 	</form>
 
-	<!-- <form
+	<form
 		action="?/moveTransactions"
 		method="post"
 		class="flex flex-col gap-4"
@@ -214,5 +217,5 @@
 		>
 			Delete Account
 		</Button>
-	</form> -->
+	</form>
 </div>

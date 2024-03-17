@@ -42,12 +42,12 @@
 	Back to Categories
 </a>
 
-<span class="mt-8 text-muted text-xs w-fit mx-auto">
-	Created at {formattedDate}
+<div class="mt-8 text-muted text-xs w-fit mx-auto">
+	<span> Created at {formattedDate} </span>
 	{#if data.category.team}
-		by {data.category.team.name}
+		<span class="text-blue px-2"> by Team {data.category.team.name} </span>
 	{/if}
-</span>
+</div>
 <h1 class="font-bold text-3xl mx-auto">{data.category.name}</h1>
 <span class="text-xl text-muted mb-8 mx-auto"
 	>{data.category.description || ''}

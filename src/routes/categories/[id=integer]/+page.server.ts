@@ -136,7 +136,7 @@ export const actions = {
 		const category = getCategory(db, user.id, Number(params.id));
 
 		if (!category) {
-			return fail(401, { moveTransactionError: 'Category not found' });
+			return fail(401, { removeCategoryError: 'Category not found' });
 		}
 
 		const requestSchema = zfd.formData({
@@ -146,14 +146,14 @@ export const actions = {
 		const parsed = requestSchema.safeParse(formData);
 
 		if (!parsed.success) {
-			return fail(400, { moveTransactionError: 'Invalid Params' });
+			return fail(400, { removeCategoryError: 'Invalid Params' });
 		}
 
 		if (category.teamId) {
 			const role = getTeamRole(db, category.teamId, user.id);
 			if (role !== 'OWNER') {
 				return fail(401, {
-					moveTransactionError: 'Must be team owner'
+					removeCategoryError: 'Must be team owner'
 				});
 			}
 		}

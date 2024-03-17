@@ -129,7 +129,7 @@ export function getAccounts(
 		.all();
 }
 
-function getAccount(
+export function getAccount(
 	database: Database,
 	userId: string,
 	accountId: number
