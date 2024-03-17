@@ -1,5 +1,11 @@
 # genug
 
+## 1.1.1
+
+### Patch Changes
+
+- a3d7e1b: Fixes some issues regarding team transactions.
+
 ## 1.1.0
 
 ### Minor Changes
