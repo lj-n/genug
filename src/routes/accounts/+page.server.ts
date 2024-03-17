@@ -52,7 +52,9 @@ export const actions = {
 		try {
 			if (teamId) {
 				const role = getTeamRole(db, teamId, user.id);
-				if (role !== 'OWNER') throw new Error('Must be team owner');
+				if (role !== 'OWNER') {
+					return fail(403, { error: 'Must be team owner.' });
+				}
 			}
 
 			const account = db

@@ -96,9 +96,11 @@ export function getTransactions(
 			)
 		)
 		.orderBy(...order)
+		.groupBy(schema.transaction.id)
 		.limit(filter.limit)
 		.offset((filter.page - 1) * filter.limit)
 		.all();
+
 	return result;
 }
 

@@ -71,6 +71,9 @@ describe('categories', () => {
 		expect(getCategory(db, user.id, category.id)).toEqual(category);
 		expect(getCategory(db, user.id, category2.id)).toEqual(category2);
 		expect(getCategory(db, user2.id, category.id)).toBeNull();
+			
+		expect(getCategories(db, user.id)).toHaveLength(3);
+		expect(getCategories(db, user2.id)).toHaveLength(2);
 
 		expect(getCategories(db, user.id)).toMatchObject([
 			{
