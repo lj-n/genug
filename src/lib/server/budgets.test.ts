@@ -44,13 +44,13 @@ describe('budgets', () => {
 
 		expect(budgetPrevious).toMatchObject([
 			{
-				category: { name: 'Category 1' },
+				name: 'Category 1',
 				budget: 0,
 				activity: 1200,
 				rest: 1200
 			},
 			{
-				category: { name: 'Category 2' },
+				name: 'Category 2',
 				budget: 0,
 				activity: -2300,
 				rest: -2300
@@ -58,22 +58,22 @@ describe('budgets', () => {
 		]);
 		expect(budgetCurrent).toMatchObject([
 			{
-				category: { name: 'Category 1' },
+				name: 'Category 1',
 				budget: 0,
 				activity: -400,
 				rest: 800
 			},
 			{
-				category: { name: 'Category 2' },
+				name: 'Category 2',
 				budget: 0,
 				activity: -3700,
 				rest: -6000
 			}
 		]);
 		expect(budgetNext).toMatchObject([
-			{ category: { name: 'Category 1' }, budget: 0, activity: -800, rest: 0 },
+			{ name: 'Category 1', budget: 0, activity: -800, rest: 0 },
 			{
-				category: { name: 'Category 2' },
+				name: 'Category 2',
 				budget: 0,
 				activity: -300,
 				rest: -6300
@@ -131,13 +131,13 @@ describe('budgets', () => {
 
 		expect(budgetPrevious).toMatchObject([
 			{
-				category: { name: 'Category 1' },
+				name: 'Category 1',
 				budget: 900,
 				activity: 1200,
 				rest: 2100
 			},
 			{
-				category: { name: 'Category 2' },
+				name: 'Category 2',
 				budget: 3000,
 				activity: -2300,
 				rest: 700
@@ -145,13 +145,13 @@ describe('budgets', () => {
 		]);
 		expect(budgetCurrent).toMatchObject([
 			{
-				category: { name: 'Category 1' },
+				name: 'Category 1',
 				budget: 0,
 				activity: -400,
 				rest: 1700
 			},
 			{
-				category: { name: 'Category 2' },
+				name: 'Category 2',
 				budget: 450,
 				activity: -3700,
 				rest: -2550
@@ -159,13 +159,13 @@ describe('budgets', () => {
 		]);
 		expect(budgetNext).toMatchObject([
 			{
-				category: { name: 'Category 1' },
+				name: 'Category 1',
 				budget: -200,
 				activity: -800,
 				rest: 700
 			},
 			{
-				category: { name: 'Category 2' },
+				name: 'Category 2',
 				budget: 4500,
 				activity: -300,
 				rest: 1650
@@ -190,25 +190,25 @@ describe('budgets', () => {
 
 		expect(budgetPrevious).toMatchObject([
 			{
-				category: { name: 'Category 1' },
+				name: 'Category 1',
 				budget: 0,
 				activity: 1200,
 				rest: 1200
 			},
 			{
-				category: { name: 'Category 2' },
+				name: 'Category 2',
 				budget: 0,
 				activity: -2300,
 				rest: -2300
 			},
 			{
-				category: { name: 'Team Category 1' },
+				name: 'Team Category 1',
 				budget: 0,
 				activity: -1800,
 				rest: -1800
 			},
 			{
-				category: { name: 'Team Category 2' },
+				name: 'Team Category 2',
 				budget: 0,
 				activity: -1300,
 				rest: -1300
@@ -216,46 +216,46 @@ describe('budgets', () => {
 		]);
 		expect(budgetCurrent).toMatchObject([
 			{
-				category: { name: 'Category 1' },
+				name: 'Category 1',
 				budget: 0,
 				activity: -400,
 				rest: 800
 			},
 			{
-				category: { name: 'Category 2' },
+				name: 'Category 2',
 				budget: 0,
 				activity: -3700,
 				rest: -6000
 			},
 			{
-				category: { name: 'Team Category 1' },
+				name: 'Team Category 1',
 				budget: 0,
 				activity: -400,
 				rest: -2200
 			},
 			{
-				category: { name: 'Team Category 2' },
+				name: 'Team Category 2',
 				budget: 0,
 				activity: -2100,
 				rest: -3400
 			}
 		]);
 		expect(budgetNext).toMatchObject([
-			{ category: { name: 'Category 1' }, budget: 0, activity: -800, rest: 0 },
+			{ name: 'Category 1', budget: 0, activity: -800, rest: 0 },
 			{
-				category: { name: 'Category 2' },
+				name: 'Category 2',
 				budget: 0,
 				activity: -300,
 				rest: -6300
 			},
 			{
-				category: { name: 'Team Category 1' },
+				name: 'Team Category 1',
 				budget: 0,
 				activity: -100,
 				rest: -2300
 			},
 			{
-				category: { name: 'Team Category 2' },
+				name: 'Team Category 2',
 				budget: 0,
 				activity: 0,
 				rest: -3400
@@ -361,25 +361,25 @@ describe('budgets', () => {
 
 		expect(budgetPrevious).toMatchObject([
 			{
-				category: { name: 'Category 1' },
+				name: 'Category 1',
 				budget: 900,
 				activity: 1200,
 				rest: 2100
 			},
 			{
-				category: { name: 'Category 2' },
+				name: 'Category 2',
 				budget: 3000,
 				activity: -2300,
 				rest: 700
 			},
 			{
-				category: { name: 'Team Category 1' },
+				name: 'Team Category 1',
 				budget: 1000,
 				activity: -1800,
 				rest: -800
 			},
 			{
-				category: { name: 'Team Category 2' },
+				name: 'Team Category 2',
 				budget: 0,
 				activity: -1300,
 				rest: -1300
@@ -387,25 +387,25 @@ describe('budgets', () => {
 		]);
 		expect(budgetCurrent).toMatchObject([
 			{
-				category: { name: 'Category 1' },
+				name: 'Category 1',
 				budget: 0,
 				activity: -400,
 				rest: 1700
 			},
 			{
-				category: { name: 'Category 2' },
+				name: 'Category 2',
 				budget: 450,
 				activity: -3700,
 				rest: -2550
 			},
 			{
-				category: { name: 'Team Category 1' },
+				name: 'Team Category 1',
 				budget: 1000,
 				activity: -400,
 				rest: -200
 			},
 			{
-				category: { name: 'Team Category 2' },
+				name: 'Team Category 2',
 				budget: 5000,
 				activity: -2100,
 				rest: 1600
@@ -413,25 +413,25 @@ describe('budgets', () => {
 		]);
 		expect(budgetNext).toMatchObject([
 			{
-				category: { name: 'Category 1' },
+				name: 'Category 1',
 				budget: -200,
 				activity: -800,
 				rest: 700
 			},
 			{
-				category: { name: 'Category 2' },
+				name: 'Category 2',
 				budget: 4500,
 				activity: -300,
 				rest: 1650
 			},
 			{
-				category: { name: 'Team Category 1' },
+				name: 'Team Category 1',
 				budget: 900,
 				activity: -100,
 				rest: 600
 			},
 			{
-				category: { name: 'Team Category 2' },
+				name: 'Team Category 2',
 				budget: -200,
 				activity: 0,
 				rest: 1400
