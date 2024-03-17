@@ -8,9 +8,11 @@ import {
 	getCategories,
 	getCategory,
 	getCategoryDetails,
+	getCategoryLastMonthStats,
 	updateCategory
 } from './categories';
 import { setBudget } from './budgets';
+import { getMonthInFormat } from '$lib/components/date.utils';
 
 let db: Database;
 let user: User;
@@ -88,58 +90,6 @@ describe('categories', () => {
 				team: team
 			}
 		]);
-	});
-
-	test('get category details', () => {
-		const category = db
-			.insert(schema.category)
-			.values({
-				userId: user.id,
-				name: 'Test Category'
-			})
-			.returning()
-			.get();
-		const account = db
-			.insert(schema.account)
-			.values({
-				userId: user.id,
-				name: 'Test Account'
-			})
-			.returning()
-			.get();
-
-		db.insert(schema.transaction)
-			.values([
-				{
-					userId: user.id,
-					categoryId: category.id,
-					accountId: account.id,
-					flow: 1000,
-					validated: true
-				},
-				{
-					userId: user.id,
-					categoryId: category.id,
-					accountId: account.id,
-					flow: -3000,
-					validated: true
-				}
-			])
-			.run();
-
-		setBudget(db, user.id, {
-			categoryId: category.id,
-			amount: 1000,
-			date: new Date().toISOString().substring(0, 7)
-		});
-
-		const details = getCategoryDetails(db, category.id);
-
-		expect(details).toEqual({
-			transactionCount: 2,
-			transactionSum: -2000,
-			budgetSum: 1000
-		});
 	});
 
 	test('update category', () => {
@@ -249,5 +199,75 @@ describe('categories', () => {
 			{ id: category3.id },
 			{ id: category2.id }
 		]);
+	});
+
+	test('get category details', () => {
+		const category = db
+			.insert(schema.category)
+			.values({
+				userId: user.id,
+				name: 'Test Category'
+			})
+			.returning()
+			.get();
+		const account = db
+			.insert(schema.account)
+			.values({
+				userId: user.id,
+				name: 'Test Account'
+			})
+			.returning()
+			.get();
+
+		const lastMonth = new Date();
+		lastMonth.setMonth(lastMonth.getMonth() - 1);
+
+		db.insert(schema.transaction)
+			.values([
+				{
+					userId: user.id,
+					accountId: account.id,
+					flow: 10000,
+					validated: true,
+					date: new Date().toISOString().substring(0, 7)
+				},
+				{
+					userId: user.id,
+					categoryId: category.id,
+					accountId: account.id,
+					flow: -4499,
+					validated: true,
+					date: lastMonth.toISOString().substring(0, 7)
+				},
+				{
+					userId: user.id,
+					categoryId: category.id,
+					accountId: account.id,
+					flow: -4499,
+					validated: true,
+					date: new Date().toISOString().substring(0, 7)
+				}
+			])
+			.run();
+
+		setBudget(db, user.id, {
+			categoryId: category.id,
+			amount: 5000,
+			date: getMonthInFormat(lastMonth)
+		});
+
+		setBudget(db, user.id, {
+			categoryId: category.id,
+			amount: 5000,
+			date: getMonthInFormat(new Date())
+		});
+
+		const details = getCategoryDetails(db, category.id);
+
+		expect(details).toEqual({
+			transactionCount: 2,
+			transactionSum: -8998,
+			budgetSum: 10000
+		});
 	});
 });

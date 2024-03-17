@@ -1,7 +1,5 @@
 <script lang="ts">
 	import type { ActionData, PageData } from './$types';
-	// import { onMount } from 'svelte';
-	// import { Chart } from 'chart.js/auto';
 	import { enhance } from '$app/forms';
 	import Button from '$lib/components/button.svelte';
 	import {
@@ -11,6 +9,7 @@
 	} from '$lib/components/utils';
 	import Feather from '$lib/components/feather.svelte';
 	import { writable } from 'svelte/store';
+	import CategoryGraph from './category.graph.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -23,59 +22,15 @@
 
 	let updateLoading = writable(false);
 	let retireLoading = writable(false);
-	// let moveTransactionLoading = writable(false);
-	// let removeCategoryLoading = writable(false);
-	// let moveTransactionInput = '';
-	// let removeCategoryInput = '';
+	let moveTransactionLoading = writable(false);
+	let removeCategoryLoading = writable(false);
+	let moveTransactionInput = '';
+	let removeCategoryInput = '';
 
-	// $: moveTransactionReady = moveTransactionInput === data.category.name;
-	// $: removeCategoryReady = removeCategoryInput === data.category.name;
+	$: moveTransactionReady = moveTransactionInput === data.category.name;
+	$: removeCategoryReady = removeCategoryInput === data.category.name;
 
 	$: canBeRetired = data.budgetSum + data.transactionSum === 0;
-
-	// let canvas: HTMLCanvasElement;
-
-	// onMount(() => {
-	// 	false;
-	// 	const chart = new Chart(canvas, {
-	// 		type: 'bar',
-	// 		options: {
-	// 			scales: {
-	// 				yAxis: {
-	// 					reverse: true,
-	// 					ticks: {
-	// 						callback(tickValue) {
-	// 							return formatFractionToLocaleCurrency(Number(tickValue));
-	// 						}
-	// 					}
-	// 				}
-	// 			},
-	// 			maintainAspectRatio: false,
-	// 			events: [],
-	// 			plugins: {
-	// 				tooltip: {
-	// 					enabled: false
-	// 				}
-	// 			}
-	// 		},
-	// 		data: {
-	// 			labels: data.lastMonthsStats.map(({ date }) => date),
-	// 			datasets: [
-	// 				{
-	// 					label: 'Transaction Sum',
-	// 					data: data.lastMonthsStats.map(({ sum }) => sum),
-	// 					backgroundColor: '#4385be',
-	// 					borderRadius: 2,
-	// 					yAxisID: 'yAxis'
-	// 				}
-	// 			]
-	// 		}
-	// 	});
-
-	// 	return () => {
-	// 		chart.destroy();
-	// 	};
-	// });
 </script>
 
 <svelte:head>
@@ -89,6 +44,9 @@
 
 <span class="mt-8 text-muted text-xs w-fit mx-auto">
 	Created at {formattedDate}
+	{#if data.category.team}
+		by {data.category.team.name}
+	{/if}
 </span>
 <h1 class="font-bold text-3xl mx-auto">{data.category.name}</h1>
 <span class="text-xl text-muted mb-8 mx-auto"
@@ -96,12 +54,7 @@
 </span>
 
 <div class="flex flex-wrap gap-8 my-8 items-center justify-center">
-	<!-- <div class="relative h-60 w-200 max-w-full">
-		<canvas
-			aria-label="Sum of transactions in the last 12 months"
-			bind:this={canvas}
-		/>
-	</div> -->
+	<CategoryGraph stats={data.stats} />
 
 	<div class="flex flex-col gap-2">
 		<div class="flex flex-col">
@@ -234,7 +187,7 @@
 		{/if}
 	</form>
 
-	<!-- <form
+	<form
 		action="?/moveTransactions"
 		method="post"
 		class="flex flex-col gap-4"
@@ -329,5 +282,5 @@
 		>
 			Delete Category
 		</Button>
-	</form> -->
+	</form>
 </div>
