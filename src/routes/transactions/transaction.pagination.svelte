@@ -7,23 +7,23 @@
 	function getPrevPageHref() {
 		const searchParams = new URLSearchParams($page.url.searchParams);
 		if (currentPage === 1) {
-			return '/transaction?' + searchParams.toString();
+			return '/transactions?' + searchParams.toString();
 		}
 
 		searchParams.set('page', (currentPage - 1).toString());
-		return '/transaction?' + searchParams.toString();
+		return '/transactions?' + searchParams.toString();
 	}
 
 	function getNextPageHref() {
 		const searchParams = new URLSearchParams($page.url.searchParams);
 		searchParams.set('page', (currentPage + 1).toString());
-		return '/transaction?' + searchParams.toString();
+		return '/transactions?' + searchParams.toString();
 	}
 </script>
 
 {#key $page.url}
 	<div class="flex my-4 gap-2 items-center ml-auto">
-		<a href={getPrevPageHref()} class="btn btn-ghost btn-sm">
+		<a href={getPrevPageHref()} class="btn btn-ghost btn-sm" data-sveltekit-keepfocus>
 			<Feather name="arrow-left" />
 		</a>
 
@@ -31,7 +31,7 @@
 			Page: {currentPage}
 		</span>
 
-		<a href={getNextPageHref()} class="btn btn-ghost btn-sm">
+		<a href={getNextPageHref()} class="btn btn-ghost btn-sm" data-sveltekit-keepfocus>
 			<Feather name="arrow-right" />
 		</a>
 	</div>

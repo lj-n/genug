@@ -29,6 +29,13 @@
 <div class="flex flex-col gap-4 md:(flex-row gap-2) items-center">
 	<Filter data={data.accounts} label="Accounts" key="accounts" />
 	<Filter data={data.categories} label="Categories" key="categories" />
+	{#if data.teams}
+		<Filter
+			data={data.teams.map(({ team }) => team)}
+			label="Teams"
+			key="teams"
+		/>
+	{/if}
 
 	<a
 		href="/transactions/create"

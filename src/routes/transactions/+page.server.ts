@@ -14,6 +14,7 @@ import { z } from 'zod';
 import { fail } from '@sveltejs/kit';
 import { schema } from '$lib/server/schema';
 import { eq } from 'drizzle-orm';
+import { getTeams } from '$lib/server/teams';
 
 export const load: PageServerLoad = protectRoute(({ url }, user) => {
 	const filter = transactionFilterSchema.parse(url.searchParams);
@@ -22,7 +23,8 @@ export const load: PageServerLoad = protectRoute(({ url }, user) => {
 		filter,
 		transactions: getTransactions(db, user.id, filter),
 		accounts: getAccountsWithBalance(db, user.id),
-		categories: getCategories(db, user.id)
+		categories: getCategories(db, user.id),
+		teams: getTeams(db, user.id),
 	};
 });
 

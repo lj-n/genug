@@ -4,15 +4,13 @@
 	import type { PageData } from './$types';
 	export let data: PageData;
 
-	function reloadAvatar() {
+	function reloadAvatar(timestamp: number) {
 		const avatars = document.querySelectorAll<HTMLImageElement>(
 			'img[src^="/avatar"]'
 		);
 
-		const timestamp = new Date().getTime();
-
 		avatars.forEach((avatar) => {
-			avatar.src = `/avatar?t=${timestamp}`;
+			avatar.src = `/avatar?u=${data.user.id}&t=${timestamp}`;
 		});
 	}
 </script>
@@ -53,11 +51,15 @@
 			use:enhance={() => {
 				return async ({ update, formElement }) => {
 					update();
-					reloadAvatar();
+					reloadAvatar(new Date().getTime());
 					formElement.previousElementSibling?.removeAttribute('open');
 				};
 			}}
 		>
+			<div class="text-center text-sm text-muted">
+				<span>Max file size: 1MB</span>
+			</div>
+
 			<div class="p-2 flex gap-2">
 				<input
 					type="file"
@@ -89,7 +91,7 @@
 			use:enhance={() => {
 				return async ({ update }) => {
 					update();
-					reloadAvatar();
+					reloadAvatar(new Date().getTime());
 				};
 			}}
 		>
