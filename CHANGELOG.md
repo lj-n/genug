@@ -1,5 +1,11 @@
 # genug
 
+## 1.1.2
+
+### Patch Changes
+
+- cf993c4: Fixes updating a category when goal is set to 0.
+
 ## 1.1.1
 
 ### Patch Changes
