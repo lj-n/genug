@@ -36,7 +36,7 @@ export const actions = {
 			.formData({
 				name: zfd.text(z.string().optional()),
 				description: zfd.text(z.string().optional()),
-				goal: zfd.numeric(z.number().int().positive().optional())
+				goal: zfd.numeric(z.number().int().nonnegative().optional())
 			})
 			.safeParse(formData);
 

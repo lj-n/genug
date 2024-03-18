@@ -84,7 +84,7 @@
 				<td
 					class="order-5 w-full my-2 text-muted text-sm lg:(w-unset text-normal text-base p-2)"
 				>
-					{transaction.description}
+					{transaction.description || ''}
 				</td>
 
 				<td
