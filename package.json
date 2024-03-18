@@ -28,7 +28,7 @@
 		"@typescript-eslint/eslint-plugin": "^7.1.0",
 		"@typescript-eslint/parser": "^7.1.0",
 		"@unocss/extractor-svelte": "^0.58.5",
-		"@unocss/reset": "^0.58.5",
+		"@unocss/reset": "^0.58.6",
 		"@unocss/transformer-variant-group": "^0.58.5",
 		"browserslist": "^4.23.0",
 		"drizzle-zod": "^0.5.1",
