@@ -21,6 +21,25 @@ export function getAccountsWithBalance(
 		working: number;
 	}
 > {
+	const transactionSQ = database
+		.select({
+			accountId: schema.transaction.accountId,
+			count: sql<number>`coalesce(count(${schema.transaction.flow}), 0)`.as(
+				'count'
+			),
+			validated:
+				sql<number>`coalesce(sum(CASE WHEN ${schema.transaction.validated} = 1 THEN ${schema.transaction.flow} ELSE 0 END) ,0)`.as(
+					'validated'
+				),
+			pending:
+				sql<number>`coalesce(sum(CASE WHEN ${schema.transaction.validated} = 0 THEN ${schema.transaction.flow} ELSE 0 END) ,0)`.as(
+					'pending'
+				)
+		})
+		.from(schema.transaction)
+		.groupBy(schema.transaction.accountId)
+		.as('transactionSQ');
+
 	return database
 		.select({
 			id: schema.account.id,
@@ -28,15 +47,13 @@ export function getAccountsWithBalance(
 			description: schema.account.description,
 			createdAt: schema.account.createdAt,
 			team: schema.team,
-			count: sql<number>`coalesce(count(${schema.transaction.flow}), 0)`,
-			validated: sql<number>`coalesce(sum(CASE WHEN ${schema.transaction.validated} = 1 THEN ${schema.transaction.flow} ELSE 0 END) ,0)`,
-			pending: sql<number>`coalesce(sum(CASE WHEN ${schema.transaction.validated} = 0 THEN ${schema.transaction.flow} ELSE 0 END) ,0)`
+			count: transactionSQ.count,
+			validated: transactionSQ.validated,
+			pending: transactionSQ.pending,
+			working: sql<number>`coalesce(${transactionSQ.validated}, 0) + coalesce(${transactionSQ.pending}, 0)`
 		})
 		.from(schema.account)
-		.leftJoin(
-			schema.transaction,
-			eq(schema.transaction.accountId, schema.account.id)
-		)
+		.leftJoin(transactionSQ, eq(transactionSQ.accountId, schema.account.id))
 		.leftJoin(
 			schema.teamMember,
 			eq(schema.teamMember.teamId, schema.account.teamId)
@@ -51,14 +68,8 @@ export function getAccountsWithBalance(
 				)
 			)
 		)
-		.groupBy(({ id }) => id)
-		.all()
-		.map(({ validated, pending, ...rest }) => ({
-			validated,
-			pending,
-			working: validated + pending,
-			...rest
-		}));
+		.groupBy(schema.account.id)
+		.all();
 }
 
 /**

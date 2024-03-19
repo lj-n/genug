@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, test } from 'vitest';
 import type { Database } from './db';
 import type { User } from 'lucia';
 import { schema } from './schema';
-import { createTeam } from './teams';
+import { createTeam, createTeamMember } from './teams';
 import { getAccounts, getAccountsWithBalance } from './accounts';
 
 let db: Database;
@@ -35,6 +35,7 @@ describe('accounts', () => {
 			createTeam(db, user.id, 'Test Team 2')
 		];
 		const foreignTeam = createTeam(db, user2.id, 'Foreign Team');
+		createTeamMember(db, team.id, user2.id, 'MEMBER');
 
 		const [teamAccount, teamAccount2] = db
 			.insert(schema.account)
@@ -143,7 +144,7 @@ describe('accounts', () => {
 					validated: true
 				},
 				{
-					userId: user.id,
+					userId: user2.id,
 					accountId: teamAccount.id,
 					flow: -3000,
 					validated: true
@@ -195,9 +196,9 @@ describe('accounts', () => {
 		const accounts = getAccountsWithBalance(db, user.id);
 
 		expect(accounts).toHaveLength(3);
-		expect(getAccountsWithBalance(db, user2.id)).toHaveLength(1);
+		expect(getAccountsWithBalance(db, user2.id)).toHaveLength(3);
 		expect(getAccounts(db, user.id)).toHaveLength(3);
-		expect(getAccounts(db, user2.id)).toHaveLength(1);
+		expect(getAccounts(db, user2.id)).toHaveLength(3);
 
 		expect(accounts).toMatchObject([
 			{
