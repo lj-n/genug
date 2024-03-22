@@ -1,5 +1,12 @@
 # genug
 
+## 1.1.3
+
+### Patch Changes
+
+- d892a77: Negative budget amounts are now possible.
+- 2c5aaed: Fixes an error when summing up transactions to display the account balance in team accounts.
+
 ## 1.1.2
 
 ### Patch Changes
