@@ -51,7 +51,7 @@
 	"type": "module",
 	"dependencies": {
 		"@lucia-auth/adapter-sqlite": "^3.0.0",
-		"@sveltejs/adapter-node": "^4.0.1",
+		"@sveltejs/adapter-node": "^5.0.1",
 		"better-sqlite3": "^9.4.3",
 		"chart.js": "^4.4.2",
 		"drizzle-kit": "^0.20.14",
