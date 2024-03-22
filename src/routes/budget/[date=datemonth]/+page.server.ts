@@ -36,7 +36,7 @@ export const actions = {
 
 		const schema = zfd.formData({
 			categoryId: zfd.numeric(z.number().int().positive()),
-			budget: zfd.numeric(z.number().int().nonnegative())
+			budget: zfd.numeric(z.number().int())
 		});
 
 		const parsed = schema.safeParse(formData);
