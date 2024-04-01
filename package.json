@@ -27,7 +27,7 @@
 		"@types/nodemailer": "^6.4.14",
 		"@typescript-eslint/eslint-plugin": "^7.1.0",
 		"@typescript-eslint/parser": "^7.1.0",
-		"@unocss/extractor-svelte": "^0.58.5",
+		"@unocss/extractor-svelte": "^0.58.9",
 		"@unocss/reset": "^0.58.6",
 		"@unocss/transformer-variant-group": "^0.58.5",
 		"browserslist": "^4.23.0",
