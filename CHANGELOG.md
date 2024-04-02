@@ -1,5 +1,11 @@
 # genug
 
+## 1.1.4
+
+### Patch Changes
+
+- 1e78a6a: Fixes the wrong calculation of team transactions.
+
 ## 1.1.3
 
 ### Patch Changes
