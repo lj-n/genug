@@ -41,13 +41,14 @@ export function getBudget(database: Database, userId: string, date: string) {
 	const activitySumSQ = database
 		.select({
 			categoryId: schema.transaction.categoryId,
-			sum: sql<number>`coalesce(sum(${schema.transaction.flow}), 0)`.as('activitySum')
-		}).from(schema.transaction)
-		.where(
-			eq(sql`strftime('%Y-%m', ${schema.transaction.date})`, date)
-		)
+			sum: sql<number>`coalesce(sum(${schema.transaction.flow}), 0)`.as(
+				'activitySum'
+			)
+		})
+		.from(schema.transaction)
+		.where(eq(sql`strftime('%Y-%m', ${schema.transaction.date})`, date))
 		.groupBy(schema.transaction.categoryId)
-		.as('activitySumSQ')
+		.as('activitySumSQ');
 
 	const result = database
 		.select({
@@ -68,10 +69,7 @@ export function getBudget(database: Database, userId: string, date: string) {
 			schema.teamMember,
 			eq(schema.teamMember.teamId, schema.category.teamId)
 		)
-		.leftJoin(
-			activitySumSQ,
-			eq(schema.category.id, activitySumSQ.categoryId)
-		)
+		.leftJoin(activitySumSQ, eq(schema.category.id, activitySumSQ.categoryId))
 		.leftJoin(
 			schema.budget,
 			and(

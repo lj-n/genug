@@ -489,38 +489,52 @@ describe('budgets', () => {
 	});
 
 	test('correctly calculate monthly activity', () => {
-		const team = createTeam(db, userId, 'Testteam')
-		const teamAccount = db.insert(schema.account).values({
-			teamId: team.id,
-			userId: userId,
-			name: 'Teamaccount'
-		}).returning().get()
-		const teamCategory = db.insert(schema.category).values({
-			teamId: team.id,
-			userId: userId,
-			name: 'Teamcategory'
-		}).returning().get()
-
-		db.insert(schema.transaction).values([
-			{
-				accountId: teamAccount.id,
-				categoryId: teamCategory.id,
-				flow: -4500,
-				date: new Date().toISOString(),
-				validated: false,
+		const team = createTeam(db, userId, 'Testteam');
+		const teamAccount = db
+			.insert(schema.account)
+			.values({
+				teamId: team.id,
 				userId: userId,
-			},
-			{
-				accountId: teamAccount.id,
-				categoryId: teamCategory.id,
-				flow: 1500,
-				date: new Date().toISOString(),
-				validated: false,
+				name: 'Teamaccount'
+			})
+			.returning()
+			.get();
+		const teamCategory = db
+			.insert(schema.category)
+			.values({
+				teamId: team.id,
 				userId: userId,
-			}
-		]).run()
+				name: 'Teamcategory'
+			})
+			.returning()
+			.get();
 
-		const budget = getBudget(db, userId, new Date().toISOString().substring(0, 7))
+		db.insert(schema.transaction)
+			.values([
+				{
+					accountId: teamAccount.id,
+					categoryId: teamCategory.id,
+					flow: -4500,
+					date: new Date().toISOString(),
+					validated: false,
+					userId: userId
+				},
+				{
+					accountId: teamAccount.id,
+					categoryId: teamCategory.id,
+					flow: 1500,
+					date: new Date().toISOString(),
+					validated: false,
+					userId: userId
+				}
+			])
+			.run();
+
+		const budget = getBudget(
+			db,
+			userId,
+			new Date().toISOString().substring(0, 7)
+		);
 
 		expect(budget).toContainEqual({
 			id: teamCategory.id,
@@ -529,8 +543,8 @@ describe('budgets', () => {
 			goal: null,
 			budget: 0,
 			rest: -3000
-		})
-	})
+		});
+	});
 
 	test('throw error if user is not allowed set budget for category', () => {
 		const { teamCategory3 } = createDummyDataWithTeams(db, userId, userId2);
