@@ -38,13 +38,25 @@ export function getBudget(database: Database, userId: string, date: string) {
 		.groupBy(schema.transaction.categoryId)
 		.as('transactionSumSQ');
 
+	const activitySumSQ = database
+		.select({
+			categoryId: schema.transaction.categoryId,
+			sum: sql<number>`coalesce(sum(${schema.transaction.flow}), 0)`.as(
+				'activitySum'
+			)
+		})
+		.from(schema.transaction)
+		.where(eq(sql`strftime('%Y-%m', ${schema.transaction.date})`, date))
+		.groupBy(schema.transaction.categoryId)
+		.as('activitySumSQ');
+
 	const result = database
 		.select({
 			id: schema.category.id,
 			name: schema.category.name,
 			goal: schema.category.goal,
 			budget: sql<number>`coalesce(${schema.budget.amount}, 0)`,
-			activity: sql<number>`coalesce(sum(${schema.transaction.flow}), 0)`,
+			activity: sql<number>`coalesce(${activitySumSQ.sum}, 0)`,
 			rest: sql<number>`coalesce(${budgetSumSQ.sum}, 0) + coalesce(${transactionSumSQ.sum}, 0)`
 		})
 		.from(schema.category)
@@ -57,13 +69,7 @@ export function getBudget(database: Database, userId: string, date: string) {
 			schema.teamMember,
 			eq(schema.teamMember.teamId, schema.category.teamId)
 		)
-		.leftJoin(
-			schema.transaction,
-			and(
-				eq(schema.transaction.categoryId, schema.category.id),
-				eq(sql`strftime('%Y-%m', ${schema.transaction.date})`, date)
-			)
-		)
+		.leftJoin(activitySumSQ, eq(schema.category.id, activitySumSQ.categoryId))
 		.leftJoin(
 			schema.budget,
 			and(
