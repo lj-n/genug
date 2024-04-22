@@ -38,8 +38,15 @@
 	{/if}
 
 	<a
+		href="/transactions/transfer"
+		class="btn text-xs btn-blue ml-auto w-full my-4 md:(w-fit my-0)"
+	>
+		<Feather name="shuffle" />
+		Transfer Transactions
+	</a>
+	<a
 		href="/transactions/create"
-		class="btn text-sm btn-green ml-auto w-full my-4 md:(w-fit my-0)"
+		class="btn text-xs btn-green w-full my-4 md:(w-fit my-0)"
 	>
 		<Feather name="plus-circle" />
 		New Transaction
