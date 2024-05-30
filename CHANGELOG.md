@@ -1,5 +1,11 @@
 # genug
 
+## 1.2.0
+
+### Minor Changes
+
+- 4bcf297: New feature: Transfer Transactions.
+
 ## 1.1.4
 
 ### Patch Changes
