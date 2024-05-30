@@ -20,7 +20,7 @@ export const load: PageServerLoad = protectRoute((_, user) => {
 });
 
 export const actions = {
-	create: protectRoute(async ({ request }, user) => {
+	default: protectRoute(async ({ request }, user) => {
 		const formData = await request.formData();
 
 		const formDataSchema = zfd.formData({

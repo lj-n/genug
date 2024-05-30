@@ -29,7 +29,7 @@
 </script>
 
 <svelte:head>
-	<title>Create Transaction</title>
+	<title>Transaction | Create</title>
 </svelte:head>
 
 <a href="/transactions" class="btn btn-sm mt-4">
@@ -38,9 +38,8 @@
 </a>
 
 <form
-	action="?/create"
 	method="post"
-	class="max-w-md w-full mx-auto my-4 flex flex-col gap-2 rounded-xl border border-ui-normal p-4"
+	class="max-w-md w-full mx-auto flex flex-col gap-2 rounded-xl border border-ui-normal p-4"
 	use:enhance={withLoading(loading)}
 >
 	<h1 class="my-4 text-2xl font-bold flex items-center gap-4 mx-auto">
@@ -103,8 +102,8 @@
 	<div class="flex justify-between">
 		<a href="/transactions" class="btn">Cancel</a>
 
-		<Button type="submit" class="btn btn-green" icon="plus" loading={$loading}
-			>Create</Button
-		>
+		<Button type="submit" class="btn btn-green" icon="plus" loading={$loading}>
+			Create
+		</Button>
 	</div>
 </form>

@@ -2,8 +2,9 @@ import type { User } from 'lucia';
 import { SqliteError } from 'better-sqlite3';
 import { redirect, type RequestEvent } from '@sveltejs/kit';
 import { getUserSettings } from './user';
-import { db } from '../db';
+import { db, type Database } from '../db';
 import type { schema } from '../schema';
+import { z, type RefinementCtx } from 'zod';
 
 /**
  * Checks if the given error indicates that a name is already in use.
@@ -40,5 +41,33 @@ export function protectRoute<Event extends RequestEvent, Out>(
 		const profile = getUserSettings(db, user.id);
 
 		return fn(event, { ...user, ...profile });
+	};
+}
+
+/**
+ * Creates a zod transform callback function.
+ *
+ * @param db - The database instance.
+ * @param user - The user instance.
+ * @param fn - The database lootup function.
+ * @param message - The error message to be displayed if the data is not found.
+ * @returns A zod transform function that uses parsed id's to find data in the database.
+ */
+export function zodFindInDatabase<D extends Database, U extends User, T>(
+	db: D,
+	user: U,
+	fn: (db: D, userId: string, rowId: number) => T,
+	message: string
+): (id: number, ctx: RefinementCtx) => NonNullable<T> {
+	return (id, ctx) => {
+		const data = fn(db, user.id, id);
+		if (!data) {
+			ctx.addIssue({
+				message,
+				code: z.ZodIssueCode.custom
+			});
+			return z.NEVER;
+		}
+		return data;
 	};
 }
