@@ -29,7 +29,7 @@ export function protectRoute<Event extends RequestEvent, Out>(
 		currentUser: User &
 			Omit<typeof schema.userSettings.$inferSelect, 'id' | 'userId'>
 	) => Out,
-	{ redirectTo = '/signin' }: { redirectTo?: string } = {}
+	{ redirectTo = '/authenticate' }: { redirectTo?: string } = {}
 ) {
 	return async (event: Event): Promise<Out> => {
 		const user = event.locals.user;

@@ -8,5 +8,5 @@ export const GET: RequestHandler = async ({ locals, cookies }) => {
 		deleteSvelteKitSessionCookie(cookies);
 	}
 
-	redirect(302, '/signin');
+	redirect(302, '/authenticate');
 };
