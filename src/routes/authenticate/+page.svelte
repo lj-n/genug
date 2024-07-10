@@ -21,7 +21,7 @@
 </svelte:head>
 
 <form method="POST" action="?/login" use:enhance class="mx-auto w-full max-w-sm space-y-4">
-	<div class="mx-auto my-8 w-full max-w-64">
+	<div class="mx-auto mb-8 w-full max-w-64">
 		<img src="/logo.svg" alt="genug logo" />
 	</div>
 

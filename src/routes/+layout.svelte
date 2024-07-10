@@ -60,6 +60,6 @@
 	</div>
 </header>
 
-<main class="mx-auto flex w-full max-w-screen-xl flex-col">
+<main class="mx-auto flex w-full max-w-screen-xl flex-col py-6 md:py-10">
 	<slot />
 </main>
