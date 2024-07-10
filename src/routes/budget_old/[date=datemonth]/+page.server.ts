@@ -12,7 +12,7 @@ import {
 
 export const load: PageServerLoad = protectRoute(({ params }, user) => {
 	const localDate = new Intl.DateTimeFormat('en-US', {
-		month: 'long',
+		month: 'short',
 		year: 'numeric'
 	}).format(new Date(params.date));
 

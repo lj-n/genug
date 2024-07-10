@@ -9,6 +9,7 @@
 	import Feather from '$lib/components/feather.svelte';
 	import { Separator } from '$lib/components/ui/separator';
 	import { NavigationMain, NavigationMobile } from '$lib/components/navigation';
+	import * as Avatar from '$lib/components/ui/avatar';
 	export let data: LayoutData;
 </script>
 
@@ -23,8 +24,28 @@
 			<NavigationMobile />
 		{/if}
 
-		<div class="ml-auto md:flex gap-2 hidden">
-			<Button on:click={toggleMode} variant="ghost" size="icon">
+		<div class="ml-auto hidden gap-4 md:flex">
+			{#if data.user}
+				<Button href="/settings" variant="ghost" size="icon" class="w-9 order-3 rounded-full">
+					<Avatar.Root class="h-8 w-8">
+						<Avatar.Image src="/avatar?u={data.user.id}" alt="Your Avatar" />
+						<Avatar.Fallback>
+							<Feather name="user" class="h-4 w-4" />
+						</Avatar.Fallback>
+					</Avatar.Root>
+					<span class="sr-only">Profile Settings</span>
+				</Button>
+
+
+				<form action="/authenticate?/signout" method="post" class='order-2'>
+					<Button type="submit" variant="ghost" size="icon" class="w-9 rounded-full">
+						<Feather name="log-out" class="h-4 w-4" />
+						<span class="sr-only">Sign out</span>
+					</Button>
+				</form>
+			{/if}
+			
+			<Button on:click={toggleMode} variant="ghost" size="icon" class="order-1 rounded-full">
 				<Feather
 					name="sun"
 					class="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
@@ -35,18 +56,6 @@
 				/>
 				<span class="sr-only">Toggle theme</span>
 			</Button>
-
-			{#if data.user}
-				<Button href="/settings" variant="ghost" size="icon" class="w-9">
-					<Feather name="user" class="h-4 w-4" />
-					<span class="sr-only">Settings</span>
-				</Button>
-
-				<Button href="/signout" variant="ghost" size="icon" class="w-9">
-					<Feather name="log-out" class="h-4 w-4" />
-					<span class="sr-only">Sign out</span>
-				</Button>
-			{/if}
 		</div>
 	</div>
 </header>
