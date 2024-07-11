@@ -1,105 +1,115 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
-@layer base {
-  :root {
-    --flexoki-black: 0 3% 6%;
-    --flexoki-base-950: 30 4% 11%;
-    --flexoki-base-900: 30 3% 15%;
-    --flexoki-base-850: 40 3% 20%;
-    --flexoki-base-800: 30 3% 24%;
-    --flexoki-base-700: 45 2% 33%;
-    --flexoki-base-600: 50 3% 42%;
-    --flexoki-base-500: 43 3% 52%;
-    --flexoki-base-300: 49 7% 70%;
-    --flexoki-base-200: 55 10% 79%;
-    --flexoki-base-150: 50 14% 83%;
-    --flexoki-base-100: 51 21% 88%;
-    --flexoki-base-50: 51 33% 92%;
-    --flexoki-paper: 48 100% 97%;
 
-    --flexoki-red-600: 3 62% 42%;
-    --flexoki-orange-600: 22 80% 41%;
-    --flexoki-yellow-600: 45 99% 34%;
-    --flexoki-green-600: 73 84% 27%;
-    --flexoki-cyan-600: 175 57% 33%;
-    --flexoki-blue-600: 212 68% 39%;
-    --flexoki-purple-600: 259 42% 43%;
-    --flexoki-magenta-600: 326 55% 41%;
-    
-    --flexoki-red-400: 5 61% 54%;
-    --flexoki-orange-400: 23 70% 51%;
-    --flexoki-yellow-400: 45 82% 45%;
-    --flexoki-green-400: 72 46% 41%;
-    --flexoki-cyan-400: 175 49% 45%;
-    --flexoki-blue-400: 208 49% 50%;
-    --flexoki-purple-400: 251 40% 64%;
-    --flexoki-magenta-400: 329 54% 59%;
-    
-  }
-  :root {
-    --background: var(--flexoki-paper);
-    --foreground: var(--flexoki-black);
- 
-    --muted: var(--flexoki-base-50);
-    --muted-foreground: var(--flexoki-base-300);
- 
-    --popover: var(--flexoki-paper);
-    --popover-foreground: var(--flexoki-black);
- 
-    --card: var(--flexoki-paper);
-    --card-foreground: var(--flexoki-black);
- 
-    --border: var(--flexoki-base-150);
-    --input: var(--flexoki-base-150);
- 
-    --primary: var(--flexoki-orange-600);
-    --primary-foreground: var(--flexoki-paper);
- 
-    --secondary: var(--flexoki-base-150);
-    --secondary-foreground: var(--flexoki-base-600);
- 
-    --accent: var(--flexoki-base-100);
-    --accent-foreground: var(--flexoki-600);
- 
-    --destructive: var(--flexoki-red-600);
-    --destructive-foreground: var(--flexoki-paper);
- 
-    --ring: var(--flexoki-base-200);
- 
-    --radius: 0.5rem;
-  }
- 
-  .dark {
-    --background: var(--flexoki-black);
-    --foreground: var(--flexoki-paper);
- 
-    --muted: var(--flexoki-base-950);
-    --muted-foreground: var(--flexoki-base-700);
- 
-    --popover: var(--flexoki-black);
-    --popover-foreground: var(--flexoki-paper);
- 
-    --card: var(--flexoki-black);
-    --card-foreground: var(--flexoki-paper);
- 
-    --border: var(--flexoki-base-850);
-    --input: var(--flexoki-base-850);
- 
-    --primary: var(--flexoki-orange-400);
-    --primary-foreground: var(--flexoki-paper);
- 
-    --secondary: var(--flexoki-base-850);
-    --secondary-foreground: var(--flexoki-base-500);
- 
-    --accent: var(--flexoki-base-900);
-    --accent-foreground: var(--flexoki-500);
- 
-    --destructive: var(--flexoki-red-400);
-    --destructive-foreground: var(--flexoki-paper);
- 
-    --ring: var(--flexoki-base-800);
-  }
+@layer base {
+	:root {
+		--flexoki-black: 0 3% 6%;
+		--flexoki-base-950: 30 4% 11%;
+		--flexoki-base-900: 30 3% 15%;
+		--flexoki-base-850: 40 3% 20%;
+		--flexoki-base-800: 30 3% 24%;
+		--flexoki-base-700: 45 2% 33%;
+		--flexoki-base-600: 50 3% 42%;
+		--flexoki-base-500: 43 3% 52%;
+		--flexoki-base-300: 49 7% 70%;
+		--flexoki-base-200: 55 10% 79%;
+		--flexoki-base-150: 50 14% 83%;
+		--flexoki-base-100: 51 21% 88%;
+		--flexoki-base-50: 51 33% 92%;
+		--flexoki-paper: 48 100% 97%;
+
+		--flexoki-red-600: 3 62% 42%;
+		--flexoki-orange-600: 22 80% 41%;
+		--flexoki-yellow-600: 45 99% 34%;
+		--flexoki-green-600: 73 84% 27%;
+		--flexoki-cyan-600: 175 57% 33%;
+		--flexoki-blue-600: 212 68% 39%;
+		--flexoki-purple-600: 259 42% 43%;
+		--flexoki-magenta-600: 326 55% 41%;
+
+		--flexoki-red-400: 5 61% 54%;
+		--flexoki-orange-400: 23 70% 51%;
+		--flexoki-yellow-400: 45 82% 45%;
+		--flexoki-green-400: 72 46% 41%;
+		--flexoki-cyan-400: 175 49% 45%;
+		--flexoki-blue-400: 208 49% 50%;
+		--flexoki-purple-400: 251 40% 64%;
+		--flexoki-magenta-400: 329 54% 59%;
+	}
+	:root {
+		--background: var(--flexoki-paper);
+		--foreground: var(--flexoki-black);
+
+		--muted: var(--flexoki-base-50);
+		--muted-foreground: var(--flexoki-base-600);
+
+		--popover: var(--flexoki-paper);
+		--popover-foreground: var(--flexoki-black);
+
+		--card: var(--flexoki-paper);
+		--card-foreground: var(--flexoki-black);
+
+		--border: var(--flexoki-base-150);
+		--input: var(--flexoki-base-100);
+
+		--primary: var(--flexoki-orange-600);
+		--primary-foreground: var(--flexoki-paper);
+
+		--secondary: var(--flexoki-base-150);
+		--secondary-foreground: var(--flexoki-base-600);
+
+		--accent: var(--flexoki-base-100);
+		--accent-foreground: var(--flexoki-600);
+
+		--destructive: var(--flexoki-red-600);
+		--destructive-foreground: var(--flexoki-paper);
+
+		--ring: var(--flexoki-base-200);
+
+		--radius: 0.5rem;
+	}
+
+	.dark {
+		--background: var(--flexoki-black);
+		--foreground: var(--flexoki-paper);
+
+		--muted: var(--flexoki-base-950);
+		--muted-foreground: var(--flexoki-base-500);
+
+		--popover: var(--flexoki-black);
+		--popover-foreground: var(--flexoki-paper);
+
+		--card: var(--flexoki-black);
+		--card-foreground: var(--flexoki-paper);
+
+		--border: var(--flexoki-base-900);
+		--input: var(--flexoki-base-900);
+
+		--primary: var(--flexoki-orange-400);
+		--primary-foreground: var(--flexoki-paper);
+
+		--secondary: var(--flexoki-base-850);
+		--secondary-foreground: var(--flexoki-base-500);
+
+		--accent: var(--flexoki-base-900);
+		--accent-foreground: var(--flexoki-500);
+
+		--destructive: var(--flexoki-red-400);
+		--destructive-foreground: var(--flexoki-paper);
+
+		--ring: var(--flexoki-base-800);
+	}
 }
- 
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground;
+		font-feature-settings:
+			'rlig' 1,
+			'calt' 1;
+	}
+}

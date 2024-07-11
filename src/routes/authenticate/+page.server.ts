@@ -34,6 +34,7 @@ export const actions = {
 			);
 			setSvelteKitSessionCookie(event.cookies, session);
 		} catch (err) {
+			console.log(err)
 			form.errors.username = [
 				'You have entered an invalid username or password.'
 			];
@@ -42,6 +43,7 @@ export const actions = {
 
 		redirect(302, '/');
 	},
+
 	async signup(event) {
 		const form = await superValidate(event, zod(formSchema));
 
@@ -62,13 +64,14 @@ export const actions = {
 				form.errors.username = ['Username is already in use.'];
 				return fail(400, { form });
 			}
-
+			console.error(error)
 			form.errors.username = ['Something went wrong, sorry.'];
 			return fail(500, { form });
 		}
 
 		redirect(302, '/');
 	},
+
 	async signout(event) {
 		if (event.locals.user) {
 			await auth.invalidateUserSessions(event.locals.user.id);

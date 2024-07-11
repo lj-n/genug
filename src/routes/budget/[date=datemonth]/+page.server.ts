@@ -9,8 +9,11 @@ import {
 	formatDateToYearMonthString,
 	getPreviousAndLastMonth
 } from '$lib/components/date.utils';
+import { superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { formSchema } from './schema';
 
-export const load: PageServerLoad = protectRoute(({ params }, user) => {
+export const load: PageServerLoad = protectRoute(async ({ params }, user) => {
 	const localDate = new Intl.DateTimeFormat('en-US', {
 		month: 'long',
 		year: 'numeric'
@@ -21,6 +24,7 @@ export const load: PageServerLoad = protectRoute(({ params }, user) => {
 	);
 
 	return {
+		form: await superValidate(zod(formSchema)),
 		budget: getBudget(db, user.id, params.date),
 		sleepingMoney: getSleepingMoney(db, user.id),
 		localDate,
@@ -31,28 +35,25 @@ export const load: PageServerLoad = protectRoute(({ params }, user) => {
 });
 
 export const actions = {
-	default: protectRoute(async ({ params, request }, user) => {
-		const formData = await request.formData();
+	default: protectRoute(async (event, user) => {
+		const form = await superValidate(event, zod(formSchema));
 
-		const schema = zfd.formData({
-			categoryId: zfd.numeric(z.number().int().positive()),
-			budget: zfd.numeric(z.number().int())
-		});
-
-		const parsed = schema.safeParse(formData);
-
-		if (!parsed.success) {
-			return fail(400, { error: 'Invalid input.' });
+		if (!form.valid) {
+			console.log(form);
+			return fail(400, { form });
 		}
 
 		try {
 			setBudget(db, user.id, {
-				categoryId: parsed.data.categoryId,
-				amount: parsed.data.budget,
-				date: params.date
+				categoryId: form.data.categoryId,
+				amount: form.data.budget,
+				date: event.params.date
 			});
+			return { form }
 		} catch (error) {
-			return fail(500, { error: 'Oops, something went wrong.' });
+			console.log(error)
+			form.errors.budget = ['Oops, something went wrong.'];
+			return fail(500, { form });
 		}
 	})
 } satisfies Actions;
