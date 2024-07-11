@@ -10,7 +10,8 @@
 	import type { PageData } from './$types';
 	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
 	import BudgetTableForm from './budget.table.form.svelte';
-	import BudgetTableGoal from './budget.table.goal.svelte';
+	import BudgetTableName from './budget.table.name.svelte';
+	import BudgetCategoryDetail from './budget.category.detail.svelte';
 
 	export let budget: PageData['budget'];
 
@@ -21,21 +22,12 @@
 			accessor: (row) => row,
 			id: 'name',
 			header: 'Category',
-			cell: ({ value }) => {
-				if (value.goal) {
-					return createRender(BudgetTableGoal, {
-						goal: value.goal,
-						rest: value.rest,
-						name: value.name
-					});
-				}
-				return value.name;
-			}
+			cell: ({ value }) => createRender(BudgetTableName, { row: value })
 		}),
 		table.column({
 			accessor: (row) => row,
 			header: 'Budget',
-			cell: ({ value }) => createRender(BudgetTableForm, { budgetRow: value })
+			cell: ({ value }) => createRender(BudgetTableForm, { row: value })
 		}),
 		table.column({
 			accessor: 'activity',
@@ -46,6 +38,11 @@
 			accessor: 'rest',
 			header: 'Available',
 			cell: ({ value }) => formatFractionToLocaleCurrency(value)
+		}),
+		table.column({
+			accessor: (row) => row,
+			header: '',
+			cell: ({ value }) => createRender(BudgetCategoryDetail, { row: value })
 		})
 	]);
 
@@ -90,7 +87,7 @@
 									{#if cell.id === 'name'}
 										<Render of={cell.render()} />
 									{:else if cell.id === 'activity'}
-										<div class="hidden text-right md:block">
+										<div class="hidden font-semibold tabular-nums text-right md:block">
 											<Render of={cell.render()} />
 										</div>
 									{:else}

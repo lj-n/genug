@@ -231,13 +231,15 @@ describe('budgets', () => {
 				name: 'Team Category 1',
 				budget: 0,
 				activity: -1800,
-				rest: -1800
+				rest: -1800,
+				team: team1.id
 			},
 			{
 				name: 'Team Category 2',
 				budget: 0,
 				activity: -1300,
-				rest: -1300
+				rest: -1300,
+				team: team2.id
 			}
 		]);
 		expect(budgetCurrent).toMatchObject([
@@ -257,13 +259,15 @@ describe('budgets', () => {
 				name: 'Team Category 1',
 				budget: 0,
 				activity: -400,
-				rest: -2200
+				rest: -2200,
+				team: team1.id
 			},
 			{
 				name: 'Team Category 2',
 				budget: 0,
 				activity: -2100,
-				rest: -3400
+				rest: -3400,
+				team: team2.id
 			}
 		]);
 		expect(budgetNext).toMatchObject([
@@ -278,13 +282,15 @@ describe('budgets', () => {
 				name: 'Team Category 1',
 				budget: 0,
 				activity: -100,
-				rest: -2300
+				rest: -2300,
+				team: team1.id
 			},
 			{
 				name: 'Team Category 2',
 				budget: 0,
 				activity: 0,
-				rest: -3400
+				rest: -3400,
+				team: team2.id
 			}
 		]);
 
@@ -408,12 +414,14 @@ describe('budgets', () => {
 			},
 			{
 				name: 'Team Category 1',
+				team: team1.id,
 				budget: 1000,
 				activity: -1800,
 				rest: -800
 			},
 			{
 				name: 'Team Category 2',
+				team: team2.id,
 				budget: 0,
 				activity: -1300,
 				rest: -1300
@@ -436,13 +444,15 @@ describe('budgets', () => {
 				name: 'Team Category 1',
 				budget: 1000,
 				activity: -400,
-				rest: -200
+				rest: -200,
+				team: team1.id
 			},
 			{
 				name: 'Team Category 2',
 				budget: 5000,
 				activity: -2100,
-				rest: 1600
+				rest: 1600,
+				team: team2.id
 			}
 		]);
 		expect(budgetNext).toMatchObject([
@@ -462,13 +472,15 @@ describe('budgets', () => {
 				name: 'Team Category 1',
 				budget: 900,
 				activity: -100,
-				rest: 600
+				rest: 600,
+				team: team1.id
 			},
 			{
 				name: 'Team Category 2',
 				budget: -200,
 				activity: 0,
-				rest: 1400
+				rest: 1400,
+				team: team2.id
 			}
 		]);
 
@@ -539,6 +551,7 @@ describe('budgets', () => {
 		expect(budget).toContainEqual({
 			id: teamCategory.id,
 			name: teamCategory.name,
+			team: team.id,
 			activity: -3000,
 			goal: null,
 			budget: 0,

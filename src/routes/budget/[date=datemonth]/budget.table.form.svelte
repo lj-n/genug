@@ -13,10 +13,10 @@
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { invalidateAll } from '$app/navigation';
 
-	export let budgetRow: PageData['budget'][number];
+	export let row: PageData['budget'][number];
 
 	const form = superForm(
-		{ budget: budgetRow.budget, categoryId: budgetRow.id },
+		{ budget: row.budget, categoryId: row.id },
 		{
 			validators: zodClient(formSchema),
 			applyAction: true,
@@ -48,16 +48,16 @@
 			class: 'h-fit border-border px-2 py-1 font-semibold'
 		})}
 	>
-		{formatFractionToLocaleCurrency(budgetRow.budget)}
+		{formatFractionToLocaleCurrency(row.budget)}
 	</Dialog.Trigger>
 	<Dialog.Content class="sm:max-w-[425px]">
 		<Dialog.Header>
 			<Dialog.Title>Set Budget</Dialog.Title>
-			<Dialog.Description>{budgetRow.name}</Dialog.Description>
+			<Dialog.Description>{row.name}</Dialog.Description>
 		</Dialog.Header>
 
 		<form method="POST" use:enhance class="space-y-4">
-			<input type="hidden" name="categoryId" value={budgetRow.id} />
+			<input type="hidden" name="categoryId" value={row.id} />
 			<Form.Field {form} name="budget">
 				<Form.Control let:attrs>
 					<Form.Label>Budget Amount</Form.Label>

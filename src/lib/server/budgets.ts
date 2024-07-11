@@ -55,6 +55,7 @@ export function getBudget(database: Database, userId: string, date: string) {
 			id: schema.category.id,
 			name: schema.category.name,
 			goal: schema.category.goal,
+			team: schema.team.id,
 			budget: sql<number>`coalesce(${schema.budget.amount}, 0)`,
 			activity: sql<number>`coalesce(${activitySumSQ.sum}, 0)`,
 			rest: sql<number>`coalesce(${budgetSumSQ.sum}, 0) + coalesce(${transactionSumSQ.sum}, 0)`
@@ -69,6 +70,7 @@ export function getBudget(database: Database, userId: string, date: string) {
 			schema.teamMember,
 			eq(schema.teamMember.teamId, schema.category.teamId)
 		)
+		.leftJoin(schema.team, eq(schema.team.id, schema.category.teamId))
 		.leftJoin(activitySumSQ, eq(schema.category.id, activitySumSQ.categoryId))
 		.leftJoin(
 			schema.budget,

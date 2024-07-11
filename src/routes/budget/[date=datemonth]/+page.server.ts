@@ -12,6 +12,7 @@ import {
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema';
+import { getTeam, getTeams } from '$lib/server/teams';
 
 export const load: PageServerLoad = protectRoute(async ({ params }, user) => {
 	const localDate = new Intl.DateTimeFormat('en-US', {
@@ -23,9 +24,14 @@ export const load: PageServerLoad = protectRoute(async ({ params }, user) => {
 		new Date(params.date)
 	);
 
+	const budget = getBudget(db, user.id, params.date);
+
 	return {
 		form: await superValidate(zod(formSchema)),
-		budget: getBudget(db, user.id, params.date),
+		teams: getTeams(db, user.id)
+			.map(({ team }) => getTeam(db, team.id))
+			.filter((team) => team !== undefined),
+		budget,
 		sleepingMoney: getSleepingMoney(db, user.id),
 		localDate,
 		previousMonth,
@@ -49,9 +55,9 @@ export const actions = {
 				amount: form.data.budget,
 				date: event.params.date
 			});
-			return { form }
+			return { form };
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 			form.errors.budget = ['Oops, something went wrong.'];
 			return fail(500, { form });
 		}
