@@ -1,5 +1,5 @@
-import { fontFamily } from 'tailwindcss/defaultTheme';
 import type { Config } from 'tailwindcss';
+import plugin from 'tailwindcss/plugin';
 
 const config: Config = {
 	darkMode: ['class'],
@@ -90,7 +90,20 @@ const config: Config = {
 				sans: ['Open Sans']
 			}
 		}
-	}
+	},
+	plugins: [
+		plugin(({ addComponents }) => {
+			addComponents({
+				'.squircle': {
+					'aspect-ratio': '1 / 1',
+					'mask-size': 'contain',
+					'mask-repeat': 'no-repeat',
+					'mask-position': 'center',
+					'mask-image': `url("data:image/svg+xml,%3csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M100 0C20 0 0 20 0 100s20 100 100 100 100-20 100-100S180 0 100 0Z'/%3e%3c/svg%3e")`
+				}
+			});
+		})
+	]
 };
 
 export default config;

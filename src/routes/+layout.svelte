@@ -26,7 +26,7 @@
 
 		<div class="ml-auto hidden gap-4 md:flex">
 			{#if data.user}
-				<Button href="/settings" variant="ghost" size="icon" class="w-9 order-3 rounded-full">
+				<Button href="/settings" variant="ghost" size="icon" class="w-9 order-3">
 					<Avatar.Root class="h-8 w-8">
 						<Avatar.Image src="/avatar?u={data.user.id}" alt="Your Avatar" />
 						<Avatar.Fallback>
@@ -38,14 +38,14 @@
 
 
 				<form action="/authenticate?/signout" method="post" class='order-2'>
-					<Button type="submit" variant="ghost" size="icon" class="w-9 rounded-full">
+					<Button type="submit" variant="ghost" size="icon" class="w-9">
 						<Feather name="log-out" class="h-4 w-4" />
 						<span class="sr-only">Sign out</span>
 					</Button>
 				</form>
 			{/if}
 			
-			<Button on:click={toggleMode} variant="ghost" size="icon" class="order-1 rounded-full">
+			<Button on:click={toggleMode} variant="ghost" size="icon" class="order-1">
 				<Feather
 					name="sun"
 					class="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"

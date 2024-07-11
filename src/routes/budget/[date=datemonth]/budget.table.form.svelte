@@ -3,24 +3,17 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
 	import {
 		currencyInputProps,
 		formatFractionToLocaleCurrency
 	} from '$lib/components/utils';
-	import {
-		defaults,
-		superForm,
-		type Infer,
-		type SuperValidated
-	} from 'sveltekit-superforms';
+	import { superForm } from 'sveltekit-superforms';
 	import type { PageData } from './$types';
-	import { formSchema, type FormSchema } from './schema';
-	import { zod, zodClient } from 'sveltekit-superforms/adapters';
+	import { formSchema } from './schema';
+	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { invalidateAll } from '$app/navigation';
 
 	export let budgetRow: PageData['budget'][number];
-	export let data: SuperValidated<Infer<FormSchema>>;
 
 	const form = superForm(
 		{ budget: budgetRow.budget, categoryId: budgetRow.id },
@@ -52,7 +45,7 @@
 	<Dialog.Trigger
 		class={buttonVariants({
 			variant: 'outline',
-			class: 'h-fit px-2 py-1 font-semibold'
+			class: 'h-fit border-border px-2 py-1 font-semibold'
 		})}
 	>
 		{formatFractionToLocaleCurrency(budgetRow.budget)}
@@ -63,7 +56,7 @@
 			<Dialog.Description>{budgetRow.name}</Dialog.Description>
 		</Dialog.Header>
 
-		<form method="POST" use:enhance>
+		<form method="POST" use:enhance class="space-y-4">
 			<input type="hidden" name="categoryId" value={budgetRow.id} />
 			<Form.Field {form} name="budget">
 				<Form.Control let:attrs>
@@ -79,7 +72,16 @@
 				<Form.FieldErrors />
 			</Form.Field>
 
-			<Button type="submit" class="ml-auto">Save</Button>
+			<div class="flex">
+				<Dialog.Close
+					class={buttonVariants({
+						variant: 'secondary'
+					})}
+				>
+					Cancel
+				</Dialog.Close>
+				<Button type="submit" class="ml-auto text-right">Save</Button>
+			</div>
 		</form>
 	</Dialog.Content>
 </Dialog.Root>
