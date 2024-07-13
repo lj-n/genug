@@ -24,7 +24,7 @@
 			<span class="sr-only">Open navigation</span>
 		</Button>
 	</Sheet.Trigger>
-	<Sheet.Content side="left">
+	<Sheet.Content side="left" class='w-3/4'>
 		<ScrollArea orientation="both" class="my-4 h-[calc(100vh-8rem)] pb-6 pl-2">
 			<nav class="flex flex-col gap-8">
 				<a href="/" class="flex items-center gap-2">

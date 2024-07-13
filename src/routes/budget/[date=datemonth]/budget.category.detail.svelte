@@ -11,7 +11,8 @@
 	<Sheet.Trigger
 		class={buttonVariants({
 			variant: 'ghost',
-			size: 'icon'
+			size: 'icon',
+			class: 'text-secondary-foreground hover:text-foreground'
 		})}
 	>
 		<Feather name="arrow-up-right" />

@@ -7,36 +7,40 @@ import { zfd } from 'zod-form-data';
 import { z } from 'zod';
 import { schema } from '$lib/server/schema';
 import { eq } from 'drizzle-orm';
+import { message, superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { createCategoryFormSchema } from './schema';
 
 export const load: PageServerLoad = protectRoute(async (_, user) => {
-	return { teams: getTeams(db, user.id) };
+	return {
+		teams: getTeams(db, user.id),
+		createForm: await superValidate(zod(createCategoryFormSchema))
+	};
 });
 
 export const actions = {
 	create: protectRoute(async ({ request }, user) => {
-		const formData = await request.formData();
+		const form = await superValidate(request, zod(createCategoryFormSchema));
 
-		const parsed = zfd
-			.formData({
-				name: zfd.text(),
-				description: zfd.text(z.string().optional()),
-				teamId: zfd.numeric(z.number().int().positive().optional())
-			})
-			.safeParse(formData);
-
-		if (!parsed.success) {
-			return fail(400, {
-				data: Object.fromEntries(formData),
-				error: 'Invalid Params'
-			});
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
-		const { name, description, teamId } = parsed.data;
+		const { name, description, teamId } = form.data;
 
 		try {
 			if (teamId) {
 				const role = getTeamRole(db, teamId, user.id);
-				if (role !== 'OWNER') throw new Error('Must be team owner');
+				if (role !== 'OWNER') {
+					return message(
+						form,
+						{
+							type: 'error',
+							text: 'You do not have permission to create a category in this team.'
+						},
+						{ status: 403 }
+					);
+				}
 			}
 
 			const category = db
@@ -50,12 +54,19 @@ export const actions = {
 				.returning()
 				.get();
 
-			return { success: true, category };
-		} catch (error) {
-			return fail(500, {
-				data: Object.fromEntries(formData),
-				error: 'Something went wrong, sorry.'
+			return message(form, {
+				type: 'success',
+				text: `Category ${category.name} created.`
 			});
+		} catch (error) {
+			return message(
+				form,
+				{
+					type: 'error',
+					text: 'Something went wrong, sorry.'
+				},
+				{ status: 500 }
+			);
 		}
 	}),
 

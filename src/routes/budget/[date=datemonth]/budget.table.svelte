@@ -12,12 +12,15 @@
 	import BudgetTableForm from './budget.table.form.svelte';
 	import BudgetTableName from './budget.table.name.svelte';
 	import BudgetCategoryDetail from './budget.category.detail.svelte';
+	import { Separator } from '$lib/components/ui/separator';
 
-	export let budget: PageData['budget'];
+	export let data: PageData['budget'];
 
-	const table = createTable(readable(budget));
+	$: budget = data;
 
-	const columns = table.createColumns([
+	$: table = createTable(readable(budget));
+
+	$: columns = table.createColumns([
 		table.column({
 			accessor: (row) => row,
 			id: 'name',
@@ -42,12 +45,13 @@
 		table.column({
 			accessor: (row) => row,
 			header: '',
+			id: 'details',
 			cell: ({ value }) => createRender(BudgetCategoryDetail, { row: value })
 		})
 	]);
 
-	const { headerRows, pageRows, tableAttrs, tableBodyAttrs } =
-		table.createViewModel(columns);
+	$: ({ headerRows, pageRows, tableAttrs, tableBodyAttrs } =
+		table.createViewModel(columns));
 </script>
 
 <div class="rounded-md border">
@@ -83,11 +87,21 @@
 					<Table.Row {...rowAttrs}>
 						{#each row.cells as cell (cell.id)}
 							<Subscribe attrs={cell.attrs()} let:attrs>
-								<Table.Cell {...attrs}>
+								<Table.Cell
+									{...attrs}
+									class={cell.id === 'details' ? 'w-0 min-w-fit' : ''}
+								>
 									{#if cell.id === 'name'}
 										<Render of={cell.render()} />
 									{:else if cell.id === 'activity'}
-										<div class="hidden font-semibold tabular-nums text-right md:block">
+										<div
+											class="hidden text-right font-semibold tabular-nums md:block"
+										>
+											<Render of={cell.render()} />
+										</div>
+									{:else if cell.id === 'details'}
+										<div class="flex gap-2">
+											<Separator orientation="vertical" class="h-auto" />
 											<Render of={cell.render()} />
 										</div>
 									{:else}

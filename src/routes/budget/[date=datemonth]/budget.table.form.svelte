@@ -9,7 +9,7 @@
 	} from '$lib/components/utils';
 	import { superForm } from 'sveltekit-superforms';
 	import type { PageData } from './$types';
-	import { formSchema } from './schema';
+	import { setBudgetFormSchema } from './schema';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { invalidateAll } from '$app/navigation';
 
@@ -18,8 +18,7 @@
 	const form = superForm(
 		{ budget: row.budget, categoryId: row.id },
 		{
-			validators: zodClient(formSchema),
-			applyAction: true,
+			validators: zodClient(setBudgetFormSchema),
 			onResult(event) {
 				invalidateAll();
 				if (event.result.type === 'success') {
@@ -29,7 +28,7 @@
 		}
 	);
 
-	const { form: formData, enhance, allErrors } = form;
+	const { form: formData, enhance } = form;
 
 	let open = false;
 </script>

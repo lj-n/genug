@@ -53,7 +53,7 @@
 		--border: var(--flexoki-base-150);
 		--input: var(--flexoki-base-100);
 
-		--primary: var(--flexoki-orange-600);
+		--primary: var(--flexoki-cyan-600);
 		--primary-foreground: var(--flexoki-paper);
 
 		--secondary: var(--flexoki-base-150);
@@ -86,7 +86,7 @@
 		--border: var(--flexoki-base-900);
 		--input: var(--flexoki-base-900);
 
-		--primary: var(--flexoki-orange-400);
+		--primary: var(--flexoki-cyan-400);
 		--primary-foreground: var(--flexoki-paper);
 
 		--secondary: var(--flexoki-base-850);
