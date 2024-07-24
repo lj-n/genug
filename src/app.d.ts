@@ -9,6 +9,15 @@ declare global {
 			session: import('lucia').Session | null;
 		}
 
+		interface PageState {
+			shallowRoute: {
+				'/testing/more'?: import("./routes/testing/more/$types").PageData;
+				'/navigation'?: import("./routes/(fallback)/navigation/$types").PageData;
+				'/categories/create'?: import("./routes/categories/create/$types").PageData;
+				'/categories/details'?: import("./routes/categories/[id=integer]/$types").PageData;
+			}
+		}
+
 		namespace Superforms {
 			type Message = {
 				type: 'error' | 'success';

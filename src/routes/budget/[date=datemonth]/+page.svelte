@@ -27,13 +27,12 @@
 	);
 
 	/**
-	 * Generate a random id to match the tabs
+	 * Use the random id to match the tabs
 	 */
-	const randId = crypto.randomUUID();
 	$: selectedTeam =
 		data.teams
 			.find((t) => t.id === Number(data.selectedBudget))
-			?.id.toString() ?? randId;
+			?.id.toString() ?? data.randId;
 </script>
 
 <svelte:head>
@@ -56,7 +55,7 @@
 				data-sveltekit-keepfocus
 			>
 				<Tabs.Trigger
-					value={team?.id.toString() ?? randId}
+					value={team?.id.toString() ?? data.randId}
 					class="data-[state=active]:text-primary"
 					on:click={(e) => e.preventDefault()}
 				>
@@ -65,9 +64,10 @@
 			</a>
 		{/each}
 	</Tabs.List>
+
 	{#each sortGroupedBudgets.entries() as [teamId, budget]}
 		{@const team = data.teams.find((t) => t.id === teamId)}
-		<Tabs.Content value={team?.id.toString() ?? randId}>
+		<Tabs.Content value={team?.id.toString() ?? data.randId}>
 			<div class="flex flex-col">
 				<p class="my-4 max-w-60 pl-2 italic text-muted-foreground">
 					{team?.description ?? 'Your personal categories.'}

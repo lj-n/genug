@@ -3,8 +3,6 @@ import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { getBudget, getSleepingMoney, setBudget } from '$lib/server/budgets';
-import { zfd } from 'zod-form-data';
-import { z } from 'zod';
 import {
 	formatDateToYearMonthString,
 	getPreviousAndLastMonth
@@ -38,7 +36,8 @@ export const load: PageServerLoad = protectRoute(async ({ params, url }, user) =
 		previousMonth,
 		nextMonth,
 		isCurrentMonth: params.date === formatDateToYearMonthString(new Date()),
-		selectedBudget: url.searchParams.get('selectedBudget')
+		selectedBudget: url.searchParams.get('selectedBudget'),
+		randId: crypto.randomUUID()
 	};
 });
 
