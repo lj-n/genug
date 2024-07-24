@@ -6,6 +6,7 @@
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { formSchema } from './schema';
 	import { Input } from '$lib/components/ui/input';
+	import LucideKeyRound from '~icons/lucide/key-round';
 
 	export let data: PageData;
 
@@ -20,7 +21,12 @@
 	<title>Login & Signup</title>
 </svelte:head>
 
-<form method="POST" action="?/login" use:enhance class="mx-auto w-full max-w-sm space-y-4">
+<form
+	method="POST"
+	action="?/login"
+	use:enhance
+	class="mx-auto w-full max-w-sm space-y-4"
+>
 	<div class="mx-auto mb-8 w-full max-w-64">
 		<img src="/logo.svg" alt="genug logo" />
 	</div>
@@ -42,7 +48,11 @@
 	</Form.Field>
 
 	<div class="flex">
-        <Form.Button class="ml-auto order-2">Login</Form.Button>
+		<Form.Button class="order-2 ml-auto">
+			<LucideKeyRound class="mr-2" />
+			Login
+		</Form.Button>
+
 		<Form.Button variant="outline" formaction="?/signup" class="order-1">
 			Create User
 		</Form.Button>

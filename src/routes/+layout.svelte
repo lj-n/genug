@@ -4,10 +4,14 @@
 	import { ModeWatcher, toggleMode } from 'mode-watcher';
 	import '../fonts.css';
 	import { Button } from '$lib/components/ui/button';
-	import Feather from '$lib/components/feather.svelte';
 	import { NavigationMain, NavigationMobile } from '$lib/components/navigation';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { Toaster } from '$lib/components/ui/sonner';
+	import LucideUserRoundCog from '~icons/lucide/user-round-cog';
+	import LucideLogOut from '~icons/lucide/log-out';
+	import LucideSun from '~icons/lucide/sun';
+	import LucideMoon from '~icons/lucide/moon';
+
 	export let data: LayoutData;
 </script>
 
@@ -35,7 +39,7 @@
 					<Avatar.Root class="h-8 w-8">
 						<Avatar.Image src="/avatar?u={data.user.id}" alt="Your Avatar" />
 						<Avatar.Fallback>
-							<Feather name="user" class="h-4 w-4" />
+							<LucideUserRoundCog />
 						</Avatar.Fallback>
 					</Avatar.Root>
 					<span class="sr-only">Profile Settings</span>
@@ -43,21 +47,15 @@
 
 				<form action="/authenticate?/signout" method="post" class="order-2">
 					<Button type="submit" variant="ghost" size="icon" class="w-9">
-						<Feather name="log-out" class="h-4 w-4" />
+						<LucideLogOut />
 						<span class="sr-only">Sign out</span>
 					</Button>
 				</form>
 			{/if}
 
-			<Button on:click={toggleMode} variant="ghost" size="icon" class="order-1">
-				<Feather
-					name="sun"
-					class="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-				/>
-				<Feather
-					name="moon"
-					class="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-				/>
+			<Button on:click={toggleMode} variant="ghost" size="icon" class="order-1 group">
+				<LucideSun class="dark:hidden" />
+				<LucideMoon class="hidden dark:block" />
 				<span class="sr-only">Toggle theme</span>
 			</Button>
 		</div>
