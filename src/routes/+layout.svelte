@@ -11,6 +11,7 @@
 	import LucideLogOut from '~icons/lucide/log-out';
 	import LucideSun from '~icons/lucide/sun';
 	import LucideMoon from '~icons/lucide/moon';
+	import { toast } from 'svelte-sonner';
 
 	export let data: LayoutData;
 </script>
@@ -53,7 +54,12 @@
 				</form>
 			{/if}
 
-			<Button on:click={toggleMode} variant="ghost" size="icon" class="order-1 group">
+			<Button
+				on:click={toggleMode}
+				variant="ghost"
+				size="icon"
+				class="group order-1"
+			>
 				<LucideSun class="dark:hidden" />
 				<LucideMoon class="hidden dark:block" />
 				<span class="sr-only">Toggle theme</span>

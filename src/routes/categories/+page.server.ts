@@ -9,7 +9,7 @@ import { schema } from '$lib/server/schema';
 import { eq } from 'drizzle-orm';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { createCategoryFormSchema } from './schema';
+import { createCategoryFormSchema } from './create/schema';
 
 export const load: PageServerLoad = protectRoute(async (_, user) => {
 	return {
@@ -19,57 +19,6 @@ export const load: PageServerLoad = protectRoute(async (_, user) => {
 });
 
 export const actions = {
-	create: protectRoute(async ({ request }, user) => {
-		const form = await superValidate(request, zod(createCategoryFormSchema));
-
-		if (!form.valid) {
-			return fail(400, { form });
-		}
-
-		const { name, description, teamId } = form.data;
-
-		try {
-			if (teamId) {
-				const role = getTeamRole(db, teamId, user.id);
-				if (role !== 'OWNER') {
-					return message(
-						form,
-						{
-							type: 'error',
-							text: 'You do not have permission to create a category in this team.'
-						},
-						{ status: 403 }
-					);
-				}
-			}
-
-			const category = db
-				.insert(schema.category)
-				.values({
-					userId: user.id,
-					name,
-					description,
-					teamId
-				})
-				.returning()
-				.get();
-
-			return message(form, {
-				type: 'success',
-				text: `Category ${category.name} created.`
-			});
-		} catch (error) {
-			return message(
-				form,
-				{
-					type: 'error',
-					text: 'Something went wrong, sorry.'
-				},
-				{ status: 500 }
-			);
-		}
-	}),
-
 	saveOrder: protectRoute(async ({ request }, user) => {
 		const formData = await request.formData();
 		const requestSchema = zfd.formData({

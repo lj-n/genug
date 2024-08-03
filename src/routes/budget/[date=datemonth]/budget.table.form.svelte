@@ -1,86 +1,33 @@
 <script lang="ts">
-	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import * as Dialog from '$lib/components/ui/dialog';
-	import * as Form from '$lib/components/ui/form';
-	import { Input } from '$lib/components/ui/input';
-	import {
-		currencyInputProps,
-		formatFractionToLocaleCurrency
-	} from '$lib/components/utils';
-	import { superForm } from 'sveltekit-superforms';
+	import { buttonVariants } from '$lib/components/ui/button';
+	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
 	import type { PageData } from './$types';
-	import { setBudgetFormSchema } from './schema';
-	import { zodClient } from 'sveltekit-superforms/adapters';
-	import { invalidateAll } from '$app/navigation';
+	import ShallowRouteModal from '$lib/components/navigation/shallow.route.modal.svelte';
+	import { createShallowRoute } from '$lib/shallow.routing';
+	import { page } from '$app/stores';
+	import type { PageData as SetBudgetPageData } from './[id=integer]/$types';
+	import SetBudgetPage from './[id=integer]/+page.svelte';
 
 	export let row: PageData['budget'][number];
 
-	const form = superForm(
-		{ budget: row.budget, categoryId: row.id },
-		{
-			validators: zodClient(setBudgetFormSchema),
-			onResult(event) {
-				invalidateAll();
-				if (event.result.type === 'success') {
-					open = false;
-				}
-			}
-		}
-	);
+	const [action, data, isOpen] = createShallowRoute<SetBudgetPageData>();
 
-	const { form: formData, enhance } = form;
-
-	let open = false;
+	const href = `${$page.url.pathname}/${row.id}`;
 </script>
 
-<Dialog.Root
-	bind:open
-	onOpenChange={(change) => {
-		if (change === false) {
-			form.reset();
-		}
-	}}
+<a
+	use:action={$page.url.pathname}
+	{href}
+	class={buttonVariants({
+		variant: 'outline',
+		class: 'h-fit border-border px-2 py-1 font-semibold'
+	})}
 >
-	<Dialog.Trigger
-		class={buttonVariants({
-			variant: 'outline',
-			class: 'h-fit border-border px-2 py-1 font-semibold'
-		})}
-	>
-		{formatFractionToLocaleCurrency(row.budget)}
-	</Dialog.Trigger>
-	<Dialog.Content class="sm:max-w-[425px]">
-		<Dialog.Header>
-			<Dialog.Title>Set Budget</Dialog.Title>
-			<Dialog.Description>{row.name}</Dialog.Description>
-		</Dialog.Header>
+	{formatFractionToLocaleCurrency(row.budget)}
+</a>
 
-		<form method="POST" use:enhance class="space-y-4">
-			<input type="hidden" name="categoryId" value={row.id} />
-			<Form.Field {form} name="budget">
-				<Form.Control let:attrs>
-					<Form.Label>Budget Amount</Form.Label>
-					<Input
-						{...attrs}
-						type="number"
-						bind:value={$formData.budget}
-						pattern={currencyInputProps.pattern}
-					/>
-				</Form.Control>
-				<Form.Description>{currencyInputProps.information}</Form.Description>
-				<Form.FieldErrors />
-			</Form.Field>
-
-			<div class="flex">
-				<Dialog.Close
-					class={buttonVariants({
-						variant: 'secondary'
-					})}
-				>
-					Cancel
-				</Dialog.Close>
-				<Button type="submit" class="ml-auto text-right">Save</Button>
-			</div>
-		</form>
-	</Dialog.Content>
-</Dialog.Root>
+<ShallowRouteModal open={$isOpen} close={() => history.back()}>
+	{#if $data}
+		<SetBudgetPage data={$data} />
+	{/if}
+</ShallowRouteModal>

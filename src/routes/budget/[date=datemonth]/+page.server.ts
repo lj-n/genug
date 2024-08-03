@@ -9,11 +9,10 @@ import {
 } from '$lib/components/date.utils';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { setBudgetFormSchema } from './schema';
+import { setBudgetFormSchema } from './[id=integer]/schema';
 import { getTeam, getTeams } from '$lib/server/teams';
-import { createCategoryFormSchema } from '../../categories/schema';
 
-export const load: PageServerLoad = protectRoute(async ({ params, url }, user) => {
+export const load: PageServerLoad = protectRoute(async ({ params }, user) => {
 	const localDate = new Intl.DateTimeFormat('en-US', {
 		month: 'long',
 		year: 'numeric'
@@ -26,7 +25,6 @@ export const load: PageServerLoad = protectRoute(async ({ params, url }, user) =
 	const budget = getBudget(db, user.id, params.date);
 
 	return {
-		createCategoryForm: await superValidate(zod(createCategoryFormSchema)),
 		teams: getTeams(db, user.id)
 			.map(({ team }) => getTeam(db, team.id))
 			.filter((team) => team !== undefined),
@@ -35,31 +33,6 @@ export const load: PageServerLoad = protectRoute(async ({ params, url }, user) =
 		localDate,
 		previousMonth,
 		nextMonth,
-		isCurrentMonth: params.date === formatDateToYearMonthString(new Date()),
-		selectedBudget: url.searchParams.get('selectedBudget'),
-		randId: crypto.randomUUID()
+		isCurrentMonth: params.date === formatDateToYearMonthString(new Date())
 	};
 });
-
-export const actions = {
-	default: protectRoute(async (event, user) => {
-		const form = await superValidate(event, zod(setBudgetFormSchema));
-
-		if (!form.valid) {
-			return fail(400, { form });
-		}
-
-		try {
-			setBudget(db, user.id, {
-				categoryId: form.data.categoryId,
-				amount: form.data.budget,
-				date: event.params.date
-			});
-			return { form };
-		} catch (error) {
-			console.log(error);
-			form.errors.budget = ['Oops, something went wrong.'];
-			return fail(500, { form });
-		}
-	})
-} satisfies Actions;

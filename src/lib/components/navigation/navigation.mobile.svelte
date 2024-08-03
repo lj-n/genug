@@ -3,7 +3,7 @@
 	import { buttonVariants } from '../ui/button';
 	import Feather from '../feather.svelte';
 	import { createShallowRoute } from '$lib/shallow.routing';
-	import NavigationPage from '../../../routes/(fallback)/navigation/+page.svelte';
+	import NavigationPage from '$routes/(fallback)/navigation/+page.svelte';
 
 	const [action, data, isOpen, close] = createShallowRoute('/navigation');
 </script>

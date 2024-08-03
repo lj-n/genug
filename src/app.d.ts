@@ -13,18 +13,14 @@ declare global {
 		}
 
 		interface PageState {
-			shallowRoute: {
-				'/testing/more'?: import('./routes/testing/more/$types').PageData;
-				'/navigation'?: import('./routes/(fallback)/navigation/$types').PageData;
-				'/categories/create'?: import('./routes/categories/create/$types').PageData;
-				'/categories/details'?: import('./routes/categories/[id=integer]/$types').PageData;
-			};
+			[key: string]: any;
 		}
 
 		namespace Superforms {
 			type Message = {
-				type: 'error' | 'success';
+				type: 'error' | 'success' | 'info';
 				text: string;
+				description?: string;
 			};
 		}
 	}

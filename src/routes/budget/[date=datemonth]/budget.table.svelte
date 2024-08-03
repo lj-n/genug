@@ -5,22 +5,25 @@
 		Subscribe,
 		createRender
 	} from 'svelte-headless-table';
-	import { readable } from 'svelte/store';
+	import { writable, type Writable } from 'svelte/store';
 	import * as Table from '$lib/components/ui/table';
 	import type { PageData } from './$types';
 	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
 	import BudgetTableForm from './budget.table.form.svelte';
 	import BudgetTableName from './budget.table.name.svelte';
-	import BudgetCategoryDetail from './budget.category.detail.svelte';
-	import { Separator } from '$lib/components/ui/separator';
+	import LucidePackage from '~icons/lucide/package';
+	import LucidePackageOpen from '~icons/lucide/package-open';
+	import LucidePackagePlus from '~icons/lucide/package-plus';
 
-	export let data: PageData['budget'];
+	export let budget: PageData['budget'];
 
-	$: budget = data;
+	const tableData = writable(budget);
 
-	$: table = createTable(readable(budget));
+	$: tableData.set(budget);
 
-	$: columns = table.createColumns([
+	const table = createTable(tableData);
+
+	const columns = table.createColumns([
 		table.column({
 			accessor: (row) => row,
 			id: 'name',
@@ -29,29 +32,26 @@
 		}),
 		table.column({
 			accessor: (row) => row,
+			id: 'budget',
 			header: 'Budget',
 			cell: ({ value }) => createRender(BudgetTableForm, { row: value })
 		}),
 		table.column({
 			accessor: 'activity',
+			id: 'activity',
 			header: 'Activity',
 			cell: ({ value }) => formatFractionToLocaleCurrency(value)
 		}),
 		table.column({
 			accessor: 'rest',
+			id: 'rest',
 			header: 'Available',
 			cell: ({ value }) => formatFractionToLocaleCurrency(value)
-		}),
-		table.column({
-			accessor: (row) => row,
-			header: '',
-			id: 'details',
-			cell: ({ value }) => createRender(BudgetCategoryDetail, { row: value })
 		})
 	]);
 
-	$: ({ headerRows, pageRows, tableAttrs, tableBodyAttrs } =
-		table.createViewModel(columns));
+	const { headerRows, pageRows, tableAttrs, tableBodyAttrs } =
+		table.createViewModel(columns);
 </script>
 
 <div class="rounded-md border">
@@ -65,8 +65,19 @@
 								<Table.Head {...attrs}>
 									{#if cell.id === 'name'}
 										<Render of={cell.render()} />
+									{:else if cell.id === 'budget'}
+										<div class="flex items-center justify-end gap-1">
+											<LucidePackage />
+											<Render of={cell.render()} />
+										</div>
 									{:else if cell.id === 'activity'}
-										<div class="hidden text-right md:block">
+										<div class="hidden items-center justify-end gap-1 md:flex">
+											<LucidePackageOpen />
+											<Render of={cell.render()} />
+										</div>
+									{:else if cell.id === 'rest'}
+										<div class="flex items-center justify-end gap-1">
+											<LucidePackagePlus />
 											<Render of={cell.render()} />
 										</div>
 									{:else}
@@ -97,11 +108,6 @@
 										<div
 											class="hidden text-right font-semibold tabular-nums md:block"
 										>
-											<Render of={cell.render()} />
-										</div>
-									{:else if cell.id === 'details'}
-										<div class="flex gap-2">
-											<Separator orientation="vertical" class="h-auto" />
 											<Render of={cell.render()} />
 										</div>
 									{:else}

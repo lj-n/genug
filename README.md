@@ -67,7 +67,7 @@ Teams enables multiple users to work together on budgeting. Users in teams can c
 ## How it works
 
 - [SQLite](https://www.sqlite.org/index.html) Database with [Drizzle ORM](https://orm.drizzle.team/) for typesafety and migrations.
-- [SvelteKit](https://kit.svelte.dev/) with focus on [Progressive Enhancement](https://developer.mozilla.org/en-US/docs/Glossary/Progressive_Enhancement), every feature works without JavaScript.
+- [SvelteKit](https://kit.svelte.dev/) with focus on [Progressive Enhancement](https://developer.mozilla.org/en-US/docs/Glossary/Progressive_Enhancement).
 
 ## Install
 
