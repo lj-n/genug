@@ -1,11 +1,13 @@
-import { goto, preloadData, pushState } from '$app/navigation';
+import { goto, preloadData, pushState, replaceState } from '$app/navigation';
 import { page } from '$app/stores';
-import { generateRandomInteger } from 'oslo/crypto';
 import type { Action } from 'svelte/action';
 import { derived, type Readable } from 'svelte/store';
 
-export function createShallowRoute<T extends unknown>(): [
-	Action<HTMLAnchorElement, string>,
+export function createShallowRoute<T extends unknown>({
+	replace = false,
+	currentPageState = {}
+}: { replace?: boolean; currentPageState?: App.PageState } = {}): [
+	Action<HTMLAnchorElement, URL>,
 	Readable<T>,
 	Readable<boolean>
 ] {
@@ -17,14 +19,18 @@ export function createShallowRoute<T extends unknown>(): [
 
 	const isOpen = derived(data, ($data) => $data !== undefined);
 
-	const action: Action<HTMLAnchorElement, string> = (node, currentPathname) => {
+	const action: Action<HTMLAnchorElement, URL> = (node, currentUrl) => {
 		async function route(href: string) {
 			const result = await preloadData(href);
 
 			if (result.type === 'loaded' && result.status === 200) {
 				// set shallow route cookie for navigating back
-				document.cookie = `shallowRoute=${currentPathname}; path=/`;
-				pushState(href, { [routeId]: result.data });
+				document.cookie = `shallowRoute=${currentUrl.href}; path=/`;
+				if (replace) {
+					replaceState(href, { ...currentPageState, [routeId]: result.data });
+				} else {
+					pushState(href, { ...currentPageState, [routeId]: result.data });
+				}
 			} else {
 				goto(href);
 			}

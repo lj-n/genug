@@ -4,13 +4,15 @@
 	import Feather from '../feather.svelte';
 	import { createShallowRoute } from '$lib/shallow.routing';
 	import NavigationPage from '$routes/(fallback)/navigation/+page.svelte';
+	import type { PageData as NavigationPageData } from '../../../routes/(fallback)/navigation/$types';
+	import { page } from '$app/stores';
 
-	const [action, data, isOpen, close] = createShallowRoute('/navigation');
+	const [action, data, isOpen] = createShallowRoute<NavigationPageData>();
 </script>
 
 <a
 	href="/navigation"
-	use:action
+	use:action={$page.url}
 	class={buttonVariants({
 		variant: 'ghost',
 		size: 'icon',
@@ -21,7 +23,14 @@
 	<span class="sr-only">Open navigation</span>
 </a>
 
-<Sheet.Root open={$isOpen} onOpenChange={close}>
+<Sheet.Root
+	open={$isOpen}
+	onOpenChange={(open) => {
+		if (!open) {
+			history.back();
+		}
+	}}
+>
 	<Sheet.Content side="left" class="w-3/4">
 		{#if $data}
 			<NavigationPage data={$data} />

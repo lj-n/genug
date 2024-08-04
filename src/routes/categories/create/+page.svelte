@@ -4,10 +4,10 @@
 	import * as Select from '$lib/components/ui/select';
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
-	import Feather from '$lib/components/feather.svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { createToastFromFormMessage } from '$lib/utils';
+	import LucideFolderPlus from '~icons/lucide/folder-plus';
 
 	export let data: PageData;
 
@@ -44,21 +44,21 @@
 </script>
 
 <form class="mx-auto grid max-w-md items-start gap-2" method="POST" use:enhance>
-	<Form.Field {form} name="name">
+	<Form.Field {form} name="categoryName">
 		<Form.Control let:attrs>
 			<Form.Label>Category Name</Form.Label>
-			<Input {...attrs} bind:value={$formData.name} />
+			<Input {...attrs} bind:value={$formData.categoryName} />
 		</Form.Control>
 		<Form.FieldErrors />
 	</Form.Field>
 
-	<Form.Field {form} name="description">
+	<Form.Field {form} name="categoryDescription">
 		<Form.Control let:attrs>
 			<Form.Label>
 				Description
 				<span class="text-xs text-muted-foreground"> (optional) </span>
 			</Form.Label>
-			<Input {...attrs} bind:value={$formData.description} />
+			<Input {...attrs} bind:value={$formData.categoryDescription} />
 		</Form.Control>
 		<Form.FieldErrors />
 	</Form.Field>
@@ -91,7 +91,7 @@
 		<Form.FieldErrors />
 	</Form.Field>
 	<Form.Button>
-		<Feather name="plus" class="mr-2" />
+		<LucideFolderPlus class="mr-2" />
 		Create
 	</Form.Button>
 </form>

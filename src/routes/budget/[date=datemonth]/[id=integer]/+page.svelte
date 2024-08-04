@@ -31,10 +31,10 @@
 	<input type="hidden" name="categoryId" value={id} />
 
 	<div class="space-y-1">
-		<span class="text-xs text-muted-foreground">Budget {data.localDate}</span>
 		<h2 class="font-semibold leading-none tracking-tight">
 			{name}
 		</h2>
+		<span class="text-xs text-muted-foreground">Budget {data.localDate}</span>
 	</div>
 
 	<div class="flex space-x-2 text-sm">
@@ -65,11 +65,7 @@
 	<Form.Field {form} name="budget">
 		<Form.Control let:attrs>
 			<Form.Label>Amount</Form.Label>
-			<Input
-				{...attrs}
-				type="number"
-				bind:value={$formData.budget}
-			/>
+			<Input {...attrs} type="number" bind:value={$formData.budget} />
 		</Form.Control>
 		<Form.Description>{currencyInputProps.information}</Form.Description>
 		<Form.FieldErrors />

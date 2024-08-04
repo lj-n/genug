@@ -14,7 +14,7 @@
 	import LucidePackage from '~icons/lucide/package';
 	import LucidePackageOpen from '~icons/lucide/package-open';
 	import LucidePackagePlus from '~icons/lucide/package-plus';
-
+	import LucideFolder from '~icons/lucide/folder';
 	export let budget: PageData['budget'];
 
 	const tableData = writable(budget);
@@ -64,7 +64,10 @@
 							<Subscribe attrs={cell.attrs()} let:attrs props={cell.props()}>
 								<Table.Head {...attrs}>
 									{#if cell.id === 'name'}
-										<Render of={cell.render()} />
+										<div class="flex items-center gap-1">
+											<LucideFolder />
+											<Render of={cell.render()} />
+										</div>
 									{:else if cell.id === 'budget'}
 										<div class="flex items-center justify-end gap-1">
 											<LucidePackage />

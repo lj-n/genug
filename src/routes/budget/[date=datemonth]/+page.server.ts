@@ -11,6 +11,7 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { setBudgetFormSchema } from './[id=integer]/schema';
 import { getTeam, getTeams } from '$lib/server/teams';
+import { getCategories } from '$lib/server/categories';
 
 export const load: PageServerLoad = protectRoute(async ({ params }, user) => {
 	const localDate = new Intl.DateTimeFormat('en-US', {
@@ -29,6 +30,9 @@ export const load: PageServerLoad = protectRoute(async ({ params }, user) => {
 			.map(({ team }) => getTeam(db, team.id))
 			.filter((team) => team !== undefined),
 		budget,
+		retiredCategories: getCategories(db, user.id, true).filter(
+			(category) => category.retired
+		),
 		sleepingMoney: getSleepingMoney(db, user.id),
 		localDate,
 		previousMonth,

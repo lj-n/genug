@@ -26,7 +26,7 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		const { name, description, teamId } = form.data;
+		const { categoryName, categoryDescription, teamId } = form.data;
 
 		let category: typeof schema.category.$inferSelect;
 		try {
@@ -48,8 +48,8 @@ export const actions = {
 				.insert(schema.category)
 				.values({
 					userId: user.id,
-					name,
-					description,
+					name: categoryName,
+					description: categoryDescription,
 					teamId
 				})
 				.returning()
