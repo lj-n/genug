@@ -20,11 +20,10 @@
 	$: ({ id, name } = data.budget);
 
 	const form = superForm(data.form, {
-		validators: zodClient(setBudgetFormSchema),
-		onResult(event) {}
+		validators: zodClient(setBudgetFormSchema)
 	});
 
-	const { form: formData, enhance, constraints } = form;
+	const { form: formData, enhance } = form;
 </script>
 
 <form method="POST" use:enhance class="flex flex-col space-y-4">

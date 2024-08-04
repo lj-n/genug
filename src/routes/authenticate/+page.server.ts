@@ -34,7 +34,6 @@ export const actions = {
 			);
 			setSvelteKitSessionCookie(event.cookies, session);
 		} catch (err) {
-			console.log(err)
 			form.errors.username = [
 				'You have entered an invalid username or password.'
 			];
@@ -64,7 +63,6 @@ export const actions = {
 				form.errors.username = ['Username is already in use.'];
 				return fail(400, { form });
 			}
-			console.error(error)
 			form.errors.username = ['Something went wrong, sorry.'];
 			return fail(500, { form });
 		}

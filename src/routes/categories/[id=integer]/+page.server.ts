@@ -1,21 +1,29 @@
 import { protectRoute } from '$lib/server/auth';
-import { error, fail, redirect } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import {
+	getCategories,
 	getCategory,
 	getCategoryDetails,
 	getCategoryLastMonthStats,
 	updateCategory
 } from '$lib/server/categories';
-import { zfd } from 'zod-form-data';
-import { z } from 'zod';
 import { schema } from '$lib/server/schema';
 import { eq } from 'drizzle-orm';
 import { getTeamRole } from '$lib/server/teams';
+import { fail, message, superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { createCategoryFormSchema } from '../create/schema';
+import {
+	goalFormSchema,
+	moveTransactionsFormSchema,
+	retireFormSchema
+} from './schema';
+import { getBudget } from '$lib/server/budgets';
 
-export const load: PageServerLoad = protectRoute(async ({ params, parent }) => {
-	const { categories } = await parent();
+export const load: PageServerLoad = protectRoute(async ({ params }, user) => {
+	const categories = getCategories(db, user.id, true);
 
 	const category = categories.find((cat) => cat.id === Number(params.id));
 	if (!category) error(404, 'Category not found.');
@@ -23,60 +31,122 @@ export const load: PageServerLoad = protectRoute(async ({ params, parent }) => {
 	return {
 		category,
 		otherCategories: categories.filter((cat) => cat.id !== category.id),
-		stats: getCategoryLastMonthStats(db, category.id),
-		...getCategoryDetails(db, category.id)
+		chartData: getCategoryLastMonthStats(db, category.id),
+		stats: getCategoryDetails(db, category.id),
+		budget: getBudget(db, user.id, new Date().toISOString().slice(0, 10)).find(
+			(b) => b.id === category.id
+		)!,
+		updateForm: await superValidate(
+			{
+				categoryName: category.name,
+				categoryDescription: category.description ?? ''
+			},
+			zod(createCategoryFormSchema)
+		),
+		goalForm: await superValidate(
+			{ goalAmount: category.goal ?? 0 },
+			zod(goalFormSchema)
+		),
+		retireForm: await superValidate(zod(retireFormSchema)),
+		moveTransactionsForm: await superValidate(zod(moveTransactionsFormSchema))
 	};
 });
 
 export const actions = {
-	updateCategory: protectRoute(async ({ params, request }, user) => {
-		const formData = await request.formData();
+	update: protectRoute(async ({ params, request }, user) => {
+		const form = await superValidate(request, zod(createCategoryFormSchema));
 
-		const parsed = zfd
-			.formData({
-				name: zfd.text(z.string().optional()),
-				description: zfd.text(z.string().optional()),
-				goal: zfd.numeric(z.number().int().nonnegative().optional())
-			})
-			.safeParse(formData);
-
-		if (!parsed.success) {
-			return fail(400, {
-				data: Object.fromEntries(formData),
-				error: 'Invalid Params'
-			});
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
+		const { categoryName, categoryDescription } = form.data;
+
 		try {
-			updateCategory(db, user.id, Number(params.id), parsed.data);
-		} catch (_e) {
-			return fail(500, {
-				updateCategoryError: 'Something went wrong, please try again.'
+			const category = updateCategory(db, user.id, Number(params.id), {
+				name: categoryName,
+				description: categoryDescription
 			});
+
+			return message(form, {
+				type: 'success',
+				text: `Category "${category.name}" updated successfully.`
+			});
+		} catch (error) {
+			return message(
+				form,
+				{
+					type: 'error',
+					text: 'Something went wrong, sorry.'
+				},
+				{ status: 500 }
+			);
 		}
 	}),
 
-	retireCategory: protectRoute(async ({ params, request }, user) => {
-		const formData = await request.formData();
-		const retired = formData.get('retired')?.toString();
+	goal: protectRoute(async ({ params, request }, user) => {
+		const form = await superValidate(request, zod(goalFormSchema));
 
-		if (typeof retired === 'undefined') {
-			return fail(400);
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
+		const { goalAmount } = form.data;
+
 		try {
-			updateCategory(db, user.id, Number(params.id), {
-				retired: retired === 'true'
+			const category = updateCategory(db, user.id, Number(params.id), {
+				goal: goalAmount
 			});
-		} catch (_e) {
-			return fail(500, {
-				updateCategoryError: 'Something went wrong, please try again.'
+
+			return message(form, {
+				type: 'success',
+				text: `Goal for category "${category.name}" updated successfully.`
 			});
+		} catch (error) {
+			return message(
+				form,
+				{
+					type: 'error',
+					text: 'Something went wrong, sorry.'
+				},
+				{ status: 500 }
+			);
+		}
+	}),
+
+	retire: protectRoute(async ({ params, request, cookies }, user) => {
+		const form = await superValidate(request, zod(retireFormSchema));
+
+		if (!form.valid) {
+			return fail(400, { form });
+		}
+
+		const { retired } = form.data;
+
+		try {
+			const category = updateCategory(db, user.id, Number(params.id), {
+				retired
+			});
+			return message(form, {
+				type: 'success',
+				text: retired
+					? `Category "${category.name}" archived.`
+					: `Category "${category.name}" activated.`
+			});
+		} catch (error) {
+			return message(
+				form,
+				{
+					type: 'error',
+					text: 'Something went wrong, sorry.'
+				},
+				{ status: 500 }
+			);
 		}
 	}),
 
 	moveTransactions: protectRoute(async ({ request, params }, user) => {
-		const formData = await request.formData();
+		const form = await superValidate(request, zod(moveTransactionsFormSchema));
 
 		const category = getCategory(db, user.id, Number(params.id));
 
@@ -84,93 +154,59 @@ export const actions = {
 			return fail(401, { moveTransactionError: 'Category not found' });
 		}
 
-		const requestSchema = zfd.formData({
-			newCategoryId: zfd.numeric(z.number().int().positive()),
-			categoryName: zfd.text(z.literal(category.name))
-		});
-
-		const parsed = requestSchema.safeParse(formData);
-
-		if (!parsed.success) {
-			return fail(400, { moveTransactionError: 'Invalid Params' });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
-		const newCategory = getCategory(db, user.id, parsed.data.newCategoryId);
+		const { newCategoryId } = form.data;
+
+		const newCategory = getCategory(db, user.id, newCategoryId);
 
 		if (!newCategory) {
-			return fail(401, { moveTransactionError: 'New category not found' });
+			return message(form, { type: 'error', text: 'New category not found' });
 		}
 
 		if (
 			(category.teamId !== null || newCategory.teamId !== null) &&
 			category.teamId !== newCategory.teamId
 		) {
-			return fail(401, {
-				moveTransactionError: 'New category must belong to the same team'
+			return message(form, {
+				type: 'error',
+				text: 'New category must belong to the same team'
 			});
 		}
 
 		if (newCategory.teamId) {
 			const role = getTeamRole(db, newCategory.teamId, user.id);
 			if (role !== 'OWNER') {
-				return fail(401, {
-					moveTransactionError: 'Must be team owner'
+				return message(form, {
+					type: 'error',
+					text: 'Must be team owner'
 				});
 			}
 		}
 
 		try {
-			db.update(schema.transaction)
+			const transactions = db
+				.update(schema.transaction)
 				.set({ categoryId: newCategory.id })
 				.where(eq(schema.transaction.categoryId, category.id))
-				.run();
-		} catch (error) {
-			return fail(500, { moveTransactionError: 'Something went wrong' });
-		}
-	}),
+				.returning()
+				.all();
 
-	removeCategory: protectRoute(async ({ request, params }, user) => {
-		const formData = await request.formData();
-
-		const category = getCategory(db, user.id, Number(params.id));
-
-		if (!category) {
-			return fail(401, { removeCategoryError: 'Category not found' });
-		}
-
-		const requestSchema = zfd.formData({
-			categoryName: zfd.text(z.literal(category.name))
-		});
-
-		const parsed = requestSchema.safeParse(formData);
-
-		if (!parsed.success) {
-			return fail(400, { removeCategoryError: 'Invalid Params' });
-		}
-
-		if (category.teamId) {
-			const role = getTeamRole(db, category.teamId, user.id);
-			if (role !== 'OWNER') {
-				return fail(401, {
-					removeCategoryError: 'Must be team owner'
-				});
-			}
-		}
-
-		try {
-			db.transaction(() => {
-				db.delete(schema.transaction)
-					.where(eq(schema.transaction.categoryId, category.id))
-					.run();
-
-				db.delete(schema.category)
-					.where(eq(schema.category.id, category.id))
-					.run();
+			return message(form, {
+				type: 'success',
+				text: `Moved ${transactions.length} transactions to "${newCategory.name}"`
 			});
 		} catch (error) {
-			return fail(500, { removeCategoryError: 'Not implemented' });
+			return message(
+				form,
+				{
+					type: 'error',
+					text: 'Something went wrong, sorry.'
+				},
+				{ status: 500 }
+			);
 		}
-
-		redirect(302, '/categories');
 	})
 } satisfies Actions;

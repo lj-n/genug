@@ -14,7 +14,7 @@ export function createShallowRoute<T extends unknown>({
 	const routeId = crypto.randomUUID();
 
 	const data = derived<typeof page, T>(page, ($page) => {
-		return $page.state[routeId];
+		return $page.state?.[routeId];
 	});
 
 	const isOpen = derived(data, ($data) => $data !== undefined);

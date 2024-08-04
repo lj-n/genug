@@ -1,286 +1,98 @@
 <script lang="ts">
-	import type { ActionData, PageData } from './$types';
-	import { enhance } from '$app/forms';
-	import Button from '$lib/components/button.svelte';
-	import {
-		currencyInputProps,
-		formatFractionToLocaleCurrency,
-		withLoading
-	} from '$lib/components/utils';
-	import Feather from '$lib/components/feather.svelte';
-	import { writable } from 'svelte/store';
-	import CategoryGraph from './category.graph.svelte';
+	import type { PageData } from './$types';
+	import Stats from './category.stats.svelte';
+	import { cn } from '$lib/utils';
+	import LucideCalendarPlus2 from '~icons/lucide/calendar-plus-2';
+	import LucideUsersRound from '~icons/lucide/users-round';
+	import LucideScroll from '~icons/lucide/scroll';
+	import { Separator } from '$lib/components/ui/separator';
+	import { buttonVariants } from '$lib/components/ui/button';
+	import UpdateForm from './category.form.update.svelte';
+	import GoalForm from './category.form.goal.svelte';
+	import RetireForm from './category.form.retire.svelte';
+	import MoveTransactionsForm from './category.form.move.svelte';
+
+	import LucideStars from '~icons/lucide/stars';
 
 	export let data: PageData;
-	export let form: ActionData;
 
-	const formattedDate = new Intl.DateTimeFormat('en-US', {
+	$: ({ category, stats, budget } = data);
+
+	$: formattedDate = new Intl.DateTimeFormat('en-US', {
 		year: 'numeric',
 		month: 'short',
 		day: 'numeric'
-	}).format(new Date(data.category.createdAt));
-
-	let updateLoading = writable(false);
-	let retireLoading = writable(false);
-	let moveTransactionLoading = writable(false);
-	let removeCategoryLoading = writable(false);
-	let moveTransactionInput = '';
-	let removeCategoryInput = '';
-
-	$: moveTransactionReady = moveTransactionInput === data.category.name;
-	$: removeCategoryReady = removeCategoryInput === data.category.name;
-
-	$: canBeRetired = data.budgetSum + data.transactionSum === 0;
+	}).format(new Date(category.createdAt));
 </script>
 
 <svelte:head>
-	<title>Category | {data.category.name}</title>
+	<title>Category | {category.name}</title>
 </svelte:head>
 
-<a href="/categories" class="btn btn-sm mt-4">
-	<Feather name="arrow-left" />
-	Back to Categories
-</a>
+<h2 class="text-3xl font-semibold leading-none tracking-tight">
+	{category.name}
+</h2>
 
-<div class="mt-8 text-muted text-xs w-fit mx-auto">
-	<span> Created at {formattedDate} </span>
-	{#if data.category.team}
-		<span class="text-blue px-2"> by Team {data.category.team.name} </span>
+<div
+	class="mt-2 flex flex-wrap items-center gap-1 text-sm text-muted-foreground md:gap-3"
+>
+	<div class="flex items-center gap-1" title="Date of Creation">
+		<LucideCalendarPlus2 />
+		<span>{formattedDate}</span>
+	</div>
+
+	{#if category.description}
+		<div class="flex items-center gap-1" title="Category Description">
+			<LucideScroll />
+			<span>
+				{category.description}
+			</span>
+		</div>
+	{/if}
+
+	{#if category.team}
+		<a
+			href="/teams/{category.team.id}"
+			class={cn(
+				buttonVariants({ variant: 'link' }),
+				'flex h-fit items-center gap-1 p-0'
+			)}
+		>
+			<LucideUsersRound />
+			<span>{category.team.name}</span>
+		</a>
 	{/if}
 </div>
-<h1 class="font-bold text-3xl mx-auto">{data.category.name}</h1>
-<span class="text-xl text-muted mb-8 mx-auto"
-	>{data.category.description || ''}
-</span>
 
-<div class="flex flex-wrap gap-8 my-8 items-center justify-center">
-	<CategoryGraph stats={data.stats} />
+<Separator class="my-8" />
 
-	<div class="flex flex-col gap-2">
-		<div class="flex flex-col">
-			<span class="tabular-nums text-xl font-bold">
-				{data.transactionCount}
+<div class="flex gap-16">
+	<div class="flex w-2/3 flex-col gap-6">
+		<Stats {stats} {budget} />
+
+		<div class="flex w-full grow rounded-md border border-dashed border-border">
+			<span class="m-auto flex items-center gap-2 italic text-muted-foreground">
+				<LucideStars />
+				Graphs coming soon...
 			</span>
-			<span>Related Transactions</span>
-		</div>
-		<div class="flex flex-col">
-			<span class="tabular-nums text-xl font-bold">
-				{formatFractionToLocaleCurrency(data.transactionSum)}
-			</span>
-			<span>Total Flow</span>
-		</div>
-		<div class="flex flex-col">
-			<span class="tabular-nums text-xl font-bold">
-				{formatFractionToLocaleCurrency(data.budgetSum)}
-			</span>
-			<span>Total Budget</span>
 		</div>
 	</div>
-</div>
 
-<div class="flex flex-col gap-20 mt-8 max-w-prose mx-auto">
-	<form
-		action="?/updateCategory"
-		method="post"
-		class="flex flex-col gap-4"
-		use:enhance={withLoading(updateLoading)}
-	>
-		<h2 class="text-xl font-semibold">Update Category Details</h2>
-
-		<label class="input-label">
-			Name
-			<input
-				type="text"
-				name="name"
-				class="input"
-				placeholder="New Category Name"
-				value={form?.data?.name || data.category.name}
-			/>
-		</label>
-
-		<label class="input-label">
-			Description
-			<input
-				type="text"
-				name="description"
-				class="input"
-				placeholder="New Category Description"
-				value={form?.data?.description || data.category.description}
-			/>
-		</label>
-
-		<label class="input-label">
-			Set a goal in this category (0 to remove goal)
-			<input
-				type="text"
-				name="goal"
-				class="input"
-				placeholder="0"
-				value={data.category.goal || 0}
-				title={currencyInputProps.title}
-				pattern={currencyInputProps.pattern}
-			/>
-		</label>
-
-		<Button
-			type="submit"
-			class="btn btn-blue ml-auto"
-			icon="chevrons-right"
-			loading={$updateLoading}
-		>
-			Update Category
-		</Button>
-	</form>
-
-	<form
-		action="?/retireCategory"
-		method="post"
-		class="flex flex-col gap-4"
-		use:enhance={withLoading(retireLoading)}
-	>
-		<input type="hidden" name="retired" value={!data.category.retired} />
-
-		{#if !data.category.retired}
-			<h2 class="text-xl font-semibold">Retire this Category</h2>
-
-			<p class="text-normal">
-				Have you reached your goal? Do you no longer need this category? Instead
-				of deleting it, you can retire it. You will keep your statistics and
-				records, but the category will no longer be displayed in your budgets,
-				transactions, etc..
-			</p>
-
-			{#if canBeRetired}
-				<span class="info info-blue flex gap-2 items-center mx-auto">
-					<Feather name="info" />
-					Don't worry, you can always revert this decision.
-				</span>
-			{:else}
-				<span class="info info-red flex gap-2 items-center mx-auto">
-					<Feather name="alert-circle" />
-					You have to even out the budgeted sum and the sum of transactions to retire
-					this category. (Check the category details)
-				</span>
-			{/if}
-
-			<Button
-				type="submit"
-				icon="sunset"
-				class="btn btn-blue ml-auto"
-				loading={$retireLoading}
-				disabled={!canBeRetired}
-			>
-				Retire Category
-			</Button>
+	<div class="flex w-1/3 flex-col gap-8">
+		{#if category.retired}
+			<RetireForm data={data.retireForm} {category} {stats} />
 		{:else}
-			<h2 class="text-xl font-semibold">Unretire this Category</h2>
+			<UpdateForm data={data.updateForm} />
 
-			<p>
-				This category is currently retired and will not be displayed in your
-				budget overview. If you want to use this category again, click the
-				button below.
-			</p>
+			<GoalForm data={data.goalForm} {budget} />
 
-			<Button icon="sunrise" class="btn btn-blue ml-auto" type="submit">
-				Unretire Category
-			</Button>
-		{/if}
-	</form>
+			<RetireForm data={data.retireForm} {category} {stats} />
 
-	<form
-		action="?/moveTransactions"
-		method="post"
-		class="flex flex-col gap-4"
-		use:enhance={withLoading(moveTransactionLoading)}
-	>
-		<h2 class="text-xl font-semibold">Move Transactions to Another Category</h2>
-
-		<p>
-			Move all transaction related to this category to another existing
-			category.
-		</p>
-
-		<span class="info info-red flex gap-2 items-center mx-auto">
-			<Feather name="alert-circle" />
-			This action can not be undone!
-		</span>
-
-		<label class="input-label">
-			Select another category
-			<select name="newCategoryId" class="input" required>
-				<option selected disabled>Select Category Here</option>
-				{#each data.otherCategories as category (category.id)}
-					<option value={category.id}>{category.name}</option>
-				{/each}
-			</select>
-		</label>
-
-		<label class="input-label">
-			<span>
-				Please type <b>{data.category.name}</b> to confirm:
-			</span>
-			<input
-				bind:value={moveTransactionInput}
-				type="text"
-				name="categoryName"
-				class="input w-full"
-				required
+			<MoveTransactionsForm
+				data={data.moveTransactionsForm}
+				categories={data.otherCategories}
+				{category}
 			/>
-		</label>
-
-		{#if form?.moveTransactionError}
-			<p class="text-error text-center">{form.moveTransactionError}</p>
 		{/if}
-
-		<Button
-			class="btn btn-red ml-auto"
-			icon="chevrons-right"
-			loading={$moveTransactionLoading}
-			disabled={!moveTransactionReady}
-		>
-			Move Transactions
-		</Button>
-	</form>
-
-	<form
-		action="?/removeCategory"
-		method="post"
-		class="flex flex-col gap-4"
-		use:enhance={withLoading(removeCategoryLoading)}
-	>
-		<h2 class="text-xl font-semibold">Delete Category</h2>
-
-		<p>Delete this category and all its related transactions.</p>
-
-		<span class="info info-red flex gap-2 items-center mx-auto">
-			<Feather name="alert-circle" />
-			This action can not be undone!
-		</span>
-
-		<label class="input-label">
-			<span>
-				Please type <b>{data.category.name}</b> to confirm:
-			</span>
-			<input
-				bind:value={removeCategoryInput}
-				type="text"
-				name="categoryName"
-				class="input w-full"
-				aria-labelledby="warning-label"
-			/>
-		</label>
-
-		{#if form?.removeCategoryError}
-			<p class="text-error text-center">{form.removeCategoryError}</p>
-		{/if}
-
-		<Button
-			class="btn btn-red ml-auto"
-			icon="trash"
-			loading={$removeCategoryLoading}
-			disabled={!removeCategoryReady}
-		>
-			Delete Category
-		</Button>
-	</form>
+	</div>
 </div>
