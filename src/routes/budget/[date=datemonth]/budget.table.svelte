@@ -5,7 +5,7 @@
 		Subscribe,
 		createRender
 	} from 'svelte-headless-table';
-	import { writable, type Writable } from 'svelte/store';
+	import { writable } from 'svelte/store';
 	import * as Table from '$lib/components/ui/table';
 	import type { PageData } from './$types';
 	import { formatFractionToLocaleCurrency } from '$lib/components/utils';

@@ -7,10 +7,7 @@ import { SQL, and, asc, desc, eq, inArray, ne, or } from 'drizzle-orm';
 /** The schema for parsing the searchParams on the transactions page. */
 export const transactionFilterSchema = zfd.formData({
 	limit: zfd.numeric(
-		z.number().int().positive().optional().default(30).catch(30)
-	),
-	offset: zfd.numeric(
-		z.number().int().nonnegative().optional().default(0).catch(0)
+		z.number().int().positive().optional().default(15).catch(15)
 	),
 	page: zfd.numeric(z.number().int().positive().optional().default(1).catch(1)),
 	accounts: zfd
@@ -181,6 +178,44 @@ export function updateTransaction(
 		checkIfTransactionIsAllowed(database, userId, updatedTransaction);
 
 		return updatedTransaction;
+	});
+}
+
+export function updateBulkTransactions(
+	database: Database,
+	userId: string,
+	transactionIds: number[],
+	update: Partial<
+		Omit<typeof schema.transaction.$inferInsert, 'id' | 'userId' | 'createdAt'>
+	>
+) {
+	return database.transaction(() => {
+		const transactions = database
+			.select({
+				id: schema.transaction.id,
+				categoryId: schema.transaction.categoryId,
+				accountId: schema.transaction.accountId
+			})
+			.from(schema.transaction)
+			.where(inArray(schema.transaction.id, transactionIds))
+			.all();
+
+		if (transactions.length !== transactionIds.length) {
+			throw new Error('Transaction not found');
+		}
+
+		const updatedTransactions = database
+			.update(schema.transaction)
+			.set({ userId, ...update })
+			.where(inArray(schema.transaction.id, transactionIds))
+			.returning()
+			.all();
+
+		updatedTransactions.forEach((transaction) => {
+			checkIfTransactionIsAllowed(database, userId, transaction);
+		});
+
+		return updatedTransactions;
 	});
 }
 

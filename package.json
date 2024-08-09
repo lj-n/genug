@@ -51,6 +51,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@internationalized/date": "^3.5.5",
 		"@lucia-auth/adapter-sqlite": "^3.0.1",
 		"@sveltejs/adapter-node": "^5.0.1",
 		"better-sqlite3": "^9.4.3",

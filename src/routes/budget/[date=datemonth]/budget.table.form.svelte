@@ -16,7 +16,7 @@
 </script>
 
 <a
-	use:action={$page.url.pathname}
+	use:action={$page.url}
 	{href}
 	class={buttonVariants({
 		variant: 'outline',
