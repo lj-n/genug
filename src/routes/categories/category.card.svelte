@@ -30,7 +30,7 @@
 </script>
 
 <div
-	class="group p-2 flex flex-col gap-1 border-ui-normal border rounded-xl bg hover:border-ui-hover dark:(border-ui-normal-dark hover:border-ui-hover-dark)"
+	class="border-ui-normal bg hover:border-ui-hover dark:(border-ui-normal-dark hover:border-ui-hover-dark) group flex flex-col gap-1 rounded-xl border p-2"
 >
 	<div>
 		<span>{category.name}</span>
@@ -40,7 +40,7 @@
 			</span>
 		{/if}
 	</div>
-	<span class="text-muted text-sm">{category.description || ''}</span>
+	<span class="text-sm text-muted">{category.description || ''}</span>
 
 	<div class="flex">
 		{#if index !== null}
@@ -48,7 +48,7 @@
 				action="?/saveOrder"
 				method="post"
 				use:enhance
-				class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+				class="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100"
 			>
 				<input type="hidden" name="categoryId" value={category.id} />
 				{#if index > 0}
@@ -76,7 +76,7 @@
 		{/if}
 		<a
 			href="/categories/{category.id}"
-			class="btn btn-sm ml-auto text-xs text-muted hover:text-normal"
+			class="btn btn-sm hover:text-normal ml-auto text-xs text-muted"
 		>
 			<Feather name="corner-right-up" />
 			Details

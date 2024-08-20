@@ -38,9 +38,9 @@
 	action="?/edit"
 	method="post"
 	use:enhance
-	class="max-w-md w-full mx-auto my-4 flex flex-col gap-2 rounded-xl border border-ui-normal p-4"
+	class="border-ui-normal mx-auto my-4 flex w-full max-w-md flex-col gap-2 rounded-xl border p-4"
 >
-	<h1 class="my-4 text-2xl font-bold flex items-center gap-4 mx-auto">
+	<h1 class="mx-auto my-4 flex items-center gap-4 text-2xl font-bold">
 		<Feather name="edit" />
 		Edit Transaction
 	</h1>
@@ -104,7 +104,7 @@
 		<p class="text-error mx-auto">{form.error}</p>
 	{/if}
 
-	<div class="flex justify-between mt-4">
+	<div class="mt-4 flex justify-between">
 		<a href="/transactions" class="btn btn-ghost">cancel</a>
 
 		<Button icon="chevrons-up" class="btn btn-blue">Edit</Button>

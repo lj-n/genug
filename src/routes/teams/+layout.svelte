@@ -9,10 +9,10 @@
 	<title>Teams</title>
 </svelte:head>
 
-<h2 class="mb-4 font-semibold text-2xl">Teams</h2>
+<h2 class="mb-4 text-2xl font-semibold">Teams</h2>
 
-<div class="flex flex-col md:flex-row gap-10 md:divide-x md:divide-ui-normal">
-	<ul role="list" class="w-full md:w-1/4 space-y-2">
+<div class="md:divide-ui-normal flex flex-col gap-10 md:flex-row md:divide-x">
+	<ul role="list" class="w-full space-y-2 md:w-1/4">
 		{#each data.teams as { team, role } (team.id)}
 			{@const isActiveLink = $page.params.id === team.id.toString()}
 			<a
@@ -20,16 +20,16 @@
 				class:border-blue={isActiveLink}
 				class:border-ui-normal={!isActiveLink}
 				class:hover:fg={!isActiveLink}
-				class="group flex flex-col py-4 px-6 border rounded-lg"
+				class="group flex flex-col rounded-lg border px-6 py-4"
 			>
 				<div class="font-semibold">
 					<span>{team.name}</span>
 
-					<span class="text-sm text-faint">
+					<span class="text-faint text-sm">
 						| {role}
 					</span>
 				</div>
-				<span class="text-muted text-sm">{team.description || ''}</span>
+				<span class="text-sm text-muted">{team.description || ''}</span>
 			</a>
 		{/each}
 	</ul>

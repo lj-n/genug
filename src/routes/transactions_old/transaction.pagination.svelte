@@ -22,7 +22,7 @@
 </script>
 
 {#key $page.url}
-	<div class="flex my-4 gap-2 items-center ml-auto">
+	<div class="my-4 ml-auto flex items-center gap-2">
 		<a
 			href={getPrevPageHref()}
 			class="btn btn-ghost btn-sm"

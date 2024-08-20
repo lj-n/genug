@@ -1,11 +1,7 @@
 <script lang="ts">
-	import SuperDebug, {
-		superForm,
-		type Infer,
-		type SuperValidated
-	} from 'sveltekit-superforms';
+	import { superForm } from 'sveltekit-superforms';
 	import type { PageData } from './create/$types';
-	import { createTransactionSchema } from './create/schema';
+	import { transactionFormSchema } from './schema';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select';
@@ -19,18 +15,17 @@
 		getLocalTimeZone,
 		DateFormatter,
 		parseDate,
-		CalendarDate,
 		type DateValue
 	} from '@internationalized/date';
 	import LucideCalendarDays from '~icons/lucide/calendar-days';
-	import LucideFilePlus2 from '~icons/lucide/file-plus-2';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { currencyInputProps } from '$lib/components/utils';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 
 	export let data: PageData;
 
 	const form = superForm(data.form, {
-		validators: zodClient(createTransactionSchema),
+		validators: zodClient(transactionFormSchema),
 		onUpdated(event) {
 			if (event.form.message) {
 				createToastFromFormMessage(event.form.message);
@@ -90,20 +85,11 @@
 	});
 </script>
 
-<SuperDebug data={$formData} />
-
-<div class="mb-6 space-y-4">
-	<h2
-		class="flex items-center text-lg font-semibold leading-none tracking-tight"
-	>
-		<LucideFilePlus2 class="mr-2" />
-		Create New Transaction
-	</h2>
-
-	<p class="text-muted-foreground">Info text here</p>
-</div>
+<div class="mx-auto mb-6"></div>
 
 <form class="grid max-w-md items-start gap-2" method="POST" use:enhance>
+	<slot name="header" />
+
 	<Form.Field {form} name="date" class="flex flex-col">
 		<Form.Control let:attrs>
 			<Form.Label>Date</Form.Label>
@@ -135,7 +121,6 @@
 					/>
 				</Popover.Content>
 			</Popover.Root>
-			<Form.Description>Select the date of the transaction</Form.Description>
 			<Form.FieldErrors />
 			<input hidden value={$formData.date} name={attrs.name} />
 		</Form.Control>
@@ -162,7 +147,6 @@
 			</Select.Root>
 			<input hidden bind:value={$formData.accountId} name={attrs.name} />
 		</Form.Control>
-		<Form.Description>text here</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field>
 
@@ -187,7 +171,6 @@
 			</Select.Root>
 			<input hidden bind:value={$formData.categoryId} name={attrs.name} />
 		</Form.Control>
-		<Form.Description>text here</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field>
 
@@ -211,56 +194,22 @@
 		<Form.FieldErrors />
 	</Form.Field>
 
-	<Form.Button>Create</Form.Button>
-
-	<!-- <Form.Field {form} name="categoryName">
+	<Form.Field
+		{form}
+		name="validated"
+		class="flex items-center justify-start gap-2"
+	>
 		<Form.Control let:attrs>
-			<Form.Label>Category Name</Form.Label>
-			<Input {...attrs} bind:value={$formData.categoryName} />
+			<Checkbox {...attrs} bind:checked={$formData.validated} />
+
+			<Form.Label>Validated</Form.Label>
+
+			<input name={attrs.name} value={$formData.validated} hidden />
 		</Form.Control>
-		<Form.FieldErrors />
 	</Form.Field>
 
-	<Form.Field {form} name="categoryDescription">
-		<Form.Control let:attrs>
-			<Form.Label>
-				Description
-				<span class="text-xs text-muted-foreground"> (optional) </span>
-			</Form.Label>
-			<Input {...attrs} bind:value={$formData.categoryDescription} />
-		</Form.Control>
-		<Form.FieldErrors />
-	</Form.Field>
-
-	<Form.Field {form} name="teamId">
-		<Form.Control let:attrs>
-			<Form.Label>Personal or Team</Form.Label>
-			<Select.Root
-				{selected}
-				onSelectedChange={(v) => {
-					v && ($formData.teamId = v.value);
-				}}
-			>
-				<Select.Trigger {...attrs}>
-					<Select.Value placeholder="Select Personal or Team" />
-				</Select.Trigger>
-				<Select.Content>
-					<Select.Item value={null} label="Personal" />
-					{#each data.teams as team (team.id)}
-						<Select.Item value={team.id} label={team.name} />
-					{/each}
-				</Select.Content>
-			</Select.Root>
-			<input hidden bind:value={$formData.teamId} name={attrs.name} />
-		</Form.Control>
-		<Form.Description>
-			Only you can see personal categories. Team categories are visible to all
-			team members.
-		</Form.Description>
-		<Form.FieldErrors />
-	</Form.Field>
-	<Form.Button>
-		<LucideFolderPlus class="mr-2" />
-		Create
-	</Form.Button> -->
+	<Form.Button class="mt-4 flex items-center">
+		<slot name="submit_icon" />
+		<slot name="submit_text" />
+	</Form.Button>
 </form>

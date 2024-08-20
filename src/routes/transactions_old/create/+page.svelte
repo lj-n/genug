@@ -39,10 +39,10 @@
 
 <form
 	method="post"
-	class="max-w-md w-full mx-auto flex flex-col gap-2 rounded-xl border border-ui-normal p-4"
+	class="border-ui-normal mx-auto flex w-full max-w-md flex-col gap-2 rounded-xl border p-4"
 	use:enhance={withLoading(loading)}
 >
-	<h1 class="my-4 text-2xl font-bold flex items-center gap-4 mx-auto">
+	<h1 class="mx-auto my-4 flex items-center gap-4 text-2xl font-bold">
 		<Feather name="file-plus" />
 		Create New Transaction
 	</h1>
@@ -83,7 +83,7 @@
 
 	<label class="input-label text-sm">
 		Flow
-		<span class="text-muted text-xs">{currencyInputProps.information}</span>
+		<span class="text-xs text-muted">{currencyInputProps.information}</span>
 		<input
 			type="text"
 			name="flow"
@@ -96,7 +96,7 @@
 	</label>
 
 	{#if form?.error}
-		<p class="text-red-500 mx-auto">{form.error}</p>
+		<p class="mx-auto text-red-500">{form.error}</p>
 	{/if}
 
 	<div class="flex justify-between">

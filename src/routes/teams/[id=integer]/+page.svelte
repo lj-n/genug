@@ -18,18 +18,18 @@
 	<title>Teams | {data.team.name}</title>
 </svelte:head>
 
-<a href="/teams" class="btn btn-sm w-fit mr-auto">
+<a href="/teams" class="btn btn-sm mr-auto w-fit">
 	<Feather name="arrow-left" />
 	Go Back
 </a>
 
-<h1 class="mt-8 font-bold text-3xl">{data.team.name}</h1>
-<p class="text-muted text-lg mt-2">
+<h1 class="mt-8 text-3xl font-bold">{data.team.name}</h1>
+<p class="mt-2 text-lg text-muted">
 	{data.team.description}
 </p>
 
 {#if data.role === 'INVITED'}
-	<div class="flex flex-col gap-4 mt-8">
+	<div class="mt-8 flex flex-col gap-4">
 		<p class="text-lg">You have been invited to join this team.</p>
 
 		<form action="?/accept" method="post" use:enhance class="flex gap-2">
@@ -47,7 +47,7 @@
 <div class="my-12">
 	{#each data.team.members as member (member.user.id)}
 		<div
-			class="border-t border-ui-normal py-2 flex gap-2 items-center last:border-y"
+			class="border-ui-normal flex items-center gap-2 border-t py-2 last:border-y"
 		>
 			<div class="avatar w-10">
 				<img src="/avatar?u={member.user.id}" alt="User Avatar" />
@@ -59,7 +59,7 @@
 						<span class="font-normal text-muted">(You)</span>
 					{/if}
 				</span>
-				<span class="text-muted text-xs">{member.role}</span>
+				<span class="text-xs text-muted">{member.role}</span>
 			</div>
 		</div>
 	{/each}
@@ -67,14 +67,14 @@
 
 {#if data.role === 'OWNER'}
 	<details
-		class="group fg rounded-xl border border-ui-normal open:(border-orange bg) p-4"
+		class="fg border-ui-normal open:(border-orange bg) group rounded-xl border p-4"
 	>
-		<summary class="list-none flex gap-2 cursor-pointer select-none">
+		<summary class="flex cursor-pointer select-none list-none gap-2">
 			<Feather
 				name="chevron-down"
-				class="hidden group-open:block text-lg text-orange"
+				class="hidden text-lg text-orange group-open:block"
 			/>
-			<Feather name="chevron-right" class="block group-open:hidden text-lg" />
+			<Feather name="chevron-right" class="block text-lg group-open:hidden" />
 			<span class="font-semibold">Update Team Information</span>
 		</summary>
 
@@ -82,7 +82,7 @@
 			action="?/update"
 			method="post"
 			use:enhance
-			class="grid grid-cols-2 gap-2 mt-4"
+			class="mt-4 grid grid-cols-2 gap-2"
 		>
 			<label class="input-label text-sm">
 				Name
@@ -108,7 +108,7 @@
 
 			<Button
 				type="submit"
-				class="btn btn-orange ml-auto col-span-2"
+				class="btn btn-orange col-span-2 ml-auto"
 				icon="chevrons-right"
 			>
 				Update
@@ -117,18 +117,18 @@
 	</details>
 
 	<details
-		class="group fg rounded-xl border border-ui-normal open:(border-orange bg) mt-4 p-4"
+		class="fg border-ui-normal open:(border-orange bg) group mt-4 rounded-xl border p-4"
 	>
-		<summary class="list-none flex gap-2 cursor-pointer select-none">
+		<summary class="flex cursor-pointer select-none list-none gap-2">
 			<Feather
 				name="chevron-down"
-				class="hidden group-open:block text-lg text-orange"
+				class="hidden text-lg text-orange group-open:block"
 			/>
-			<Feather name="chevron-right" class="block group-open:hidden text-lg" />
+			<Feather name="chevron-right" class="block text-lg group-open:hidden" />
 			<span class="font-semibold">Invite Users</span>
 		</summary>
 
-		<form data-sveltekit-keepfocus class="flex flex-col max-w-lg mx-auto mt-4">
+		<form data-sveltekit-keepfocus class="mx-auto mt-4 flex max-w-lg flex-col">
 			<div class="flex items-end gap-2">
 				<label class="input-label text-sm">
 					Search Users by Name
@@ -149,7 +149,7 @@
 		</form>
 
 		{#if data.searchResult}
-			<p class="text-xs text-muted text-center my-2">
+			<p class="my-2 text-center text-xs text-muted">
 				{#if data.searchResult.length === 0}
 					No users found with the given query.
 				{:else}
@@ -163,7 +163,7 @@
 						action="?/invite"
 						method="post"
 						use:enhance
-						class="flex gap-2 p-1 items-center w-full rounded-xl fg w-full mx-auto max-w-xs"
+						class="fg mx-auto flex w-full w-full max-w-xs items-center gap-2 rounded-xl p-1"
 					>
 						<input type="hidden" name="userId" value={foundUser.id} />
 
@@ -171,7 +171,7 @@
 							<img src="/avatar?u={foundUser.id}" alt="User Avatar" />
 						</div>
 
-						<span class="font-semibold text-sm">{foundUser.name}</span>
+						<span class="text-sm font-semibold">{foundUser.name}</span>
 
 						<Button class="btn btn-sm btn-cyan ml-auto" icon="user-plus">
 							Invite

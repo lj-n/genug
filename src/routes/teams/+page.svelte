@@ -7,9 +7,9 @@
 	action="?/create"
 	method="post"
 	use:enhance
-	class="flex flex-col gap-2 mx-auto w-full max-w-md"
+	class="mx-auto flex w-full max-w-md flex-col gap-2"
 >
-	<h1 class="font-bold text-2xl mx-auto">Create New Team</h1>
+	<h1 class="mx-auto text-2xl font-bold">Create New Team</h1>
 
 	<label class="input-label">
 		Name

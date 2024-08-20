@@ -2,8 +2,7 @@
 	import type { PageData } from './$types';
 
 	import CreateTransactionForm from '../transactions.form.svelte';
-
-	import LucideFilePlus2 from '~icons/lucide/file-plus-2';
+	import LucideSave from '~icons/lucide/save';
 
 	export let data: PageData;
 </script>
@@ -13,9 +12,9 @@
 		slot="header"
 		class="mx-auto mb-6 text-xl font-semibold leading-none tracking-tight"
 	>
-		Create New Transaction
+		Edit Transaction
 	</h1>
 
-	<LucideFilePlus2 class="mr-2" slot="submit_icon" />
-	<span slot="submit_text">Create</span>
+	<LucideSave class="mr-2" slot="submit_icon" />
+	<span slot="submit_text">Save</span>
 </CreateTransactionForm>

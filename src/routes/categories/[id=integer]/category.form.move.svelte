@@ -50,7 +50,9 @@
 		</Card.Title>
 		<Card.Description>
 			Move all transaction related to this category to another existing
-			category. <span class="font-bold text-foreground">This action cannot be undone!</span>
+			category. <span class="font-bold text-foreground"
+				>This action cannot be undone!</span
+			>
 		</Card.Description>
 	</Card.Header>
 

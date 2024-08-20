@@ -47,7 +47,7 @@
 	Back to Transactions
 </a>
 
-<h1 class="font-bold text-2xl mx-auto my-4">Transfer Money</h1>
+<h1 class="mx-auto my-4 text-2xl font-bold">Transfer Money</h1>
 
 <form
 	method="post"
@@ -55,9 +55,9 @@
 	use:enhance={withLoading(loading)}
 >
 	<div
-		class="flex flex-col gap-4 grow max-w-lg min-w-sm rounded-lg p-4 focus-within:fg transition-colors bg"
+		class="min-w-sm focus-within:fg bg flex max-w-lg grow flex-col gap-4 rounded-lg p-4 transition-colors"
 	>
-		<span class="font-bold text-xl flex items-center gap-4">
+		<span class="flex items-center gap-4 text-xl font-bold">
 			<Feather name="share" />
 			From
 		</span>
@@ -96,9 +96,9 @@
 	</div>
 
 	<div
-		class="flex flex-col gap-4 grow max-w-lg min-w-sm rounded-lg p-4 focus-within:fg transition-colors bg"
+		class="min-w-sm focus-within:fg bg flex max-w-lg grow flex-col gap-4 rounded-lg p-4 transition-colors"
 	>
-		<span class="font-bold text-xl flex items-center gap-4">
+		<span class="flex items-center gap-4 text-xl font-bold">
 			<Feather name="download" />
 			To
 		</span>
@@ -133,16 +133,16 @@
 	</div>
 
 	<div
-		class="flex flex-col gap-4 grow max-w-lg min-w-sm rounded-lg p-4 focus-within:fg transition-colors bg"
+		class="min-w-sm focus-within:fg bg flex max-w-lg grow flex-col gap-4 rounded-lg p-4 transition-colors"
 	>
-		<span class="font-bold text-xl flex items-center gap-4">
+		<span class="flex items-center gap-4 text-xl font-bold">
 			<Feather name="hash" />
 			Amount
 		</span>
 
 		<label class="input-label">
 			Transfer Amount
-			<span class="text-muted text-xs">{currencyInputProps.information}</span>
+			<span class="text-xs text-muted">{currencyInputProps.information}</span>
 			<input
 				type="text"
 				name="amount"

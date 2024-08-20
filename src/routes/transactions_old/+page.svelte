@@ -17,16 +17,16 @@
 
 <h1 class="mt-4 text-2xl font-bold">Transactions</h1>
 
-<div class="flex justify-end m-4">
-	<details class="grow max-w-md">
-		<summary class="ml-auto text-right mb-2 text-sm w-fit cursor-pointer">
+<div class="m-4 flex justify-end">
+	<details class="max-w-md grow">
+		<summary class="mb-2 ml-auto w-fit cursor-pointer text-right text-sm">
 			Show Balances
 		</summary>
 		<AccountBalances accounts={data.accounts} />
 	</details>
 </div>
 
-<div class="flex flex-col gap-4 md:(flex-row gap-2) items-center">
+<div class="md:(flex-row gap-2) flex flex-col items-center gap-4">
 	<Filter data={data.accounts} label="Accounts" key="accounts" />
 	<Filter data={data.categories} label="Categories" key="categories" />
 	{#if data.teams}
@@ -39,29 +39,29 @@
 
 	<a
 		href="/transactions/transfer"
-		class="btn text-xs btn-blue ml-auto w-full my-4 md:(w-fit my-0)"
+		class="btn btn-blue md:(w-fit my-0) my-4 ml-auto w-full text-xs"
 	>
 		<Feather name="shuffle" />
 		Transfer Transactions
 	</a>
 	<a
 		href="/transactions/create"
-		class="btn text-xs btn-green w-full my-4 md:(w-fit my-0)"
+		class="btn btn-green md:(w-fit my-0) my-4 w-full text-xs"
 	>
 		<Feather name="plus-circle" />
 		New Transaction
 	</a>
 </div>
 
-<table class="block mt-4 lg:(mt-0 table border-collapse w-full)">
+<table class="lg:(mt-0 w-full) mt-4 block table border-collapse">
 	<thead class="sr-only lg:not-sr-only">
-		<tr class="block lg:(table-row text-sm)">
-			<th scope="col" class="text-left px-2 py-4">Date</th>
-			<th scope="col" class="text-left px-2 py-4">Account</th>
-			<th scope="col" class="text-left px-2 py-4">Category</th>
-			<th scope="col" class="text-left px-2 py-4">Description</th>
-			<th scope="col" class="text-right px-2 py-4">Flow</th>
-			<th scope="col" class="text-right px-2 py-4">Validated</th>
+		<tr class="lg:(table-row text-sm) block">
+			<th scope="col" class="px-2 py-4 text-left">Date</th>
+			<th scope="col" class="px-2 py-4 text-left">Account</th>
+			<th scope="col" class="px-2 py-4 text-left">Category</th>
+			<th scope="col" class="px-2 py-4 text-left">Description</th>
+			<th scope="col" class="px-2 py-4 text-right">Flow</th>
+			<th scope="col" class="px-2 py-4 text-right">Validated</th>
 			<th scope="col" class="sr-only">Actions</th>
 		</tr>
 	</thead>
@@ -70,35 +70,35 @@
 		{#each data.transactions as transaction (transaction.id)}
 			<tr
 				animate:flip={{ duration: 200 }}
-				class="flex flex-wrap border-b pb-4 border-ui-normal lg:(border-none table-row) lg:[&>td]:hover:fg"
+				class="border-ui-normal lg:(border-none table-row) lg:[&>td]:hover:fg flex flex-wrap border-b pb-4"
 			>
 				<td
-					class="order-3 text-muted text-sm mr-4 lg:(text-normal text-base p-2 rounded-l-lg)"
+					class="lg:(text-normal rounded-l-lg) order-3 mr-4 p-2 text-base text-sm text-muted"
 				>
 					{transaction.date}
 				</td>
 
-				<td class="order-4 text-muted text-sm lg:(text-normal text-base p-2)">
+				<td class="lg:(text-normal p-2) order-4 text-base text-sm text-muted">
 					{transaction.account?.name}
 				</td>
 
 				<td
-					class="order-1 w-2/3 font-semibold lg:(w-unset text-normal text-base font-normal p-2)"
+					class="lg:(w-unset text-normal p-2) order-1 w-2/3 text-base font-normal font-semibold"
 				>
 					{transaction.category?.name || 'No Category'}
 				</td>
 
-				<td class="order-5 w-full my-2 text-muted text-sm lg:(w-unset p-2)">
+				<td class="lg:(w-unset p-2) order-5 my-2 w-full text-sm text-muted">
 					{transaction.description || ''}
 				</td>
 
 				<td
-					class="order-6 w-1/2 tabular-nums font-semibold text-lg lg:(w-unset text-base text-right p-2)"
+					class="lg:(w-unset p-2) order-6 w-1/2 text-right text-base text-lg font-semibold tabular-nums"
 				>
 					{formatFractionToLocaleCurrency(transaction.flow)}
 				</td>
 
-				<td class="order-2 w-1/3 text-right lg:(w-unset p-2)">
+				<td class="lg:(w-unset p-2) order-2 w-1/3 text-right">
 					<form action="?/validate" method="post" use:enhance>
 						<input
 							type="hidden"
@@ -109,14 +109,14 @@
 						{#if transaction.validated}
 							<button
 								type="submit"
-								class="font-semibold text-xs border text-green border-green dark:(text-green-dark border-green-dark hover:bg-green-dark/05) px-2 py-0.5 rounded-full hover:bg-green/05"
+								class="dark:(text-green-dark border-green-dark hover:bg-green-dark/05) hover:bg-green/05 rounded-full border border-green px-2 py-0.5 text-xs font-semibold text-green"
 							>
 								validated
 							</button>
 						{:else}
 							<button
 								type="submit"
-								class="font-semibold text-xs border text-yellow border-yellow dark:(text-yellow-dark border-yellow-dark hover:bg-yellow-dark/05) px-2 py-0.5 rounded-full hover:bg-yellow/05"
+								class="dark:(text-yellow-dark border-yellow-dark hover:bg-yellow-dark/05) hover:bg-yellow/05 rounded-full border border-yellow px-2 py-0.5 text-xs font-semibold text-yellow"
 							>
 								not validated
 							</button>
@@ -124,12 +124,12 @@
 					</form>
 				</td>
 
-				<td class="order-7 w-1/2 text-right lg:(w-unset p-2 rounded-r-lg)">
-					<div class="flex gap-2 items-center w-fit ml-auto">
+				<td class="lg:(w-unset rounded-r-lg) order-7 w-1/2 p-2 text-right">
+					<div class="ml-auto flex w-fit items-center gap-2">
 						<a
 							href="/transactions/{transaction.id}"
 							title="Edit"
-							class="btn-sm text-muted hover:text-normal"
+							class="btn-sm hover:text-normal text-muted"
 						>
 							<Feather name="edit" />
 						</a>
@@ -150,7 +150,7 @@
 							<input type="hidden" name="id" value={transaction.id} />
 							<button
 								type="submit"
-								class="btn-sm text-muted hover:text-normal"
+								class="btn-sm hover:text-normal text-muted"
 								title="Delete"
 								aria-label="Delete Transaction"
 							>

@@ -105,8 +105,6 @@
 	$: selectedTransactions = data.transactions.filter(
 		(t) => $selectedDataIds[t.id] === true
 	);
-
-	$: console.log($selectedDataIds);
 </script>
 
 <Actions {selectedTransactions} {validateForm} />

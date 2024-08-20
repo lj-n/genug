@@ -6,8 +6,10 @@
 </script>
 
 <div class="flex flex-col">
-	<span class="font-bold tabular-nums text-base">
+	<span class="text-base font-bold tabular-nums">
 		{formatFractionToLocaleCurrency(transaction.flow)}
 	</span>
-	<span class="text-xs text-muted-foreground">{transaction.description ?? '~'}</span>
+	<span class="text-xs text-muted-foreground"
+		>{transaction.description ?? '~'}</span
+	>
 </div>

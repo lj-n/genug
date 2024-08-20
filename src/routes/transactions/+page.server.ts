@@ -13,17 +13,17 @@ import { validateFormSchema } from './schema';
 export const load: PageServerLoad = protectRoute(async ({ url }, user) => {
 	const filter = transactionFilterSchema.parse(url.searchParams);
 
-    /**
-     * Todo: Write sql query to get total transaction count
-     */
-    const filterCopy = { ...filter };
-    filterCopy.limit = 0
-    const totalTransactionCount = getTransactions(db, user.id, filterCopy).length;
+	/**
+	 * Todo: Write sql query to get total transaction count
+	 */
+	const filterCopy = { ...filter };
+	filterCopy.limit = 0;
+	const totalTransactionCount = getTransactions(db, user.id, filterCopy).length;
 	return {
 		filter,
 		transactions: getTransactions(db, user.id, filter),
 		validateForm: await superValidate(zod(validateFormSchema)),
-        totalTransactionCount
+		totalTransactionCount
 	};
 });
 
@@ -36,8 +36,6 @@ export const actions = {
 		}
 
 		const { transactionIds, invalidate } = form.data;
-
-		console.log(transactionIds, invalidate);
 
 		try {
 			const transactions = updateBulkTransactions(db, user.id, transactionIds, {

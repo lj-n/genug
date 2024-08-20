@@ -5,7 +5,11 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { fail, redirect } from '@sveltejs/kit';
 import { createUser, createUserSession } from '$lib/server/auth/user.js';
 import { db } from '$lib/server/db.js';
-import { auth, deleteSvelteKitSessionCookie, setSvelteKitSessionCookie } from '$lib/server/auth/client.js';
+import {
+	auth,
+	deleteSvelteKitSessionCookie,
+	setSvelteKitSessionCookie
+} from '$lib/server/auth/client.js';
 import { isNameAlreadyInUse } from '$lib/server/auth/utils.js';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -75,7 +79,7 @@ export const actions = {
 			await auth.invalidateUserSessions(event.locals.user.id);
 			deleteSvelteKitSessionCookie(event.cookies);
 		}
-	
+
 		redirect(302, '/authenticate');
 	}
 } satisfies Actions;

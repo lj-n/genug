@@ -54,13 +54,13 @@
 </script>
 
 <details
-	class="hidden md:block relative text-sm"
+	class="relative hidden text-sm md:block"
 	use:clickOutside={closeDetails}
 >
 	<summary
-		class="list-none cursor-pointer hover:fg px-1 rounded flex items-center gap-2 px-2 py-1 rounded border border-ui-normal"
+		class="hover:fg border-ui-normal flex cursor-pointer list-none items-center gap-2 rounded rounded border px-1 px-2 py-1"
 	>
-		<Feather name="filter" class="text-muted text-xs" />
+		<Feather name="filter" class="text-xs text-muted" />
 
 		{label}
 
@@ -70,14 +70,14 @@
 	</summary>
 
 	<div
-		class="absolute top-[125%] bg w-40 rounded border border-ui-normal flex flex-col p-1 items-start shadow-sm z-10"
+		class="bg border-ui-normal absolute top-[125%] z-10 flex w-40 flex-col items-start rounded border p-1 shadow-sm"
 	>
 		{#each data as { name, id } (id)}
 			{@const isActive = activeFilter.includes(id.toString())}
 			<a
 				data-sveltekit-keepfocus
 				href="/transactions?{createFilterHref($page.url, id.toString())}"
-				class="rounded hover:fg p-1 gap-2 text-xs w-full flex items-center"
+				class="hover:fg flex w-full items-center gap-2 rounded p-1 text-xs"
 			>
 				<div class="flex-shrink-0 text-muted" class:text-blue={isActive}>
 					<Feather name={isActive ? 'check-square' : 'square'} />
@@ -89,11 +89,11 @@
 		{/each}
 
 		{#if activeFilter.length > 0}
-			<div class="border-t border-ui-hover w-full my-1"></div>
+			<div class="border-ui-hover my-1 w-full border-t"></div>
 			<a
 				data-sveltekit-keepfocus
 				href="/transactions?{removeFilterHref($page.url)}"
-				class="rounded hover:fg p-1 gap-2 text-xs w-full flex items-center text-muted"
+				class="hover:fg flex w-full items-center gap-2 rounded p-1 text-xs text-muted"
 			>
 				<div class="flex-shrink-0">
 					<Feather name="trash" />

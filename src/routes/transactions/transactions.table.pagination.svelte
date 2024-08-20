@@ -52,7 +52,7 @@
 	};
 </script>
 
-<div class="mt-4 flex items-center gap-4 ml-auto">
+<div class="ml-auto mt-4 flex items-center gap-4">
 	<span class="whitespace-nowrap text-xs text-muted-foreground">
 		{$pageIndex * $pageSize - $pageSize}-{$pageIndex * $pageSize}
 		of

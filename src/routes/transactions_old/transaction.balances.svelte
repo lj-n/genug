@@ -5,14 +5,14 @@
 	export let accounts: ReturnType<typeof getAccountsWithBalance>;
 </script>
 
-<div class="rounded border border-ui-normal p-2">
-	<table class="table-auto border-collapse w-full text-sm">
+<div class="border-ui-normal rounded border p-2">
+	<table class="w-full table-auto border-collapse text-sm">
 		<thead>
 			<tr>
 				<th
 					id="val"
 					scope="col"
-					class="text-left font-normal text-xs text-muted"
+					class="text-left text-xs font-normal text-muted"
 				>
 					Validated
 				</th>
@@ -20,7 +20,7 @@
 				<th
 					id="pen"
 					scope="col"
-					class="text-right font-normal text-xs text-muted"
+					class="text-right text-xs font-normal text-muted"
 				>
 					Pending
 				</th>
@@ -28,7 +28,7 @@
 				<th
 					id="work"
 					scope="col"
-					class="text-right font-normal text-xs text-muted"
+					class="text-right text-xs font-normal text-muted"
 				>
 					Working
 				</th>
@@ -50,14 +50,14 @@
 				<tr>
 					<td
 						headers="accname val"
-						class="text-left tabular-nums font-bold text-normal"
+						class="text-normal text-left font-bold tabular-nums"
 					>
 						{formatFractionToLocaleCurrency(account.validated)}
 					</td>
 					<td></td>
 					<td
 						headers="accname pen"
-						class="text-right tabular-nums font-bold text-normal"
+						class="text-normal text-right font-bold tabular-nums"
 					>
 						{#if account.pending > 0}
 							<span class="text-muted">+</span>
@@ -67,7 +67,7 @@
 					<td></td>
 					<td
 						headers="accname work"
-						class="text-right tabular-nums font-bold text-normal"
+						class="text-normal text-right font-bold tabular-nums"
 					>
 						<span class="text-muted">=</span>
 						{formatFractionToLocaleCurrency(account.working)}

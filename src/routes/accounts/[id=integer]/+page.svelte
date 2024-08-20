@@ -35,32 +35,32 @@
 	Back to Accounts
 </a>
 
-<div class="mt-8 text-muted text-xs w-fit mx-auto">
+<div class="mx-auto mt-8 w-fit text-xs text-muted">
 	<span> Created at {formattedDate} </span>
 	{#if data.account.team}
-		<span class="text-blue px-2"> by Team {data.account.team.name} </span>
+		<span class="px-2 text-blue"> by Team {data.account.team.name} </span>
 	{/if}
 </div>
-<h1 class="font-bold text-3xl mx-auto">{data.account.name}</h1>
-<span class="text-xl text-muted mb-8 mx-auto">
+<h1 class="mx-auto text-3xl font-bold">{data.account.name}</h1>
+<span class="mx-auto mb-8 text-xl text-muted">
 	{data.account.description || ''}
 </span>
 
 <div
-	class="flex flex-col md:flex-row gap-2 md:gap-4 items-end ml-auto md:mx-auto mt-8 mb-12"
+	class="mb-12 ml-auto mt-8 flex flex-col items-end gap-2 md:mx-auto md:flex-row md:gap-4"
 >
-	<div class="flex flex-col items-end w-fit">
-		<span class="tabular-nums font-semibold text-4xl">
+	<div class="flex w-fit flex-col items-end">
+		<span class="text-4xl font-semibold tabular-nums">
 			{formatFractionToLocaleCurrency(data.account.validated)}
 		</span>
 		<span class="leading-tight text-muted">Validated Balance</span>
 	</div>
 
-	<span class="text-muted mb-auto text-4xl font-bold hidden md:block">+</span>
+	<span class="mb-auto hidden text-4xl font-bold text-muted md:block">+</span>
 
-	<div class="flex flex-col items-end w-fit mb-4 md:mb-0">
+	<div class="mb-4 flex w-fit flex-col items-end md:mb-0">
 		<span
-			class="tabular-nums font-semibold text-4xl"
+			class="text-4xl font-semibold tabular-nums"
 			class:text-green-light={data.account.pending > 0}
 			class:text-red-light={data.account.pending < 0}
 		>
@@ -69,26 +69,26 @@
 		<span class="leading-tight text-muted">Pending Balance</span>
 	</div>
 
-	<span class="text-muted mb-auto text-4xl font-bold hidden md:block">=</span>
+	<span class="mb-auto hidden text-4xl font-bold text-muted md:block">=</span>
 
 	<div
-		class="flex flex-col items-end w-fit border-t-2 border-ui-normal dark:border-ui-normal-dark md:border-none"
+		class="border-ui-normal dark:border-ui-normal-dark flex w-fit flex-col items-end border-t-2 md:border-none"
 	>
-		<span class="tabular-nums font-bold text-4xl">
+		<span class="text-4xl font-bold tabular-nums">
 			{formatFractionToLocaleCurrency(data.account.working)}
 		</span>
 		<span class="leading-tight text-muted">Working Balance</span>
 	</div>
 </div>
 
-<div class="flex flex-col gap-4 md:gap-12 max-w-xl w-full mx-auto py-8">
+<div class="mx-auto flex w-full max-w-xl flex-col gap-4 py-8 md:gap-12">
 	<form
 		action="?/updateAccount"
 		method="post"
 		class="flex flex-col gap-4"
 		use:enhance={withLoading(updateLoading)}
 	>
-		<h2 class="font-semibold text-lg">Update Account Details</h2>
+		<h2 class="text-lg font-semibold">Update Account Details</h2>
 
 		<label class="input-label">
 			Name
@@ -115,7 +115,7 @@
 		</label>
 
 		{#if form?.updateAccountError}
-			<p class="text-error text-center my-2">{form.updateAccountError}</p>
+			<p class="text-error my-2 text-center">{form.updateAccountError}</p>
 		{/if}
 
 		<Button
@@ -133,7 +133,7 @@
 		class="flex flex-col gap-4"
 		use:enhance={withLoading(moveTransactionLoading)}
 	>
-		<h2 class="font-semibold text-lg">Move Transactions to Another Account</h2>
+		<h2 class="text-lg font-semibold">Move Transactions to Another Account</h2>
 		<blockquote class="danger">
 			Careful! This action cannot be undone.
 		</blockquote>
@@ -165,7 +165,7 @@
 		</div>
 
 		{#if form?.moveTransactionError}
-			<p class="text-error text-center my-2">{form.moveTransactionError}</p>
+			<p class="text-error my-2 text-center">{form.moveTransactionError}</p>
 		{/if}
 
 		<Button
@@ -183,7 +183,7 @@
 		class="flex flex-col gap-4"
 		use:enhance={withLoading(removeAccountLoading)}
 	>
-		<h2 class="font-semibold text-lg">
+		<h2 class="text-lg font-semibold">
 			Delete Account and its Transactions ({data.account.count})
 		</h2>
 		<blockquote class="danger">
@@ -207,7 +207,7 @@
 		</div>
 
 		{#if form?.removeAccountError}
-			<p class="text-error text-center my-2">{form.removeAccountError}</p>
+			<p class="text-error my-2 text-center">{form.removeAccountError}</p>
 		{/if}
 
 		<Button

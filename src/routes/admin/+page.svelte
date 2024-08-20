@@ -12,13 +12,13 @@
 </script>
 
 <div class="flex flex-col gap-2">
-	<h1 class="text-2xl font-bold mt-4 mb-2">Admin Page</h1>
+	<h1 class="mb-2 mt-4 text-2xl font-bold">Admin Page</h1>
 	<p class="mb-4 text-muted">
 		This page is only accessible to users with the admin role.
 	</p>
 
 	{#if form?.error}
-		<p class="my-4 text-error">{form.error}</p>
+		<p class="text-error my-4">{form.error}</p>
 	{/if}
 
 	{#if form?.success}
@@ -28,13 +28,13 @@
 	{#each data.users as user (user.id)}
 		<form
 			method="post"
-			class="flex flex-col max-w-sm rounded-xl fg shadow-sm border border-ui-normal p-2"
+			class="fg border-ui-normal flex max-w-sm flex-col rounded-xl border p-2 shadow-sm"
 			use:enhance={withLoading(loading)}
 		>
 			<h2 class="text-semibold">Username: {user.name}</h2>
 			<p class="text-sm text-muted">ID: {user.id}</p>
 
-			<div class="flex gap-2 items-end mt-4">
+			<div class="mt-4 flex items-end gap-2">
 				<input type="hidden" name="userId" value={user.id} />
 
 				<label class="input-label text-xs">

@@ -19,7 +19,7 @@
 	<title>Settings</title>
 </svelte:head>
 
-<div class="flex gap-4 items-center my-8">
+<div class="my-8 flex items-center gap-4">
 	<div class="avatar w-16">
 		<img src="/avatar?u={data.user.id}" alt="user-avatar" />
 	</div>
@@ -27,10 +27,10 @@
 </div>
 
 <div
-	class="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3 md:gap-4 lg:gap-8"
+	class="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-4 lg:grid-cols-3 lg:gap-8"
 >
 	<div
-		class="flex flex-col gap-2 md:gap-4 items-center border border-ui rounded-lg p-2"
+		class="border-ui flex flex-col items-center gap-2 rounded-lg border p-2 md:gap-4"
 	>
 		<h2>Profile Image</h2>
 		<div class="avatar w-2/3">
@@ -38,7 +38,7 @@
 		</div>
 
 		<details class="peer">
-			<summary class="list-none btn btn-ghost">
+			<summary class="btn btn-ghost list-none">
 				<span>Change Avatar</span>
 			</summary>
 		</details>
@@ -47,7 +47,7 @@
 			action="?/updateAvatar"
 			enctype="multipart/form-data"
 			method="post"
-			class="peer-open:max-h-20 max-h-0 transition-all overflow-hidden"
+			class="max-h-0 overflow-hidden transition-all peer-open:max-h-20"
 			use:enhance={() => {
 				return async ({ update, formElement }) => {
 					update();
@@ -60,14 +60,14 @@
 				<span>Max file size: 1MB</span>
 			</div>
 
-			<div class="p-2 flex gap-2">
+			<div class="flex gap-2 p-2">
 				<input
 					type="file"
 					name="image"
 					id="avatar"
 					accept="image/*"
 					required
-					class="peer opacity-0 absolute top-0 left-0"
+					class="peer absolute left-0 top-0 opacity-0"
 				/>
 				<label
 					for="avatar"
@@ -102,11 +102,11 @@
 		</form>
 	</div>
 
-	<div class="flex flex-col gap-4 border border-ui rounded-lg p-2">
+	<div class="border-ui flex flex-col gap-4 rounded-lg border p-2">
 		<h2 class="mx-auto">Settings</h2>
 
 		<form action="?/changeTheme" method="post" class="flex gap-2" use:enhance>
-			<span class="mr-auto text-tx-2">Theme</span>
+			<span class="text-tx-2 mr-auto">Theme</span>
 			<button
 				type="submit"
 				name="theme"
@@ -136,12 +136,12 @@
 		</form>
 	</div>
 
-	<div class="flex flex-col gap-4 border border-ui rounded-lg p-2">
+	<div class="border-ui flex flex-col gap-4 rounded-lg border p-2">
 		<h2 class="mx-auto">General</h2>
 		<form
 			action="?/changeUsername"
 			method="post"
-			class="max-w-md mx-auto w-full flex flex-col gap-2"
+			class="mx-auto flex w-full max-w-md flex-col gap-2"
 			use:enhance
 		>
 			<label class="input-label">
@@ -162,7 +162,7 @@
 		<form
 			action="?/changePassword"
 			method="post"
-			class="max-w-md mx-auto w-full flex flex-col gap-2"
+			class="mx-auto flex w-full max-w-md flex-col gap-2"
 			use:enhance
 		>
 			<label class="input-label">

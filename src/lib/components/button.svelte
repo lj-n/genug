@@ -14,7 +14,7 @@
 
 <button on:click {...$$restProps} data-loading={loading || null}>
 	{#if loading}
-		<Feather name="loader" class="animate-spin animate-duration-3000" />
+		<Feather name="loader" class="animate-duration-3000 animate-spin" />
 	{:else if icon}
 		<Feather name={icon} />
 	{/if}

@@ -15,7 +15,7 @@ export const GET: RequestHandler = async ({ setHeaders, url }) => {
 	const imageType = avatar?.imageType;
 
 	if (!imageBlob || !imageType) {
-		error(404, 'Avatar not found')
+		error(404, 'Avatar not found');
 	}
 
 	setHeaders({

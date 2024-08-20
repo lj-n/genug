@@ -10,7 +10,7 @@
 	import { toggleMode } from 'mode-watcher';
 	import type { PageData } from './$types';
 
-	export let data: PageData
+	export let data: PageData;
 </script>
 
 <ScrollArea orientation="both" class="my-4 h-[calc(100vh-8rem)] pb-6 pl-2">
