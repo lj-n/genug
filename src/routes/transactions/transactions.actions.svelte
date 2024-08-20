@@ -47,7 +47,7 @@
 				Selected: {selectedTransactions.length}
 			</Badge>
 
-			<form action="?/validate" method="post" use:enhance>
+			<form method="post" use:enhance>
 				{#each selectedTransactions as transaction}
 					<input type="hidden" name="transactionIds" value={transaction.id} />
 				{/each}
@@ -57,12 +57,20 @@
 					<span class="sr-only"> Validate Selected Transactions </span>
 				</Form.Button>
 
-				<Form.Button size="icon" variant="ghost" name="invalidate" value="true">
+				<Form.Button size="icon" variant="ghost" name="invalidate">
 					<LucideTimer class="text-blue dark:text-blue-light" />
 					<span class="sr-only"> Set Selected Transactions as Pending </span>
 				</Form.Button>
 
-				<Form.Button size="icon" variant="ghost" formaction="?/remove">
+				<Form.Button
+					size="icon"
+					variant="ghost"
+					name="delete"
+					on:click={(e) =>
+						!confirm(
+							`This will delete ${selectedTransactions.length} transactions. Are you sure?`
+						) && e.preventDefault()}
+				>
 					<LucideTrash2 class="text-red dark:text-red-light" />
 					<span class="sr-only"> Delete Selected Transactions </span>
 				</Form.Button>
