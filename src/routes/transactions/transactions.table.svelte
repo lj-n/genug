@@ -6,6 +6,7 @@
 		createRender
 	} from 'svelte-headless-table';
 	import {
+		addColumnFilters,
 		addPagination,
 		addSelectedRows
 	} from 'svelte-headless-table/plugins';
@@ -18,6 +19,7 @@
 	import TransactionsEdit from './transactions.table.edit.svelte';
 	import Actions from './transactions.actions.svelte';
 	import Pagination from './transactions.table.pagination.svelte';
+	import TextFilter from './transactions.text.filter.svelte';
 
 	import { Button } from '$lib/components/ui/button';
 
@@ -35,6 +37,9 @@
 		page: addPagination({
 			serverSide: true,
 			serverItemCount
+		}),
+		filter: addColumnFilters({
+			serverSide: true,
 		})
 	});
 
@@ -61,7 +66,16 @@
 			id: 'transaction',
 			header: 'Transaction',
 			cell: ({ value }) =>
-				createRender(TransactionsLabel, { transaction: value })
+				createRender(TransactionsLabel, { transaction: value }),
+			plugins: {
+				filter: {
+					fn: () => {
+						return true
+					},
+					initialFilterValue: '',
+					render: ({ filterValue }) => createRender(TextFilter, { filterValue })
+				}
+			}
 		}),
 		table.column({
 			accessor: 'category',
@@ -116,14 +130,24 @@
 				<Subscribe rowAttrs={headerRow.attrs()}>
 					<Table.Row>
 						{#each headerRow.cells as cell (cell.id)}
-							<Subscribe attrs={cell.attrs()} let:attrs props={cell.props()}>
+							<Subscribe
+								attrs={cell.attrs()}
+								let:attrs
+								props={cell.props()}
+								let:props
+							>
 								<Table.Head {...attrs} class="[&:has([role=checkbox])]:pl-3">
 									{#if cell.id === 'date' || cell.id === 'validated' || cell.id === 'account'}
 										<div class="text-right">
 											<Render of={cell.render()} />
 										</div>
 									{:else}
-										<Render of={cell.render()} />
+										<div class="flex flex-col gap-2 py-2">
+											<Render of={cell.render()} />
+											{#if props.filter?.render}
+												<Render of={props.filter.render} />
+											{/if}
+										</div>
 									{/if}
 								</Table.Head>
 							</Subscribe>
