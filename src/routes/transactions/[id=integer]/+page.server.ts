@@ -23,7 +23,7 @@ export const load: PageServerLoad = protectRoute(async ({ params }, user) => {
 			{
 				date: transaction.date,
 				accountId: transaction.account?.id,
-				categoryId: transaction.category?.id,
+				categoryId: transaction.category?.id ?? null,
 				flow: transaction.flow,
 				validated: transaction.validated,
 				description: transaction.description ?? undefined

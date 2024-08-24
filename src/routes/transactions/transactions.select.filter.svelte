@@ -55,12 +55,7 @@
 
 <DropdownMenu.Root closeOnItemClick={false}>
 	<DropdownMenu.Trigger asChild let:builder>
-		<Button
-			builders={[builder]}
-			variant="ghost"
-			size="icon"
-			class="aspect-square w-fit"
-		>
+		<Button builders={[builder]} variant="ghost" size="icon">
 			<LucideFilter
 				class={cn(
 					activeFilter.length > 0 ? 'text-primary' : 'text-secondary-foreground'

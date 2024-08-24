@@ -178,7 +178,7 @@
 									class="align-middle [&:has([role=checkbox])]:pl-3"
 								>
 									{#if cell.id === 'date' || cell.id === 'validated'}
-										<div class="flex items-center gap-2 py-2">
+										<div class="flex items-center gap-2 py-2 justify-end">
 											<Render of={cell.render()} />
 											{#if props.filter?.render}
 												<Render of={props.filter.render} />

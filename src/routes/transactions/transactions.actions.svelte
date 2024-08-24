@@ -40,7 +40,7 @@
 		createShallowRoute<CreateTransactionPageData>();
 </script>
 
-<div class="mb-4 flex">
+<div class="my-4 flex">
 	{#if selectedTransactions.length > 0}
 		<div class="flex items-center gap-4">
 			<Badge variant="ghost" class="h-fit">
