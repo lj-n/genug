@@ -3,7 +3,7 @@ import { page } from '$app/stores';
 import type { Action } from 'svelte/action';
 import { derived, type Readable } from 'svelte/store';
 
-export function createShallowRoute<T extends unknown>({
+export function createShallowRoute<T>({
 	replace = false,
 	currentPageState = {}
 }: { replace?: boolean; currentPageState?: App.PageState } = {}): [

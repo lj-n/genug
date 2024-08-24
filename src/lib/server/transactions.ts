@@ -18,7 +18,12 @@ export const transactionFilterSchema = zfd.formData({
 		.catch([]),
 	teams: zfd
 		.repeatableOfType(zfd.numeric(z.number().int().positive()))
-		.catch([])
+		.catch([]),
+	status: zfd.text(
+		z
+			.union([z.literal('pending'), z.literal('validated'), z.literal('all')])
+			.catch('all')
+	)
 });
 
 /** Get transactions for a user. Filtered by parsed searchParams. */
@@ -42,6 +47,12 @@ export function getTransactions(
 				inArray(schema.account.teamId, filter.teams)
 			)
 		);
+	}
+	if (filter.status === 'pending') {
+		where.push(eq(schema.transaction.validated, false));
+	}
+	if (filter.status === 'validated') {
+		where.push(eq(schema.transaction.validated, true));
 	}
 
 	/** TODO: accept order from frontend */

@@ -19,9 +19,7 @@
 	import TransactionsEdit from './transactions.table.edit.svelte';
 	import Actions from './transactions.actions.svelte';
 	import Pagination from './transactions.table.pagination.svelte';
-	import TextFilter from './transactions.text.filter.svelte';
-
-	import { Button } from '$lib/components/ui/button';
+	import SelectFilter from './transactions.select.filter.svelte';
 
 	export let data: PageData;
 	$: ({ validateForm } = data);
@@ -39,7 +37,7 @@
 			serverItemCount
 		}),
 		filter: addColumnFilters({
-			serverSide: true,
+			serverSide: true
 		})
 	});
 
@@ -66,28 +64,43 @@
 			id: 'transaction',
 			header: 'Transaction',
 			cell: ({ value }) =>
-				createRender(TransactionsLabel, { transaction: value }),
-			plugins: {
-				filter: {
-					fn: () => {
-						return true
-					},
-					initialFilterValue: '',
-					render: ({ filterValue }) => createRender(TextFilter, { filterValue })
-				}
-			}
+				createRender(TransactionsLabel, { transaction: value })
 		}),
 		table.column({
 			accessor: 'category',
 			id: 'category',
 			header: 'Category',
-			cell: ({ value }) => value?.name ?? 'Without Category'
+			cell: ({ value }) => value?.name ?? 'Without Category',
+			plugins: {
+				filter: {
+					fn: ({ value }) => true,
+					initialFilterValue: [],
+					render: () =>
+						createRender(SelectFilter, {
+							data: data.categories,
+							searchParamName: 'categories',
+							label: 'Categories'
+						})
+				}
+			}
 		}),
 		table.column({
 			accessor: 'account',
 			id: 'account',
 			header: 'Account',
-			cell: ({ value }) => value?.name ?? ''
+			cell: ({ value }) => value?.name ?? '',
+			plugins: {
+				filter: {
+					fn: () => true,
+					initialFilterValue: [],
+					render: () =>
+						createRender(SelectFilter, {
+							data: data.accounts,
+							searchParamName: 'accounts',
+							label: 'Accounts'
+						})
+				}
+			}
 		}),
 		table.column({
 			accessor: 'date',
@@ -99,7 +112,22 @@
 			id: 'validated',
 			header: 'Status',
 			cell: ({ value }) =>
-				createRender(TransactionsStatus, { transaction: value })
+				createRender(TransactionsStatus, { transaction: value }),
+			plugins: {
+				filter: {
+					fn: () => true,
+					initialFilterValue: [],
+					render: () =>
+						createRender(SelectFilter, {
+							data: [
+								{ id: 'pending', name: 'Pending' },
+								{ id: 'validated', name: 'Validated' }
+							],
+							searchParamName: 'status',
+							label: 'Status'
+						})
+				}
+			}
 		}),
 		table.column({
 			accessor: (row) => row,
@@ -124,7 +152,16 @@
 <Actions {selectedTransactions} {validateForm} />
 
 <div class="rounded-md border">
-	<Table.Root {...$tableAttrs}>
+	<Table.Root {...$tableAttrs} class="table-fixed">
+		<colgroup>
+			<col class="w-14" />
+			<col class="ten" />
+			<col class="ten" />
+			<col class="twenty" />
+			<col class="twenty" />
+			<col class="twenty" />
+			<col class="w-14" />
+		</colgroup>
 		<Table.Header>
 			{#each $headerRows as headerRow}
 				<Subscribe rowAttrs={headerRow.attrs()}>
@@ -136,13 +173,19 @@
 								props={cell.props()}
 								let:props
 							>
-								<Table.Head {...attrs} class="[&:has([role=checkbox])]:pl-3">
-									{#if cell.id === 'date' || cell.id === 'validated' || cell.id === 'account'}
-										<div class="text-right">
+								<Table.Head
+									{...attrs}
+									class="align-middle [&:has([role=checkbox])]:pl-3"
+								>
+									{#if cell.id === 'date' || cell.id === 'validated'}
+										<div class="flex items-center gap-2 py-2">
 											<Render of={cell.render()} />
+											{#if props.filter?.render}
+												<Render of={props.filter.render} />
+											{/if}
 										</div>
 									{:else}
-										<div class="flex flex-col gap-2 py-2">
+										<div class="flex items-center gap-2 py-2">
 											<Render of={cell.render()} />
 											{#if props.filter?.render}
 												<Render of={props.filter.render} />
@@ -165,21 +208,15 @@
 					>
 						{#each row.cells as cell (cell.id)}
 							<Subscribe attrs={cell.attrs()} let:attrs>
-								{#if cell.id === 'edit'}
-									<Table.Cell {...attrs} class="w-[1%] whitespace-nowrap p-3">
-										<Render of={cell.render()} />
-									</Table.Cell>
-								{:else}
-									<Table.Cell {...attrs} class="p-3">
-										{#if cell.id === 'date' || cell.id === 'validated' || cell.id === 'account'}
-											<div class="text-right">
-												<Render of={cell.render()} />
-											</div>
-										{:else}
+								<Table.Cell {...attrs}>
+									{#if cell.id === 'date' || cell.id === 'validated'}
+										<div class="text-right">
 											<Render of={cell.render()} />
-										{/if}
-									</Table.Cell>
-								{/if}
+										</div>
+									{:else}
+										<Render of={cell.render()} />
+									{/if}
+								</Table.Cell>
 							</Subscribe>
 						{/each}
 					</Table.Row>

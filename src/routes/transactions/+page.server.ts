@@ -12,10 +12,11 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { validateFormSchema } from './schema';
 import { schema } from '$lib/server/schema';
 import { eq, inArray } from 'drizzle-orm';
+import { getCategories } from '$lib/server/categories';
+import { getAccounts } from '$lib/server/accounts';
 
 export const load: PageServerLoad = protectRoute(async ({ url }, user) => {
 	const filter = transactionFilterSchema.parse(url.searchParams);
-
 	/**
 	 * Todo: Write sql query to get total transaction count
 	 */
@@ -25,6 +26,8 @@ export const load: PageServerLoad = protectRoute(async ({ url }, user) => {
 	return {
 		filter,
 		transactions: getTransactions(db, user.id, filter),
+		categories: getCategories(db, user.id),
+		accounts: getAccounts(db, user.id),
 		validateForm: await superValidate(zod(validateFormSchema)),
 		totalTransactionCount
 	};
