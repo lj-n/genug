@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import BudgetTable from './budget.table.svelte';
+	import BudgetBalance from './budget.balance.svelte';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import CreateCategoryForm from '../../categories/create/+page.svelte';
 	import RetiredCategoriesPage from '../../categories/retired/+page.svelte';
@@ -11,6 +12,8 @@
 	import type { PageData as CreateCategoryPageDate } from '../../categories/create/$types';
 	import type { PageData as RetiredCategoriesPageData } from '../../categories/retired/$types';
 	import LucideFolderPlus from '~icons/lucide/folder-plus';
+	import LucideChevronsRight from '~icons/lucide/chevrons-right';
+	import LucideChevronsLeft from '~icons/lucide/chevrons-left';
 	import LucideFolderArchive from '~icons/lucide/folder-archive';
 	import { cn } from '$lib/utils';
 	import * as Sheet from '$lib/components/ui/sheet';
@@ -55,10 +58,37 @@
 	<title>Budget | {data.localDate}</title>
 </svelte:head>
 
-<h1 class="mb-12 scroll-m-20 text-3xl font-bold tracking-tight lg:text-4xl">
-	Budget
+<div
+	class="mb-12 flex scroll-m-20 items-center gap-1 text-3xl font-bold tracking-tight lg:text-4xl"
+>
+	<h1 class="mr-2">Budget</h1>
+
+	<a
+		href="/budget/{data.previousMonth}"
+		class={buttonVariants({
+			size: 'icon',
+			variant: 'ghost',
+			class: 'text-primary'
+		})}
+	>
+		<LucideChevronsLeft />
+		<span class="sr-only">Go to previous month</span>
+	</a>
+
 	<span class="text-primary">{data.localDate}</span>
-</h1>
+
+	<a
+		href="/budget/{data.nextMonth}"
+		class={buttonVariants({
+			size: 'icon',
+			variant: 'ghost',
+			class: 'text-primary'
+		})}
+	>
+		<LucideChevronsRight />
+		<span class="sr-only">Go to next month</span>
+	</a>
+</div>
 
 <Tabs.Root value={String(selectedTeamId)}>
 	<Tabs.List>
@@ -77,10 +107,17 @@
 	{#each sortGroupedBudgets.entries() as [teamId, budget]}
 		{@const team = data.teams.find((t) => t.id === teamId)}
 		<Tabs.Content value={team?.id.toString() ?? String(null)}>
-			<div class="flex flex-col">
-				<p class="my-4 max-w-60 pl-2 italic text-muted-foreground">
+			<div class="flex flex-col gap-8">
+				<p class="pl-2 italic text-muted-foreground">
 					{team?.description ?? 'Your personal categories.'}
 				</p>
+
+				<BudgetBalance
+					sum={data.sleepingMoney.teams.find(
+						(t) => t.id === Number(selectedTeamId)
+					)?.sum ?? data.sleepingMoney.personal}
+				/>
+
 				{#key teamId}
 					<BudgetTable {budget} />
 				{/key}

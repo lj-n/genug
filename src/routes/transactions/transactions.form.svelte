@@ -141,7 +141,15 @@
 				</Select.Trigger>
 				<Select.Content>
 					{#each data.accounts as account (account.id)}
-						<Select.Item value={account.id} label={account.name} />
+						{@const team = account.team}
+						<Select.Item value={account.id} class="gap-2">
+							{account.name}
+							{#if team}
+								<span class="text-xs text-primary">
+									({team.name})
+								</span>
+							{/if}
+						</Select.Item>
 					{/each}
 				</Select.Content>
 			</Select.Root>

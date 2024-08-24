@@ -15,6 +15,7 @@
 	import LucidePackageOpen from '~icons/lucide/package-open';
 	import LucidePackagePlus from '~icons/lucide/package-plus';
 	import LucidePackageMinus from '~icons/lucide/package-minus';
+	import LucideSprout from '~icons/lucide/sprout';
 
 	export let data: PageData;
 	$: ({ id, name } = data.budget);
@@ -37,6 +38,15 @@
 	</div>
 
 	<div class="flex space-x-2 text-sm">
+		<div class="flex items-center gap-2" title="Unbudgeted Money">
+			<LucideSprout class="text-muted-foreground" />
+			<span class="font-semibold tabular-nums">
+				{formatFractionToLocaleCurrency(data.sleepingMoney)}
+			</span>
+		</div>
+
+		<Separator orientation="vertical" />
+
 		<div class="flex items-center gap-2" title="This Month's Activity">
 			<LucidePackageOpen class="text-muted-foreground" />
 			<span class="font-semibold tabular-nums">
@@ -48,7 +58,7 @@
 
 		<div
 			class="flex items-center gap-2"
-			title="This Month's Currently Available Money"
+			title="This Category's Available Money"
 		>
 			{#if data.budget.rest < 0}
 				<LucidePackageMinus class="text-muted-foreground" />

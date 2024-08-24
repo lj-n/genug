@@ -3,7 +3,7 @@ import { fail, superValidate } from 'sveltekit-superforms';
 import type { Actions, PageServerLoad } from './$types';
 import { zod } from 'sveltekit-superforms/adapters';
 import { setBudgetFormSchema } from './schema';
-import { getBudget, setBudget } from '$lib/server/budgets';
+import { getBudget, getSleepingMoney, setBudget } from '$lib/server/budgets';
 import { db } from '$lib/server/db';
 import { error } from '@sveltejs/kit';
 
@@ -19,9 +19,14 @@ export const load: PageServerLoad = protectRoute(async ({ params }, user) => {
 
 	if (!budget) error(404, 'Budget not found');
 
+	const sleepingMoney = getSleepingMoney(db, user.id);
+
 	return {
 		budget,
 		localDate,
+		sleepingMoney:
+			sleepingMoney.teams.find((t) => t.id === budget.team)?.sum ??
+			sleepingMoney.personal,
 		form: await superValidate(
 			{ budget: budget.budget, categoryId: budget.id },
 			zod(setBudgetFormSchema)
