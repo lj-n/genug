@@ -16,6 +16,7 @@
 	import LucidePackagePlus from '~icons/lucide/package-plus';
 	import LucidePackageMinus from '~icons/lucide/package-minus';
 	import LucideSprout from '~icons/lucide/sprout';
+	import { Button } from '$lib/components/ui/button';
 
 	export let data: PageData;
 	$: ({ id, name } = data.budget);
@@ -80,8 +81,27 @@
 		<Form.FieldErrors />
 	</Form.Field>
 
-	<Form.Button>
-		<LucidePackage class="mr-2" />
-		Set Budget
-	</Form.Button>
+	<div class="flex justify-between gap-2">
+		{#if data.budget.rest < 0}
+			<Button
+				variant="outline"
+				value={data.budget.budget + Math.abs(data.budget.rest)}
+				name="budget"
+				on:click={() => {
+					form.reset({
+						data: { budget: data.budget.budget + Math.abs(data.budget.rest) }
+					});
+				}}
+			>
+				Set {formatFractionToLocaleCurrency(
+					data.budget.budget + Math.abs(data.budget.rest)
+				)} Budget
+			</Button>
+		{/if}
+
+		<Form.Button class="ml-auto">
+			<LucidePackage class="mr-2" />
+			Set Budget
+		</Form.Button>
+	</div>
 </form>

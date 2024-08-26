@@ -32,16 +32,19 @@
 			</span>
 		</Card.Title>
 		<Card.Description>
-			This is the money that you have saved up and is not currently being used.
+			This is the money that you have in your account that is not being used in
+			any of the budgets.
 		</Card.Description>
 	</Card.Header>
 	<Card.Content>
 		<div class="text-right text-xl font-bold tabular-nums">
 			{formatFractionToLocaleCurrency(sum)}
 		</div>
-        <div class="flex justify-end gap-1 text-xs font-semibold text-muted-foreground mt-4">
-            <LucideTimer />
-            Last Updated: {lastUpdated}
-        </div>
+		<div
+			class="mt-4 flex justify-end gap-1 text-xs font-semibold text-muted-foreground"
+		>
+			<LucideTimer />
+			Last Updated: {lastUpdated}
+		</div>
 	</Card.Content>
 </Card.Root>

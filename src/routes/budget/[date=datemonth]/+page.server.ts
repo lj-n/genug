@@ -1,6 +1,5 @@
 import { protectRoute } from '$lib/server/auth';
-import { fail } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
+import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { getBudget, getSleepingMoney, setBudget } from '$lib/server/budgets';
 import {
@@ -30,7 +29,7 @@ export const load: PageServerLoad = protectRoute(async ({ params }, user) => {
 			.map(({ team }) => getTeam(db, team.id))
 			.filter((team) => team !== undefined),
 		budget,
-		retiredCategories: getCategories(db, user.id, true).filter(
+		archivedCategories: getCategories(db, user.id, true).filter(
 			(category) => category.retired
 		),
 		sleepingMoney: getSleepingMoney(db, user.id),

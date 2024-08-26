@@ -11,10 +11,12 @@
 	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
 	import BudgetTableForm from './budget.table.form.svelte';
 	import BudgetTableName from './budget.table.name.svelte';
+	import BudgetRestLabel from './budget.rest.label.svelte';
 	import LucidePackage from '~icons/lucide/package';
 	import LucidePackageOpen from '~icons/lucide/package-open';
 	import LucidePackagePlus from '~icons/lucide/package-plus';
 	import LucideFolder from '~icons/lucide/folder';
+
 	export let budget: PageData['budget'];
 
 	const tableData = writable(budget);
@@ -46,7 +48,7 @@
 			accessor: 'rest',
 			id: 'rest',
 			header: 'Available',
-			cell: ({ value }) => formatFractionToLocaleCurrency(value)
+			cell: ({ value }) => createRender(BudgetRestLabel, { sum: value })
 		})
 	]);
 
@@ -101,10 +103,7 @@
 					<Table.Row {...rowAttrs}>
 						{#each row.cells as cell (cell.id)}
 							<Subscribe attrs={cell.attrs()} let:attrs>
-								<Table.Cell
-									{...attrs}
-									class={cell.id === 'details' ? 'w-0 min-w-fit' : ''}
-								>
+								<Table.Cell {...attrs} class="text-base p-2">
 									{#if cell.id === 'name'}
 										<Render of={cell.render()} />
 									{:else if cell.id === 'activity'}

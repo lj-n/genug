@@ -24,11 +24,11 @@
 		class="flex items-center text-lg font-semibold leading-none tracking-tight"
 	>
 		<LucideFolderArchive class="mr-2" />
-		Retired Categories
+		Archived Categories
 	</h2>
 
 	<p class="text-muted-foreground">
-		These categories are retired and are no longer displayed. You can unretire
+		These categories are archived and are no longer displayed. You can unarchive
 		or delete them here.
 	</p>
 </div>
@@ -53,7 +53,7 @@
 						name="categoryId"
 						formaction="?/unretire"
 					>
-						Unretire
+						Unarchive
 					</Form.Button>
 					<Form.Button
 						variant="destructive"

@@ -1,8 +1,9 @@
 <script lang="ts">
-	import Feather from '$lib/components/feather.svelte';
 	import { Progress } from '$lib/components/ui/progress';
 	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
 	import type { PageData } from './$types';
+
+	import LucideGoal from '~icons/lucide/goal';
 
 	export let row: PageData['budget'][number];
 </script>
@@ -11,13 +12,13 @@
 	<span class="font-medium">{row.name}</span>
 
 	{#if row.goal}
-		<div class="flex items-center gap-2 text-xs text-muted-foreground">
+		<div class="flex items-center gap-2 text-sm text-blue dark:text-blue-light">
 			<Progress max={row.goal} value={row.rest} />
 
-			<Feather name="award" />
+			<LucideGoal />
 
 			<span class="whitespace-nowrap font-semibold tabular-nums">
-				Goal: {formatFractionToLocaleCurrency(row.goal)}
+				{formatFractionToLocaleCurrency(row.goal)}
 			</span>
 		</div>
 	{/if}

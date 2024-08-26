@@ -20,7 +20,7 @@
 	{href}
 	class={buttonVariants({
 		variant: 'outline',
-		class: 'h-fit border-border px-2 py-1 font-semibold'
+		class: 'h-fit border-border px-2 py-1 font-semibold text-base'
 	})}
 >
 	{formatFractionToLocaleCurrency(row.budget)}

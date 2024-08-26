@@ -24,7 +24,6 @@
 		<div class="flex flex-col gap-4">
 			<NavigationLink href="/budget">Budget</NavigationLink>
 			<NavigationLink href="/transactions">Transactions</NavigationLink>
-			<NavigationLink href="/categories">Categories</NavigationLink>
 			<NavigationLink href="/accounts">Accounts</NavigationLink>
 			<NavigationLink href="/teams">Teams</NavigationLink>
 		</div>
