@@ -1,7 +1,7 @@
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import { protectRoute } from '$lib/server/auth';
-import { getTeams } from '$lib/server/teams';
+import { getTeam, getTeams } from '$lib/server/teams';
 import { db } from '$lib/server/db';
 import { zfd } from 'zod-form-data';
 import { z } from 'zod';
@@ -14,8 +14,10 @@ import { getCategories } from '$lib/server/categories';
 
 export const load: PageServerLoad = protectRoute(async (_, user) => {
 	return {
-		categories: getCategories(db, user.id, true),
-		teams: getTeams(db, user.id),
+		categories: getCategories(db, user.id),
+		teams: getTeams(db, user.id)
+			.map(({ team }) => getTeam(db, team.id))
+			.filter((team) => team !== undefined),
 		createForm: await superValidate(zod(createCategoryFormSchema))
 	};
 });

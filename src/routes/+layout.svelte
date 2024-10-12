@@ -11,7 +11,6 @@
 	import LucideLogOut from '~icons/lucide/log-out';
 	import LucideSun from '~icons/lucide/sun';
 	import LucideMoon from '~icons/lucide/moon';
-	import { toast } from 'svelte-sonner';
 
 	export let data: LayoutData;
 </script>

@@ -1,128 +1,138 @@
 <script lang="ts">
-	import {
-		createTable,
-		Render,
-		Subscribe,
-		createRender
-	} from 'svelte-headless-table';
-	import { writable } from 'svelte/store';
-	import * as Table from '$lib/components/ui/table';
 	import type { PageData } from './$types';
 	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
+	import { Progress } from '$lib/components/ui/progress';
 	import BudgetTableForm from './budget.table.form.svelte';
-	import BudgetTableName from './budget.table.name.svelte';
-	import BudgetRestLabel from './budget.rest.label.svelte';
 	import LucidePackage from '~icons/lucide/package';
 	import LucidePackageOpen from '~icons/lucide/package-open';
 	import LucidePackagePlus from '~icons/lucide/package-plus';
 	import LucideFolder from '~icons/lucide/folder';
+	import LucideSquareArrowOutUpRight from '~icons/lucide/square-arrow-out-up-right';
+
+	import LucideGripVertical from '~icons/lucide/grip-vertical';
+	import LucideGoal from '~icons/lucide/goal';
+
+	import { buttonVariants } from '$lib/components/ui/button';
+	import { cn } from '$lib/utils';
+	import { dragHandle, dragHandleZone, type DndEvent } from 'svelte-dnd-action';
+	import { flip } from 'svelte/animate';
 
 	export let budget: PageData['budget'];
 
-	const tableData = writable(budget);
+	function handleSort({
+		detail
+	}: CustomEvent<DndEvent<PageData['budget'][number]>>) {
+		budget = detail.items;
+	}
 
-	$: tableData.set(budget);
+	async function handleFinalize({
+		detail
+	}: CustomEvent<DndEvent<PageData['budget'][number]>>) {
+		try {
+			console.log(detail);
+		} catch (err) {
+			console.error(err);
+		}
+	}
 
-	const table = createTable(tableData);
-
-	const columns = table.createColumns([
-		table.column({
-			accessor: (row) => row,
-			id: 'name',
-			header: 'Category',
-			cell: ({ value }) => createRender(BudgetTableName, { row: value })
-		}),
-		table.column({
-			accessor: (row) => row,
-			id: 'budget',
-			header: 'Budget',
-			cell: ({ value }) => createRender(BudgetTableForm, { row: value })
-		}),
-		table.column({
-			accessor: 'activity',
-			id: 'activity',
-			header: 'Activity',
-			cell: ({ value }) => formatFractionToLocaleCurrency(value)
-		}),
-		table.column({
-			accessor: 'rest',
-			id: 'rest',
-			header: 'Available',
-			cell: ({ value }) => createRender(BudgetRestLabel, { sum: value })
-		})
-	]);
-
-	const { headerRows, pageRows, tableAttrs, tableBodyAttrs } =
-		table.createViewModel(columns);
+	const flipDurationMs = 200;
 </script>
 
-<div class="rounded-md border">
-	<Table.Root {...$tableAttrs}>
-		<Table.Header>
-			{#each $headerRows as headerRow}
-				<Subscribe rowAttrs={headerRow.attrs()}>
-					<Table.Row>
-						{#each headerRow.cells as cell (cell.id)}
-							<Subscribe attrs={cell.attrs()} let:attrs props={cell.props()}>
-								<Table.Head {...attrs}>
-									{#if cell.id === 'name'}
-										<div class="flex items-center gap-1">
-											<LucideFolder />
-											<Render of={cell.render()} />
-										</div>
-									{:else if cell.id === 'budget'}
-										<div class="flex items-center justify-end gap-1">
-											<LucidePackage />
-											<Render of={cell.render()} />
-										</div>
-									{:else if cell.id === 'activity'}
-										<div class="hidden items-center justify-end gap-1 md:flex">
-											<LucidePackageOpen />
-											<Render of={cell.render()} />
-										</div>
-									{:else if cell.id === 'rest'}
-										<div class="flex items-center justify-end gap-1">
-											<LucidePackagePlus />
-											<Render of={cell.render()} />
-										</div>
-									{:else}
-										<div class="text-right">
-											<Render of={cell.render()} />
-										</div>
-									{/if}
-								</Table.Head>
-							</Subscribe>
-						{/each}
-					</Table.Row>
-				</Subscribe>
-			{/each}
-		</Table.Header>
-		<Table.Body {...$tableBodyAttrs}>
-			{#each $pageRows as row (row.id)}
-				<Subscribe rowAttrs={row.attrs()} let:rowAttrs>
-					<Table.Row {...rowAttrs}>
-						{#each row.cells as cell (cell.id)}
-							<Subscribe attrs={cell.attrs()} let:attrs>
-								<Table.Cell {...attrs} class="text-base p-2">
-									{#if cell.id === 'name'}
-										<Render of={cell.render()} />
-									{:else if cell.id === 'activity'}
-										<div
-											class="hidden text-right font-semibold tabular-nums md:block"
-										>
-											<Render of={cell.render()} />
-										</div>
-									{:else}
-										<div class="text-right font-semibold tabular-nums">
-											<Render of={cell.render()} />
-										</div>
-									{/if}
-								</Table.Cell>
-							</Subscribe>
-						{/each}
-					</Table.Row>
-				</Subscribe>
-			{/each}
-		</Table.Body>
-	</Table.Root>
+<div class="flex flex-col rounded-lg border">
+	<div
+		class="grid grid-cols-[1fr_1fr_1fr_1fr_8rem] border-b py-2 text-sm font-medium text-muted-foreground"
+	>
+		<div class="flex items-center gap-1 px-2">
+			<LucideFolder />
+			Category
+		</div>
+
+		<div class="flex items-center justify-end gap-1 px-2">
+			<LucidePackage />
+			Budget
+		</div>
+
+		<div class="hidden items-center justify-end gap-1 px-2 md:flex">
+			<LucidePackageOpen />
+			Activity
+		</div>
+
+		<div class="flex items-center justify-end gap-1 px-2">
+			<LucidePackagePlus />
+			Rest
+		</div>
+	</div>
+
+	<div
+		class="flex flex-col"
+		use:dragHandleZone={{
+			items: budget,
+			flipDurationMs,
+			dropTargetStyle: {}
+		}}
+		on:consider={handleSort}
+		on:finalize={handleFinalize}
+	>
+		{#each budget as row (row.id)}
+			<div
+				animate:flip={{ duration: flipDurationMs }}
+				class="grid grid-cols-[1fr_1fr_1fr_1fr_8rem] border-b py-2 last:border-none"
+			>
+				<div class="flex flex-col self-center px-2">
+					<span class="font-medium">{row.name}</span>
+
+					{#if row.goal}
+						<div
+							class="flex items-center gap-2 text-sm text-blue dark:text-blue-light"
+						>
+							<Progress max={row.goal} value={row.rest} />
+
+							<LucideGoal />
+
+							<span class="whitespace-nowrap font-semibold tabular-nums">
+								{formatFractionToLocaleCurrency(row.goal)}
+							</span>
+						</div>
+					{/if}
+				</div>
+
+				<div class="self-center px-2 text-right">
+					<BudgetTableForm {row} />
+				</div>
+
+				<div
+					class="hidden self-center px-2 text-right font-semibold tabular-nums md:block"
+				>
+					{formatFractionToLocaleCurrency(row.activity)}
+				</div>
+
+				<div class="self-center px-2 text-right font-semibold tabular-nums">
+					<span
+						class={cn(
+							row.rest < 0
+								? 'text-orange dark:text-orange-light'
+								: 'text-green dark:text-green-light'
+						)}
+					>
+						{formatFractionToLocaleCurrency(row.rest)}
+					</span>
+				</div>
+
+				<div class="flex w-full items-center justify-end gap-2 px-2">
+					<button class={buttonVariants({ variant: 'ghost', size: 'icon' })}>
+						<LucideSquareArrowOutUpRight />
+						<span class="sr-only">More Details</span>
+					</button>
+
+					<button
+						class={buttonVariants({ variant: 'ghost', size: 'icon' })}
+						use:dragHandle
+					>
+						<LucideGripVertical />
+						<span class="sr-only">Reorder Category</span>
+					</button>
+				</div>
+			</div>
+		{/each}
+	</div>
 </div>

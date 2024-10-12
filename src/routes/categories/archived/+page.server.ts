@@ -47,7 +47,7 @@ export const actions = {
 			);
 		}
 
-		const url = new URL(cookies.get('shallowRoute') ?? '/budget');
+		const url = new URL(cookies.get('shallowRoute') ?? '/categories');
 
 		if (category.teamId) {
 			url.searchParams.set('selectedTeam', category.teamId.toString());
@@ -80,7 +80,7 @@ export const actions = {
 			);
 		}
 
-		const url = new URL(cookies.get('shallowRoute') ?? '/budget');
+		const url = new URL(cookies.get('shallowRoute') ?? '/categories');
 
 		redirect(302, url);
 	})

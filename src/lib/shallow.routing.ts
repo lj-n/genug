@@ -20,7 +20,7 @@ export function createShallowRoute<T>({
 
 	const isOpen = derived(data, ($data) => $data !== undefined);
 
-	const action: Action<HTMLAnchorElement, URL> = (node, currentUrl) => {
+	const action: Action<HTMLAnchorElement, URL> = (node, currentUrl: URL) => {
 		async function route(href: string) {
 			const result = await preloadData(href);
 

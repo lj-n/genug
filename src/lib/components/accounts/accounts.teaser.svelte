@@ -39,9 +39,6 @@
 							{formatFractionToLocaleCurrency(account.validated)}
 						</Table.Cell>
 						<Table.Cell class="px-4 py-1 text-right tabular-nums font-semibold">
-							{#if account.pending > 0}
-								+
-							{/if}
 							{formatFractionToLocaleCurrency(account.pending)}
 						</Table.Cell>
 						<Table.Cell class="px-4 py-1 text-right tabular-nums font-semibold">

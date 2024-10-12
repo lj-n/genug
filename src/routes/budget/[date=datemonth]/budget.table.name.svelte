@@ -8,7 +8,7 @@
 	export let row: PageData['budget'][number];
 </script>
 
-<div class="flex flex-col">
+<div class="flex flex-col self-center">
 	<span class="font-medium">{row.name}</span>
 
 	{#if row.goal}
