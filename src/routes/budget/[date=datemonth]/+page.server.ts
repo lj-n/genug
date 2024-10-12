@@ -11,6 +11,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { setBudgetFormSchema } from './[id=integer]/schema';
 import { getTeam, getTeams } from '$lib/server/teams';
 import { getCategories } from '$lib/server/categories';
+import { getAccountsWithBalance } from '$lib/server/accounts';
 
 export const load: PageServerLoad = protectRoute(async ({ params }, user) => {
 	const localDate = new Intl.DateTimeFormat('en-US', {
@@ -33,6 +34,7 @@ export const load: PageServerLoad = protectRoute(async ({ params }, user) => {
 			(category) => category.retired
 		),
 		sleepingMoney: getSleepingMoney(db, user.id),
+		accounts: getAccountsWithBalance(db, user.id),
 		localDate,
 		previousMonth,
 		nextMonth,

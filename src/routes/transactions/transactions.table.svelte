@@ -204,7 +204,7 @@
 				<Subscribe rowAttrs={row.attrs()} let:rowAttrs>
 					<Table.Row
 						{...rowAttrs}
-						data-state={$selectedDataIds[row.id] && 'selected'}
+						data-state={$selectedDataIds[row.isData() ? row.dataId : ""] && 'selected'}
 					>
 						{#each row.cells as cell (cell.id)}
 							<Subscribe attrs={cell.attrs()} let:attrs>

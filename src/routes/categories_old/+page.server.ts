@@ -7,7 +7,7 @@ import { zfd } from 'zod-form-data';
 import { z } from 'zod';
 import { schema } from '$lib/server/schema';
 import { eq } from 'drizzle-orm';
-import { message, superValidate } from 'sveltekit-superforms';
+import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { createCategoryFormSchema } from './create/schema';
 import { getCategories } from '$lib/server/categories';
@@ -30,7 +30,6 @@ export const actions = {
 		const parsed = requestSchema.safeParse(formData);
 
 		if (!parsed.success) {
-			console.log(parsed.error);
 			return fail(400, { error: 'Invalid params' });
 		}
 

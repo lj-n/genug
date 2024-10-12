@@ -3,6 +3,7 @@ import { twMerge } from 'tailwind-merge';
 import { cubicOut } from 'svelte/easing';
 import type { TransitionConfig } from 'svelte/transition';
 import { toast } from 'svelte-sonner';
+import { browser } from '$app/environment';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -68,4 +69,15 @@ export function createToastFromFormMessage({
 	description
 }: App.Superforms.Message): void {
 	toast[type](text, { description });
+}
+
+/**
+ * Helper to create uuid even in unsecure context
+ */
+export function createUUID(): string {
+	if(browser && window.isSecureContext) {
+		return crypto.randomUUID()
+	}
+
+	return URL.createObjectURL(new Blob()).slice(-36)
 }

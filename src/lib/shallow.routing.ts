@@ -2,6 +2,7 @@ import { goto, preloadData, pushState, replaceState } from '$app/navigation';
 import { page } from '$app/stores';
 import type { Action } from 'svelte/action';
 import { derived, type Readable } from 'svelte/store';
+import { createUUID } from './utils';
 
 export function createShallowRoute<T>({
 	replace = false,
@@ -11,7 +12,7 @@ export function createShallowRoute<T>({
 	Readable<T>,
 	Readable<boolean>
 ] {
-	const routeId = crypto.randomUUID();
+	const routeId = createUUID()
 
 	const data = derived<typeof page, T>(page, ($page) => {
 		return $page.state?.[routeId];

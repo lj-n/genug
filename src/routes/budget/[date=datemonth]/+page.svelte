@@ -3,6 +3,7 @@
 	import BudgetTable from './budget.table.svelte';
 	import BudgetBalance from './budget.balance.svelte';
 	import * as Tabs from '$lib/components/ui/tabs';
+	import AccountsTeaser from '$lib/components/accounts/accounts.teaser.svelte';
 	import CreateCategoryForm from '../../categories/create/+page.svelte';
 	import ArchivedCategoriesPage from '../../categories/archived/+page.svelte';
 	import { page } from '$app/stores';
@@ -15,9 +16,12 @@
 	import LucideChevronsRight from '~icons/lucide/chevrons-right';
 	import LucideChevronsLeft from '~icons/lucide/chevrons-left';
 	import LucideFolderArchive from '~icons/lucide/folder-archive';
+	import LucideTimer from '~icons/lucide/timer';
+	import LucideStars from '~icons/lucide/stars';
 	import { cn } from '$lib/utils';
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
+	import { formatDistanceToNow } from 'date-fns';
 
 	export let data: PageData;
 
@@ -52,6 +56,21 @@
 
 	const [archivedAction, archivedData, archivedIsOpen] =
 		createShallowRoute<ArchivedCategoriesPageData>();
+
+	let lastUpdate = new Date();
+	let lastUpdated = formatDistanceToNow(lastUpdate, { addSuffix: true });
+
+	let timer = setInterval(() => {
+		lastUpdated = formatDistanceToNow(lastUpdate, { addSuffix: true });
+	}, 1000);
+
+	$: if (data) {
+		clearInterval(timer);
+		lastUpdate = new Date();
+		timer = setInterval(() => {
+			lastUpdated = formatDistanceToNow(lastUpdate, { addSuffix: true });
+		}, 1000);
+	}
 </script>
 
 <svelte:head>
@@ -59,35 +78,44 @@
 </svelte:head>
 
 <div
-	class="mb-12 flex scroll-m-20 items-center gap-1 text-3xl font-bold tracking-tight lg:text-4xl"
+	class="mb-6 flex flex-wrap scroll-m-20 items-center gap-1 text-2xl font-bold tracking-tight lg:text-3xl"
 >
 	<h1 class="mr-2">Budget</h1>
 
-	<a
-		href="/budget/{data.previousMonth}"
-		class={buttonVariants({
-			size: 'icon',
-			variant: 'ghost',
-			class: 'text-primary'
-		})}
-	>
-		<LucideChevronsLeft />
-		<span class="sr-only">Go to previous month</span>
-	</a>
+	<div class="flex items-center gap-2">
+		<a
+			href="/budget/{data.previousMonth}"
+			class={buttonVariants({
+				size: 'icon',
+				variant: 'ghost',
+				class: 'text-primary'
+			})}
+		>
+			<LucideChevronsLeft />
+			<span class="sr-only">Go to previous month</span>
+		</a>
 
-	<span class="text-primary">{data.localDate}</span>
+		<span class="text-primary">{data.localDate}</span>
 
-	<a
-		href="/budget/{data.nextMonth}"
-		class={buttonVariants({
-			size: 'icon',
-			variant: 'ghost',
-			class: 'text-primary'
-		})}
+		<a
+			href="/budget/{data.nextMonth}"
+			class={buttonVariants({
+				size: 'icon',
+				variant: 'ghost',
+				class: 'text-primary'
+			})}
+		>
+			<LucideChevronsRight />
+			<span class="sr-only">Go to next month</span>
+		</a>
+	</div>
+
+	<div
+		class="ml-auto flex items-center gap-1 text-xs font-semibold tracking-normal text-muted-foreground"
 	>
-		<LucideChevronsRight />
-		<span class="sr-only">Go to next month</span>
-	</a>
+		<LucideTimer />
+		Last Updated: {lastUpdated}
+	</div>
 </div>
 
 <Tabs.Root value={String(selectedTeamId)}>
@@ -106,17 +134,38 @@
 
 	{#each sortGroupedBudgets.entries() as [teamId, budget]}
 		{@const team = data.teams.find((t) => t.id === teamId)}
+
+		{@const accounts = data.accounts.filter((a) => {
+			if (teamId === null) return a.team === null;
+			return a.team?.id === teamId;
+		})}
+
 		<Tabs.Content value={team?.id.toString() ?? String(null)}>
 			<div class="flex flex-col gap-8">
 				<p class="pl-2 italic text-muted-foreground">
 					{team?.description ?? 'Your personal categories.'}
 				</p>
 
-				<BudgetBalance
-					sum={data.sleepingMoney.teams.find(
-						(t) => t.id === Number(selectedTeamId)
-					)?.sum ?? data.sleepingMoney.personal}
-				/>
+				<div class="hidden justify-end gap-4 md:flex">
+					<div class="flex grow rounded-md border border-dashed border-border">
+						<span
+							class="m-auto flex items-center gap-2 italic text-muted-foreground"
+						>
+							<LucideStars />
+							Statistics coming soon...
+						</span>
+					</div>
+
+					{#if accounts}
+						<AccountsTeaser {accounts} />
+					{/if}
+
+					<BudgetBalance
+						sum={data.sleepingMoney.teams.find(
+							(t) => t.id === Number(selectedTeamId)
+						)?.sum ?? data.sleepingMoney.personal}
+					/>
+				</div>
 
 				{#key teamId}
 					<BudgetTable {budget} />

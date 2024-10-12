@@ -28,6 +28,7 @@
 	{#if user}
 		<NavigationLink href="/budget">Budget</NavigationLink>
 		<NavigationLink href="/transactions">Transactions</NavigationLink>
+		<NavigationLink href="/categories">Categories</NavigationLink>
 		<NavigationLink href="/accounts">Accounts</NavigationLink>
 		<NavigationLink href="/teams">Teams</NavigationLink>
 
@@ -51,6 +52,14 @@
 						}}
 					>
 						Transactions
+					</Command.Item>
+					<Command.Item
+						onSelect={() => {
+							open = false;
+							goto('/categories');
+						}}
+					>
+						Categories
 					</Command.Item>
 					<Command.Item
 						onSelect={() => {

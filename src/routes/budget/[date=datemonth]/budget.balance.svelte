@@ -1,29 +1,12 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
 	import LucideSprout from '~icons/lucide/sprout';
-	import LucideTimer from '~icons/lucide/timer';
 	import { formatFractionToLocaleCurrency } from '$lib/components/utils';
-	import { formatDistanceToNow } from 'date-fns';
 
 	export let sum: number;
-
-	let lastUpdate = new Date();
-	let lastUpdated = formatDistanceToNow(lastUpdate, { addSuffix: true });
-
-	let timer = setInterval(() => {
-		lastUpdated = formatDistanceToNow(lastUpdate, { addSuffix: true });
-	}, 1000);
-
-	$: if (sum) {
-		clearInterval(timer);
-		lastUpdate = new Date();
-		timer = setInterval(() => {
-			lastUpdated = formatDistanceToNow(lastUpdate, { addSuffix: true });
-		}, 1000);
-	}
 </script>
 
-<Card.Root class="ml-auto hidden max-w-sm md:block">
+<Card.Root class="max-w-xs flex flex-col">
 	<Card.Header>
 		<Card.Title>
 			<span class="flex items-center">
@@ -36,15 +19,9 @@
 			any of the budgets.
 		</Card.Description>
 	</Card.Header>
-	<Card.Content>
-		<div class="text-right text-xl font-bold tabular-nums">
+	<Card.Content class="mt-auto">
+		<div class="text-right text-2xl font-bold tabular-nums">
 			{formatFractionToLocaleCurrency(sum)}
-		</div>
-		<div
-			class="mt-4 flex justify-end gap-1 text-xs font-semibold text-muted-foreground"
-		>
-			<LucideTimer />
-			Last Updated: {lastUpdated}
 		</div>
 	</Card.Content>
 </Card.Root>
