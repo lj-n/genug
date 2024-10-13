@@ -6,10 +6,8 @@ import type { Actions, PageServerLoad } from './$types';
 import { fail, message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { createServerTransactionFormSchema } from '../schema.server';
-import { schema } from '$lib/server/schema';
 import { getCategories } from '$lib/server/categories';
 import { getAccounts } from '$lib/server/accounts';
-import { and, eq } from 'drizzle-orm';
 
 export const load: PageServerLoad = protectRoute(async ({ params }, user) => {
 	const transaction = getTransaction(db, user.id, Number(params.id));

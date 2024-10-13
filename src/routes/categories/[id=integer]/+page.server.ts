@@ -114,7 +114,7 @@ export const actions = {
 		}
 	}),
 
-	retire: protectRoute(async ({ params, request, cookies }, user) => {
+	retire: protectRoute(async ({ params, request }, user) => {
 		const form = await superValidate(request, zod(retireFormSchema));
 
 		if (!form.valid) {

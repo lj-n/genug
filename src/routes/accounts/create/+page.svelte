@@ -7,7 +7,7 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { createToastFromFormMessage } from '$lib/utils';
-    import LucideFileSpreadsheet from '~icons/lucide/file-spreadsheet';
+	import LucideFileSpreadsheet from '~icons/lucide/file-spreadsheet';
 
 	export let data: PageData;
 
@@ -44,7 +44,7 @@
 </script>
 
 <form class="mx-auto grid max-w-md items-start gap-2" method="POST" use:enhance>
-    <span class="font-semibold text-lg">Create New Account</span>
+	<span class="text-lg font-semibold">Create New Account</span>
 
 	<Form.Field {form} name="accountName">
 		<Form.Control let:attrs>
@@ -87,8 +87,8 @@
 			<input hidden bind:value={$formData.teamId} name={attrs.name} />
 		</Form.Control>
 		<Form.Description>
-			Only you can see personal accounts. Team accounts are visible to all
-			team members.
+			Only you can see personal accounts. Team accounts are visible to all team
+			members.
 		</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field>

@@ -35,13 +35,13 @@
 				{#each accounts as account, i (i)}
 					<Table.Row>
 						<Table.Cell class="p-1 pr-8 font-medium">{account.name}</Table.Cell>
-						<Table.Cell class="px-4 py-1 text-right tabular-nums font-semibold">
+						<Table.Cell class="px-4 py-1 text-right font-semibold tabular-nums">
 							{formatFractionToLocaleCurrency(account.validated)}
 						</Table.Cell>
-						<Table.Cell class="px-4 py-1 text-right tabular-nums font-semibold">
+						<Table.Cell class="px-4 py-1 text-right font-semibold tabular-nums">
 							{formatFractionToLocaleCurrency(account.pending)}
 						</Table.Cell>
-						<Table.Cell class="px-4 py-1 text-right tabular-nums font-semibold">
+						<Table.Cell class="px-4 py-1 text-right font-semibold tabular-nums">
 							{formatFractionToLocaleCurrency(account.working)}
 						</Table.Cell>
 					</Table.Row>

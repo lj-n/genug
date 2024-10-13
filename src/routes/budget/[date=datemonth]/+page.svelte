@@ -78,7 +78,7 @@
 </svelte:head>
 
 <div
-	class="mb-6 flex flex-wrap scroll-m-20 items-center gap-1 text-2xl font-bold tracking-tight lg:text-3xl"
+	class="mb-6 flex scroll-m-20 flex-wrap items-center gap-1 text-2xl font-bold tracking-tight lg:text-3xl"
 >
 	<h1 class="mr-2">Budget</h1>
 
@@ -168,7 +168,10 @@
 				</div>
 
 				{#key teamId}
-					<BudgetTable {budget} />
+					<BudgetTable
+						{budget}
+						currentOrder={completeBudget.map(({ id }) => id)}
+					/>
 				{/key}
 			</div>
 		</Tabs.Content>

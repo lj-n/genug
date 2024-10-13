@@ -1,28 +1,26 @@
-import { getAccounts } from "$lib/server/accounts";
-import { protectRoute } from "$lib/server/auth";
-import { db } from "$lib/server/db";
-import { getTeam, getTeamRole, getTeams } from "$lib/server/teams";
-import { fail, message, superValidate } from "sveltekit-superforms";
-import type { Actions, PageServerLoad } from "./$types";
-import { zod } from "sveltekit-superforms/adapters";
-import { createAccountFormSchema } from "./schema";
-import { schema } from "$lib/server/schema";
-import { redirect } from "@sveltejs/kit";
+import { protectRoute } from '$lib/server/auth';
+import { db } from '$lib/server/db';
+import { getTeam, getTeamRole, getTeams } from '$lib/server/teams';
+import { fail, message, superValidate } from 'sveltekit-superforms';
+import type { Actions, PageServerLoad } from './$types';
+import { zod } from 'sveltekit-superforms/adapters';
+import { createAccountFormSchema } from './schema';
+import { schema } from '$lib/server/schema';
+import { redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = protectRoute(async (_, user) => {
-    return {
-        teams: getTeams(db, user.id)
-            .map(({ team }) => getTeam(db, team.id))
-            .filter((team) => team !== undefined),
-        form: await superValidate(zod(createAccountFormSchema)),
-        initialTeamSelect: Number(null)
-    }
-})
-
+	return {
+		teams: getTeams(db, user.id)
+			.map(({ team }) => getTeam(db, team.id))
+			.filter((team) => team !== undefined),
+		form: await superValidate(zod(createAccountFormSchema)),
+		initialTeamSelect: Number(null)
+	};
+});
 
 export const actions = {
-    default: protectRoute(async ({ request, cookies }, user) => {
-        const form = await superValidate(request, zod(createAccountFormSchema));
+	default: protectRoute(async ({ request, cookies }, user) => {
+		const form = await superValidate(request, zod(createAccountFormSchema));
 
 		if (!form.valid) {
 			return fail(400, { form });
@@ -72,5 +70,5 @@ export const actions = {
 		}
 
 		redirect(302, `/accounts/${account.id}`);
-    })
-} satisfies Actions
+	})
+} satisfies Actions;

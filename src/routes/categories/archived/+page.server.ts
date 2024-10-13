@@ -7,13 +7,13 @@ import { fail, message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { redirect } from '@sveltejs/kit';
 import { schema } from '$lib/server/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 const formschema = z.object({
 	categoryId: z.coerce.number().int()
 });
 
-export const load: PageServerLoad = protectRoute(async ({}, user) => {
+export const load: PageServerLoad = protectRoute(async (_, user) => {
 	const categories = getCategories(db, user.id, true).filter(
 		(category) => category.retired
 	);
@@ -66,8 +66,14 @@ export const actions = {
 		const { categoryId } = form.data;
 
 		try {
+			// Todo: check if user has permission to delete team category
 			db.delete(schema.category)
-				.where(eq(schema.category.id, categoryId))
+				.where(
+					and(
+						eq(schema.category.id, categoryId),
+						eq(schema.category.userId, user.id)
+					)
+				)
 				.execute();
 		} catch (error) {
 			return message(

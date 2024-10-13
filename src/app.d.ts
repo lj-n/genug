@@ -13,8 +13,7 @@ declare global {
 		}
 
 		interface PageState {
-			// @ts-expect-error -
-			[key: string]: any;
+			[key: string]: unknown;
 		}
 
 		namespace Superforms {
@@ -27,4 +26,4 @@ declare global {
 	}
 }
 
-export { };
+export {};

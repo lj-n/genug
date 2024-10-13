@@ -11,9 +11,9 @@ import type { Actions, PageServerLoad } from './$types';
 import { zod } from 'sveltekit-superforms/adapters';
 import { validateFormSchema } from './schema';
 import { schema } from '$lib/server/schema';
-import { eq, inArray } from 'drizzle-orm';
+import { inArray } from 'drizzle-orm';
 import { getCategories } from '$lib/server/categories';
-import { getAccounts, getAccountsWithBalance } from '$lib/server/accounts';
+import { getAccountsWithBalance } from '$lib/server/accounts';
 
 export const load: PageServerLoad = protectRoute(async ({ url }, user) => {
 	const filter = transactionFilterSchema.parse(url.searchParams);

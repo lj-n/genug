@@ -9,5 +9,5 @@ export const createCategoryFormSchema = z.object({
 		.string()
 		.max(255, 'Description must be at most 255 characters long')
 		.optional(),
-	teamId: z.number().int().positive().optional()
+	teamId: z.number().int().positive().nullable().optional()
 });

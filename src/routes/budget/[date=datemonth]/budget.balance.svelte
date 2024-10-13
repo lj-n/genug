@@ -6,7 +6,7 @@
 	export let sum: number;
 </script>
 
-<Card.Root class="max-w-xs flex flex-col">
+<Card.Root class="flex max-w-xs flex-col">
 	<Card.Header>
 		<Card.Title>
 			<span class="flex items-center">

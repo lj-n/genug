@@ -73,7 +73,7 @@
 			cell: ({ value }) => value?.name ?? 'Without Category',
 			plugins: {
 				filter: {
-					fn: ({ value }) => true,
+					fn: () => true,
 					initialFilterValue: [],
 					render: () =>
 						createRender(SelectFilter, {
@@ -178,7 +178,7 @@
 									class="align-middle [&:has([role=checkbox])]:pl-3"
 								>
 									{#if cell.id === 'date' || cell.id === 'validated'}
-										<div class="flex items-center gap-2 py-2 justify-end">
+										<div class="flex items-center justify-end gap-2 py-2">
 											<Render of={cell.render()} />
 											{#if props.filter?.render}
 												<Render of={props.filter.render} />
@@ -204,7 +204,8 @@
 				<Subscribe rowAttrs={row.attrs()} let:rowAttrs>
 					<Table.Row
 						{...rowAttrs}
-						data-state={$selectedDataIds[row.isData() ? row.dataId : ""] && 'selected'}
+						data-state={$selectedDataIds[row.isData() ? row.dataId : ''] &&
+							'selected'}
 					>
 						{#each row.cells as cell (cell.id)}
 							<Subscribe attrs={cell.attrs()} let:attrs>

@@ -12,7 +12,7 @@ export function createShallowRoute<T>({
 	Readable<T>,
 	Readable<boolean>
 ] {
-	const routeId = createUUID()
+	const routeId = createUUID();
 
 	const data = derived<typeof page, T>(page, ($page) => {
 		return $page.state?.[routeId];

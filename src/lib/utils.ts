@@ -75,9 +75,9 @@ export function createToastFromFormMessage({
  * Helper to create uuid even in unsecure context
  */
 export function createUUID(): string {
-	if(browser && window.isSecureContext) {
-		return crypto.randomUUID()
+	if (browser && window.isSecureContext) {
+		return crypto.randomUUID();
 	}
 
-	return URL.createObjectURL(new Blob()).slice(-36)
+	return URL.createObjectURL(new Blob()).slice(-36);
 }
