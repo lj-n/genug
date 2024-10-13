@@ -11,7 +11,7 @@
 	import LucideGripVertical from '~icons/lucide/grip-vertical';
 	import LucideGoal from '~icons/lucide/goal';
 
-	import { cn } from '$lib/utils';
+	import { cn, createUUID } from '$lib/utils';
 	import { dragHandle, dragHandleZone, type DndEvent } from 'svelte-dnd-action';
 	import { flip } from 'svelte/animate';
 	import { invalidateAll } from '$app/navigation';
@@ -80,6 +80,7 @@
 	<div
 		class="flex flex-col"
 		use:dragHandleZone={{
+			type: "categories",
 			items: budget,
 			flipDurationMs,
 			dropTargetStyle: {},
@@ -99,7 +100,7 @@
 				const wrapper = el?.querySelector('[data-dragging-wrapper]');
 				wrapper?.classList.add(
 					'bg-background',
-					'hover:bg-muted',
+					'hover:bg-background',
 					'outline-dashed',
 					'outline-2',
 					'outline-yellow',

@@ -30,7 +30,8 @@ export const userSettings = sqliteTable('user_settings', {
 	theme: text('theme', { enum: ['light', 'dark', 'system'] })
 		.notNull()
 		.default('system'),
-	categoryOrder: text('category_order', { mode: 'json' }).$type<number[]>()
+	categoryOrder: text('category_order', { mode: 'json' }).$type<number[]>(),
+	accountOrder: text('account_order', { mode: 'json' }).$type<number[]>(),
 });
 
 export const userAvatar = sqliteTable(

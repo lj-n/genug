@@ -26,7 +26,7 @@
 </script>
 
 <div
-	class="mx-auto flex w-full max-w-2xl flex-col gap-1"
+	class="flex flex-col w-full max-w-2xl gap-2"
 	use:dragHandleZone={{
 		items: accounts,
 		flipDurationMs,
@@ -38,7 +38,7 @@
 	{#each accounts as account (account.id)}
 		<div
 			animate:flip={{ duration: flipDurationMs }}
-			class="flex gap-4 rounded-xl border bg-background p-4"
+			class="flex gap-4 rounded-xl border bg-background p-4 max-w-80"
 		>
 			<div class="flex flex-col gap-4">
 				<div class="flex flex-col">

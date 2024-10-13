@@ -20,15 +20,13 @@
 	<title>Accounts</title>
 </svelte:head>
 
-<h1
-	class="mx-auto mb-6 scroll-m-20 text-2xl font-bold tracking-tight lg:text-3xl"
->
+<h1 class="mb-6 scroll-m-20 text-2xl font-bold tracking-tight lg:text-3xl">
 	Accounts
 </h1>
 
 <a
 	href="/accounts/create"
-	class={buttonVariants({ class: 'mx-auto mb-4' })}
+	class={buttonVariants({ class: 'mb-4 max-w-80' })}
 	use:action={$page.url}
 >
 	<LucideFileSpreadsheet class="mr-2" />

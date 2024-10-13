@@ -22,6 +22,7 @@
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { formatDistanceToNow } from 'date-fns';
+	import { Separator } from '$lib/components/ui/separator';
 
 	export let data: PageData;
 
@@ -141,24 +142,13 @@
 		})}
 
 		<Tabs.Content value={team?.id.toString() ?? String(null)}>
-			<div class="flex flex-col gap-8">
-				<p class="pl-2 italic text-muted-foreground">
-					{team?.description ?? 'Your personal categories.'}
-				</p>
-
+			<div class="flex flex-col gap-8 pt-8">
 				<div class="hidden justify-end gap-4 md:flex">
-					<div class="flex grow rounded-md border border-dashed border-border">
-						<span
-							class="m-auto flex items-center gap-2 italic text-muted-foreground"
-						>
-							<LucideStars />
-							Statistics coming soon...
-						</span>
-					</div>
-
 					{#if accounts}
 						<AccountsTeaser {accounts} />
 					{/if}
+
+					<Separator orientation="vertical" class="h-full"/>
 
 					<BudgetBalance
 						sum={data.sleepingMoney.teams.find(

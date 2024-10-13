@@ -40,7 +40,7 @@ export function getAccountsWithBalance(
 		.groupBy(schema.transaction.accountId)
 		.as('transactionSQ');
 
-	return database
+	const accounts = database
 		.select({
 			id: schema.account.id,
 			name: schema.account.name,
@@ -70,6 +70,8 @@ export function getAccountsWithBalance(
 		)
 		.groupBy(schema.account.id)
 		.all();
+
+	return sortAccounts(database, userId, accounts);
 }
 
 /**
@@ -106,6 +108,28 @@ export function updateAccount(
 	});
 }
 
+/** Sorts the accounts based on the users preferences. */
+export function sortAccounts<Account extends { id: number }>(
+	database: Database,
+	userId: string,
+	accounts: Account[]
+): Account[] {
+	const profile = database
+		.select()
+		.from(schema.userSettings)
+		.where(eq(schema.userSettings.userId, userId))
+		.get();
+
+	if (profile?.accountOrder) {
+		const order = profile.accountOrder;
+		accounts.sort((a, b) => {
+			return order.indexOf(a.id) - order.indexOf(b.id);
+		});
+	}
+
+	return accounts;
+}
+
 export function getAccounts(
 	database: Database,
 	userId: string
@@ -114,7 +138,7 @@ export function getAccounts(
 		team: typeof schema.team.$inferSelect | null;
 	}
 > {
-	return database
+	const accounts = database
 		.select({
 			id: schema.account.id,
 			name: schema.account.name,
@@ -139,6 +163,8 @@ export function getAccounts(
 		)
 		.groupBy(schema.account.id)
 		.all();
+
+	return sortAccounts(database, userId, accounts);
 }
 
 export function getAccount(
