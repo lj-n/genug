@@ -1,68 +1,76 @@
-import { createDatabase, type Database } from "$db";
-import { encodeHexLowerCase } from "@oslojs/encoding";
-import { sha256 } from "@oslojs/crypto/sha2";
-import type { Session } from ".";
-import { refreshSession } from "./refresh-session";
-import { createSessionToken } from "./create-session-token";
-import { hashPassword } from "./hash-password";
-import { createUser } from "../user/create-user";
-import { createSession } from "./create-session";
+import { createDatabase, type Database } from '$db';
+import { encodeHexLowerCase } from '@oslojs/encoding';
+import { sha256 } from '@oslojs/crypto/sha2';
+import type { Session } from '.';
+import { refreshSession } from './refresh-session';
+import { createSessionToken } from './create-session-token';
+import { hashPassword } from './hash-password';
+import { createUser } from '../user/create-user';
+import { createSession } from './create-session';
 
-export async function validateSession(
-    { database, sessionToken }: { database: Database; sessionToken: string },
-): Promise<Session | null> {
-    const tokenBuffer = new TextEncoder().encode(sessionToken);
-    const sessionId = encodeHexLowerCase(sha256(tokenBuffer));
+export async function validateSession({
+	database,
+	sessionToken
+}: {
+	database: Database;
+	sessionToken: string;
+}): Promise<Session | null> {
+	const tokenBuffer = new TextEncoder().encode(sessionToken);
+	const sessionId = encodeHexLowerCase(sha256(tokenBuffer));
 
-    const session = await database.query.sessions.findFirst({
-        where: { id: sessionId },
-        columns: { userId: false },
-        with: { user: { columns: { passwordHash: false } } },
-    });
+	const session = await database.query.sessions.findFirst({
+		where: { id: sessionId },
+		columns: { userId: false },
+		with: { user: { columns: { passwordHash: false } } }
+	});
 
-    if (!session || !session.user) {
-        return null;
-    }
+	if (!session || !session.user) {
+		return null;
+	}
 
-    return refreshSession({ database, session: session as Session });
+	return refreshSession({ database, session: session as Session });
 }
 
 if (import.meta.vitest) {
-    const { it, expect } = import.meta.vitest;
+	const { it, expect } = import.meta.vitest;
 
-    it("validateSession", async () => {
-        const database = createDatabase(":memory:");
-        const sessionToken = createSessionToken();
+	it('validateSession - invalid token returns null', async () => {
+		const database = createDatabase(':memory:');
 
-        await expect(
-            validateSession({
-                database,
-                sessionToken,
-            }),
-        ).resolves.toBeNull();
+		await expect(
+			validateSession({
+				database,
+				sessionToken: 'invalid-token'
+			})
+		).resolves.toBeNull();
+	});
 
-        const username = "testuser";
-        const passwordHash = await hashPassword({ password: "password123" });
-        const user = await createUser({
-            database,
-            username,
-            passwordHash,
-        });
+	it('validateSession - valid session returns session data', async () => {
+		const database = createDatabase(':memory:');
+		const sessionToken = createSessionToken();
 
-        const session = await createSession({
-            database,
-            userId: user.id,
-            sessionToken,
-        });
+		const username = 'testuser';
+		const passwordHash = await hashPassword({ password: 'password123' });
+		const user = await createUser({
+			database,
+			username,
+			passwordHash
+		});
 
-        await expect(
-            validateSession({
-                database,
-                sessionToken,
-            }),
-        ).resolves.toMatchObject({
-            id: session.id,
-            user,
-        });
-    });
+		const session = await createSession({
+			database,
+			userId: user.id,
+			sessionToken
+		});
+
+		await expect(
+			validateSession({
+				database,
+				sessionToken
+			})
+		).resolves.toMatchObject({
+			id: session.id,
+			user
+		});
+	});
 }

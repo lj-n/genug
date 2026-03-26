@@ -23,15 +23,7 @@ export async function createSession(
 }
 
 if (import.meta.vitest) {
-    const { it, expect, beforeEach, afterEach, vi } = import.meta.vitest;
-
-    beforeEach(() => {
-        vi.useFakeTimers();
-    });
-
-    afterEach(() => {
-        vi.useRealTimers();
-    });
+    const { it, expect } = import.meta.vitest;
 
     it("createSession", async () => {
         const database = createDatabase(":memory:");
