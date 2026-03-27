@@ -6,7 +6,7 @@ declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-			session: import("$db/auth").Session;
+			session: import("$db/auth").Session | null;
 		}
 		// interface PageData {}
 		// interface PageState {}

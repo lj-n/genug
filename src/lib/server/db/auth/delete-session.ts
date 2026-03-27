@@ -1,10 +1,7 @@
-import { type Database, tables } from "$db";
 import { eq } from "drizzle-orm";
-import { createDatabase } from "..";
-import { createUser } from "../user/create-user";
-import { createSession } from "./create-session";
-import { createSessionToken } from "./create-session-token";
-import { hashPassword } from "./hash-password";
+import { createDatabase, type Database, tables } from "$db";
+import { createUser } from "$db/user";
+import { createSession, createSessionToken, hashPassword } from "$db/auth";
 
 export async function deleteSession({
     database,

@@ -1,9 +1,8 @@
 import { encodeHexLowerCase } from "@oslojs/encoding";
-import { createDatabase, type Database, tables } from "..";
 import { sha256 } from "@oslojs/crypto/sha2";
-import { createSessionToken } from "./create-session-token";
-import { createUser } from "../user/create-user";
-import { hashPassword } from "./hash-password";
+import { createDatabase, type Database, tables } from "$db";
+import { createSessionToken, hashPassword } from "$db/auth";
+import { createUser } from "$db/user";
 
 export async function createSession(
     { database, sessionToken, userId }: {

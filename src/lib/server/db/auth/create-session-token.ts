@@ -7,6 +7,7 @@ export function createSessionToken(): string {
 
 if (import.meta.vitest) {
     const { it, expect } = import.meta.vitest;
+
     it("createSessionToken", () => {
         const token = createSessionToken();
         expect(token).toHaveLength(16);

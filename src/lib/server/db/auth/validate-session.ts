@@ -1,16 +1,18 @@
-import { createDatabase, type Database } from '$db';
-import { encodeHexLowerCase } from '@oslojs/encoding';
-import { sha256 } from '@oslojs/crypto/sha2';
-import type { Session } from '.';
-import { refreshSession } from './refresh-session';
-import { createSessionToken } from './create-session-token';
-import { hashPassword } from './hash-password';
-import { createUser } from '../user/create-user';
-import { createSession } from './create-session';
+import { encodeHexLowerCase } from "@oslojs/encoding";
+import { sha256 } from "@oslojs/crypto/sha2";
+import { createDatabase, type Database } from "$db";
+import { createUser } from "$db/user";
+import {
+	createSession,
+	createSessionToken,
+	hashPassword,
+	refreshSession,
+	type Session,
+} from "$db/auth";
 
 export async function validateSession({
 	database,
-	sessionToken
+	sessionToken,
 }: {
 	database: Database;
 	sessionToken: string;
@@ -21,7 +23,7 @@ export async function validateSession({
 	const session = await database.query.sessions.findFirst({
 		where: { id: sessionId },
 		columns: { userId: false },
-		with: { user: { columns: { passwordHash: false } } }
+		with: { user: { columns: { passwordHash: false } } },
 	});
 
 	if (!session || !session.user) {
@@ -34,43 +36,43 @@ export async function validateSession({
 if (import.meta.vitest) {
 	const { it, expect } = import.meta.vitest;
 
-	it('validateSession - invalid token returns null', async () => {
-		const database = createDatabase(':memory:');
+	it("validateSession - invalid token returns null", async () => {
+		const database = createDatabase(":memory:");
 
 		await expect(
 			validateSession({
 				database,
-				sessionToken: 'invalid-token'
-			})
+				sessionToken: "invalid-token",
+			}),
 		).resolves.toBeNull();
 	});
 
-	it('validateSession - valid session returns session data', async () => {
-		const database = createDatabase(':memory:');
+	it("validateSession - valid session returns session data", async () => {
+		const database = createDatabase(":memory:");
 		const sessionToken = createSessionToken();
 
-		const username = 'testuser';
-		const passwordHash = await hashPassword({ password: 'password123' });
+		const username = "testuser";
+		const passwordHash = await hashPassword({ password: "password123" });
 		const user = await createUser({
 			database,
 			username,
-			passwordHash
+			passwordHash,
 		});
 
 		const session = await createSession({
 			database,
 			userId: user.id,
-			sessionToken
+			sessionToken,
 		});
 
 		await expect(
 			validateSession({
 				database,
-				sessionToken
-			})
+				sessionToken,
+			}),
 		).resolves.toMatchObject({
 			id: session.id,
-			user
+			user,
 		});
 	});
 }

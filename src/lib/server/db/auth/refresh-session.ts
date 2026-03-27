@@ -1,12 +1,14 @@
-import { createDatabase, type Database, tables } from "$db";
-import { DAY_IN_MS } from "$server/utils/day-in-ms";
 import { eq } from "drizzle-orm";
-import type { Session } from ".";
-import { createUser } from "../user/create-user";
-import { createSession } from "./create-session";
-import { createSessionToken } from "./create-session-token";
-import { deleteSession } from "./delete-session";
-import { hashPassword } from "./hash-password";
+import { DAY_IN_MS } from "$server/utils/day-in-ms";
+import { createDatabase, type Database, tables } from "$db";
+import { createUser } from "$db/user";
+import {
+    createSession,
+    createSessionToken,
+    deleteSession,
+    hashPassword,
+    type Session,
+} from "$db/auth";
 
 export async function refreshSession({
     database,
