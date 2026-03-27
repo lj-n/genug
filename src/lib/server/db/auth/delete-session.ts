@@ -1,6 +1,5 @@
 import { eq } from "drizzle-orm";
-import { createDatabase, type Database, tables, users } from "$db";
-import { createSession, createSessionToken, hashPassword } from "$db/auth";
+import { auth, createDatabase, type Database, tables, users } from "$db";
 
 export async function deleteSession({
     database,
@@ -18,16 +17,18 @@ if (import.meta.vitest) {
 
     it("deleteSession - removes an existing session", async () => {
         const database = createDatabase(":memory:");
-        const passwordHash = await hashPassword({ password: "password123" });
+        const passwordHash = await auth.hashPassword({
+            password: "password123",
+        });
         const user = await users.createUser({
             database,
             username: "testuser",
             passwordHash,
         });
-        const session = await createSession({
+        const session = await auth.createSession({
             database,
             userId: user.id,
-            sessionToken: createSessionToken(),
+            sessionToken: auth.createSessionToken(),
         });
 
         await deleteSession({ database, sessionId: session.id });

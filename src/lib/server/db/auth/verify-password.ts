@@ -1,5 +1,5 @@
 import { verify } from "@node-rs/argon2";
-import { hashPassword } from "$db/auth";
+import { auth } from "$db";
 
 export async function verifyPassword({
 	passwordHash,
@@ -16,7 +16,7 @@ if (import.meta.vitest) {
 
 	it("verifyPassword - returns true for matching password", async () => {
 		const password = "password123";
-		const passwordHash = await hashPassword({ password });
+		const passwordHash = await auth.hashPassword({ password });
 
 		await expect(
 			verifyPassword({
@@ -27,7 +27,9 @@ if (import.meta.vitest) {
 	});
 
 	it("verifyPassword - returns false for non-matching password", async () => {
-		const passwordHash = await hashPassword({ password: "password123" });
+		const passwordHash = await auth.hashPassword({
+			password: "password123",
+		});
 
 		await expect(
 			verifyPassword({
@@ -39,8 +41,8 @@ if (import.meta.vitest) {
 
 	it("verifyPassword - accepts multiple hashes for the same password", async () => {
 		const password = "password123";
-		const firstHash = await hashPassword({ password });
-		const secondHash = await hashPassword({ password });
+		const firstHash = await auth.hashPassword({ password });
+		const secondHash = await auth.hashPassword({ password });
 
 		expect(firstHash).not.toBe(secondHash);
 		await expect(

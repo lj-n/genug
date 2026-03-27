@@ -1,7 +1,6 @@
 import { encodeHexLowerCase } from "@oslojs/encoding";
 import { sha256 } from "@oslojs/crypto/sha2";
-import { createDatabase, type Database, tables, users } from "$db";
-import { createSessionToken, hashPassword } from "$db/auth";
+import { auth, createDatabase, type Database, tables, users } from "$db";
 
 export async function createSession(
     { database, sessionToken, userId }: {
@@ -25,7 +24,7 @@ if (import.meta.vitest) {
 
     it("createSession", async () => {
         const database = createDatabase(":memory:");
-        const sessionToken = createSessionToken();
+        const sessionToken = auth.createSessionToken();
 
         await expect(
             createSession({
@@ -36,7 +35,9 @@ if (import.meta.vitest) {
         ).rejects.toThrow();
 
         const username = "testuser";
-        const passwordHash = await hashPassword({ password: "password123" });
+        const passwordHash = await auth.hashPassword({
+            password: "password123",
+        });
         const user = await users.createUser({
             database,
             username,

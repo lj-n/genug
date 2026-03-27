@@ -1,13 +1,6 @@
 import { encodeHexLowerCase } from "@oslojs/encoding";
 import { sha256 } from "@oslojs/crypto/sha2";
-import { createDatabase, type Database, users } from "$db";
-import {
-	createSession,
-	createSessionToken,
-	hashPassword,
-	refreshSession,
-	type Session,
-} from "$db/auth";
+import { auth, createDatabase, type Database, users } from "$db";
 
 export async function validateSession({
 	database,
@@ -15,7 +8,7 @@ export async function validateSession({
 }: {
 	database: Database;
 	sessionToken: string;
-}): Promise<Session | null> {
+}): Promise<auth.Session | null> {
 	const tokenBuffer = new TextEncoder().encode(sessionToken);
 	const sessionId = encodeHexLowerCase(sha256(tokenBuffer));
 
@@ -29,7 +22,7 @@ export async function validateSession({
 		return null;
 	}
 
-	return refreshSession({ database, session: session as Session });
+	return auth.refreshSession({ database, session: session as auth.Session });
 }
 
 if (import.meta.vitest) {
@@ -48,17 +41,19 @@ if (import.meta.vitest) {
 
 	it("validateSession - valid session returns session data", async () => {
 		const database = createDatabase(":memory:");
-		const sessionToken = createSessionToken();
+		const sessionToken = auth.createSessionToken();
 
 		const username = "testuser";
-		const passwordHash = await hashPassword({ password: "password123" });
+		const passwordHash = await auth.hashPassword({
+			password: "password123",
+		});
 		const user = await users.createUser({
 			database,
 			username,
 			passwordHash,
 		});
 
-		const session = await createSession({
+		const session = await auth.createSession({
 			database,
 			userId: user.id,
 			sessionToken,

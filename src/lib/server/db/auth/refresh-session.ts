@@ -1,23 +1,16 @@
 import { eq } from "drizzle-orm";
 import { DAY_IN_MS } from "$server/utils/day-in-ms";
-import { createDatabase, type Database, tables, users } from "$db";
-import {
-    createSession,
-    createSessionToken,
-    deleteSession,
-    hashPassword,
-    type Session,
-} from "$db/auth";
+import { auth, createDatabase, type Database, tables, users } from "$db";
 
 export async function refreshSession({
     database,
     session,
 }: {
     database: Database;
-    session: Session;
-}): Promise<Session | null> {
+    session: auth.Session;
+}): Promise<auth.Session | null> {
     if (isExpired(session.expiresAt)) {
-        await deleteSession({ database, sessionId: session.id });
+        await auth.deleteSession({ database, sessionId: session.id });
         return null;
     }
 
@@ -49,17 +42,19 @@ if (import.meta.vitest) {
 
     async function createSessionForRefreshTest(
         database: Database,
-    ): Promise<Session> {
-        const passwordHash = await hashPassword({ password: "password123" });
+    ): Promise<auth.Session> {
+        const passwordHash = await auth.hashPassword({
+            password: "password123",
+        });
         const user = await users.createUser({
             database,
             username: crypto.randomUUID(),
             passwordHash,
         });
-        const createdSession = await createSession({
+        const createdSession = await auth.createSession({
             database,
             userId: user.id,
-            sessionToken: createSessionToken(),
+            sessionToken: auth.createSessionToken(),
         });
         const storedSession = await database.query.sessions.findFirst({
             where: { id: createdSession.id },
@@ -71,7 +66,7 @@ if (import.meta.vitest) {
             throw new Error("Session not found");
         }
 
-        return storedSession as Session;
+        return storedSession as auth.Session;
     }
 
     beforeEach(() => {
