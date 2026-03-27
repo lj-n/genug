@@ -10,3 +10,4 @@ const database = createDatabase(env.DATABASE_URL);
 export { createDatabase, type Database, database };
 export * as tables from "./tables";
 export * as auth from "./auth";
+export * as users from "./users";

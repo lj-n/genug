@@ -8,4 +8,11 @@ export const relations = defineRelations(tables, (r) => ({
             to: r.users.id,
         }),
     },
+
+    users: {
+        sessions: r.many.sessions({
+            from: r.users.id,
+            to: r.sessions.userId,
+        }),
+    },
 }));

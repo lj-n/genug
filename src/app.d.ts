@@ -8,7 +8,9 @@ declare global {
 		interface Locals {
 			session: import("$db/auth").Session | null;
 		}
-		// interface PageData {}
+		interface PageData {
+			title?: string;
+		}
 		// interface PageState {}
 		// interface Platform {}
 	}

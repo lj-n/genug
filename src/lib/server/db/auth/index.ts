@@ -15,4 +15,7 @@ export { hashPassword } from "./hash-password";
 export { verifyPassword } from "./verify-password";
 export { refreshSession } from "./refresh-session";
 export { withSession } from "./with-session";
+export { authenticateUser } from "./authenticate-user";
+
 export * from "./cookie-session";
+export * from "./types";

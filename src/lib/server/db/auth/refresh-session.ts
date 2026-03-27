@@ -1,7 +1,6 @@
 import { eq } from "drizzle-orm";
 import { DAY_IN_MS } from "$server/utils/day-in-ms";
-import { createDatabase, type Database, tables } from "$db";
-import { createUser } from "$db/user";
+import { createDatabase, type Database, tables, users } from "$db";
 import {
     createSession,
     createSessionToken,
@@ -52,7 +51,7 @@ if (import.meta.vitest) {
         database: Database,
     ): Promise<Session> {
         const passwordHash = await hashPassword({ password: "password123" });
-        const user = await createUser({
+        const user = await users.createUser({
             database,
             username: crypto.randomUUID(),
             passwordHash,

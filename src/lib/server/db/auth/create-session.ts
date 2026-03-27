@@ -1,8 +1,7 @@
 import { encodeHexLowerCase } from "@oslojs/encoding";
 import { sha256 } from "@oslojs/crypto/sha2";
-import { createDatabase, type Database, tables } from "$db";
+import { createDatabase, type Database, tables, users } from "$db";
 import { createSessionToken, hashPassword } from "$db/auth";
-import { createUser } from "$db/user";
 
 export async function createSession(
     { database, sessionToken, userId }: {
@@ -38,7 +37,7 @@ if (import.meta.vitest) {
 
         const username = "testuser";
         const passwordHash = await hashPassword({ password: "password123" });
-        const user = await createUser({
+        const user = await users.createUser({
             database,
             username,
             passwordHash,

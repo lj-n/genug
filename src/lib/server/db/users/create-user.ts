@@ -1,18 +1,16 @@
-import { createDatabase, type Database, tables } from "$db";
-import { hashPassword } from "../auth/hash-password";
+import { auth, createDatabase, type Database, tables } from "$db";
 
 export async function createUser({
     database,
-    username,
-    passwordHash,
+    ...userData
 }: {
     database: Database;
-    username: string;
-    passwordHash: string;
-}): Promise<Omit<typeof tables.users.$inferSelect, "passwordHash">> {
+} & typeof tables.users.$inferInsert): Promise<
+    Omit<typeof tables.users.$inferSelect, "passwordHash">
+> {
     const [{ passwordHash: _, ...user }] = await database
         .insert(tables.users)
-        .values({ username, passwordHash })
+        .values(userData)
         .returning();
 
     return user;
@@ -25,7 +23,7 @@ if (import.meta.vitest) {
         const db = createDatabase(":memory:");
         const username = "testuser";
         const password = "password123";
-        const passwordHash = await hashPassword({ password });
+        const passwordHash = await auth.hashPassword({ password });
 
         const user = await createUser({ database: db, username, passwordHash });
 
