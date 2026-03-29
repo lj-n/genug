@@ -16,6 +16,7 @@
 		"test:unit": "vitest"
 	},
 	"devDependencies": {
+		"@canutin/svelte-currency-input": "^1.1.1",
 		"@dnd-kit/helpers": "^0.3.2",
 		"@dnd-kit/svelte": "^0.3.2",
 		"@eslint/compat": "^2.0.3",

@@ -1,7 +1,7 @@
 {
   "version": "7",
   "dialect": "sqlite",
-  "id": "6c8e9c4b-077a-4b31-9187-46b26fed15bd",
+  "id": "bad75169-542d-44cd-871e-b8f5cd837ebf",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
@@ -167,6 +167,16 @@
       "default": null,
       "generated": null,
       "name": "name",
+      "entityType": "columns",
+      "table": "budgets"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "'EUR'",
+      "generated": null,
+      "name": "currency",
       "entityType": "columns",
       "table": "budgets"
     },

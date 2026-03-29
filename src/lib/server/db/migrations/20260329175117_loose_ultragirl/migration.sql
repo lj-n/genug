@@ -23,7 +23,8 @@ CREATE TABLE `budget_assignments` (
 CREATE TABLE `budgets` (
 	`id` text PRIMARY KEY,
 	`created_at` integer NOT NULL,
-	`name` text NOT NULL
+	`name` text NOT NULL,
+	`currency` text DEFAULT 'EUR' NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `users_to_budgets` (

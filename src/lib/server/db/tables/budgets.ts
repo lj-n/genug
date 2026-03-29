@@ -17,6 +17,9 @@ export const budgets = sqliteTable(
             createdAt: t.integer("created_at", { mode: "timestamp" })
                 .$defaultFn(() => new Date()).notNull(),
             name: t.text("name").notNull(),
+            currency: t.text("currency", {
+                enum: ["EUR", "USD", "GBP", "CAD", "AUD", "JPY"],
+            }).default("EUR").notNull(),
         }
     ),
 );
