@@ -1,22 +1,23 @@
 <script lang="ts">
-	import { cn } from 'tailwind-variants';
-	import type { HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
 	import type { WithElementRef } from 'bits-ui';
+	import type { HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
+
+	import { cn } from 'tailwind-variants';
 
 	type InputType = Exclude<HTMLInputTypeAttribute, 'file'>;
 
 	type Props = WithElementRef<
 		Omit<HTMLInputAttributes, 'type'> &
-			({ type: 'file'; files?: FileList } | { type?: InputType; files?: undefined })
+			({ files?: FileList; type: 'file' } | { files?: undefined; type?: InputType })
 	>;
 
 	let {
-		ref = $bindable(null),
-		value = $bindable(),
-		type,
-		files = $bindable(),
 		class: className,
 		'data-slot': dataSlot = 'input',
+		files = $bindable(),
+		ref = $bindable(null),
+		type,
+		value = $bindable(),
 		...restProps
 	}: Props = $props();
 </script>

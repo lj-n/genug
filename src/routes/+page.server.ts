@@ -1,12 +1,11 @@
-import { auth } from "$server/db";
-import type { Actions, PageServerLoad } from "./$types";
+import { auth } from '$server/db';
 
-export const load: PageServerLoad = auth.withSession(
-    async (session, _event) => {
-        const userId = session.user.id;
+import type { Actions, PageServerLoad } from './$types';
 
-        return { userId };
-    },
-);
+export const load: PageServerLoad = auth.withSession(async (session, _event) => {
+	const userId = session.user.id;
+
+	return { userId };
+});
 
 export const actions = {} satisfies Actions;

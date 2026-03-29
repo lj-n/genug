@@ -20,8 +20,8 @@ const config = {
 		adapter: adapter(),
 
 		alias: {
-			$server: 'src/lib/server',
-			$db: 'src/lib/server/db'
+			$db: 'src/lib/server/db',
+			$server: 'src/lib/server'
 		}
 	}
 };

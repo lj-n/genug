@@ -26,3 +26,7 @@ vite.config.ts.timestamp-*
 *.db
 *.sqlite
 *.sqlite3
+
+# Paraglide
+src/lib/paraglide
+project.inlang/cache/

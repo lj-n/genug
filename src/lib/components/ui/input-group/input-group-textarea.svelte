@@ -1,12 +1,13 @@
 <script lang="ts">
-	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import type { ComponentProps } from 'svelte';
+
+	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { cn } from 'tailwind-variants';
 
 	let {
+		class: className,
 		ref = $bindable(null),
 		value = $bindable(),
-		class: className,
 		...props
 	}: ComponentProps<typeof Textarea> = $props();
 </script>

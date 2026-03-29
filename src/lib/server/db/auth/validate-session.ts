@@ -1,10 +1,10 @@
-import { encodeHexLowerCase } from "@oslojs/encoding";
-import { sha256 } from "@oslojs/crypto/sha2";
-import { auth, createDatabase, type Database, users } from "$db";
+import { auth, createDatabase, type Database, users } from '$db';
+import { sha256 } from '@oslojs/crypto/sha2';
+import { encodeHexLowerCase } from '@oslojs/encoding';
 
 export async function validateSession({
 	database,
-	sessionToken,
+	sessionToken
 }: {
 	database: Database;
 	sessionToken: string;
@@ -13,9 +13,9 @@ export async function validateSession({
 	const sessionId = encodeHexLowerCase(sha256(tokenBuffer));
 
 	const session = await database.query.sessions.findFirst({
-		where: { id: sessionId },
 		columns: { userId: false },
-		with: { user: { columns: { passwordHash: false } } },
+		where: { id: sessionId },
+		with: { user: { columns: { passwordHash: false } } }
 	});
 
 	if (!session || !session.user) {
@@ -26,47 +26,47 @@ export async function validateSession({
 }
 
 if (import.meta.vitest) {
-	const { it, expect } = import.meta.vitest;
+	const { expect, it } = import.meta.vitest;
 
-	it("validateSession - invalid token returns null", async () => {
-		const database = createDatabase(":memory:");
+	it('validateSession - invalid token returns null', async () => {
+		const database = createDatabase(':memory:');
 
 		await expect(
 			validateSession({
 				database,
-				sessionToken: "invalid-token",
-			}),
+				sessionToken: 'invalid-token'
+			})
 		).resolves.toBeNull();
 	});
 
-	it("validateSession - valid session returns session data", async () => {
-		const database = createDatabase(":memory:");
+	it('validateSession - valid session returns session data', async () => {
+		const database = createDatabase(':memory:');
 		const sessionToken = auth.createSessionToken();
 
-		const username = "testuser";
+		const username = 'testuser';
 		const passwordHash = await auth.hashPassword({
-			password: "password123",
+			password: 'password123'
 		});
 		const user = await users.createUser({
 			database,
-			username,
 			passwordHash,
+			username
 		});
 
 		const session = await auth.createSession({
 			database,
-			userId: user.id,
 			sessionToken,
+			userId: user.id
 		});
 
 		await expect(
 			validateSession({
 				database,
-				sessionToken,
-			}),
+				sessionToken
+			})
 		).resolves.toMatchObject({
 			id: session.id,
-			user,
+			user
 		});
 	});
 }

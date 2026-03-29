@@ -3,8 +3,8 @@
 	import { cn } from 'tailwind-variants';
 
 	let {
-		ref = $bindable(null),
 		class: className,
+		ref = $bindable(null),
 		...restProps
 	}: LabelPrimitive.RootProps = $props();
 </script>

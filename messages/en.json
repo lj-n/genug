@@ -1,0 +1,14 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"login_admin_introduction": "First, create an admin user. You will be able to create more users at a later time.",
+	"login_admin_credentials_info": "Keep your credentials safe! There is no way to recover the administrator credentials.",
+	"login_admin_button": "Create Admin",
+	"login_button": "Login",
+	"login_label_username": "Username",
+	"login_label_password": "Password",
+	"login_error_username_minlength": "The username must be at least {length} characters long.",
+	"login_error_username_maxlength": "The username must be at most {length} characters long.",
+	"login_error_password_minlength": "The password must be at least {length} characters long.",
+	"login_error_password_maxlength": "The password must be at most {length} characters long.",
+	"login_error_invalid_credentials": "Invalid credentials."
+}

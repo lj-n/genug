@@ -1,16 +1,17 @@
 <script lang="ts">
-	import * as FormPrimitive from 'formsnap';
 	import type { WithoutChild } from 'bits-ui';
+
+	import * as FormPrimitive from 'formsnap';
 	import { cn } from 'tailwind-variants';
 
 	let {
-		ref = $bindable(null),
+		children: childrenProp,
 		class: className,
 		errorClasses,
-		children: childrenProp,
+		ref = $bindable(null),
 		...restProps
 	}: WithoutChild<FormPrimitive.FieldErrorsProps> & {
-		errorClasses?: string | undefined | null;
+		errorClasses?: null | string | undefined;
 	} = $props();
 </script>
 
@@ -19,9 +20,9 @@
 	class={cn('text-sm font-medium text-error', className)}
 	{...restProps}
 >
-	{#snippet children({ errors, errorProps })}
+	{#snippet children({ errorProps, errors })}
 		{#if childrenProp}
-			{@render childrenProp({ errors, errorProps })}
+			{@render childrenProp({ errorProps, errors })}
 		{:else}
 			{#each errors as error (error)}
 				<div {...errorProps} class={cn(errorClasses)}>{error}</div>

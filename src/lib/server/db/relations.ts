@@ -1,115 +1,116 @@
-import { defineRelations } from "drizzle-orm";
-import * as tables from "./tables";
+import { defineRelations } from 'drizzle-orm';
+
+import * as tables from './tables';
 
 export const relations = defineRelations(tables, (r) => ({
-    sessions: {
-        user: r.one.users({
-            from: r.sessions.userId,
-            to: r.users.id,
-            optional: false,
-        }),
-    },
+	accounts: {
+		budget: r.one.budgets({
+			from: r.accounts.budgetId,
+			optional: false,
+			to: r.budgets.id
+		}),
 
-    users: {
-        budgets: r.many.usersToBudgets({
-            from: r.users.id,
-            to: r.usersToBudgets.userId,
-            where: {
-                role: { OR: ["OWNER", "MEMBER"] },
-            },
-        }),
+		transactions: r.many.transactions({
+			from: r.accounts.id,
+			to: r.transactions.accountId
+		})
+	},
 
-        invitations: r.many.usersToBudgets({
-            from: r.users.id,
-            to: r.usersToBudgets.userId,
-            where: { role: "INVITEE" },
-        }),
-    },
+	budgets: {
+		accounts: r.many.accounts({
+			from: r.budgets.id,
+			to: r.accounts.budgetId
+		}),
 
-    budgets: {
-        users: r.many.usersToBudgets({
-            from: r.budgets.id,
-            to: r.usersToBudgets.budgetId,
-            where: {
-                role: { OR: ["OWNER", "MEMBER"] },
-            },
-            alias: "usersWithAccess",
-        }),
+		assignments: r.many.budgetAssignments({
+			from: r.budgets.id,
+			to: r.budgetAssignments.budgetId
+		}),
 
-        invitees: r.many.usersToBudgets({
-            from: r.budgets.id,
-            to: r.usersToBudgets.budgetId,
-            where: { role: "INVITEE" },
-        }),
+		categories: r.many.categories({
+			from: r.budgets.id,
+			to: r.categories.budgetId
+		}),
 
-        accounts: r.many.accounts({
-            from: r.budgets.id,
-            to: r.accounts.budgetId,
-        }),
+		invitees: r.many.usersToBudgets({
+			from: r.budgets.id,
+			to: r.usersToBudgets.budgetId,
+			where: { role: 'INVITEE' }
+		}),
 
-        categories: r.many.categories({
-            from: r.budgets.id,
-            to: r.categories.budgetId,
-        }),
+		transactions: r.many.transactions({
+			from: r.budgets.id,
+			to: r.transactions.budgetId
+		}),
 
-        transactions: r.many.transactions({
-            from: r.budgets.id,
-            to: r.transactions.budgetId,
-        }),
+		users: r.many.usersToBudgets({
+			alias: 'usersWithAccess',
+			from: r.budgets.id,
+			to: r.usersToBudgets.budgetId,
+			where: {
+				role: { OR: ['OWNER', 'MEMBER'] }
+			}
+		})
+	},
 
-        assignments: r.many.budgetAssignments({
-            from: r.budgets.id,
-            to: r.budgetAssignments.budgetId,
-        }),
-    },
+	categories: {
+		assignments: r.many.budgetAssignments({
+			from: r.categories.id,
+			to: r.budgetAssignments.categoryId
+		}),
 
-    accounts: {
-        budget: r.one.budgets({
-            from: r.accounts.budgetId,
-            to: r.budgets.id,
-            optional: false,
-        }),
+		budget: r.one.budgets({
+			from: r.categories.budgetId,
+			optional: false,
+			to: r.budgets.id
+		}),
 
-        transactions: r.many.transactions({
-            from: r.accounts.id,
-            to: r.transactions.accountId,
-        }),
-    },
+		transactions: r.many.transactions({
+			from: r.categories.id,
+			to: r.transactions.categoryId
+		})
+	},
 
-    categories: {
-        budget: r.one.budgets({
-            from: r.categories.budgetId,
-            to: r.budgets.id,
-            optional: false,
-        }),
+	sessions: {
+		user: r.one.users({
+			from: r.sessions.userId,
+			optional: false,
+			to: r.users.id
+		})
+	},
 
-        transactions: r.many.transactions({
-            from: r.categories.id,
-            to: r.transactions.categoryId,
-        }),
+	transactions: {
+		account: r.one.accounts({
+			from: r.transactions.accountId,
+			optional: false,
+			to: r.accounts.id
+		}),
 
-        assignments: r.many.budgetAssignments({
-            from: r.categories.id,
-            to: r.budgetAssignments.categoryId,
-        }),
-    },
+		budget: r.one.budgets({
+			from: r.transactions.budgetId,
+			optional: false,
+			to: r.budgets.id
+		}),
 
-    transactions: {
-        budget: r.one.budgets({
-            from: r.transactions.budgetId,
-            to: r.budgets.id,
-            optional: false,
-        }),
+		category: r.one.categories({
+			from: r.transactions.categoryId,
+			to: r.categories.id
+		})
+	},
 
-        account: r.one.accounts({
-            from: r.transactions.accountId,
-            to: r.accounts.id,
-            optional: false,
-        }),
+	users: {
+		budgets: r.many.usersToBudgets({
+			from: r.users.id,
+			to: r.usersToBudgets.userId,
+			where: {
+				role: { OR: ['OWNER', 'MEMBER'] }
+			}
+		}),
 
-        category: r.one.categories({
-            from: r.transactions.categoryId,
-            to: r.categories.id,
-        }),
-    },
+		invitations: r.many.usersToBudgets({
+			from: r.users.id,
+			to: r.usersToBudgets.userId,
+			where: { role: 'INVITEE' }
+		})
+	}
 }));

@@ -1,19 +1,20 @@
 <script lang="ts" generics="T extends Record<string, unknown>, U extends FormPathLeaves<T>">
-	import * as FormPrimitive from 'formsnap';
-	import type { FormPathLeaves } from 'sveltekit-superforms';
-	import type { HTMLAttributes } from 'svelte/elements';
-	import { cn } from 'tailwind-variants';
 	import type { WithElementRef, WithoutChildren } from 'bits-ui';
+	import type { HTMLAttributes } from 'svelte/elements';
+	import type { FormPathLeaves } from 'sveltekit-superforms';
+
+	import * as FormPrimitive from 'formsnap';
+	import { cn } from 'tailwind-variants';
 
 	let {
-		ref = $bindable(null),
+		children: childrenProp,
 		class: className,
 		form,
 		name,
-		children: childrenProp,
+		ref = $bindable(null),
 		...restProps
-	}: WithoutChildren<WithElementRef<HTMLAttributes<HTMLDivElement>>> &
-		FormPrimitive.ElementFieldProps<T, U> = $props();
+	}: FormPrimitive.ElementFieldProps<T, U> &
+		WithoutChildren<WithElementRef<HTMLAttributes<HTMLDivElement>>> = $props();
 </script>
 
 <FormPrimitive.ElementField {form} {name}>

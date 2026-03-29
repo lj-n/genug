@@ -1,13 +1,14 @@
 <script lang="ts">
 	import type { WithElementRef, WithoutChildren } from 'bits-ui';
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
+
 	import { cn } from 'tailwind-variants';
 
 	let {
-		ref = $bindable(null),
-		value = $bindable(),
 		class: className,
 		'data-slot': dataSlot = 'textarea',
+		ref = $bindable(null),
+		value = $bindable(),
 		...restProps
 	}: WithoutChildren<WithElementRef<HTMLTextareaAttributes>> = $props();
 </script>

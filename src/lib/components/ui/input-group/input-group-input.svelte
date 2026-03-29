@@ -1,12 +1,13 @@
 <script lang="ts">
 	import type { ComponentProps } from 'svelte';
+
 	import { Input } from '$lib/components/ui/input';
 	import { cn } from 'tailwind-variants';
 
 	let {
+		class: className,
 		ref = $bindable(null),
 		value = $bindable(),
-		class: className,
 		...props
 	}: ComponentProps<typeof Input> = $props();
 </script>

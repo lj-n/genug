@@ -1,15 +1,16 @@
 <script lang="ts">
 	import type { ComponentProps } from 'svelte';
+
 	import { Button } from '$lib/components/ui/button';
 	import { cn } from 'tailwind-variants';
 
 	let {
-		ref = $bindable(null),
-		class: className,
 		children,
+		class: className,
+		ref = $bindable(null),
+		size = 'default',
 		type = 'button',
 		variant = 'ghost',
-		size = 'default',
 		...restProps
 	}: ComponentProps<typeof Button> = $props();
 </script>

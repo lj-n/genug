@@ -1,73 +1,68 @@
-import { err, ok, type Result } from "$server/utils/result";
-import { auth, createDatabase, type Database, tables, users } from "$db";
-import type { AuthFailure } from "./types";
+import { auth, createDatabase, type Database, tables, users } from '$db';
+import { err, ok, type Result } from '$server/utils/result';
 
-export async function authenticateUser(
-    {
-        database,
-        username,
-        password,
-    }: {
-        database: Database;
-        username: string;
-        password: string;
-    },
-): Promise<
-    Result<Omit<typeof tables.users.$inferSelect, "passwordHash">, AuthFailure>
-> {
-    const user = await users.getUserByName({
-        database,
-        username,
-        withPassword: true,
-    });
+import type { AuthFailure } from './types';
 
-    if (!user) {
-        return err("INVALID_CREDENTIALS");
-    }
+export async function authenticateUser({
+	database,
+	password,
+	username
+}: {
+	database: Database;
+	password: string;
+	username: string;
+}): Promise<Result<Omit<typeof tables.users.$inferSelect, 'passwordHash'>, AuthFailure>> {
+	const user = await users.getUserByName({
+		database,
+		username,
+		withPassword: true
+	});
 
-    const { passwordHash, ...userWithoutPassword } = user;
+	if (!user) {
+		return err('INVALID_CREDENTIALS');
+	}
 
-    const validPassword = await auth.verifyPassword({ password, passwordHash });
+	const { passwordHash, ...userWithoutPassword } = user;
 
-    if (!validPassword) {
-        return err("INVALID_CREDENTIALS");
-    }
+	const validPassword = await auth.verifyPassword({ password, passwordHash });
 
-    return ok(userWithoutPassword);
+	if (!validPassword) {
+		return err('INVALID_CREDENTIALS');
+	}
+
+	return ok(userWithoutPassword);
 }
 
 if (import.meta.vitest) {
-    const { it, expect } = import.meta.vitest;
+	const { expect, it } = import.meta.vitest;
 
-    it("authenticateUser", async () => {
-        const database = createDatabase(":memory:");
-        const username = "testuser";
-        const password = "password123";
-        const passwordHash = await auth.hashPassword({ password });
+	it('authenticateUser', async () => {
+		const database = createDatabase(':memory:');
+		const username = 'testuser';
+		const password = 'password123';
+		const passwordHash = await auth.hashPassword({ password });
 
-        await users.createUser({ database, username, passwordHash });
+		await users.createUser({ database, passwordHash, username });
 
-        await expect(
-            authenticateUser({ database, username, password }),
-        ).resolves.toMatchObject({
-            ok: true,
-            data: expect.objectContaining({
-                username,
-            }),
-        });
+		await expect(authenticateUser({ database, password, username })).resolves.toMatchObject({
+			data: expect.objectContaining({
+				username
+			}),
+			ok: true
+		});
 
-        await expect(
-            authenticateUser({ database, username, password: "wrongpassword" }),
-        ).resolves.toMatchObject({
-            ok: false,
-            error: "INVALID_CREDENTIALS",
-        });
+		await expect(
+			authenticateUser({ database, password: 'wrongpassword', username })
+		).resolves.toMatchObject({
+			error: 'INVALID_CREDENTIALS',
+			ok: false
+		});
 
-        await expect(
-            authenticateUser({ database, username: "nonexistent", password }),
-        ).resolves.toMatchObject({
-            ok: false,
-            error: "INVALID_CREDENTIALS",
-        });
-    });
+		await expect(
+			authenticateUser({ database, password, username: 'nonexistent' })
+		).resolves.toMatchObject({
+			error: 'INVALID_CREDENTIALS',
+			ok: false
+		});
+	});
 }

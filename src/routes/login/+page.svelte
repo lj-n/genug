@@ -1,23 +1,24 @@
 <script lang="ts">
-	import type { PageProps } from './$types';
+	import Logo from '$lib/components/logo.svelte';
 	import * as Form from '$lib/components/ui/form';
 	import * as InputGroup from '$lib/components/ui/input-group';
-	import Logo from '$lib/components/logo.svelte';
-
-	import { superForm } from 'sveltekit-superforms';
+	import { m } from '$lib/paraglide/messages';
 	import { untrack } from 'svelte';
+	import { superForm } from 'sveltekit-superforms';
 	import { zod4Client } from 'sveltekit-superforms/adapters';
-	import { schema } from './schema';
-
-	import PhUserCircleDuotone from '~icons/ph/user-circle-duotone';
-	import PhKeyDuotone from '~icons/ph/key-duotone';
-	import PhEyeClosed from '~icons/ph/eye-closed';
 	import PhEye from '~icons/ph/eye';
+	import PhEyeClosed from '~icons/ph/eye-closed';
+	import PhKeyDuotone from '~icons/ph/key-duotone';
+	import PhUserCircleDuotone from '~icons/ph/user-circle-duotone';
+
+	import type { PageProps } from './$types';
+
+	import { schema } from './schema';
 
 	let { data }: PageProps = $props();
 
 	let action = $derived(data.isFirstUser ? '?/firstUser' : '?/login');
-	let buttonText = $derived(data.isFirstUser ? 'Create Admin User' : 'Login');
+	let buttonText = $derived(data.isFirstUser ? m.login_admin_button : m.login_button);
 
 	const form = superForm(
 		untrack(() => data.form),
@@ -47,8 +48,7 @@
 
 	{#if data.isFirstUser}
 		<p class="text-center">
-			Let's get started by creating the first user. This user will be the administrator of this
-			genug-instance.
+			{m.login_admin_introduction()}
 		</p>
 	{/if}
 
@@ -59,7 +59,8 @@
 					<InputGroup.Root>
 						<InputGroup.Input
 							type="text"
-							placeholder="Username"
+							aria-label={m.login_label_username()}
+							placeholder={m.login_label_username()}
 							{...props}
 							bind:value={$formData.username}
 						/>
@@ -79,7 +80,8 @@
 					<InputGroup.Root>
 						<InputGroup.Input
 							{type}
-							placeholder="Password"
+							aria-label={m.login_label_password()}
+							placeholder={m.login_label_password()}
 							{...props}
 							bind:value={$formData.password}
 						/>
@@ -98,11 +100,11 @@
 
 			{#if data.isFirstUser}
 				<Form.Description class="mt-3 rounded-md bg-info/4 p-2 text-center text-base text-info">
-					Store your credentials somewhere safe! There is no way to recover the admin credentials.
+					{m.login_admin_credentials_info()}
 				</Form.Description>
 			{/if}
 		</Form.Field>
 	</div>
 
-	<Form.Button type="submit" class="mx-auto">{buttonText}</Form.Button>
+	<Form.Button type="submit" class="mx-auto">{buttonText()}</Form.Button>
 </form>

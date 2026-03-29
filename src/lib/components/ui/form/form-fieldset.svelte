@@ -1,14 +1,15 @@
 <script lang="ts" generics="T extends Record<string, unknown>, U extends FormPath<T>">
-	import * as FormPrimitive from 'formsnap';
-	import type { FormPath } from 'sveltekit-superforms';
-	import { cn } from 'tailwind-variants';
 	import type { WithoutChild } from 'bits-ui';
+	import type { FormPath } from 'sveltekit-superforms';
+
+	import * as FormPrimitive from 'formsnap';
+	import { cn } from 'tailwind-variants';
 
 	let {
-		ref = $bindable(null),
 		class: className,
 		form,
 		name,
+		ref = $bindable(null),
 		...restProps
 	}: WithoutChild<FormPrimitive.FieldsetProps<T, U>> = $props();
 </script>

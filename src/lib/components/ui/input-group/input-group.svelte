@@ -1,12 +1,13 @@
 <script lang="ts">
 	import type { WithElementRef } from 'bits-ui';
 	import type { HTMLAttributes } from 'svelte/elements';
+
 	import { cn } from 'tailwind-variants';
 
 	let {
-		ref = $bindable(null),
-		class: className,
 		children,
+		class: className,
+		ref = $bindable(null),
 		...props
 	}: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
 </script>
