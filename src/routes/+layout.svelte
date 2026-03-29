@@ -11,7 +11,7 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
-	<title>{page.data.title ?? 'Genug Da'}</title>
+	<title>{page.data.title ?? 'genug'}</title>
 </svelte:head>
 
 <div class="mx-auto flex w-full max-w-7xl grow gap-8">

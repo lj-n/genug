@@ -22,8 +22,9 @@ if (import.meta.vitest) {
     it("createUser", async () => {
         const db = createDatabase(":memory:");
         const username = "testuser";
-        const password = "password123";
-        const passwordHash = await auth.hashPassword({ password });
+        const passwordHash = await auth.hashPassword({
+            password: "password123",
+        });
 
         const user = await createUser({ database: db, username, passwordHash });
 
@@ -31,5 +32,19 @@ if (import.meta.vitest) {
         expect(user).toHaveProperty("createdAt");
         expect(user).toHaveProperty("isAdmin", false);
         expect(user).toHaveProperty("username", username);
+    });
+
+    it("createUser - duplicate username", async () => {
+        const db = createDatabase(":memory:");
+        const username = "testuser";
+        const passwordHash = await auth.hashPassword({
+            password: "password123",
+        });
+
+        await createUser({ database: db, username, passwordHash });
+
+        await expect(
+            createUser({ database: db, username, passwordHash }),
+        ).rejects.toThrow();
     });
 }

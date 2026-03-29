@@ -42,7 +42,7 @@
 	</InputGroup.Button>
 {/snippet}
 
-<form {action} method="POST" use:enhance class="m-auto grid max-w-sm space-y-6">
+<form {action} method="POST" use:enhance class="mx-auto mt-12 grid max-w-sm space-y-6">
 	<Logo class="mx-auto w-52" aria-hidden />
 
 	{#if data.isFirstUser}

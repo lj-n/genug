@@ -7,7 +7,7 @@ if (!process.env.DATABASE_URL) {
 export default defineConfig({
     dbCredentials: { url: process.env.DATABASE_URL },
     dialect: "sqlite",
-    schema: "./src/lib/server/db/tables.ts",
+    schema: "./src/lib/server/db/tables/index.ts",
     out: "./src/lib/server/db/migrations",
     strict: true,
     verbose: true,
