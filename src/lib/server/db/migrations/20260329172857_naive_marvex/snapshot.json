@@ -1,7 +1,7 @@
 {
   "version": "7",
   "dialect": "sqlite",
-  "id": "d4d4bf90-9709-4248-ad23-2e27ac6486f5",
+  "id": "6c8e9c4b-077a-4b31-9187-46b26fed15bd",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
@@ -301,7 +301,7 @@
       "table": "transactions"
     },
     {
-      "type": "integer",
+      "type": "text",
       "notNull": true,
       "autoincrement": false,
       "default": null,
@@ -1039,6 +1039,12 @@
       "name": "target_balance_positive",
       "entityType": "checks",
       "table": "categories"
+    },
+    {
+      "value": "\"date\" LIKE '____-__-__'",
+      "name": "date_format",
+      "entityType": "checks",
+      "table": "transactions"
     }
   ],
   "renames": []

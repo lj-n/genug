@@ -52,7 +52,7 @@ CREATE TABLE `transactions` (
 	`created_at` integer NOT NULL,
 	`created_by` text,
 	`amount` integer NOT NULL,
-	`date` integer NOT NULL,
+	`date` text NOT NULL,
 	`notes` text,
 	`budget_id` text NOT NULL,
 	`account_id` text NOT NULL,
@@ -63,7 +63,8 @@ CREATE TABLE `transactions` (
 	CONSTRAINT `fk_transactions_account_id_accounts_id_fk` FOREIGN KEY (`account_id`) REFERENCES `accounts`(`id`) ON DELETE CASCADE,
 	CONSTRAINT `fk_transactions_category_id_categories_id_fk` FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE SET NULL,
 	CONSTRAINT `fk_transactions_account_id_budget_id_accounts_id_budget_id_fk` FOREIGN KEY (`account_id`,`budget_id`) REFERENCES `accounts`(`id`,`budget_id`),
-	CONSTRAINT `fk_transactions_category_id_budget_id_categories_id_budget_id_fk` FOREIGN KEY (`category_id`,`budget_id`) REFERENCES `categories`(`id`,`budget_id`)
+	CONSTRAINT `fk_transactions_category_id_budget_id_categories_id_budget_id_fk` FOREIGN KEY (`category_id`,`budget_id`) REFERENCES `categories`(`id`,`budget_id`),
+	CONSTRAINT "date_format" CHECK("date" LIKE '____-__-__')
 );
 --> statement-breakpoint
 CREATE TABLE `sessions` (

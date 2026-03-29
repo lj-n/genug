@@ -1,9 +1,10 @@
-import { foreignKey, sqliteTable } from "drizzle-orm/sqlite-core";
+import { check, foreignKey, sqliteTable } from "drizzle-orm/sqlite-core";
 import { createId } from "../../utils/create-id";
 import { users } from "./users";
 import { accounts } from "./accounts";
 import { categories } from "./categories";
 import { budgets } from "./budgets";
+import { sql } from "drizzle-orm";
 
 export const transactions = sqliteTable(
     "transactions",
@@ -14,7 +15,7 @@ export const transactions = sqliteTable(
         createdBy: t.text("created_by")
             .references(() => users.id, { onDelete: "set null" }),
         amount: t.integer("amount", { mode: "number" }).notNull(),
-        date: t.integer("date", { mode: "timestamp" }).notNull(),
+        date: t.text("date").notNull(),
         notes: t.text("notes"),
         budgetId: t.text("budget_id")
             .references(() => budgets.id, { onDelete: "cascade" })
@@ -36,6 +37,7 @@ export const transactions = sqliteTable(
             columns: [t.categoryId, t.budgetId],
             foreignColumns: [categories.id, categories.budgetId],
         }),
+        check("date_format", sql`${t.date} LIKE '____-__-__'`),
     ],
 );
 
@@ -72,7 +74,7 @@ if (import.meta.vitest) {
         await expect(
             database.insert(transactions).values({
                 amount: 1000,
-                date: new Date(),
+                date: new Date().toISOString().split("T")[0], // format as YYYY-MM-DD
                 budgetId: budget.id,
                 accountId: "nonexistent_account", // invalid accountId
                 categoryId: category.id,
@@ -82,7 +84,7 @@ if (import.meta.vitest) {
         await expect(
             database.insert(transactions).values({
                 amount: 1000,
-                date: new Date(),
+                date: new Date().toISOString().split("T")[0], // format as YYYY-MM-DD
                 budgetId: budget.id,
                 accountId: account.id,
                 categoryId: "nonexistent_category", // invalid categoryId
@@ -99,8 +101,53 @@ if (import.meta.vitest) {
         await expect(
             database.insert(transactions).values({
                 amount: 1000,
-                date: new Date(),
+                date: new Date().toISOString().split("T")[0], // format as YYYY-MM-DD
                 budgetId: secondBudget.id, // mismatched budgetId - accountId
+                accountId: account.id,
+                categoryId: category.id,
+            }),
+        ).rejects.toThrow();
+    });
+
+    it("transactions - date format check constraint", async () => {
+        const database = createDatabase(":memory:");
+
+        const [budget] = await database
+            .insert(budgets)
+            .values({
+                name: "Budget 1",
+            })
+            .returning();
+
+        const [account] = await database
+            .insert(accounts)
+            .values({
+                name: "Account 1",
+                budgetId: budget.id,
+            })
+            .returning();
+
+        const [category] = await database
+            .insert(categories)
+            .values({
+                name: "Category 1",
+                budgetId: budget.id,
+            })
+            .returning();
+
+        database.insert(transactions).values({
+            amount: 1000,
+            date: "2023-12-31", // valid date
+            budgetId: budget.id,
+            accountId: account.id,
+            categoryId: category.id,
+        });
+
+        await expect(
+            database.insert(transactions).values({
+                amount: 1000,
+                date: "12/31/2023", // invalid date
+                budgetId: budget.id,
                 accountId: account.id,
                 categoryId: category.id,
             }),
