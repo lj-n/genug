@@ -1,15 +1,13 @@
 <script lang="ts">
+	import { InputCurrency } from '$lib/components/ui/input-currency';
+
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
+
+	let value = $state('500.55');
 </script>
 
-<pre>{JSON.stringify(data, null, 2)}</pre>
+<!-- <pre>{JSON.stringify(data, null, 2)}</pre> -->
 
-<form action="?/team" method="post">
-	<button type="submit">Create Team</button>
-</form>
-
-<form action="?/account" method="post">
-	<button type="submit">Create Account</button>
-</form>
+<InputCurrency bind:value intlConfig={{ currency: 'EUR', locale: 'de' }} />
