@@ -15,6 +15,10 @@
 	--color-success: #5da365;
 	--color-focus: #efa447;
 	--font-sans: 'Inter Variable', sans-serif;
+
+	--container-8xl: 88rem; /* 1408px */
+	--container-9xl: 96rem; /* 1536px */
+	--container-10xl: 104rem; /* 1664px */
 }
 
 @layer components {
