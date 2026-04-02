@@ -11,7 +11,6 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 
 	if (!sessionToken) {
 		event.locals.session = null;
-
 		return resolve(event);
 	}
 

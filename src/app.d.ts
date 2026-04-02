@@ -4,6 +4,8 @@ import 'unplugin-icons/types/svelte';
 // for information about these interfaces
 declare global {
 	namespace App {
+		type Actions = import('$db/actions').Actions;
+		type Database = import('$db').Database;
 		// interface Error {}
 		interface Locals {
 			session: import('$db/auth').Session | null;
@@ -11,6 +13,7 @@ declare global {
 		interface PageData {
 			title?: string;
 		}
+		type User = import('$db/auth').User;
 		// interface PageState {}
 		// interface Platform {}
 	}

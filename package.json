@@ -33,6 +33,7 @@
 		"@sveltejs/kit": "^2.50.2",
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",
 		"@tailwindcss/vite": "^4.1.18",
+		"@tanstack/table-core": "^8.21.3",
 		"@types/better-sqlite3": "^7.6.13",
 		"@types/node": "^22",
 		"better-sqlite3": "^12.8.0",

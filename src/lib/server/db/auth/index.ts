@@ -7,6 +7,8 @@ export type Session = Omit<typeof tables.sessions.$inferSelect, 'userId'> & {
 	user: Omit<typeof tables.users.$inferSelect, 'passwordHash'>;
 };
 
+export type User = Session['user'];
+
 export { authenticateUser } from './authenticate-user';
 export * from './cookie-session';
 export { createSession } from './create-session';
