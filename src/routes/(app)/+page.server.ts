@@ -7,7 +7,7 @@ export const load: PageServerLoad = auth.withSession(
 	async (session, _event) => {
 		const userId = session.user.id;
 
-		return { locale: getLocale(), userId };
+		return { exampleCurrencyValue: 123499, locale: getLocale(), userId };
 	},
 );
 
