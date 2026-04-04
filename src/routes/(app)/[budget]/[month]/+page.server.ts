@@ -4,12 +4,12 @@ import { getLocale } from '$lib/paraglide/runtime';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = withPermissions(async (user, actions, event) => {
-	const month = await actions.budget.month({
+	const categories = await actions.budget.month({
 		budgetId: event.params.budget,
 		month: parseInt(event.params.month)
 	});
 
 	const { budget } = await event.parent();
 
-	return { budget, locale: getLocale(), month };
+	return { budget, categories, locale: getLocale() };
 });

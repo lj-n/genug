@@ -1,15 +1,11 @@
 <script lang="ts">
-	import { columns, MonthTable } from '$lib/components/month-table';
-	import { formatValue } from '@canutin/svelte-currency-input';
-
 	import type { PageProps } from './$types';
 
-	let { data, params }: PageProps = $props();
+	import BudgetTable from './budget-table.svelte';
 
-	let intlConfig = $derived({
-		currency: data.budget.currency,
-		locale: data.locale
-	});
+	let { data }: PageProps = $props();
 </script>
 
-<MonthTable {columns} data={data.month} />
+<div class="p-8">
+	<BudgetTable categories={data.categories} />
+</div>

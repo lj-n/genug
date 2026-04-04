@@ -3,14 +3,23 @@
 	import type { HTMLAttributes } from 'svelte/elements';
 
 	import { cn } from 'tailwind-variants';
+
 	let {
 		children,
 		class: className,
 		ref = $bindable(null),
 		...restProps
-	}: WithElementRef<HTMLAttributes<HTMLTableSectionElement>> = $props();
+	}: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
 </script>
 
-<thead bind:this={ref} data-slot="table-header" class={cn('', className)} {...restProps}>
+<div
+	role="columnheader"
+	bind:this={ref}
+	class={cn(
+		'flex h-10 items-center justify-end px-2 whitespace-nowrap text-muted first:justify-start',
+		className
+	)}
+	{...restProps}
+>
 	{@render children?.()}
-</thead>
+</div>

@@ -3,14 +3,20 @@
 	import type { HTMLAttributes } from 'svelte/elements';
 
 	import { cn } from 'tailwind-variants';
+
 	let {
 		children,
 		class: className,
 		ref = $bindable(null),
 		...restProps
-	}: WithElementRef<HTMLAttributes<HTMLTableSectionElement>> = $props();
+	}: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
 </script>
 
-<thead bind:this={ref} data-slot="table-header" class={cn('', className)} {...restProps}>
+<div
+	bind:this={ref}
+	data-slot="dialog-header"
+	class={cn('flex flex-col gap-2', className)}
+	{...restProps}
+>
 	{@render children?.()}
-</thead>
+</div>

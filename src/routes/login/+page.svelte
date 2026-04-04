@@ -37,14 +37,16 @@
 	>
 		{#if type === 'password'}
 			<PhEyeClosed />
+			<span class="sr-only">{m.login_hide_password()}</span>
 		{:else}
 			<PhEye />
+			<span class="sr-only">{m.login_show_password()}</span>
 		{/if}
 	</InputGroup.Button>
 {/snippet}
 
-<form {action} method="POST" use:enhance class="mx-auto mt-12 grid w-full max-w-sm space-y-6">
-	<Logo class="mx-auto w-52" aria-hidden />
+<form {action} method="POST" use:enhance class="mx-auto mt-20 grid w-full max-w-sm space-y-6">
+	<Logo class="mx-auto mt-auto w-52" aria-hidden />
 
 	{#if data.isFirstUser}
 		<p class="text-center">

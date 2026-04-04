@@ -2,6 +2,7 @@ import { withPermissions } from '$db/actions';
 import { redirect } from '@sveltejs/kit';
 
 import type { PageServerLoad } from './$types';
+
 function createMonthParam(date = new Date()) {
 	return date.getFullYear() * 100 + (date.getMonth() + 1);
 }

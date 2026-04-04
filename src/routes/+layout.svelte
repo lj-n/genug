@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { page } from '$app/state';
+	import { dev } from '$app/environment';
 
 	import './layout.css';
+	import { page } from '$app/state';
 	import favicon from '$lib/assets/favicon.svg';
 
 	import type { LayoutProps } from './$types';
@@ -11,7 +12,7 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
-	<title>{page.data.title ?? 'genug'}</title>
+	<title>{dev ? 'DEV_GENUG_DEV' : (page.data.title ?? 'genug')}</title>
 </svelte:head>
 
 {@render children()}

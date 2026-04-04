@@ -3,12 +3,11 @@
 @import '@fontsource-variable/inter';
 
 @theme {
-	--color-surface: #fffffe;
-	--color-background: #fffefd;
+	--color-surface: #fffefd;
+	--color-surface-high: #fffffe;
+	--color-background: #fffcf8;
 	--color-foreground: #2d2a3e;
 	--color-muted: #6f6b77;
-	--color-neutral: #f1ecea;
-	--color-neutral-active: #dbd6d6;
 	--color-error: #b94a44;
 	--color-info: #286983;
 	--color-interactive: #8467a6;
@@ -25,6 +24,10 @@
 	.link {
 		@apply cursor-pointer text-interactive underline-offset-3 hover:underline;
 	}
+}
+
+@utility font-currency {
+	@apply font-medium tabular-nums;
 }
 
 @layer base {

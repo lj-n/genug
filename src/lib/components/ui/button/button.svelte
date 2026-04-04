@@ -6,21 +6,30 @@
 	import { cn, tv, type VariantProps } from 'tailwind-variants';
 
 	export const variants = tv({
-		base: 'outline-none focus-visible:ring-2 focus-visible:ring-focus/90 select-none inline-flex items-center active:translate-y-px justify-center rounded-md cursor-pointer w-fit',
+		base: "focus-visible:border-focus focus-visible:ring-focus/50 aria-invalid:ring-error/20 aria-invalid:border-error rounded-md border border-transparent bg-clip-padding font-medium focus-visible:ring-3 active:not-aria-[haspopup]:translate-y-px aria-invalid:ring-3 [&_svg:not([class*='size-'])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
 		defaultVariants: {
 			size: 'default',
 			variant: 'default'
 		},
 		variants: {
 			size: {
-				default: 'h-9 gap-1.5 px-3',
-				icon: 'size-9'
+				default:
+					'h-9 gap-1.5 px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
+				icon: 'size-9',
+				'icon-lg': 'size-10',
+				'icon-sm':
+					'size-8 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-md',
+				'icon-xs':
+					"size-6 rounded-[min(var(--radius-md),8px)] in-data-[slot=button-group]:rounded-md [&_svg:not([class*='size-'])]:size-3",
+				lg: 'h-10 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
+				sm: 'h-8 gap-1 rounded-[min(var(--radius-md),10px)] px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5',
+				xs: "h-6 gap-1 rounded-[min(var(--radius-md),8px)] px-2 text-xs in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3"
 			},
 			variant: {
-				default: 'bg-neutral hover:bg-neutral-active',
-				destructive: 'text-error hover:bg-error/10',
-				ghost: 'hover:bg-neutral',
-				hint: 'text-info hover:bg-info/10',
+				default: 'bg-info/10 text-info hover:bg-info/15',
+				destructive: 'bg-error/10 text-error hover:bg-error/15',
+				ghost:
+					'hover:bg-muted/10 hover:text-foreground aria-expanded:bg-muted/10 aria-expanded:text-foreground',
 				link: 'text-interactive underline-offset-3 hover:underline'
 			}
 		}

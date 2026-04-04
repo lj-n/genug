@@ -10,6 +10,7 @@ export {
 	Addon,
 	Button,
 	Input,
+	InputCurrency,
 	//
 	Root as InputGroup,
 	Addon as InputGroupAddon,

@@ -1,0 +1,91 @@
+<script lang="ts">
+	import { Button } from '$lib/components/ui/button';
+	import { m } from '$lib/paraglide/messages';
+	import { formatCentToFloatString } from '$lib/utils/formatCentToFloatString';
+	import { getIntlContext } from '$lib/utils/intl-context.svelte';
+	import { formatValue } from '@canutin/svelte-currency-input';
+	import { ParaglideMessage } from '@inlang/paraglide-js-svelte';
+	import PhArchiveTrayBold from '~icons/ph/archive-tray-bold';
+	import PhTrayArrowUpBold from '~icons/ph/tray-arrow-up-bold';
+
+	import type { PageData } from './$types';
+
+	let { category }: { category: PageData['categories'][number] } = $props();
+
+	const { locale, numberFormatOptions } = getIntlContext();
+
+	let formatCurrency = $derived((value: number) =>
+		formatValue({
+			intlConfig: { locale, ...numberFormatOptions },
+			value: formatCentToFloatString(value)
+		})
+	);
+
+	let isArchived = $derived(category.archived_at !== null);
+
+	let archivableBalance = $derived(
+		category.totalAssignedBudgetSum + category.totalRelatedTransactionSum === 0
+	);
+	let hasPendingTransactions = $derived(category.pendingTransactionCount === 0);
+
+	let isArchivable = $derived(archivableBalance && hasPendingTransactions);
+
+	let { buttonText, description, title } = $derived({
+		buttonText: isArchived ? m.category_restore_button : m.category_archive_button,
+		description: isArchived ? m.category_restore_info : m.category_archive_info,
+		title: isArchived ? m.category_section_title_restore : m.category_section_title_archive
+	});
+</script>
+
+<section class="grid space-y-3">
+	<h2 class="text-lg font-semibold">
+		{title()}
+	</h2>
+
+	<p class="text-muted">
+		{description()}
+	</p>
+
+	{#if !isArchivable}
+		<div class="flex flex-col gap-2 rounded-md bg-error/10 p-2 text-error">
+			{#if !archivableBalance}
+				<div>
+					<ParaglideMessage message={m.category_not_archivable_balance} inputs={{}}>
+						{#snippet sum()}
+							<span class="font-semibold tabular-nums">
+								{formatCurrency(
+									category.totalAssignedBudgetSum + category.totalRelatedTransactionSum
+								)}
+							</span>
+						{/snippet}
+
+						{#snippet required()}
+							<span class="font-semibold tabular-nums">
+								{formatCurrency(0)}
+							</span>
+						{/snippet}
+					</ParaglideMessage>
+				</div>
+			{/if}
+
+			{#if category.pendingTransactionCount > 0}
+				<div>
+					{m.category_not_archivable_pending_transactions()}
+				</div>
+			{/if}
+		</div>
+	{/if}
+
+	<form method="POST" action="?/edit" class="ml-auto">
+		<input type="hidden" name="archived" value={!isArchived} />
+		<Button type="submit" aria-disabled={!isArchivable}>
+			{#if isArchived}
+				<PhTrayArrowUpBold class="size-4" />
+			{:else}
+				<PhArchiveTrayBold class="size-4" />
+			{/if}
+
+			{buttonText()}
+		</Button>
+	</form>
+</section>
