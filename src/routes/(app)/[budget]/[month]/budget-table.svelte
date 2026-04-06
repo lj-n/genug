@@ -10,6 +10,7 @@
 	import { createSortable, isSortable } from '@dnd-kit/svelte/sortable';
 	import { cn } from 'tailwind-variants';
 	import PhDotsSixVerticalBold from '~icons/ph/dots-six-vertical-bold';
+	import PhFloppyDiskDuotone from '~icons/ph/floppy-disk-duotone';
 
 	import type { PageData } from './$types';
 
@@ -153,9 +154,15 @@
 
 <Dialog.Root bind:open={categoryDialogOpen} onOpenChangeComplete={() => (selectedCategory = null)}>
 	<form>
-		<Dialog.Content class="max-w-2xl">
-			<Dialog.Header>
-				<Dialog.Title class="sr-only">{selectedCategory?.name}</Dialog.Title>
+		<Dialog.Content class="max-w-4xl">
+			<Dialog.Header class="flex-row">
+				<Dialog.Title class="text-sm text-muted">#Category</Dialog.Title>
+				<div
+					class="flex items-center gap-1 rounded-lg border border-muted/20 bg-surface-high px-2 py-1 text-sm font-medium text-success shadow-lg"
+				>
+					<PhFloppyDiskDuotone />
+					<span>Saved</span>
+				</div>
 			</Dialog.Header>
 
 			{#if selectedCategory}

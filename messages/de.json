@@ -1,5 +1,6 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"saved": "Gespeichert",
 	"login_admin_introduction": "Als Erstes erstelle den Admin-Nutzer. Mit diesem Nutzer kannst du später weitere Nutzer anlegen.",
 	"login_admin_credentials_info": "Bewahre die Zugangsdaten sicher auf! Es gibt keine Möglichkeit, die Administrator-Zugangsdaten wiederherzustellen.",
 	"login_admin_button": "Admin erstellen",
@@ -19,6 +20,7 @@
 	"budget_monthly_table_header_activity": "Aktivität",
 	"budget_monthly_table_header_remaining": "Verbleibend",
 	"budget_monthly_table_header_actions": "Aktionen",
+	"category": "Kategorie",
 	"category_section_title_archive": "Kategorie archivieren",
 	"category_section_title_restore": "Kategorie wiederherstellen",
 	"category_archive_button": "Archivieren",

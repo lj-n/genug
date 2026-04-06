@@ -26,7 +26,7 @@
 				xs: "h-6 gap-1 rounded-[min(var(--radius-md),8px)] px-2 text-xs in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3"
 			},
 			variant: {
-				default: 'bg-info/10 text-info hover:bg-info/15',
+				default: 'bg-interactive/10 text-interactive hover:bg-interactive/15',
 				destructive: 'bg-error/10 text-error hover:bg-error/15',
 				ghost:
 					'hover:bg-muted/10 hover:text-foreground aria-expanded:bg-muted/10 aria-expanded:text-foreground',
