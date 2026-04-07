@@ -1,124 +1,84 @@
-import { sql } from "drizzle-orm";
-import {
-	index,
-	primaryKey,
-	sqliteTable,
-	unique,
-	uniqueIndex,
-} from "drizzle-orm/sqlite-core";
+import { sql } from 'drizzle-orm';
+import { index, primaryKey, sqliteTable, unique, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
-import { createId } from "../../utils/create-id";
-import { DAY_IN_MS } from "../../utils/day-in-ms";
-import { accounts } from "./accounts";
-import { budgets } from "./budgets";
-import { categories } from "./categories";
+import { createId } from '../../utils/create-id';
+import { DAY_IN_MS } from '../../utils/day-in-ms';
+
+export const entityOrderTypes = ['budget', 'account', 'category'] as const;
 
 export const sessions = sqliteTable(
-	"sessions",
+	'sessions',
 	(t) => ({
 		expiresAt: t
-			.integer("expires_at", { mode: "timestamp" })
+			.integer('expires_at', { mode: 'timestamp' })
 			.$defaultFn(() => new Date(Date.now() + DAY_IN_MS * 20))
 			.notNull(),
-		id: t.text("id").primaryKey(),
+		id: t.text('id').primaryKey(),
 		userId: t
-			.text("user_id")
-			.references(() => users.id, { onDelete: "cascade" })
-			.notNull(),
+			.text('user_id')
+			.references(() => users.id, { onDelete: 'cascade' })
+			.notNull()
 	}),
-	(t) => [
-		index("session_user").on(t.userId),
-	],
+	(t) => [index('session_user').on(t.userId)]
 );
 
 export const users = sqliteTable(
-	"users",
+	'users',
 	(t) => ({
 		createdAt: t
-			.integer("created_at", { mode: "timestamp" })
+			.integer('created_at', { mode: 'timestamp' })
 			.$defaultFn(() => new Date())
 			.notNull(),
 		id: t
-			.text("id")
+			.text('id')
 			.primaryKey()
 			.$defaultFn(() => createId()),
-		isAdmin: t.integer({ mode: "boolean" }).default(false).notNull(),
-		passwordHash: t.text("password_hash").notNull(),
-		username: t.text("username").notNull().unique(),
+		isAdmin: t.integer({ mode: 'boolean' }).default(false).notNull(),
+		passwordHash: t.text('password_hash').notNull(),
+		username: t.text('username').notNull().unique()
 	}),
 	(t) => [
-		uniqueIndex("admin_unique")
+		uniqueIndex('admin_unique')
 			.on(t.isAdmin)
 			.where(sql`${t.isAdmin} = 1`),
-		unique("username_unique").on(t.username),
-	],
+		unique('username_unique').on(t.username)
+	]
 );
 
-export const userBudgetOrder = sqliteTable(
-	"user_budget_order",
+export const userEntityOrder = sqliteTable(
+	'user_entity_order',
 	(t) => ({
-		budgetId: t
-			.text("budget_id")
-			.references(() => budgets.id, { onDelete: "cascade" })
-			.notNull(),
-		position: t.integer("position").notNull(),
+		entityId: t.text('entity_id').notNull(),
+		entityType: t.text('entity_type', { enum: entityOrderTypes }).notNull(),
+		position: t.integer('position').notNull(),
 		userId: t
-			.text("user_id")
-			.references(() => users.id, { onDelete: "cascade" })
-			.notNull(),
+			.text('user_id')
+			.references(() => users.id, { onDelete: 'cascade' })
+			.notNull()
 	}),
-	(t) => [primaryKey({ columns: [t.userId, t.budgetId] })],
-);
-
-export const userAccountOrder = sqliteTable(
-	"user_account_order",
-	(t) => ({
-		accountId: t
-			.text("account_id")
-			.references(() => accounts.id, { onDelete: "cascade" })
-			.notNull(),
-		position: t.integer("position").notNull(),
-		userId: t
-			.text("user_id")
-			.references(() => users.id, { onDelete: "cascade" })
-			.notNull(),
-	}),
-	(t) => [primaryKey({ columns: [t.userId, t.accountId] })],
-);
-
-export const userCategoryOrder = sqliteTable(
-	"user_category_order",
-	(t) => ({
-		categoryId: t
-			.text("category_id")
-			.references(() => categories.id, { onDelete: "cascade" })
-			.notNull(),
-		position: t.integer("position").notNull(),
-		userId: t
-			.text("user_id")
-			.references(() => users.id, { onDelete: "cascade" })
-			.notNull(),
-	}),
-	(t) => [primaryKey({ columns: [t.userId, t.categoryId] })],
+	(t) => [
+		primaryKey({ columns: [t.userId, t.entityType, t.entityId] }),
+		index('user_entity_order_sort_idx').on(t.userId, t.entityType, t.position)
+	]
 );
 
 if (import.meta.vitest) {
 	const { expect, it } = import.meta.vitest;
-	const { createDatabase } = await import("../create-database");
+	const { createDatabase } = await import('../create-database');
 
-	it("users - unique constraints", async () => {
-		const database = createDatabase(":memory:");
+	it('users - unique constraints', async () => {
+		const database = createDatabase(':memory:');
 
 		await database.insert(users).values({
-			passwordHash: "hash1",
-			username: "user1",
+			passwordHash: 'hash1',
+			username: 'user1'
 		});
 
 		await expect(
 			database.insert(users).values({
-				passwordHash: "hash2",
-				username: "user1", // same username
-			}),
+				passwordHash: 'hash2',
+				username: 'user1' // same username
+			})
 		).rejects.toThrow();
 	});
 }

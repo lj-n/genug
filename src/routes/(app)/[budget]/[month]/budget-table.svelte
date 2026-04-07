@@ -38,6 +38,33 @@
 	);
 
 	let dragContainer: HTMLDivElement;
+
+	async function saveCategoryOrder({
+		nextCategories,
+		previousCategories
+	}: {
+		nextCategories: BudgetTableRow[];
+		previousCategories: BudgetTableRow[];
+	}) {
+		try {
+			const response = await fetch('/api/reorder', {
+				body: JSON.stringify({
+					entity: 'category',
+					orderedIds: nextCategories.map((category) => category.id)
+				}),
+				headers: {
+					'content-type': 'application/json'
+				},
+				method: 'POST'
+			});
+
+			if (response.ok) return;
+
+			categories = previousCategories;
+		} catch {
+			categories = previousCategories;
+		}
+	}
 </script>
 
 <div role="table">
@@ -78,15 +105,16 @@
 			if (isSortable(source)) {
 				const { index, initialIndex } = source;
 
-				// Handle budget reordering
+				const previousCategories = categories;
 				const tempItems = [...categories];
 				const [movedItem] = tempItems.splice(initialIndex, 1);
 				tempItems.splice(index, 0, movedItem);
-				console.log(
-					'Reordered budgets:',
-					tempItems.map((i) => i.name)
-				);
 				categories = tempItems;
+
+				void saveCategoryOrder({
+					nextCategories: tempItems,
+					previousCategories
+				});
 			}
 		}}
 	>

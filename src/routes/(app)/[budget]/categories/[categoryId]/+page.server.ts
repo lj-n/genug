@@ -8,7 +8,7 @@ import type { Actions, PageServerLoad } from './$types';
 import { editSchema } from './schema';
 
 export const load: PageServerLoad = withPermissions(async (_user, actions, event) => {
-	const categories = await actions.category.all();
+	const categories = actions.category.all();
 
 	const category = categories.find((c) => c.id === event.params.categoryId);
 
@@ -19,7 +19,7 @@ export const load: PageServerLoad = withPermissions(async (_user, actions, event
 
 export const actions = {
 	edit: withPermissions(async (_user, actions, event) => {
-		const category = await actions.category.getById({ id: event.params.categoryId });
+		const category = actions.category.getById({ id: event.params.categoryId });
 		if (!category) error(404, 'Category not found');
 
 		const form = await superValidate(event.request, zod4(editSchema));
@@ -27,7 +27,7 @@ export const actions = {
 
 		const { categoryName, ...rest } = form.data;
 
-		await actions.category.update({
+		actions.category.update({
 			data: { name: categoryName, ...rest },
 			id: event.params.categoryId
 		});

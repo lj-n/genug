@@ -1,5 +1,5 @@
 import { tables } from '$db';
-import { and, eq, getColumns, isNull, sql } from 'drizzle-orm';
+import { and, asc, eq, getColumns, inArray, isNull, sql } from 'drizzle-orm';
 
 import { userHasPermission } from './permissions';
 import queries from './queries';
@@ -12,7 +12,7 @@ export function createBudgetActions({
 	user: App.User;
 }) {
 	return {
-		async all() {
+		all() {
 			return database
 				.select()
 				.from(tables.budgets)
@@ -22,13 +22,14 @@ export function createBudgetActions({
 						database,
 						userId: user.id
 					})
-				);
+				)
+				.all();
 		},
 
 		/**
 		 * Retrieves all categories for a given budget and month, along with various aggregated data such as activity, assigned budget, and related transactions.
 		 */
-		async month({ budgetId, month }: { budgetId: string; month: number }) {
+		month({ budgetId, month }: { budgetId: string; month: number }) {
 			return database
 				.select({
 					...getColumns(tables.categories),
@@ -97,6 +98,14 @@ export function createBudgetActions({
 						eq(tables.budgetAssignments.month, month)
 					)
 				)
+				.leftJoin(
+					tables.userEntityOrder,
+					and(
+						eq(tables.userEntityOrder.entityId, tables.categories.id),
+						eq(tables.userEntityOrder.entityType, 'category'),
+						eq(tables.userEntityOrder.userId, user.id)
+					)
+				)
 				.where(
 					and(
 						isNull(tables.categories.archived_at),
@@ -107,7 +116,56 @@ export function createBudgetActions({
 							userId: user.id
 						})
 					)
-				);
+				)
+				.orderBy(
+					sql`CASE WHEN ${tables.userEntityOrder.position} IS NULL THEN 1 ELSE 0 END`,
+					asc(tables.userEntityOrder.position),
+					asc(tables.categories.createdAt),
+					asc(tables.categories.id)
+				)
+				.all();
+		},
+
+		reorder({ orderedIds }: { orderedIds: string[] }) {
+			const availableBudgetIds = database
+				.select({ id: tables.budgets.id })
+				.from(tables.budgets)
+				.where(
+					and(
+						inArray(tables.budgets.id, orderedIds),
+						userHasPermission({
+							budgetIdCol: tables.budgets.id,
+							database,
+							userId: user.id
+						})
+					)
+				)
+				.all();
+
+			if (availableBudgetIds.length !== orderedIds.length) {
+				throw new Error('Invalid budget ids');
+			}
+
+			database.transaction((tx) => {
+				for (const [position, budgetId] of orderedIds.entries()) {
+					tx.insert(tables.userEntityOrder)
+						.values({
+							entityId: budgetId,
+							entityType: 'budget',
+							position,
+							userId: user.id
+						})
+						.onConflictDoUpdate({
+							set: { position },
+							target: [
+								tables.userEntityOrder.userId,
+								tables.userEntityOrder.entityType,
+								tables.userEntityOrder.entityId
+							]
+						})
+						.execute();
+				}
+			});
 		}
 	};
 }

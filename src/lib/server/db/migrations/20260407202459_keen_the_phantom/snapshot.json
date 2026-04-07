@@ -1,7 +1,7 @@
 {
   "version": "7",
   "dialect": "sqlite",
-  "id": "bbf4e79e-382e-4125-aea6-2f298e75aee4",
+  "id": "0536f938-efe2-49bc-82ff-bc4dc1d806fb",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
@@ -35,15 +35,7 @@
       "entityType": "tables"
     },
     {
-      "name": "user_account_order",
-      "entityType": "tables"
-    },
-    {
-      "name": "user_budget_order",
-      "entityType": "tables"
-    },
-    {
-      "name": "user_category_order",
+      "name": "user_entity_order",
       "entityType": "tables"
     },
     {
@@ -426,9 +418,19 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "account_id",
+      "name": "entity_id",
       "entityType": "columns",
-      "table": "user_account_order"
+      "table": "user_entity_order"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "entity_type",
+      "entityType": "columns",
+      "table": "user_entity_order"
     },
     {
       "type": "integer",
@@ -438,7 +440,7 @@
       "generated": null,
       "name": "position",
       "entityType": "columns",
-      "table": "user_account_order"
+      "table": "user_entity_order"
     },
     {
       "type": "text",
@@ -448,67 +450,7 @@
       "generated": null,
       "name": "user_id",
       "entityType": "columns",
-      "table": "user_account_order"
-    },
-    {
-      "type": "text",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "budget_id",
-      "entityType": "columns",
-      "table": "user_budget_order"
-    },
-    {
-      "type": "integer",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "position",
-      "entityType": "columns",
-      "table": "user_budget_order"
-    },
-    {
-      "type": "text",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "user_id",
-      "entityType": "columns",
-      "table": "user_budget_order"
-    },
-    {
-      "type": "text",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "category_id",
-      "entityType": "columns",
-      "table": "user_category_order"
-    },
-    {
-      "type": "integer",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "position",
-      "entityType": "columns",
-      "table": "user_category_order"
-    },
-    {
-      "type": "text",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "user_id",
-      "entityType": "columns",
-      "table": "user_category_order"
+      "table": "user_entity_order"
     },
     {
       "type": "integer",
@@ -778,21 +720,6 @@
     },
     {
       "columns": [
-        "account_id"
-      ],
-      "tableTo": "accounts",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "nameExplicit": false,
-      "name": "fk_user_account_order_account_id_accounts_id_fk",
-      "entityType": "fks",
-      "table": "user_account_order"
-    },
-    {
-      "columns": [
         "user_id"
       ],
       "tableTo": "users",
@@ -802,69 +729,9 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "fk_user_account_order_user_id_users_id_fk",
+      "name": "fk_user_entity_order_user_id_users_id_fk",
       "entityType": "fks",
-      "table": "user_account_order"
-    },
-    {
-      "columns": [
-        "budget_id"
-      ],
-      "tableTo": "budgets",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "nameExplicit": false,
-      "name": "fk_user_budget_order_budget_id_budgets_id_fk",
-      "entityType": "fks",
-      "table": "user_budget_order"
-    },
-    {
-      "columns": [
-        "user_id"
-      ],
-      "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "nameExplicit": false,
-      "name": "fk_user_budget_order_user_id_users_id_fk",
-      "entityType": "fks",
-      "table": "user_budget_order"
-    },
-    {
-      "columns": [
-        "category_id"
-      ],
-      "tableTo": "categories",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "nameExplicit": false,
-      "name": "fk_user_category_order_category_id_categories_id_fk",
-      "entityType": "fks",
-      "table": "user_category_order"
-    },
-    {
-      "columns": [
-        "user_id"
-      ],
-      "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "nameExplicit": false,
-      "name": "fk_user_category_order_user_id_users_id_fk",
-      "entityType": "fks",
-      "table": "user_category_order"
+      "table": "user_entity_order"
     },
     {
       "columns": [
@@ -889,32 +756,13 @@
     {
       "columns": [
         "user_id",
-        "account_id"
+        "entity_type",
+        "entity_id"
       ],
       "nameExplicit": false,
-      "name": "user_account_order_pk",
+      "name": "user_entity_order_pk",
       "entityType": "pks",
-      "table": "user_account_order"
-    },
-    {
-      "columns": [
-        "user_id",
-        "budget_id"
-      ],
-      "nameExplicit": false,
-      "name": "user_budget_order_pk",
-      "entityType": "pks",
-      "table": "user_budget_order"
-    },
-    {
-      "columns": [
-        "user_id",
-        "category_id"
-      ],
-      "nameExplicit": false,
-      "name": "user_category_order_pk",
-      "entityType": "pks",
-      "table": "user_category_order"
+      "table": "user_entity_order"
     },
     {
       "columns": [
@@ -987,24 +835,6 @@
     {
       "columns": [
         {
-          "value": "id",
-          "isExpression": false
-        },
-        {
-          "value": "budget_id",
-          "isExpression": false
-        }
-      ],
-      "isUnique": true,
-      "where": null,
-      "origin": "manual",
-      "name": "account_budget_unique",
-      "entityType": "indexes",
-      "table": "accounts"
-    },
-    {
-      "columns": [
-        {
           "value": "budget_id",
           "isExpression": false
         },
@@ -1031,24 +861,6 @@
       "where": "\"categories\".\"archived_at\" IS NULL",
       "origin": "manual",
       "name": "category_active",
-      "entityType": "indexes",
-      "table": "categories"
-    },
-    {
-      "columns": [
-        {
-          "value": "id",
-          "isExpression": false
-        },
-        {
-          "value": "budget_id",
-          "isExpression": false
-        }
-      ],
-      "isUnique": true,
-      "where": null,
-      "origin": "manual",
-      "name": "category_budget_unique",
       "entityType": "indexes",
       "table": "categories"
     },
@@ -1115,6 +927,28 @@
     {
       "columns": [
         {
+          "value": "user_id",
+          "isExpression": false
+        },
+        {
+          "value": "entity_type",
+          "isExpression": false
+        },
+        {
+          "value": "position",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "user_entity_order_sort_idx",
+      "entityType": "indexes",
+      "table": "user_entity_order"
+    },
+    {
+      "columns": [
+        {
           "value": "isAdmin",
           "isExpression": false
         }
@@ -1138,11 +972,31 @@
     },
     {
       "columns": [
+        "id",
+        "budget_id"
+      ],
+      "nameExplicit": true,
+      "name": "account_id_budget_unique",
+      "entityType": "uniques",
+      "table": "accounts"
+    },
+    {
+      "columns": [
         "name",
         "budget_id"
       ],
       "nameExplicit": true,
       "name": "category_name_budget_unique",
+      "entityType": "uniques",
+      "table": "categories"
+    },
+    {
+      "columns": [
+        "id",
+        "budget_id"
+      ],
+      "nameExplicit": true,
+      "name": "category_id_budget_unique",
       "entityType": "uniques",
       "table": "categories"
     },

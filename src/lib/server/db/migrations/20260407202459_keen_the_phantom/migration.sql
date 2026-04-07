@@ -6,7 +6,8 @@ CREATE TABLE `accounts` (
 	`name` text NOT NULL,
 	`notes` text,
 	CONSTRAINT `fk_accounts_budget_id_budgets_id_fk` FOREIGN KEY (`budget_id`) REFERENCES `budgets`(`id`) ON DELETE CASCADE,
-	CONSTRAINT `account_name_budget_unique` UNIQUE(`name`,`budget_id`)
+	CONSTRAINT `account_name_budget_unique` UNIQUE(`name`,`budget_id`),
+	CONSTRAINT `account_id_budget_unique` UNIQUE(`id`,`budget_id`)
 );
 --> statement-breakpoint
 CREATE TABLE `budget_assignments` (
@@ -47,6 +48,7 @@ CREATE TABLE `categories` (
 	`target_balance` integer,
 	CONSTRAINT `fk_categories_budget_id_budgets_id_fk` FOREIGN KEY (`budget_id`) REFERENCES `budgets`(`id`) ON DELETE CASCADE,
 	CONSTRAINT `category_name_budget_unique` UNIQUE(`name`,`budget_id`),
+	CONSTRAINT `category_id_budget_unique` UNIQUE(`id`,`budget_id`),
 	CONSTRAINT "target_balance_positive" CHECK("target_balance" > 0)
 );
 --> statement-breakpoint
@@ -77,31 +79,13 @@ CREATE TABLE `sessions` (
 	CONSTRAINT `fk_sessions_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 );
 --> statement-breakpoint
-CREATE TABLE `user_account_order` (
-	`account_id` text NOT NULL,
+CREATE TABLE `user_entity_order` (
+	`entity_id` text NOT NULL,
+	`entity_type` text NOT NULL,
 	`position` integer NOT NULL,
 	`user_id` text NOT NULL,
-	CONSTRAINT `user_account_order_pk` PRIMARY KEY(`user_id`, `account_id`),
-	CONSTRAINT `fk_user_account_order_account_id_accounts_id_fk` FOREIGN KEY (`account_id`) REFERENCES `accounts`(`id`) ON DELETE CASCADE,
-	CONSTRAINT `fk_user_account_order_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
-);
---> statement-breakpoint
-CREATE TABLE `user_budget_order` (
-	`budget_id` text NOT NULL,
-	`position` integer NOT NULL,
-	`user_id` text NOT NULL,
-	CONSTRAINT `user_budget_order_pk` PRIMARY KEY(`user_id`, `budget_id`),
-	CONSTRAINT `fk_user_budget_order_budget_id_budgets_id_fk` FOREIGN KEY (`budget_id`) REFERENCES `budgets`(`id`) ON DELETE CASCADE,
-	CONSTRAINT `fk_user_budget_order_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
-);
---> statement-breakpoint
-CREATE TABLE `user_category_order` (
-	`category_id` text NOT NULL,
-	`position` integer NOT NULL,
-	`user_id` text NOT NULL,
-	CONSTRAINT `user_category_order_pk` PRIMARY KEY(`user_id`, `category_id`),
-	CONSTRAINT `fk_user_category_order_category_id_categories_id_fk` FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE,
-	CONSTRAINT `fk_user_category_order_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+	CONSTRAINT `user_entity_order_pk` PRIMARY KEY(`user_id`, `entity_type`, `entity_id`),
+	CONSTRAINT `fk_user_entity_order_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 );
 --> statement-breakpoint
 CREATE TABLE `users` (
@@ -113,12 +97,11 @@ CREATE TABLE `users` (
 );
 --> statement-breakpoint
 CREATE INDEX `account_active` ON `accounts` (`budget_id`) WHERE "accounts"."archived_at" IS NULL;--> statement-breakpoint
-CREATE UNIQUE INDEX `account_budget_unique` ON `accounts` (`id`,`budget_id`);--> statement-breakpoint
 CREATE INDEX `budget_assignment_month` ON `budget_assignments` (`budget_id`,`month`);--> statement-breakpoint
 CREATE INDEX `category_active` ON `categories` (`budget_id`) WHERE "categories"."archived_at" IS NULL;--> statement-breakpoint
-CREATE UNIQUE INDEX `category_budget_unique` ON `categories` (`id`,`budget_id`);--> statement-breakpoint
 CREATE INDEX `transaction_budget` ON `transactions` (`budget_id`);--> statement-breakpoint
 CREATE INDEX `transaction_account` ON `transactions` (`account_id`);--> statement-breakpoint
 CREATE INDEX `transaction_account_date` ON `transactions` (`account_id`,`date`);--> statement-breakpoint
 CREATE INDEX `session_user` ON `sessions` (`user_id`);--> statement-breakpoint
+CREATE INDEX `user_entity_order_sort_idx` ON `user_entity_order` (`user_id`,`entity_type`,`position`);--> statement-breakpoint
 CREATE UNIQUE INDEX `admin_unique` ON `users` (`isAdmin`) WHERE "users"."isAdmin" = 1;

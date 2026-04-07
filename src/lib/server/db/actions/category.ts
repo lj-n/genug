@@ -1,6 +1,6 @@
 import { tables } from '$db';
 import { createMonthParam } from '$lib/utils/date-utils';
-import { and, eq, getColumns, sql } from 'drizzle-orm';
+import { and, eq, getColumns, inArray, isNull, sql } from 'drizzle-orm';
 
 import { userHasPermission } from './permissions';
 import queries from './queries';
@@ -57,7 +57,7 @@ export function createCategoryActions({
 	user: App.User;
 }) {
 	return {
-		async all() {
+		all() {
 			return database
 				.select(selectColumns(database))
 				.from(tables.categories)
@@ -68,10 +68,11 @@ export function createCategoryActions({
 						userId: user.id
 					})
 				)
-				.groupBy(tables.categories.id);
+				.groupBy(tables.categories.id)
+				.all();
 		},
 
-		async getById({ id }: { id: string }) {
+		getById({ id }: { id: string }) {
 			return database
 				.select(selectColumns(database))
 				.from(tables.categories)
@@ -88,7 +89,51 @@ export function createCategoryActions({
 				.get();
 		},
 
-		async update({
+		reorder({ orderedIds }: { orderedIds: string[] }) {
+			const availableCategoryIds = database
+				.select({ id: tables.categories.id })
+				.from(tables.categories)
+				.where(
+					and(
+						inArray(tables.categories.id, orderedIds),
+						isNull(tables.categories.archived_at),
+						userHasPermission({
+							budgetIdCol: tables.categories.budgetId,
+							database,
+							userId: user.id
+						})
+					)
+				)
+				.all();
+
+			if (availableCategoryIds.length !== orderedIds.length) {
+				console.log('wums');
+				throw new Error('Invalid category ids');
+			}
+
+			database.transaction((tx) => {
+				for (const [position, categoryId] of orderedIds.entries()) {
+					tx.insert(tables.userEntityOrder)
+						.values({
+							entityId: categoryId,
+							entityType: 'category',
+							position,
+							userId: user.id
+						})
+						.onConflictDoUpdate({
+							set: { position },
+							target: [
+								tables.userEntityOrder.userId,
+								tables.userEntityOrder.entityType,
+								tables.userEntityOrder.entityId
+							]
+						})
+						.execute();
+				}
+			});
+		},
+
+		update({
 			data,
 			id
 		}: {
@@ -98,13 +143,12 @@ export function createCategoryActions({
 			>;
 			id: string;
 		}) {
-			const [updated] = await database
+			return database
 				.update(tables.categories)
 				.set(data)
 				.where(eq(tables.categories.id, id))
-				.returning();
-
-			return updated;
+				.returning()
+				.get();
 		}
 	};
 }
