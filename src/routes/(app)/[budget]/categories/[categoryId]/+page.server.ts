@@ -1,4 +1,5 @@
 import { withPermissions } from '$db/actions';
+import { m } from '$lib/paraglide/messages';
 import { error, fail } from '@sveltejs/kit';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
@@ -42,6 +43,6 @@ export const actions = {
 			id: event.params.categoryId
 		});
 
-		return message(form, 'Saved');
+		return message(form, { text: m.saved(), type: 'success' });
 	})
 } satisfies Actions;

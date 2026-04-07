@@ -26,6 +26,8 @@
 
 		<CategoryStats {category} />
 
+		<Separator class="@3xl:hidden" />
+
 		<Separator class="col-span-2 hidden @3xl:block" orientation="horizontal" />
 
 		<CategoryArchive {category} />

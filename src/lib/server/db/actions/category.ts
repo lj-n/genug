@@ -1,4 +1,5 @@
 import { tables } from '$db';
+import { createMonthParam } from '$lib/utils/date-utils';
 import { and, eq, getColumns, sql } from 'drizzle-orm';
 
 import { userHasPermission } from './permissions';
@@ -6,6 +7,16 @@ import queries from './queries';
 
 const selectColumns = (database: App.Database) => ({
 	...getColumns(tables.categories),
+
+	currentTargetPercentage: sql<null | number>`
+		CASE
+			WHEN ${tables.categories.targetBalance} IS NULL THEN NULL
+			ELSE (${queries.category.thisMonthRemaining({
+				categoryId: tables.categories.id,
+				database,
+				month: createMonthParam()
+			})}) * 100 / ${tables.categories.targetBalance}
+		END`,
 
 	pendingTransactionCount: sql<number>`
 		${queries.category.pendingTransactionCount({

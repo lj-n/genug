@@ -47,6 +47,7 @@
 		max,
 		maxLength,
 		min,
+		name,
 		onchangevalue,
 		oninputvalue,
 		prefix,
@@ -58,29 +59,54 @@
 		...restProps
 	}: Props = $props();
 
-	// Internal string value for CurrencyInput (library expects string)
-	let internalValue = $state(value !== null && value !== undefined ? String(value) : '');
-
-	// Sync external number value changes to internal string
-	$effect(() => {
-		// Parse the current internal string to a float
-		const currentFloat = internalValue === '' ? null : parseFloat(internalValue);
-
-		// If external value differs from internal float, sync internal to external
-		if (value !== currentFloat) {
-			internalValue = value !== null && value !== undefined ? String(value) : '';
+	function centToInternalInputValue(centValue: null | number) {
+		if (centValue === null || centValue === undefined) {
+			return '';
 		}
+
+		return (centValue / 100).toFixed(2);
+	}
+
+	function floatToCentValue(floatValue: null | number) {
+		if (floatValue === null || floatValue === undefined || Number.isNaN(floatValue)) {
+			return null;
+		}
+
+		return Math.round(floatValue * 100);
+	}
+
+	// Internal string value for CurrencyInput (library expects string)
+	let internalValue = $state(centToInternalInputValue(value));
+	let internalCentValue = $state<null | number>(value);
+
+	// Keep internal value synchronized from canonical external cent state.
+	$effect(() => {
+		if (value === internalCentValue) {
+			return;
+		}
+
+		const expectedInternalValue = centToInternalInputValue(value);
+
+		if (internalValue !== expectedInternalValue) {
+			internalValue = expectedInternalValue;
+		}
+
+		internalCentValue = value;
 	});
 
 	function handleInputValue(values: CurrencyInputValues) {
 		internalValue = values.value;
-		value = values.float;
+		const nextCentValue = floatToCentValue(values.float);
+		internalCentValue = nextCentValue;
+		value = nextCentValue;
 		oninputvalue?.(values);
 	}
 
 	function handleChangeValue(values: CurrencyInputValues) {
 		internalValue = values.value;
-		value = values.float;
+		const nextCentValue = floatToCentValue(values.float);
+		internalCentValue = nextCentValue;
+		value = nextCentValue;
 		onchangevalue?.(values);
 	}
 </script>
@@ -115,3 +141,13 @@
 	onchangevalue={handleChangeValue}
 	{...restProps}
 />
+
+{#if name}
+	<input
+		type="hidden"
+		{name}
+		value={value === null || value === undefined ? '' : String(value)}
+		disabled={restProps.disabled}
+		form={restProps.form}
+	/>
+{/if}

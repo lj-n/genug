@@ -5,6 +5,7 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { m } from '$lib/paraglide/messages';
 	import { getIntlContext } from '$lib/utils/intl-context.svelte';
+	import { createSingletonToast } from '$lib/utils/singleton-toast.svelte';
 	import { untrack } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import { superForm } from 'sveltekit-superforms';
@@ -25,34 +26,42 @@
 
 	const { locale, numberFormatOptions } = getIntlContext();
 
+	let savedToast = createSingletonToast();
+
 	const form = superForm(
 		untrack(() => editForm),
 		{
 			applyAction: false,
-			multipleSubmits: 'abort',
+			onUpdated: (event) => {
+				if (event.form.message?.type === 'success') {
+					savedToast.trigger();
+				}
+			},
 			resetForm: false,
 			validationMethod: 'onblur',
 			validators: zod4Client(editSchema)
 		}
 	);
 
-	const { enhance, form: formData, message, submit, tainted } = form;
+	const { enhance, form: formData, isTainted, submit } = form;
 
 	function editCategory() {
-		if ($tainted) {
+		if (isTainted()) {
 			submit();
 		}
 	}
 </script>
 
 <form class="relative flex flex-col gap-2" use:enhance method="POST" action="?/edit">
-	{#if $message}
+	<input type="submit" hidden />
+
+	{#if savedToast.show}
 		<div
-			class="absolute -top-6 right-4 flex items-center gap-1 font-medium text-success"
-			transition:fly={{ y: 20 }}
+			class="absolute -top-8 right-2 flex items-center gap-1 font-medium text-success"
+			transition:fly={{ duration: 200, x: -20 }}
 		>
 			<PhFloppyDiskDuotone />
-			<span>{$message}</span>
+			<span>{m.saved()}</span>
 		</div>
 	{/if}
 
@@ -101,6 +110,7 @@
 						aria-label={m.category_label_targetbalance()}
 						onblur={editCategory}
 					/>
+
 					<InputGroup.Addon>
 						<PhTarget class="size-6" />
 					</InputGroup.Addon>

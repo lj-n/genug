@@ -1,6 +1,7 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"saved": "Gespeichert",
+	"error": "Fehler, bitte versuche es erneut.",
 	"name_error_minlength": "Der Name muss mindestens {length} Zeichen lang sein.",
 	"name_error_maxlength": "Der Name darf maximal {length} Zeichen lang sein.",
 	"login_admin_introduction": "Als Erstes erstelle den Admin-Nutzer. Mit diesem Nutzer kannst du später weitere Nutzer anlegen.",
@@ -30,13 +31,17 @@
 	"category_placeholder_targetbalance": "Setze einen Zielbetrag",
 	"category_section_title_archive": "Kategorie archivieren",
 	"category_section_title_restore": "Kategorie wiederherstellen",
+	"category_section_title_stats": "Statistiken",
+	"category_section_title_delete": "Kategorie löschen",
 	"category_archive_button": "Archivieren",
 	"category_restore_button": "Wiederherstellen",
 	"category_not_archivable_balance": "Es sind noch {#sum/} in dieser Kategorie verbleibend. Um sie zu archivieren, muss der verbleibende Betrag {#required/} sein.",
 	"category_not_archivable_pending_transactions": "Es existieren noch austehende Transaktionen in dieser Kategorie. Um sie zu archivieren, müssen alle Transaktionen validiert sein.",
 	"category_archive_info": "Verstecke Kategorien, die du nicht mehr benötigst, um deine Budgetübersicht übersichtlich zu halten. Archivierte Kategorien können jederzeit wiederhergestellt werden.",
 	"category_restore_info": "Stelle eine archivierte Kategorie wieder her, um sie erneut in deiner Budgetübersicht anzuzeigen und ihr wieder Budgets zuweisen zu können.",
-	"category_section_title_delete": "Kategorie löschen",
 	"category_delete_info": "{#b}Moment!{/b} Du hast {#b}{transactions}{/b} Transaktionen und {#b}{assignments}{/b} Budgeteinträge, die mit dieser Kategorie verbunden sind. Wenn du diese Kategorie löschst, verlieren alle Transaktionen ihre Kategorie und alle zugehörigen Budgeteinträge werden gelöscht. Es ist oft bequemer, die Transaktionen in eine andere Kategorie zu verschieben oder die Kategorie stattdessen zu archivieren.",
-	"category_delete_button": "Löschen"
+	"category_delete_button": "Löschen",
+	"category_stats_spent": "Bis jetzt ausgegeben",
+	"category_stats_target_percentage": "Des Zielbetrags erreicht",
+	"category_stats_transaction_count": "Anzahl Transaktionen"
 }

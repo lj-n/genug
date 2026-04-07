@@ -17,8 +17,15 @@ export default defineConfig({
 			strategy: ['cookie', 'baseLocale']
 		})
 	],
+	resolve: process.env.VITEST
+		? {
+				conditions: ['browser']
+			}
+		: undefined,
 	test: {
+		environment: 'jsdom',
 		include: ['src/**/*.{test,spec}.{ts,tsx}'],
-		includeSource: ['src/**/*.{js,ts}']
+		includeSource: ['src/**/*.{js,ts}'],
+		setupFiles: ['src/test/setup.ts']
 	}
 });

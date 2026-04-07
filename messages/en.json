@@ -1,6 +1,7 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"saved": "Saved",
+	"error": "Error, please try again.",
 	"name_error_minlength": "The name must be at least {length} characters long.",
 	"name_error_maxlength": "The name must be at most {length} characters long.",
 	"login_admin_introduction": "First, create an admin user. You will be able to create more users at a later time.",
@@ -30,13 +31,17 @@
 	"category_placeholder_targetbalance": "Set a Target Balance",
 	"category_section_title_archive": "Archive Category",
 	"category_section_title_restore": "Restore Category",
+	"category_section_title_stats": "Stats",
+	"category_section_title_delete": "Delete Category",
 	"category_archive_button": "Archive",
 	"category_restore_button": "Restore",
 	"category_not_archivable_balance": "There are still {#sum/} left in this category. To archive it, the remaining amount must be {#required/}.",
 	"category_not_archivable_pending_transactions": "There are still pending transactions in this category. To archive it, all transactions must be validated.",
 	"category_archive_info": "Hide categories you no longer need to keep your budget overview tidy. Archived categories can be restored at any time.",
 	"category_restore_info": "Restore an archived category to display it again in your budget overview and to be able to assign budgets to it again.",
-	"category_section_title_delete": "Delete Category",
 	"category_delete_info": "{#b}Hold on!{/b} You have {#b}{transactions}{/b} transactions and {#b}{assignments}{/b} budget entries associated with this category. If you delete this category, all transactions will lose their category and all related budget entries will be deleted. It's often more convenient to move the transactions to another category or archive the category instead.",
-	"category_delete_button": "Delete"
+	"category_delete_button": "Delete",
+	"category_stats_spent": "Spent so far",
+	"category_stats_target_percentage": "Of Target Amount Reached",
+	"category_stats_transaction_count": "Number of Transactions"
 }

@@ -16,6 +16,12 @@ declare global {
 		type User = import('$db/auth').User;
 		// interface PageState {}
 		// interface Platform {}
+		namespace Superforms {
+			type Message = {
+				text: string;
+				type: 'error' | 'success';
+			};
+		}
 	}
 }
 
