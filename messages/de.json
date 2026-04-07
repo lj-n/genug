@@ -27,8 +27,7 @@
 	"category_label_name": "Kategoriename",
 	"category_label_notes": "Kategorienotizen",
 	"category_placeholder_notes": "Füge einige Notizen hinzu...",
-	"category_label_targetbalance": "Zielbetrag",
-	"category_placeholder_targetbalance": "Setze einen Zielbetrag",
+	"category_label_targetbalance": "Setze dir ein Zielguthaben in dieser Kategorie",
 	"category_section_title_archive": "Kategorie archivieren",
 	"category_section_title_restore": "Kategorie wiederherstellen",
 	"category_section_title_stats": "Statistiken",
@@ -42,6 +41,6 @@
 	"category_delete_info": "{#b}Moment!{/b} Du hast {#b}{transactions}{/b} Transaktionen und {#b}{assignments}{/b} Budgeteinträge, die mit dieser Kategorie verbunden sind. Wenn du diese Kategorie löschst, verlieren alle Transaktionen ihre Kategorie und alle zugehörigen Budgeteinträge werden gelöscht. Es ist oft bequemer, die Transaktionen in eine andere Kategorie zu verschieben oder die Kategorie stattdessen zu archivieren.",
 	"category_delete_button": "Löschen",
 	"category_stats_spent": "Bis jetzt ausgegeben",
-	"category_stats_target_percentage": "Des Zielbetrags erreicht",
+	"category_stats_target_percentage": "des Zielguthabens erreicht",
 	"category_stats_transaction_count": "Anzahl Transaktionen"
 }

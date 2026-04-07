@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
+	import { clamp } from '$lib/utils/clamp';
 	import { formatCentToFloatString } from '$lib/utils/formatCentToFloatString';
 	import { getIntlContext } from '$lib/utils/intl-context.svelte';
 	import { formatValue } from '@canutin/svelte-currency-input';
@@ -39,7 +40,7 @@
 	</div>
 
 	{#if category.currentTargetPercentage !== null}
-		{@const clamped = Math.min(Math.max(category.currentTargetPercentage, 0), 100)}
+		{@const clamped = clamp(category.currentTargetPercentage, 0, 100)}
 		<div class="relative col-span-2 rounded-md border border-success/40 p-2 text-center">
 			<div class="absolute inset-0 bg-success/20" style="width: {clamped}%"></div>
 

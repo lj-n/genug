@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
+	import { clamp } from '$lib/utils/clamp';
 	import { formatCentToFloatString } from '$lib/utils/formatCentToFloatString';
 	import { getIntlContext } from '$lib/utils/intl-context.svelte';
+	import { useDialog } from '$lib/utils/use-dialog';
 	import { formatValue } from '@canutin/svelte-currency-input';
 	import { defaultPreset } from '@dnd-kit/dom';
 	import { RestrictToElement } from '@dnd-kit/dom/modifiers';
@@ -18,7 +20,13 @@
 
 	type BudgetTableRow = PageData['categories'][number];
 
-	let { categories }: { categories: BudgetTableRow[] } = $props();
+	let {
+		categories,
+		openCategoryDialog
+	}: {
+		categories: BudgetTableRow[];
+		openCategoryDialog: (category: BudgetTableRow) => void;
+	} = $props();
 
 	const { locale, numberFormatOptions } = getIntlContext();
 
@@ -100,25 +108,31 @@
 					role="row"
 					class={cn(
 						'group/row flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/5',
-						sortable.isDragging && 'border-b-0 shadow-md'
+						sortable.isDragging && 'border-b-0 shadow-lg ring-3 ring-interactive/50'
 					)}
 					data-dragging={sortable.isDragging ? 'true' : undefined}
 					{@attach sortable.attach}
 				>
-					<Cell class={cn('w-2/5 flex-col items-start', row.targetBalance && 'p-0')}>
-						<div class={cn('my-auto', row.targetBalance && 'ml-2')}>
+					<Cell
+						class={cn('w-2/5 flex-col items-start', row.currentTargetPercentage !== null && 'p-0')}
+					>
+						<div class={cn('my-auto', row.currentTargetPercentage !== null && 'ml-2')}>
 							<a
 								href={resolve('/(app)/[budget]/categories/[categoryId]', {
 									budget: row.budgetId,
 									categoryId: row.id
 								})}
+								{@attach useDialog(() => openCategoryDialog(row))}
 							>
 								{row.name}
 							</a>
 						</div>
-						{#if row.targetBalance}
+						{#if row.currentTargetPercentage !== null}
 							<div class="flex w-full">
-								<div class="h-1.5 w-7/8 bg-success/60"></div>
+								<div
+									class="h-1 bg-success/60"
+									style="width: {clamp(row.currentTargetPercentage, 0, 100)}%"
+								></div>
 							</div>
 						{/if}
 					</Cell>

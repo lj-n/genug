@@ -13,7 +13,7 @@
 <section
 	class={cn(
 		'flex flex-col gap-3',
-		'@3xl:rounded-md @3xl:border @3xl:border-muted/20 @3xl:bg-background @3xl:p-3 @3xl:shadow-sm'
+		'@3xl:rounded-md @3xl:border @3xl:border-muted/20 @3xl:bg-background @3xl:p-3 @3xl:shadow-xs'
 	)}
 >
 	<h2 class="flex items-center gap-2 text-lg font-semibold text-error">

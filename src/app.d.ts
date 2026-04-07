@@ -14,11 +14,10 @@ declare global {
 			title?: string;
 		}
 		type User = import('$db/auth').User;
-		// interface PageState {}
 		// interface Platform {}
 		namespace Superforms {
 			type Message = {
-				text: string;
+				text?: string;
 				type: 'error' | 'success';
 			};
 		}

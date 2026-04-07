@@ -1,7 +1,7 @@
 import { withPermissions } from '$db/actions';
 import { getLocale } from '$lib/paraglide/runtime';
 
-import type { Actions, PageServerLoad } from './$types';
+import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = withPermissions(async (_user, actions, event) => {
 	const categories = await actions.budget.month({

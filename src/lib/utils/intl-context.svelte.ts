@@ -1,14 +1,26 @@
+import { formatValue } from '@canutin/svelte-currency-input';
 import { getContext, setContext } from 'svelte';
+
+import { formatCentToFloatString } from './formatCentToFloatString';
 
 type IntlContextConfig = {
 	locale: string;
 	numberFormatOptions: Intl.NumberFormatOptions;
 };
 class IntlContext {
-	locale: string = $state('en');
+	locale: string = $state('de');
 	numberFormatOptions: Intl.NumberFormatOptions = $state({
 		currency: 'EUR'
 	});
+	formatCurrency = $derived((cents: number) =>
+		formatValue({
+			intlConfig: {
+				locale: this.locale,
+				...this.numberFormatOptions
+			},
+			value: formatCentToFloatString(cents)
+		})
+	);
 
 	constructor(config: IntlContextConfig) {
 		this.numberFormatOptions = config.numberFormatOptions;

@@ -33,6 +33,16 @@ export function createBudgetActions({
 				.select({
 					...getColumns(tables.categories),
 
+					currentTargetPercentage: sql<null | number>`
+						CASE
+							WHEN ${tables.categories.targetBalance} IS NULL THEN NULL
+							ELSE (${queries.category.thisMonthRemaining({
+								categoryId: tables.categories.id,
+								database,
+								month
+							})}) * 100 / ${tables.categories.targetBalance}
+						END`,
+
 					pendingTransactionCount: sql<number>`
 						${queries.category.pendingTransactionCount({
 							categoryId: tables.categories.id,
