@@ -1,7 +1,7 @@
 import type { SQLiteColumn } from 'drizzle-orm/sqlite-core';
 
 import { database, tables } from '$db';
-import { redirect, type ServerLoadEvent } from '@sveltejs/kit';
+import { redirect, type RequestEvent } from '@sveltejs/kit';
 import { and, eq, exists, sql } from 'drizzle-orm';
 
 import { Actions } from '.';
@@ -28,7 +28,7 @@ export function userHasPermission({
 	);
 }
 
-export function withPermissions<TEvent extends ServerLoadEvent, TResult>(
+export function withPermissions<TEvent extends RequestEvent, TResult>(
 	handler: (user: App.User, actions: App.Actions, event: TEvent) => TResult
 ) {
 	return async (event: TEvent): Promise<Awaited<TResult>> => {

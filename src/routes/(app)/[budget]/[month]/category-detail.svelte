@@ -1,81 +1,53 @@
 <script lang="ts">
-	import { Input } from '$lib/components/ui/input';
-	import * as InputGroup from '$lib/components/ui/input-group';
-	import { Separator } from '$lib/components/ui/separator';
-	import { Textarea } from '$lib/components/ui/textarea';
-	import { formatCentToFloatString } from '$lib/utils/formatCentToFloatString';
-	import { getIntlContext } from '$lib/utils/intl-context.svelte';
-	import { formatValue } from '@canutin/svelte-currency-input';
-	import PhQuestion from '~icons/ph/question';
-	import PhTarget from '~icons/ph/target';
+	import type { Snippet } from 'svelte';
+
+	import * as Dialog from '$lib/components/ui/dialog';
+	import { fly } from 'svelte/transition';
+	import PhFloppyDiskDuotone from '~icons/ph/floppy-disk-duotone';
 
 	import type { PageData } from './$types';
 
-	import CategoryArchive from './category-detail-archive.svelte';
-	import CategoryDelete from './category-detail-delete.svelte';
+	type CategoryDetailProps = {
+		category: null | PageData['categories'][number];
+		child: Snippet<[{ category: PageData['categories'][number] }]>;
+	};
 
-	let { category }: { category: PageData['categories'][number] } = $props();
+	let { category = $bindable(null), child }: CategoryDetailProps = $props();
 
-	const { locale, numberFormatOptions } = getIntlContext();
+	let open = $state(category !== null);
 
-	let formatCurrency = $derived((value: number) =>
-		formatValue({
-			intlConfig: { locale, ...numberFormatOptions },
-			value: formatCentToFloatString(value)
-		})
-	);
+	$effect(() => {
+		if (category) {
+			open = true;
+		}
+	});
 </script>
 
-<div class="flex flex-col gap-2">
-	<Input
-		type="text"
-		id="category-name"
-		bind:value={category.name}
-		class="h-12 text-xl font-semibold"
-		placeholder="Category Name"
-	/>
+<Dialog.Root
+	bind:open
+	onOpenChangeComplete={(open) => {
+		if (!open) {
+			category = null;
+		}
+	}}
+>
+	<Dialog.Content class="max-w-4xl">
+		<Dialog.Header class="flex-row">
+			<Dialog.Title class="font-mono text-muted">#Category</Dialog.Title>
 
-	<Textarea
-		id="category-notes"
-		bind:value={category.notes}
-		class="min-h-30 resize-none py-2 text-base"
-		placeholder="Add some notes..."
-	/>
+			{#if true}
+				<div
+					class="absolute top-6 left-1/2 flex -translate-x-1/2 items-center gap-1 font-medium text-success"
+					transition:fly={{ y: 20 }}
+				>
+					<PhFloppyDiskDuotone />
+					<span>Saved</span>
+				</div>
+			{/if}
+		</Dialog.Header>
 
-	<InputGroup.Root>
-		<InputGroup.InputCurrency
-			bind:value={category.targetBalance}
-			intlConfig={{ locale, ...numberFormatOptions }}
-			class="h-12 text-xl font-semibold placeholder:text-base placeholder:font-normal"
-			placeholder="Set a Target Balance"
-		/>
-		<InputGroup.Addon>
-			<PhTarget class="size-6" />
-		</InputGroup.Addon>
-
-		<InputGroup.Addon align="inline-end">
-			<PhQuestion class="size-6" />
-		</InputGroup.Addon>
-	</InputGroup.Root>
-</div>
-
-<Separator />
-
-<div class="grid grid-cols-2 gap-2 text-foreground/80">
-	<div class="rounded-md border border-info/20 bg-info/10 p-2 text-center">
-		<div class="text-xl font-bold tabular-nums">
-			{formatCurrency(category.totalRelatedTransactionSum)}
-		</div>
-		<div class="text-sm">Bisher ausgegeben</div>
-	</div>
-	<div class="rounded-md border border-info/20 bg-info/10 p-2 text-center">
-		<div class="text-xl font-bold tabular-nums">{category.totalRelatedTransactionCount}</div>
-		<div class="text-sm">Anzahl der Transaktionen</div>
-	</div>
-</div>
-
-<Separator />
-
-<CategoryArchive {category} />
-
-<CategoryDelete {category} />
+		{#if category}
+			{@render child({ category })}
+		{/if}
+	</Dialog.Content>
+</Dialog.Root>

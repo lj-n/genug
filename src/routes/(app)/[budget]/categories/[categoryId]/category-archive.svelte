@@ -5,12 +5,13 @@
 	import { getIntlContext } from '$lib/utils/intl-context.svelte';
 	import { formatValue } from '@canutin/svelte-currency-input';
 	import { ParaglideMessage } from '@inlang/paraglide-js-svelte';
+	import { cn } from 'tailwind-variants';
 	import PhArchiveTrayBold from '~icons/ph/archive-tray-bold';
 	import PhTrayArrowUpBold from '~icons/ph/tray-arrow-up-bold';
 
 	import type { PageData } from './$types';
 
-	let { category }: { category: PageData['categories'][number] } = $props();
+	let { category }: { category: PageData['category'] } = $props();
 
 	const { locale, numberFormatOptions } = getIntlContext();
 
@@ -37,7 +38,12 @@
 	});
 </script>
 
-<section class="grid space-y-3">
+<section
+	class={cn(
+		'flex flex-col gap-3',
+		'@3xl:rounded-md @3xl:border @3xl:border-muted/20 @3xl:bg-background @3xl:p-3 @3xl:shadow-sm'
+	)}
+>
 	<h2 class="text-lg font-semibold">
 		{title()}
 	</h2>
@@ -76,7 +82,7 @@
 		</div>
 	{/if}
 
-	<form method="POST" action="?/edit" class="ml-auto">
+	<form method="POST" action="?/edit" class="mt-auto ml-auto">
 		<input type="hidden" name="archived" value={!isArchived} />
 		<Button type="submit" aria-disabled={!isArchivable}>
 			{#if isArchived}

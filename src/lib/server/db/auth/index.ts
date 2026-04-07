@@ -20,4 +20,3 @@ export * from './types';
 export { validateSession } from './validate-session';
 
 export { verifyPassword } from './verify-password';
-export { withSession } from './with-session';

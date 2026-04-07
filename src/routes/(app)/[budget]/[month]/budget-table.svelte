@@ -1,5 +1,5 @@
 <script lang="ts">
-	import * as Dialog from '$lib/components/ui/dialog';
+	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
 	import { formatCentToFloatString } from '$lib/utils/formatCentToFloatString';
 	import { getIntlContext } from '$lib/utils/intl-context.svelte';
@@ -10,13 +10,11 @@
 	import { createSortable, isSortable } from '@dnd-kit/svelte/sortable';
 	import { cn } from 'tailwind-variants';
 	import PhDotsSixVerticalBold from '~icons/ph/dots-six-vertical-bold';
-	import PhFloppyDiskDuotone from '~icons/ph/floppy-disk-duotone';
 
 	import type { PageData } from './$types';
 
 	import Cell from './budget-cell.svelte';
 	import Head from './budget-head.svelte';
-	import CategoryDetail from './category-detail.svelte';
 
 	type BudgetTableRow = PageData['categories'][number];
 
@@ -32,9 +30,6 @@
 	);
 
 	let dragContainer: HTMLDivElement;
-
-	let categoryDialogOpen = $state(false);
-	let selectedCategory: BudgetTableRow | null = $state(null);
 </script>
 
 <div role="table">
@@ -110,14 +105,17 @@
 					data-dragging={sortable.isDragging ? 'true' : undefined}
 					{@attach sortable.attach}
 				>
-					<Cell
-						class={cn('w-2/5 flex-col items-start', row.targetBalance && 'p-0')}
-						onclick={() => {
-							selectedCategory = row;
-							categoryDialogOpen = true;
-						}}
-					>
-						<div class={cn('my-auto', row.targetBalance && 'ml-2')}>{row.name}</div>
+					<Cell class={cn('w-2/5 flex-col items-start', row.targetBalance && 'p-0')}>
+						<div class={cn('my-auto', row.targetBalance && 'ml-2')}>
+							<a
+								href={resolve('/(app)/[budget]/categories/[categoryId]', {
+									budget: row.budgetId,
+									categoryId: row.id
+								})}
+							>
+								{row.name}
+							</a>
+						</div>
 						{#if row.targetBalance}
 							<div class="flex w-full">
 								<div class="h-1.5 w-7/8 bg-success/60"></div>
@@ -151,23 +149,3 @@
 		</div>
 	</DragDropProvider>
 </div>
-
-<Dialog.Root bind:open={categoryDialogOpen} onOpenChangeComplete={() => (selectedCategory = null)}>
-	<form>
-		<Dialog.Content class="max-w-4xl">
-			<Dialog.Header class="flex-row">
-				<Dialog.Title class="text-sm text-muted">#Category</Dialog.Title>
-				<div
-					class="flex items-center gap-1 rounded-lg border border-muted/20 bg-surface-high px-2 py-1 text-sm font-medium text-success shadow-lg"
-				>
-					<PhFloppyDiskDuotone />
-					<span>Saved</span>
-				</div>
-			</Dialog.Header>
-
-			{#if selectedCategory}
-				<CategoryDetail category={selectedCategory} />
-			{/if}
-		</Dialog.Content>
-	</form>
-</Dialog.Root>
