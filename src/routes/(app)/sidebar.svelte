@@ -15,6 +15,17 @@
 	import type { PageData } from './$types';
 
 	let data: { budgets: PageData['budgets'] } = $props();
+	type SortableItem = ReturnType<typeof createSortable>;
+
+	const moveItem = <T,>(items: T[], fromIndex: number, toIndex: number): T[] => {
+		const nextItems = [...items];
+		const [movedItem] = nextItems.splice(fromIndex, 1);
+
+		if (!movedItem) return nextItems;
+
+		nextItems.splice(toIndex, 0, movedItem);
+		return nextItems;
+	};
 
 	let isActive = $derived.by(() => {
 		return (id: string) => {
@@ -28,6 +39,35 @@
 </script>
 
 <div class="">
+	{#snippet LeadingIcon(isCurrent: boolean, showFallback: boolean)}
+		{#if isCurrent}
+			<div aria-hidden="true" transition:slide={{ axis: 'x', duration: 200 }}>
+				<div transition:fade={{ duration: 200 }} class="pr-2">
+					<PhArrowFatRightDuotone class="size-4 text-info" />
+				</div>
+			</div>
+		{:else if showFallback}
+			<div aria-hidden="true" transition:slide={{ axis: 'x', duration: 200 }}>
+				<div transition:fade={{ duration: 200 }} class="pr-2">
+					<PhArrowElbowDownRight class="size-3 text-muted" />
+				</div>
+			</div>
+		{/if}
+	{/snippet}
+
+	{#snippet DragHandle(sortable: SortableItem, visibilityClass: string)}
+		<button
+			aria-label="Drag Handle"
+			class={cn(
+				`ml-auto cursor-grab opacity-0 ${visibilityClass}`,
+				sortable.isDragging && 'cursor-grabbing opacity-100'
+			)}
+			{@attach sortable.attachHandle}
+		>
+			<PhDotsSixVertical class="size-4 text-muted hover:text-interactive" />
+		</button>
+	{/snippet}
+
 	<DragDropProvider
 		plugins={defaultPreset.plugins}
 		modifiers={[RestrictToVerticalAxis]}
@@ -55,10 +95,7 @@
 			if (initialGroup !== group || initialIndex === index) return;
 
 			if (group === 'budget') {
-				const nextItems = [...budgets];
-				const [movedItem] = nextItems.splice(initialIndex, 1);
-				nextItems.splice(index, 0, movedItem);
-				budgets = nextItems;
+				budgets = moveItem(budgets, initialIndex, index);
 				return;
 			}
 
@@ -66,15 +103,14 @@
 			if (budgetIndex === -1) return;
 
 			const nextItems = [...budgets];
-			const accounts = [...nextItems[budgetIndex].accounts];
-			const [movedAccount] = accounts.splice(initialIndex, 1);
-			accounts.splice(index, 0, movedAccount);
+			const accounts = moveItem(nextItems[budgetIndex].accounts, initialIndex, index);
 			nextItems[budgetIndex] = { ...nextItems[budgetIndex], accounts };
 			budgets = nextItems;
 		}}
 	>
 		<ul class="grid space-y-3">
 			{#each budgets as budget, budgetIdx (budget.id)}
+				{@const isBudgetActive = isActive(budget.id)}
 				{@const budgetSortable = createSortable({
 					group: 'budget',
 					get id() {
@@ -95,37 +131,26 @@
 					<div
 						class={cn(
 							'group/item flex items-center rounded-md bg-background p-2 transition-colors hover:bg-muted/5',
-							!budgetSortable.isDragging && isActive(budget.id) && 'bg-info/10 hover:bg-info/15'
+							!budgetSortable.isDragging && isBudgetActive && 'bg-info/10 hover:bg-info/15'
 						)}
 					>
 						<a
 							href={resolve('/(app)/[budget]', { budget: budget.id })}
 							class="flex w-full items-center font-medium"
 						>
-							{#if isActive(budget.id)}
-								<div aria-hidden="true" transition:slide={{ axis: 'x', duration: 200 }}>
-									<div transition:fade={{ duration: 200 }} class="pr-2">
-										<PhArrowFatRightDuotone class="size-4 text-info" />
-									</div>
-								</div>
-							{/if}
+							{@render LeadingIcon(isBudgetActive, false)}
 							{budget.name}
 						</a>
 
-						<button
-							aria-label="Drag Handle"
-							class={cn(
-								'ml-auto cursor-grab opacity-0 group-focus-within/item:opacity-100 group-hover/item:opacity-100',
-								budgetSortable.isDragging && 'cursor-grabbing opacity-100'
-							)}
-							{@attach budgetSortable.attachHandle}
-						>
-							<PhDotsSixVertical class="size-4 text-muted hover:text-interactive" />
-						</button>
+						{@render DragHandle(
+							budgetSortable,
+							'group-focus-within/item:opacity-100 group-hover/item:opacity-100'
+						)}
 					</div>
 
 					<ul class="grid">
 						{#each budget.accounts as account, accountIdx (account.id)}
+							{@const isAccountActive = isActive(account.id)}
 							{@const accountSortable = createSortable({
 								group: budget.id,
 								get id() {
@@ -141,9 +166,7 @@
 								{@attach accountSortable.attach}
 								class={cn(
 									'group/sub-item flex items-center rounded-md bg-background p-2 transition-colors hover:bg-muted/5',
-									!accountSortable.isDragging &&
-										isActive(account.id) &&
-										'bg-info/10 hover:bg-info/15',
+									!accountSortable.isDragging && isAccountActive && 'bg-info/10 hover:bg-info/15',
 									accountSortable.isDragging && 'shadow-lg ring-3 ring-interactive/50'
 								)}
 							>
@@ -154,32 +177,14 @@
 									})}
 									class="flex w-full items-center"
 								>
-									{#if isActive(account.id)}
-										<div aria-hidden="true" transition:slide={{ axis: 'x', duration: 200 }}>
-											<div transition:fade={{ duration: 200 }} class="pr-2">
-												<PhArrowFatRightDuotone class="size-4 text-info" />
-											</div>
-										</div>
-									{:else}
-										<div aria-hidden="true" transition:slide={{ axis: 'x', duration: 200 }}>
-											<div transition:fade={{ duration: 200 }} class="pr-2">
-												<PhArrowElbowDownRight class="size-3 text-muted" />
-											</div>
-										</div>
-									{/if}
+									{@render LeadingIcon(isAccountActive, true)}
 									{account.name}
 								</a>
 
-								<button
-									aria-label="Drag Handle"
-									class={cn(
-										'ml-auto cursor-grab opacity-0 group-focus-within/sub-item:opacity-100 group-hover/sub-item:opacity-100',
-										accountSortable.isDragging && 'cursor-grabbing opacity-100'
-									)}
-									{@attach accountSortable.attachHandle}
-								>
-									<PhDotsSixVertical class="size-4 text-muted hover:text-interactive" />
-								</button>
+								{@render DragHandle(
+									accountSortable,
+									'group-focus-within/sub-item:opacity-100 group-hover/sub-item:opacity-100'
+								)}
 							</li>
 						{/each}
 					</ul>
