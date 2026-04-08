@@ -14,8 +14,22 @@ export function createBudgetActions({
 	return {
 		all() {
 			return database
-				.select()
+				.select(getColumns(tables.budgets))
 				.from(tables.budgets)
+				.leftJoin(
+					tables.userEntityOrder,
+					and(
+						eq(tables.userEntityOrder.entityId, tables.budgets.id),
+						eq(tables.userEntityOrder.entityType, 'budget'),
+						eq(tables.userEntityOrder.userId, user.id)
+					)
+				)
+				.orderBy(
+					sql`CASE WHEN ${tables.userEntityOrder.position} IS NULL THEN 1 ELSE 0 END`,
+					asc(tables.userEntityOrder.position),
+					asc(tables.budgets.createdAt),
+					asc(tables.budgets.id)
+				)
 				.where(
 					userHasPermission({
 						budgetIdCol: tables.budgets.id,

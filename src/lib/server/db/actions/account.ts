@@ -1,5 +1,5 @@
 import { tables } from '$db';
-import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, sql } from 'drizzle-orm';
 
 import { userHasPermission } from './permissions';
 
@@ -21,6 +21,20 @@ export function createAccountActions({
 				})
 				.from(tables.accounts)
 				.leftJoin(tables.transactions, eq(tables.transactions.accountId, tables.accounts.id))
+				.leftJoin(
+					tables.userEntityOrder,
+					and(
+						eq(tables.userEntityOrder.entityType, 'account'),
+						eq(tables.userEntityOrder.userId, user.id),
+						eq(tables.userEntityOrder.entityId, tables.accounts.id)
+					)
+				)
+				.orderBy(
+					sql`CASE WHEN ${tables.userEntityOrder.position} IS NULL THEN 1 ELSE 0 END`,
+					asc(tables.userEntityOrder.position),
+					asc(tables.accounts.createdAt),
+					asc(tables.accounts.id)
+				)
 				.where(
 					userHasPermission({
 						budgetIdCol: tables.accounts.budgetId,

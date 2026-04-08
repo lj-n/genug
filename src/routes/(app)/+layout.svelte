@@ -1,10 +1,9 @@
 <script lang="ts">
+	import { Sidebar } from '$lib/components/sidebar';
 	import { Button } from '$lib/components/ui/button';
 	import PhSignOut from '~icons/ph/sign-out';
 
 	import type { LayoutProps } from './$types';
-
-	import Sidebar from './sidebar.svelte';
 
 	let { children, data }: LayoutProps = $props();
 </script>
