@@ -5,6 +5,7 @@
 	import { defaultPreset } from '@dnd-kit/dom';
 	import { DragDropProvider } from '@dnd-kit/svelte';
 	import { createSortable, isSortable } from '@dnd-kit/svelte/sortable';
+	import { untrack } from 'svelte';
 	import { fade, slide } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
 	import PhArrowElbowDownRight from '~icons/ph/arrow-elbow-down-right';
@@ -23,10 +24,10 @@
 		};
 	});
 
-	let budgets = $state(data.budgets);
+	let budgets = $state(untrack(() => data.budgets));
 </script>
 
-<div class="rounded-md border border-muted/20 bg-surface p-2 shadow-xs">
+<div class="">
 	<DragDropProvider
 		plugins={defaultPreset.plugins}
 		modifiers={[RestrictToVerticalAxis]}
@@ -86,15 +87,15 @@
 
 				<li
 					class={cn(
-						'rounded-md bg-surface p-0.5',
+						'grid rounded-md bg-background',
 						budgetSortable.isDragging && 'shadow-lg ring-3 ring-interactive/50'
 					)}
 					{@attach budgetSortable.attach}
 				>
 					<div
 						class={cn(
-							'flex items-center rounded-md p-2 hover:bg-muted/5',
-							isActive(budget.id) && !budgetSortable.isDragging && 'bg-info/10 hover:bg-info/15'
+							'group/item flex items-center rounded-md bg-background p-2 transition-colors hover:bg-muted/5',
+							!budgetSortable.isDragging && isActive(budget.id) && 'bg-info/10 hover:bg-info/15'
 						)}
 					>
 						<a
@@ -111,12 +112,19 @@
 							{budget.name}
 						</a>
 
-						<button aria-label="Drag Handle" class="ml-auto" {@attach budgetSortable.attachHandle}>
-							<PhDotsSixVertical class="size-4 text-muted/60" />
+						<button
+							aria-label="Drag Handle"
+							class={cn(
+								'ml-auto cursor-grab opacity-0 group-focus-within/item:opacity-100 group-hover/item:opacity-100',
+								budgetSortable.isDragging && 'cursor-grabbing opacity-100'
+							)}
+							{@attach budgetSortable.attachHandle}
+						>
+							<PhDotsSixVertical class="size-4 text-muted hover:text-interactive" />
 						</button>
 					</div>
 
-					<ul class="grid space-y-0.5">
+					<ul class="grid">
 						{#each budget.accounts as account, accountIdx (account.id)}
 							{@const accountSortable = createSortable({
 								group: budget.id,
@@ -132,9 +140,9 @@
 							<li
 								{@attach accountSortable.attach}
 								class={cn(
-									'flex items-center rounded-md bg-surface p-2 hover:bg-muted/5',
-									isActive(account.id) &&
-										!accountSortable.isDragging &&
+									'group/sub-item flex items-center rounded-md bg-background p-2 transition-colors hover:bg-muted/5',
+									!accountSortable.isDragging &&
+										isActive(account.id) &&
 										'bg-info/10 hover:bg-info/15',
 									accountSortable.isDragging && 'shadow-lg ring-3 ring-interactive/50'
 								)}
@@ -155,7 +163,7 @@
 									{:else}
 										<div aria-hidden="true" transition:slide={{ axis: 'x', duration: 200 }}>
 											<div transition:fade={{ duration: 200 }} class="pr-2">
-												<PhArrowElbowDownRight class="size-3 text-muted/50" />
+												<PhArrowElbowDownRight class="size-3 text-muted" />
 											</div>
 										</div>
 									{/if}
@@ -164,10 +172,13 @@
 
 								<button
 									aria-label="Drag Handle"
-									class="ml-auto"
+									class={cn(
+										'ml-auto cursor-grab opacity-0 group-focus-within/sub-item:opacity-100 group-hover/sub-item:opacity-100',
+										accountSortable.isDragging && 'cursor-grabbing opacity-100'
+									)}
 									{@attach accountSortable.attachHandle}
 								>
-									<PhDotsSixVertical class="size-4 text-muted/60" />
+									<PhDotsSixVertical class="size-4 text-muted hover:text-interactive" />
 								</button>
 							</li>
 						{/each}
