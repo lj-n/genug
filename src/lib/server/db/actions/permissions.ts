@@ -1,10 +1,14 @@
 import type { SQLiteColumn } from 'drizzle-orm/sqlite-core';
 
 import { database, tables } from '$db';
-import { redirect, type RequestEvent } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import { and, eq, exists, sql } from 'drizzle-orm';
 
 import { Actions } from '.';
+
+type EventWithLocals = {
+	locals: App.Locals;
+};
 
 export function userHasPermission({
 	budgetIdCol,
@@ -28,10 +32,13 @@ export function userHasPermission({
 	);
 }
 
-export function withPermissions<TEvent extends RequestEvent, TResult>(
+export function withPermissions<TEvent extends EventWithLocals, TResult>(
 	handler: (user: App.User, actions: App.Actions, event: TEvent) => TResult
+): (event: TEvent) => Promise<Awaited<TResult>>;
+export function withPermissions(
+	handler: (user: App.User, actions: App.Actions, event: EventWithLocals) => unknown
 ) {
-	return async (event: TEvent): Promise<Awaited<TResult>> => {
+	return async (event: EventWithLocals) => {
 		const session = event.locals.session;
 
 		if (!session) {

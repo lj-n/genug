@@ -7,7 +7,7 @@ import { budgets } from './budgets';
 export const categories = sqliteTable(
 	'categories',
 	(t) => ({
-		archived_at: t.integer('archived_at', { mode: 'timestamp' }),
+		archivedAt: t.integer('archived_at', { mode: 'timestamp' }),
 		budgetId: t
 			.text('budget_id')
 			.references(() => budgets.id, { onDelete: 'cascade' })
@@ -27,7 +27,7 @@ export const categories = sqliteTable(
 	(t) => [
 		index('category_active')
 			.on(t.budgetId)
-			.where(sql`${t.archived_at} IS NULL`),
+			.where(sql`${t.archivedAt} IS NULL`),
 		unique('category_name_budget_unique').on(t.name, t.budgetId),
 		unique('category_id_budget_unique').on(t.id, t.budgetId),
 		check('target_balance_positive', sql`${t.targetBalance} > 0`)

@@ -14,7 +14,7 @@
 
 <div class="@container w-full">
 	<div class="grid gap-6 @3xl:grid-cols-2">
-		<h1 class="flex items-center gap-2 tracking-tighter text-info italic @3xl:col-span-2">
+		<h1 class="flex items-center gap-2 tracking-tighter italic @3xl:col-span-2">
 			<span class="text-xl font-semibold">Category</span>
 
 			<span

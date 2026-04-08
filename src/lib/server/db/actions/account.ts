@@ -39,7 +39,7 @@ export function createAccountActions({
 				.where(
 					and(
 						inArray(tables.accounts.id, orderedIds),
-						isNull(tables.accounts.archived_at),
+						isNull(tables.accounts.archivedAt),
 						userHasPermission({
 							budgetIdCol: tables.accounts.budgetId,
 							database,

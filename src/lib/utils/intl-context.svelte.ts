@@ -1,4 +1,5 @@
 import { formatValue } from '@canutin/svelte-currency-input';
+import { DateFormatter } from '@internationalized/date';
 import { getContext, setContext } from 'svelte';
 
 import { formatCentToFloatString } from './formatCentToFloatString';
@@ -20,6 +21,9 @@ class IntlContext {
 			},
 			value: formatCentToFloatString(cents)
 		})
+	);
+	formatDate = $derived((date: Date, options: Intl.DateTimeFormatOptions = {}) =>
+		new DateFormatter(this.locale, options).format(date)
 	);
 
 	constructor(config: IntlContextConfig) {

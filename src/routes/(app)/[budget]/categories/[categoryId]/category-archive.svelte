@@ -1,9 +1,9 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
+	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
 	import { m } from '$lib/paraglide/messages';
-	import { formatCentToFloatString } from '$lib/utils/formatCentToFloatString';
 	import { getIntlContext } from '$lib/utils/intl-context.svelte';
-	import { formatValue } from '@canutin/svelte-currency-input';
 	import { ParaglideMessage } from '@inlang/paraglide-js-svelte';
 	import { cn } from 'tailwind-variants';
 	import PhArchiveTrayBold from '~icons/ph/archive-tray-bold';
@@ -11,31 +11,36 @@
 
 	import type { PageData } from './$types';
 
+	import { hasNoPendingTransactions, hasNoRemainingBudget, isArchivable } from './category-utils';
+
 	let { category }: { category: PageData['category'] } = $props();
 
-	const { locale, numberFormatOptions } = getIntlContext();
+	const { formatCurrency } = getIntlContext();
 
-	let formatCurrency = $derived((value: number) =>
-		formatValue({
-			intlConfig: { locale, ...numberFormatOptions },
-			value: formatCentToFloatString(value)
-		})
-	);
+	let isArchived = $derived(category.archivedAt !== null);
 
-	let isArchived = $derived(category.archived_at !== null);
+	let noRemainingBudget = $derived(hasNoRemainingBudget(category));
+	let noPendingTransactions = $derived(hasNoPendingTransactions(category));
 
-	let archivableBalance = $derived(
-		category.totalAssignedBudgetSum + category.totalRelatedTransactionSum === 0
-	);
-	let hasPendingTransactions = $derived(category.pendingTransactionCount === 0);
-
-	let isArchivable = $derived(archivableBalance && hasPendingTransactions);
+	let archivable = $derived(isArchivable(category));
 
 	let { buttonText, description, title } = $derived({
 		buttonText: isArchived ? m.category_restore_button : m.category_archive_button,
 		description: isArchived ? m.category_restore_info : m.category_archive_info,
 		title: isArchived ? m.category_section_title_restore : m.category_section_title_archive
 	});
+
+	let action = $derived(
+		isArchived
+			? resolve('/(app)/[budget]/categories/[categoryId]?/restore', {
+					budget: category.budgetId,
+					categoryId: category.id
+				})
+			: resolve('/(app)/[budget]/categories/[categoryId]?/archive', {
+					budget: category.budgetId,
+					categoryId: category.id
+				})
+	);
 </script>
 
 <section
@@ -52,9 +57,9 @@
 		{description()}
 	</p>
 
-	{#if !isArchivable}
+	{#if !archivable}
 		<div class="flex flex-col gap-2 rounded-md bg-error/10 p-2 text-error">
-			{#if !archivableBalance}
+			{#if !noRemainingBudget}
 				<div>
 					<ParaglideMessage message={m.category_not_archivable_balance} inputs={{}}>
 						{#snippet sum()}
@@ -74,7 +79,7 @@
 				</div>
 			{/if}
 
-			{#if category.pendingTransactionCount > 0}
+			{#if !noPendingTransactions}
 				<div>
 					{m.category_not_archivable_pending_transactions()}
 				</div>
@@ -82,9 +87,8 @@
 		</div>
 	{/if}
 
-	<form method="POST" action="?/edit" class="mt-auto ml-auto">
-		<input type="hidden" name="archived" value={!isArchived} />
-		<Button type="submit" aria-disabled={!isArchivable}>
+	<form method="POST" {action} class="mt-auto ml-auto" use:enhance>
+		<Button type="submit" disabled={!archivable} aria-disabled={!archivable}>
 			{#if isArchived}
 				<PhTrayArrowUpBold class="size-4" />
 			{:else}

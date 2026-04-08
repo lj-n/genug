@@ -14,6 +14,4 @@
 	});
 </script>
 
-<div class="py-12">
-	{@render children()}
-</div>
+{@render children()}

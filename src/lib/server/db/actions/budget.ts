@@ -108,7 +108,7 @@ export function createBudgetActions({
 				)
 				.where(
 					and(
-						isNull(tables.categories.archived_at),
+						isNull(tables.categories.archivedAt),
 						eq(tables.categories.budgetId, budgetId),
 						userHasPermission({
 							budgetIdCol: tables.categories.budgetId,

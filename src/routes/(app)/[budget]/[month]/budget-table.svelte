@@ -67,16 +67,16 @@
 	}
 </script>
 
-<div role="table">
+<div role="table" class="@container">
 	<div role="rowgroup">
-		<div role="row" class="flex">
-			<Head class="w-2/5">
+		<div role="row" class="flex @max-2xl:sr-only">
+			<Head class="w-2/5 @max-4xl:w-3/5">
 				{m.budget_monthly_table_header_category()}
 			</Head>
 			<Head class="w-1/5">
 				{m.budget_monthly_table_header_amount()}
 			</Head>
-			<Head class="w-1/5">
+			<Head class="w-1/5 @max-4xl:hidden">
 				{m.budget_monthly_table_header_activity()}
 			</Head>
 			<Head class="w-1/5">
@@ -121,7 +121,7 @@
 		<div
 			role="rowgroup"
 			bind:this={dragContainer}
-			class="overflow-hidden rounded-md border border-muted/10"
+			class="rounded-md border border-muted/10 @max-2xl:grid @max-2xl:gap-2 @max-2xl:border-0 @2xl:overflow-hidden"
 		>
 			{#each categories as row, index (row.id)}
 				{@const sortable = createSortable({
@@ -135,14 +135,19 @@
 				<div
 					role="row"
 					class={cn(
-						'group/row flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/5',
+						'group/row relative flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/5',
+						'@max-2xl:grid @max-2xl:grid-cols-2 @max-2xl:gap-y-6 @max-2xl:rounded-md @max-2xl:border @max-2xl:p-2 @max-2xl:last:border',
 						sortable.isDragging && 'border-b-0 shadow-lg ring-3 ring-interactive/50'
 					)}
 					data-dragging={sortable.isDragging ? 'true' : undefined}
 					{@attach sortable.attach}
 				>
 					<Cell
-						class={cn('w-2/5 flex-col items-start', row.currentTargetPercentage !== null && 'p-0')}
+						class={cn(
+							'w-2/5 flex-col items-start @max-4xl:w-3/5',
+							'@max-2xl:order-1 @max-2xl:w-full  @max-2xl:border-0 @max-2xl:text-lg @max-2xl:font-medium',
+							row.currentTargetPercentage !== null && 'p-0'
+						)}
 					>
 						<div class={cn('my-auto', row.currentTargetPercentage !== null && 'ml-2')}>
 							<a
@@ -156,7 +161,7 @@
 							</a>
 						</div>
 						{#if row.currentTargetPercentage !== null}
-							<div class="flex w-full">
+							<div class="flex w-full @max-2xl:absolute @max-2xl:inset-0 @max-2xl:items-start">
 								<div
 									class="h-1 bg-success/60"
 									style="width: {clamp(row.currentTargetPercentage, 0, 100)}%"
@@ -164,20 +169,44 @@
 							</div>
 						{/if}
 					</Cell>
-					<Cell class="w-1/5">{formatCurrency(row.thisMonthAmount)}</Cell>
-					<Cell class="w-1/5">{formatCurrency(row.thisMonthActivity)}</Cell>
-					<Cell class="w-1/5">
-						<div
-							class={cn(
-								'w-fit rounded-full border border-muted/20 bg-muted/10 px-2 font-currency',
-								row.thisMonthRemaining < 0 && 'border-error/50 bg-error/20',
-								row.thisMonthRemaining > 0 && 'border-success/80 bg-success/20'
-							)}
-						>
-							{formatCurrency(row.thisMonthRemaining)}
+
+					<Cell
+						class="w-1/5 @max-2xl:order-3 @max-2xl:w-full @max-2xl:justify-start @max-2xl:border-0"
+					>
+						<div class="flex flex-col items-start gap-1">
+							<span class="font-currency @max-2xl:text-lg">
+								{formatCurrency(row.thisMonthAmount)}
+							</span>
+							<span class="text-sm font-semibold text-muted @2xl:hidden">
+								{m.budget_monthly_table_header_amount()}
+							</span>
 						</div>
 					</Cell>
-					<Cell class="w-9">
+
+					<Cell class="w-1/5 @max-4xl:hidden @max-2xl:border-0">
+						{formatCurrency(row.thisMonthActivity)}
+					</Cell>
+
+					<Cell
+						class="w-1/5 @max-2xl:order-4 @max-2xl:w-full @max-2xl:justify-end @max-2xl:border-0"
+					>
+						<div class="flex flex-col items-end gap-1">
+							<span
+								class={cn(
+									'w-fit rounded-full border border-muted/20 bg-muted/10 px-2 font-currency @max-2xl:text-lg',
+									row.thisMonthRemaining < 0 && 'border-error/50 bg-error/20',
+									row.thisMonthRemaining > 0 && 'border-success/80 bg-success/20'
+								)}
+							>
+								{formatCurrency(row.thisMonthRemaining)}
+							</span>
+							<span class="text-sm font-semibold text-muted @2xl:hidden">
+								{m.budget_monthly_table_header_remaining()}
+							</span>
+						</div>
+					</Cell>
+
+					<Cell class="w-9 @max-2xl:order-2 @max-2xl:w-full @max-2xl:border-0 @max-2xl:last:p-2 ">
 						<button
 							class="flex size-9 cursor-grab items-center justify-center text-muted group-data-dragging/row:cursor-grabbing hover:text-interactive"
 							aria-label="Drag Handle"

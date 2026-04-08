@@ -1,6 +1,6 @@
 import { tables } from '$db';
 import { createMonthParam } from '$lib/utils/date-utils';
-import { and, eq, getColumns, inArray, isNull, sql } from 'drizzle-orm';
+import { and, eq, getColumns, inArray, isNotNull, isNull, sql } from 'drizzle-orm';
 
 import { userHasPermission } from './permissions';
 import queries from './queries';
@@ -72,6 +72,25 @@ export function createCategoryActions({
 				.all();
 		},
 
+		archived({ budgetId }: { budgetId: string }) {
+			return database
+				.select(selectColumns(database))
+				.from(tables.categories)
+				.where(
+					and(
+						isNotNull(tables.categories.archivedAt),
+						eq(tables.categories.budgetId, budgetId),
+						userHasPermission({
+							budgetIdCol: tables.categories.budgetId,
+							database,
+							userId: user.id
+						})
+					)
+				)
+				.groupBy(tables.categories.id)
+				.all();
+		},
+
 		getById({ id }: { id: string }) {
 			return database
 				.select(selectColumns(database))
@@ -96,7 +115,7 @@ export function createCategoryActions({
 				.where(
 					and(
 						inArray(tables.categories.id, orderedIds),
-						isNull(tables.categories.archived_at),
+						isNull(tables.categories.archivedAt),
 						userHasPermission({
 							budgetIdCol: tables.categories.budgetId,
 							database,
@@ -137,9 +156,11 @@ export function createCategoryActions({
 			data,
 			id
 		}: {
-			data: Pick<
-				typeof tables.categories.$inferInsert,
-				'archived_at' | 'name' | 'notes' | 'targetBalance'
+			data: Partial<
+				Pick<
+					typeof tables.categories.$inferInsert,
+					'archivedAt' | 'name' | 'notes' | 'targetBalance'
+				>
 			>;
 			id: string;
 		}) {

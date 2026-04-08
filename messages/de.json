@@ -42,5 +42,9 @@
 	"category_delete_button": "Löschen",
 	"category_stats_spent": "Bis jetzt ausgegeben",
 	"category_stats_target_percentage": "des Zielguthabens erreicht",
-	"category_stats_transaction_count": "Anzahl Transaktionen"
+	"category_stats_transaction_count": "Anzahl Transaktionen",
+	"category_archive_title": "Archivierte Kategorien",
+	"category_archive_description": "Hier findest du alle deine archivierten Kategorien. Du kannst sie jederzeit wiederherstellen, um sie erneut in deiner Budgetübersicht anzuzeigen und ihnen wieder Budgets zuweisen zu können.",
+	"category_archive_empty": "Du hast noch keine Kategorien archiviert. Wenn du eine Kategorie nicht mehr benötigst, kannst du sie archivieren, um deine Budgetübersicht übersichtlich zu halten.",
+	"category_archive_restore_button": "Wiederherstellen"
 }

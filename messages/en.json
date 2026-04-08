@@ -42,5 +42,9 @@
 	"category_delete_button": "Delete",
 	"category_stats_spent": "Spent so far",
 	"category_stats_target_percentage": "Of Target Amount Reached",
-	"category_stats_transaction_count": "Number of Transactions"
+	"category_stats_transaction_count": "Number of Transactions",
+	"category_archive_title": "Archived Categories",
+	"category_archive_description": "Here you can find all your archived categories. You can restore them at any time to display them again in your budget overview and to be able to assign budgets to them again.",
+	"category_archive_empty": "You haven't archived any categories yet. If you have a category you no longer need, you can archive it to keep your budget tidy.",
+	"category_archive_restore_button": "Restore"
 }

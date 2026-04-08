@@ -12,7 +12,11 @@
 	let selectedCategoryId = $state<null | string>(null);
 	let selectedCategory = $derived.by(() => {
 		if (!selectedCategoryId) return null;
-		return data.categories.find((c) => c.id === selectedCategoryId) ?? null;
+		return (
+			data.categories.find((c) => c.id === selectedCategoryId) ??
+			data.archivedCategories.find((c) => c.id === selectedCategoryId) ??
+			null
+		);
 	});
 </script>
 

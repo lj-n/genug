@@ -9,7 +9,12 @@ export const load: PageServerLoad = withPermissions(async (_user, actions, event
 		month: parseInt(event.params.month)
 	});
 
+	const archivedCategories = actions.category.archived({
+		budgetId: event.params.budget
+	});
+
 	return {
+		archivedCategories,
 		categories,
 		locale: getLocale()
 	};

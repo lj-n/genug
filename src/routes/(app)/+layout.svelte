@@ -22,6 +22,9 @@
 							{account.name}
 						</a>
 					{/each}
+					<a href={resolve('/(app)/[budget]/categories/archived', { budget: budgetId })}>
+						Archived Categories
+					</a>
 				</div>
 			</div>
 		{/each}
