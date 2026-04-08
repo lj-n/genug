@@ -8,7 +8,7 @@ export const load: PageServerLoad = withPermissions(
 	async (user, _actions, event: LayoutServerLoadEvent) => {
 		const { budgets } = await event.parent();
 
-		const budget = budgets.get(event.params.budget);
+		const budget = budgets.find((budget) => budget.id === event.params.budget);
 
 		if (!budget) {
 			error(404, 'Budget not found');
