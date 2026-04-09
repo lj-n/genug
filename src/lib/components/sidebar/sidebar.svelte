@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import { sortableList } from '$lib/utils/sort-helper';
 	import Sortable from 'sortablejs';
+	import { untrack } from 'svelte';
 
 	import SidebarAccounts from './sidebar-accounts.svelte';
 	import SidebarItem from './sidebar-item.svelte';
@@ -27,29 +28,25 @@
 		};
 	});
 
-	async function saveOrder({
+	let snapshot = untrack(() => budgets);
+
+	function saveOrder({
 		entity,
 		orderedIds
 	}: {
 		entity: 'account' | 'budget';
 		orderedIds: string[];
 	}) {
-		try {
-			const response = await fetch('/api/reorder', {
-				body: JSON.stringify({
-					entity,
-					orderedIds
-				}),
-				headers: {
-					'content-type': 'application/json'
-				},
-				method: 'POST'
-			});
-
-			if (response.ok) return;
-		} catch {
-			//
-		}
+		return fetch('/api/reorder', {
+			body: JSON.stringify({
+				entity,
+				orderedIds
+			}),
+			headers: {
+				'content-type': 'application/json'
+			},
+			method: 'POST'
+		});
 	}
 
 	const budgetSortOptions: Sortable.Options = {
@@ -60,6 +57,10 @@
 		group: 'budget',
 		handle: '[data-drag-handle]',
 
+		onStart() {
+			snapshot = budgets;
+		},
+
 		get sort() {
 			return budgets.length > 1;
 		},
@@ -68,13 +69,28 @@
 				get: () => {
 					return budgets.map((budget) => budget.id);
 				},
-				set: (sortable: Sortable) => {
+				set: async (sortable: Sortable) => {
 					const nextBudgets = sortable.toArray();
 
-					void saveOrder({
-						entity: 'budget',
-						orderedIds: nextBudgets
-					});
+					try {
+						const res = await saveOrder({
+							entity: 'budget',
+							orderedIds: nextBudgets
+						});
+						if (!res.ok) {
+							sortable.sort(
+								snapshot.map((budget) => budget.id),
+								true
+							);
+							budgets = snapshot;
+						}
+					} catch {
+						sortable.sort(
+							snapshot.map((budget) => budget.id),
+							true
+						);
+						budgets = snapshot;
+					}
 				}
 			};
 		}

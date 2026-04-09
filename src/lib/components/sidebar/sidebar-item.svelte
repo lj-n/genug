@@ -38,13 +38,17 @@
 			isActive && 'bg-info/10 hover:bg-info/15'
 		)}
 	>
-		<a {href} class={cn('flex w-full items-center p-2', !showSubIndicator && 'font-medium')}>
+		<a
+			{href}
+			aria-current={isActive ? 'page' : undefined}
+			class={cn('flex w-full items-center p-2', !showSubIndicator && 'font-medium')}
+		>
 			<SidebarIndicator {isActive} {showSubIndicator} />
 			{label}
 		</a>
 
 		{#if !dragDisabled}
-			<SidebarDragHandle {dragContainerId} />
+			<SidebarDragHandle {dragContainerId} dragLabel={label} />
 		{/if}
 	</div>
 

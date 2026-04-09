@@ -1,6 +1,6 @@
 import { withPermissions } from '$db/actions';
 import { entityOrderTypes } from '$db/tables';
-import { json } from '@sveltejs/kit';
+import { error, json } from '@sveltejs/kit';
 import { z } from 'zod';
 
 import type { RequestHandler } from './$types';
@@ -19,20 +19,14 @@ export const POST: RequestHandler = withPermissions(async (_user, actions, { loc
 	const session = locals.session;
 
 	if (!session) {
-		return json({ error: 'Unauthorized' }, { status: 401 });
+		error(401, 'Unauthorized');
 	}
 
 	const rawBody = await request.json();
 	const parsed = reorderSchema.safeParse(rawBody);
 
 	if (!parsed.success) {
-		return json(
-			{
-				error: 'Invalid payload',
-				issues: parsed.error.issues
-			},
-			{ status: 400 }
-		);
+		return error(400, 'Invalid request body');
 	}
 
 	try {
@@ -50,6 +44,6 @@ export const POST: RequestHandler = withPermissions(async (_user, actions, { loc
 
 		return json({ success: true });
 	} catch {
-		return json({ error: 'Unable to save order' }, { status: 400 });
+		error(400, 'Unable to save order');
 	}
 });

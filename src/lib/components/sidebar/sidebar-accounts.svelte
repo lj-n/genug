@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { sortableList } from '$lib/utils/sort-helper';
 	import Sortable from 'sortablejs';
+	import { untrack } from 'svelte';
 
 	import type { BudgetData } from './sidebar.svelte';
 
@@ -16,8 +17,10 @@
 		accounts: BudgetData[number]['accounts'];
 		budgetId: string;
 		isActive: (id: string) => boolean;
-		saveOrder: (args: { entity: 'account' | 'budget'; orderedIds: string[] }) => void;
+		saveOrder: (args: { entity: 'account' | 'budget'; orderedIds: string[] }) => Promise<Response>;
 	} = $props();
+
+	let snapshot = untrack(() => accounts);
 
 	const accountSortOptions: Sortable.Options = {
 		animation: 150,
@@ -40,13 +43,28 @@
 			get: () => {
 				return accounts.map((account) => account.id);
 			},
-			set: (sortable: Sortable) => {
+			set: async (sortable: Sortable) => {
 				const nextAccounts = sortable.toArray();
 
-				void saveOrder({
-					entity: 'account',
-					orderedIds: nextAccounts
-				});
+				try {
+					const res = await saveOrder({
+						entity: 'account',
+						orderedIds: nextAccounts
+					});
+					if (!res.ok) {
+						sortable.sort(
+							snapshot.map((account) => account.id),
+							true
+						);
+						accounts = snapshot;
+					}
+				} catch {
+					sortable.sort(
+						snapshot.map((account) => account.id),
+						true
+					);
+					accounts = snapshot;
+				}
 			}
 		}
 	};
