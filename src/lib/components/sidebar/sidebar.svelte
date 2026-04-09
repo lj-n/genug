@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import { sortableList } from '$lib/utils/sort-helper';
 	import Sortable from 'sortablejs';
-	import { onMount } from 'svelte';
 
 	import SidebarAccounts from './sidebar-accounts.svelte';
 	import SidebarItem from './sidebar-item.svelte';
@@ -25,42 +25,6 @@
 			if (page.params.budget) return page.params.budget === id;
 			return false;
 		};
-	});
-
-	let budgetContainerRef: HTMLElement;
-
-	onMount(() => {
-		if (!budgetContainerRef) return;
-
-		const sortable = new Sortable(budgetContainerRef, {
-			animation: 150,
-			dataIdAttr: 'data-drag-id',
-			direction: 'vertical',
-			draggable: '[data-drag-item]',
-			group: 'budget',
-			handle: '[data-drag-handle]',
-
-			get sort() {
-				return budgets.length > 1;
-			},
-			get store() {
-				return {
-					get: () => {
-						return budgets.map((budget) => budget.id);
-					},
-					set: (sortable: Sortable) => {
-						const nextBudgets = sortable.toArray();
-
-						void saveOrder({
-							entity: 'budget',
-							orderedIds: nextBudgets
-						});
-					}
-				};
-			}
-		});
-
-		return sortable.destroy;
 	});
 
 	async function saveOrder({
@@ -87,9 +51,37 @@
 			//
 		}
 	}
+
+	const budgetSortOptions: Sortable.Options = {
+		animation: 150,
+		dataIdAttr: 'data-drag-id',
+		direction: 'vertical',
+		draggable: '[data-drag-item]',
+		group: 'budget',
+		handle: '[data-drag-handle]',
+
+		get sort() {
+			return budgets.length > 1;
+		},
+		get store() {
+			return {
+				get: () => {
+					return budgets.map((budget) => budget.id);
+				},
+				set: (sortable: Sortable) => {
+					const nextBudgets = sortable.toArray();
+
+					void saveOrder({
+						entity: 'budget',
+						orderedIds: nextBudgets
+					});
+				}
+			};
+		}
+	};
 </script>
 
-<ul class="grid space-y-3" bind:this={budgetContainerRef}>
+<ul class="grid space-y-3" {@attach sortableList(budgetSortOptions)}>
 	{#each budgets as budget (budget.id)}
 		<SidebarItem
 			dragId={budget.id}

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { sortableList } from '$lib/utils/sort-helper';
 	import Sortable from 'sortablejs';
-	import { onMount } from 'svelte';
 
 	import type { BudgetData } from './sidebar.svelte';
 
@@ -19,40 +19,40 @@
 		saveOrder: (args: { entity: 'account' | 'budget'; orderedIds: string[] }) => void;
 	} = $props();
 
-	let sortContainerRef: HTMLElement;
+	const accountSortOptions: Sortable.Options = {
+		animation: 150,
+		dataIdAttr: 'data-drag-id',
+		direction: 'vertical',
+		get draggable() {
+			return `[data-drag-item="${budgetId}"]`;
+		},
+		get group() {
+			return budgetId;
+		},
+		get handle() {
+			return `[data-drag-handle="${budgetId}"]`;
+		},
 
-	onMount(() => {
-		if (!sortContainerRef) return;
-		const sortable = new Sortable(sortContainerRef, {
-			animation: 150,
-			dataIdAttr: 'data-drag-id',
-			direction: 'vertical',
-			draggable: `[data-drag-item="${budgetId}"]`,
-			group: budgetId,
-			handle: `[data-drag-handle="${budgetId}"]`,
-			get sort() {
-				return accounts.length > 1;
+		get sort() {
+			return accounts.length > 1;
+		},
+		store: {
+			get: () => {
+				return accounts.map((account) => account.id);
 			},
-			store: {
-				get: () => {
-					return accounts.map((account) => account.id);
-				},
-				set: (sortable: Sortable) => {
-					const nextAccounts = sortable.toArray();
+			set: (sortable: Sortable) => {
+				const nextAccounts = sortable.toArray();
 
-					void saveOrder({
-						entity: 'account',
-						orderedIds: nextAccounts
-					});
-				}
+				void saveOrder({
+					entity: 'account',
+					orderedIds: nextAccounts
+				});
 			}
-		});
-
-		return sortable.destroy;
-	});
+		}
+	};
 </script>
 
-<ul class="grid" bind:this={sortContainerRef}>
+<ul class="grid" {@attach sortableList(accountSortOptions)}>
 	{#each accounts as account (account.id)}
 		<SidebarItem
 			dragId={account.id}
