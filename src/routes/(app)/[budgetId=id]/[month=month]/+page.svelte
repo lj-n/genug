@@ -3,7 +3,7 @@
 
 	import type { PageProps } from './$types';
 
-	import CategoryDetail from '../categories/[categoryId]/category-detail.svelte';
+	import CategoryDetail from '../categories/[categoryId=id]/category-detail.svelte';
 	import BudgetTable from './budget-table.svelte';
 
 	let { data }: PageProps = $props();

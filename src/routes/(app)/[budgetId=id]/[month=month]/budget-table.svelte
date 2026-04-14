@@ -151,8 +151,8 @@
 					>
 						<div class={cn('my-auto', row.currentTargetPercentage !== null && 'ml-2')}>
 							<a
-								href={resolve('/(app)/[budget]/categories/[categoryId]', {
-									budget: row.budgetId,
+								href={resolve('/(app)/[budgetId=id]/categories/[categoryId=id]', {
+									budgetId: row.budgetId,
 									categoryId: row.id
 								})}
 								{@attach useDialog(() => openCategoryDialog(row))}

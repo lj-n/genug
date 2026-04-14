@@ -25,8 +25,8 @@ export const actions = {
 
 		const { accountName } = form.data;
 
-		const account = actions.account.create({ budgetId: event.params.budget, name: accountName });
+		const account = actions.account.create({ budgetId: event.params.budgetId, name: accountName });
 
-		redirect(303, `/${event.params.budget}?newAccount=${account.id}`);
+		redirect(303, `/${event.params.budgetId}?newAccount=${account.id}`);
 	})
 } satisfies Actions;

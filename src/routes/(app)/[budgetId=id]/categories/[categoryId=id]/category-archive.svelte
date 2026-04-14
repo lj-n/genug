@@ -32,12 +32,12 @@
 
 	let action = $derived(
 		isArchived
-			? resolve('/(app)/[budget]/categories/[categoryId]?/restore', {
-					budget: category.budgetId,
+			? resolve('/(app)/[budgetId=id]/categories/[categoryId=id]?/restore', {
+					budgetId: category.budgetId,
 					categoryId: category.id
 				})
-			: resolve('/(app)/[budget]/categories/[categoryId]?/archive', {
-					budget: category.budgetId,
+			: resolve('/(app)/[budgetId=id]/categories/[categoryId=id]?/archive', {
+					budgetId: category.budgetId,
 					categoryId: category.id
 				})
 	);

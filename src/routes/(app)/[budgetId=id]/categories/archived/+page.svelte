@@ -36,8 +36,8 @@
 					<div class="group flex rounded-md border border-muted/20 bg-surface p-2 shadow-xs">
 						<div class="flex flex-col gap-1">
 							<a
-								href={resolve('/(app)/[budget]/categories/[categoryId]', {
-									budget: category.budgetId,
+								href={resolve('/(app)/[budgetId=id]/categories/[categoryId=id]', {
+									budgetId: category.budgetId,
 									categoryId: category.id
 								})}
 								class="hover:underline"
@@ -56,8 +56,8 @@
 							class="ml-auto opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100"
 						>
 							<form
-								action={resolve('/(app)/[budget]/categories/[categoryId]?/restore', {
-									budget: category.budgetId,
+								action={resolve('/(app)/[budgetId=id]/categories/[categoryId=id]?/restore', {
+									budgetId: category.budgetId,
 									categoryId: category.id
 								})}
 								method="POST"
@@ -66,8 +66,8 @@
 										await update();
 										await new Promise((resolve) => setTimeout(resolve, 300));
 										goto(
-											resolve('/(app)/[budget]/[month]', {
-												budget: category.budgetId,
+											resolve('/(app)/[budgetId=id]/[month=month]', {
+												budgetId: category.budgetId,
 												month: createMonthParam().toString()
 											})
 										);
