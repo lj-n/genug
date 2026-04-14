@@ -46,6 +46,42 @@ export function createAccountActions({
 				.all();
 		},
 
+		create({ budgetId, name }: { budgetId: string; name: string }) {
+			return database.transaction((tx) => {
+				const budget = tx
+					.select({ id: tables.budgets.id })
+					.from(tables.budgets)
+					.where(
+						and(
+							eq(tables.budgets.id, budgetId),
+							userHasPermission({
+								budgetIdCol: tables.budgets.id,
+								database,
+								userId: user.id
+							})
+						)
+					)
+					.get();
+
+				if (!budget) {
+					throw new Error('Budget not found');
+				}
+
+				const account = tx.insert(tables.accounts).values({ budgetId, name }).returning().get();
+
+				tx.insert(tables.userEntityOrder)
+					.values({
+						entityId: account.id,
+						entityType: 'account',
+						position: 0,
+						userId: user.id
+					})
+					.execute();
+
+				return account;
+			});
+		},
+
 		reorder({ orderedIds }: { orderedIds: string[] }) {
 			const availableAccountIds = database
 				.select({ id: tables.accounts.id })

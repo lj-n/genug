@@ -5,6 +5,7 @@ import 'unplugin-icons/types/svelte';
 declare global {
 	namespace App {
 		type Actions = import('$db/actions').Actions;
+		type Budgets = ReturnType<Actions['budget']['all']>;
 		type Database = import('$db').Database;
 		// interface Error {}
 		interface Locals {

@@ -40,6 +40,28 @@ export function createBudgetActions({
 				.all();
 		},
 
+		create({ name }: { name: string }) {
+			return database.transaction((tx) => {
+				const budget = tx
+					.insert(tables.budgets)
+					.values({
+						name
+					})
+					.returning()
+					.get();
+
+				tx.insert(tables.usersToBudgets)
+					.values({
+						budgetId: budget.id,
+						role: 'OWNER',
+						userId: user.id
+					})
+					.execute();
+
+				return budget;
+			});
+		},
+
 		/**
 		 * Retrieves all categories for a given budget and month, along with various aggregated data such as activity, assigned budget, and related transactions.
 		 */

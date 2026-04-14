@@ -46,5 +46,20 @@
 	"category_archive_title": "Archived Categories",
 	"category_archive_description": "Here you can find all your archived categories. You can restore them at any time to display them again in your budget overview and to be able to assign budgets to them again.",
 	"category_archive_empty": "You haven't archived any categories yet. If you have a category you no longer need, you can archive it to keep your budget tidy.",
-	"category_archive_restore_button": "Restore"
+	"category_archive_restore_button": "Restore",
+	"new_budget_title": "Create New Budget Plan",
+	"new_budget_description": "A budget plan includes accounts, categories, and transactions. Create different budget plans to organise these elements separately. For example, you could create one budget plan for your personal finances and another one for your business finances.",
+	"budget_label_name": "Budget Name",
+	"budget_placeholder_name": "Give your budget a name",
+	"budget_create_button": "Create Budget",
+	"budget_error_duplicate_name": "A budget with this name already exists. Please choose a different name.",
+	"new_first_account_title": "Add your first account here",
+	"new_account_title": "Add a new account",
+	"new_account_description": "An account is basically a representation of your actual account. Create one account per bank account, credit card, etc. Each transaction will be assigned an account later on.",
+	"account_placeholder_name": "What should your account be called?",
+	"account_label_name": "Account Name",
+	"account_create_button": "Create Account",
+	"settings_title": "Settings",
+	"admin_settings_title": "Admin Settings",
+	"sign_out_button": "Sign out {username}"
 }

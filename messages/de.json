@@ -46,5 +46,21 @@
 	"category_archive_title": "Archivierte Kategorien",
 	"category_archive_description": "Hier findest du alle deine archivierten Kategorien. Du kannst sie jederzeit wiederherstellen, um sie erneut in deiner Budgetübersicht anzuzeigen und ihnen wieder Budgets zuweisen zu können.",
 	"category_archive_empty": "Du hast noch keine Kategorien archiviert. Wenn du eine Kategorie nicht mehr benötigst, kannst du sie archivieren, um deine Budgetübersicht übersichtlich zu halten.",
-	"category_archive_restore_button": "Wiederherstellen"
+	"category_archive_restore_button": "Wiederherstellen",
+	"new_budget_title": "Neuen Budgetplan erstellen",
+	"new_first_budget_title": "Erstelle deinen ersten Budgetplan",
+	"new_budget_description": "Ein Budgetplan besteht aus Konten, Kategorien und Transaktionen. Erstelle verschiedene Budgetpläne, um diese Elemente getrennt voneinander zu organisieren. Du könntest z. B. einen Budgetplan für deine privaten Finanzen und einen weiteren für deine geschäftlichen Finanzen erstellen.",
+	"budget_label_name": "Budgetname",
+	"budget_placeholder_name": "Gebe deinem Budget einen Namen",
+	"budget_create_button": "Budget erstellen",
+	"budget_error_duplicate_name": "Ein Budget mit diesem Namen existiert bereits. Bitte wähle einen anderen Namen.",
+	"new_first_account_title": "Füge hier dein erstes Konto hinzu",
+	"new_account_title": "Füge ein neues Konto hinzu",
+	"new_account_description": "Ein Konto ist quasi ein Abbild deines tatsächlichen Kontos. Erstelle jeweils ein Konto per Bankkonto, Kreditkarte etc. Zu jeder Transaktion wird später ein Konto zugeordnet.",
+	"account_placeholder_name": "Wie soll dein Konto heißen?",
+	"account_label_name": "Kontoname",
+	"account_create_button": "Konto erstellen",
+	"settings_title": "Einstellungen",
+	"admin_settings_title": "Admin-Einstellungen",
+	"sign_out_button": "{username} abmelden"
 }

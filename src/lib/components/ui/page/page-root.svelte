@@ -14,7 +14,7 @@
 
 <div
 	bind:this={ref}
-	class={cn('flex max-w-md flex-col gap-6 p-4 md:p-8', className)}
+	class={cn('flex w-full max-w-lg flex-col gap-6 p-4 md:p-8', className)}
 	{...restProps}
 >
 	{@render children?.()}
