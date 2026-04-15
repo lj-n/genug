@@ -1,0 +1,12 @@
+<script lang="ts">
+	import { Calendar as CalendarPrimitive } from 'bits-ui';
+	import { cn } from 'tailwind-variants';
+
+	let {
+		class: className,
+		ref = $bindable(null),
+		...restProps
+	}: CalendarPrimitive.GridHeadProps = $props();
+</script>
+
+<CalendarPrimitive.GridHead bind:ref class={cn(className)} {...restProps} />

@@ -14,6 +14,8 @@ export const load: PageServerLoad = withPermissions(async (_user, actions, event
 		budgetId: event.params.budgetId
 	});
 
+	const unassigned = actions.budget.getUnassigned({ budgetId: event.params.budgetId });
+
 	const { budget } = await event.parent();
 
 	if (budget.accounts.length === 0) {
@@ -23,6 +25,8 @@ export const load: PageServerLoad = withPermissions(async (_user, actions, event
 	return {
 		archivedCategories,
 		categories,
-		locale: getLocale()
+		locale: getLocale(),
+		month: event.params.month,
+		unassigned: unassigned?.sum || 0
 	};
 });

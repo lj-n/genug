@@ -24,7 +24,7 @@
 	const { enhance, form: formData } = form;
 </script>
 
-<Page.Root>
+<Page.Root class="max-w-lg">
 	<Page.Header>
 		<Page.Title>
 			{data.isFirstBudget ? m.new_first_budget_title() : m.new_budget_title()}

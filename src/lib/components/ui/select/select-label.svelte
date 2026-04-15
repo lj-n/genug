@@ -9,9 +9,14 @@
 		class: className,
 		ref = $bindable(null),
 		...restProps
-	}: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
+	}: WithElementRef<HTMLAttributes<HTMLDivElement>> & {} = $props();
 </script>
 
-<div bind:this={ref} class={cn('flex w-full flex-col gap-6 p-4 md:p-8', className)} {...restProps}>
+<div
+	bind:this={ref}
+	data-slot="select-label"
+	class={cn('px-2 py-1.5 text-xs text-muted', className)}
+	{...restProps}
+>
 	{@render children?.()}
 </div>

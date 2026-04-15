@@ -12,6 +12,11 @@
 	}: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
 </script>
 
-<div bind:this={ref} class={cn('flex w-full flex-col gap-6 p-4 md:p-8', className)} {...restProps}>
+<div
+	bind:this={ref}
+	data-slot="popover-header"
+	class={cn('flex flex-col gap-1 text-sm', className)}
+	{...restProps}
+>
 	{@render children?.()}
 </div>

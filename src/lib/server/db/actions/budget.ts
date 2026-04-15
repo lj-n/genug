@@ -63,6 +63,38 @@ export function createBudgetActions({
 		},
 
 		/**
+		 * Retrieves the total amount of money that has not been assigned to any category for a given budget.
+		 */
+		getUnassigned({ budgetId }: { budgetId: string }) {
+			return database
+				.select({
+					sum: sql<number>`
+					${queries.budget.totalSumOfIncome({
+						budgetId: tables.budgets.id,
+						database
+					})}
+					-
+					${queries.budget.totalSumOfAssingments({
+						budgetId: tables.budgets.id,
+						database
+					})}
+				`
+				})
+				.from(tables.budgets)
+				.where(
+					and(
+						eq(tables.budgets.id, budgetId),
+						userHasPermission({
+							budgetIdCol: tables.budgets.id,
+							database,
+							userId: user.id
+						})
+					)
+				)
+				.get();
+		},
+
+		/**
 		 * Retrieves all categories for a given budget and month, along with various aggregated data such as activity, assigned budget, and related transactions.
 		 */
 		month({ budgetId, month }: { budgetId: string; month: number }) {

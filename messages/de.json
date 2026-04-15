@@ -62,5 +62,13 @@
 	"account_create_button": "Konto erstellen",
 	"settings_title": "Einstellungen",
 	"admin_settings_title": "Admin-Einstellungen",
-	"sign_out_button": "{username} abmelden"
+	"sign_out_button": "{username} abmelden",
+	"unassigned_money_label": "noch nicht verteilt",
+	"all_assigned_money_label": "alles verteilt",
+	"negative_unassigned_money_label": "zu viel verteilt",
+	"budget_go_to_current_month": "Aktueller Monat",
+	"budget_select_previous_month": "Vorherigen Monat auswählen",
+	"budget_select_next_month": "Nächsten Monat auswählen",
+	"budget_select_previous_year": "Vorheriges Jahr auswählen",
+	"budget_select_next_year": "Nächstes Jahr auswählen"
 }

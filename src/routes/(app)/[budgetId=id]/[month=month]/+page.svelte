@@ -1,10 +1,16 @@
 <script lang="ts">
 	import * as Dialog from '$lib/components/ui/dialog';
+	import * as Page from '$lib/components/ui/page';
+	import { Separator } from '$lib/components/ui/separator';
+	import { createDateFromParams } from '$lib/utils/create-date-from-params';
 
 	import type { PageProps } from './$types';
 
 	import CategoryDetail from '../categories/[categoryId=id]/category-detail.svelte';
+	import AccountList from './account-list.svelte';
 	import BudgetTable from './budget-table.svelte';
+	import MonthSwitch from './month-switch.svelte';
+	import Unassigned from './unassigned.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -20,15 +26,35 @@
 	});
 </script>
 
-<div class="p-8">
-	<BudgetTable
-		categories={data.categories}
-		openCategoryDialog={(category) => {
-			selectedCategoryId = category.id;
-			open = true;
-		}}
-	/>
-</div>
+<Page.Root>
+	<Page.Header>
+		<Page.Title>
+			{data.budget.name}
+		</Page.Title>
+	</Page.Header>
+
+	<Page.Content>
+		<div class="flex justify-between gap-6">
+			<AccountList accounts={data.budget.accounts} />
+
+			<Unassigned unassigned={data.unassigned} />
+		</div>
+
+		<Separator orientation="horizontal" />
+
+		<div class="flex flex-col gap-3">
+			<MonthSwitch paramsDate={createDateFromParams(data.month)} />
+
+			<BudgetTable
+				categories={data.categories}
+				openCategoryDialog={(category) => {
+					selectedCategoryId = category.id;
+					open = true;
+				}}
+			/>
+		</div>
+	</Page.Content>
+</Page.Root>
 
 <Dialog.Root bind:open onOpenChangeComplete={(isOpen) => !isOpen && (selectedCategoryId = null)}>
 	<Dialog.Content class="max-w-4xl">

@@ -61,5 +61,13 @@
 	"account_create_button": "Create Account",
 	"settings_title": "Settings",
 	"admin_settings_title": "Admin Settings",
-	"sign_out_button": "Sign out {username}"
+	"sign_out_button": "Sign out {username}",
+	"unassigned_money_label": "not yet assigned",
+	"all_assigned_money_label": "all assigned",
+	"negative_unassigned_money_label": "too much assigned",
+	"budget_go_to_current_month": "Current Month",
+	"budget_select_previous_month": "Select previous month",
+	"budget_select_next_month": "Select next month",
+	"budget_select_previous_year": "Select previous year",
+	"budget_select_next_year": "Select next year"
 }
