@@ -63,7 +63,7 @@
 }: NavitemProps)}
 	<div
 		class={cn(
-			'group flex items-center gap-2 rounded-md bg-background transition-colors hover:bg-muted/5',
+			'group flex items-center gap-2 rounded-md transition-colors hover:bg-muted/5',
 			isActive && 'bg-info/10 text-info hover:bg-info/15'
 		)}
 	>
@@ -97,7 +97,7 @@
 	</div>
 {/snippet}
 
-<ul {@attach budgetSortable.attach} class="grid space-y-1">
+<ul {@attach budgetSortable.attach} class="grid space-y-1 px-2">
 	{#each budgets as budget (budget.id)}
 		<li class="flex flex-col" data-drag-item="budget" data-sortable-id={budget.id}>
 			{@render navitem({
@@ -126,7 +126,7 @@
 					sortedCallback: saveOrder('account')
 				})}
 
-				<ul {@attach accountSortable.attach} class="p-1">
+				<ul {@attach accountSortable.attach} class="p-2">
 					{#each budget.accounts as account (account.id)}
 						<li
 							data-drag-item={budget.id}

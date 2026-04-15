@@ -15,7 +15,7 @@
 
 	let { data }: PageProps = $props();
 
-	let open = $state(false);
+	let openCategoryDetail = $state(false);
 	let selectedCategoryId = $state<null | string>(null);
 	let selectedCategory = $derived.by(() => {
 		if (!selectedCategoryId) return null;
@@ -43,29 +43,32 @@
 
 		<Separator orientation="horizontal" />
 
-		<div class="flex flex-col gap-3">
-			<div class="flex items-end justify-between">
-				<MonthSwitch paramsDate={createDateFromParams(data.month)} />
+		<div class="flex items-end justify-between">
+			<MonthSwitch paramsDate={createDateFromParams(data.month)} />
 
-				<BudgetActions
-					archivedAmount={data.archivedCategories.length}
-					budgetId={data.budget.id}
-					form={data.createCategoryForm}
-				/>
-			</div>
-
-			<BudgetTable
-				categories={data.categories}
-				openCategoryDialog={(category) => {
-					selectedCategoryId = category.id;
-					open = true;
-				}}
+			<BudgetActions
+				archivedAmount={data.archivedCategories.length}
+				budgetId={data.budget.id}
+				form={data.createCategoryForm}
 			/>
 		</div>
+
+		<BudgetTable
+			categories={data.categories}
+			openCategoryDialog={(category) => {
+				selectedCategoryId = category.id;
+				openCategoryDetail = true;
+			}}
+			assignmentForm={data.assignmentForm}
+			month={data.month}
+		/>
 	</Page.Content>
 </Page.Root>
 
-<Dialog.Root bind:open onOpenChangeComplete={(isOpen) => !isOpen && (selectedCategoryId = null)}>
+<Dialog.Root
+	bind:open={openCategoryDetail}
+	onOpenChangeComplete={(isOpen) => !isOpen && (selectedCategoryId = null)}
+>
 	<Dialog.Content class="max-w-4xl">
 		{#if selectedCategory}
 			<CategoryDetail category={selectedCategory} />

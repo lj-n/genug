@@ -12,7 +12,7 @@
 
 <div class="grid space-y-2">
 	<div aria-hidden="true" class="text-sm text-muted">Konten</div>
-	<ul class="flex flex-wrap gap-4">
+	<ul class="flex flex-wrap gap-2">
 		{#each accounts as account (account.id)}
 			<li>
 				<a

@@ -72,5 +72,7 @@
 	"budget_select_previous_month": "Select previous month",
 	"budget_select_next_month": "Select next month",
 	"budget_select_previous_year": "Select previous year",
-	"budget_select_next_year": "Select next year"
+	"budget_select_next_year": "Select next year",
+	"new_category_title": "Add a new category",
+	"new_category_description": "Categories are the different areas where you spend your money, such as shopping, rent, leisure, etc. Create categories to keep track of your spending."
 }

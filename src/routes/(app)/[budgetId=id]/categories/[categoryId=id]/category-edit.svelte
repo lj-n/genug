@@ -60,7 +60,7 @@
 	class="relative flex flex-col gap-2"
 	use:enhance
 	method="POST"
-	action={resolve('/(app)/[budgetId=id]/categories/[categoryId=id]', {
+	action={resolve('/(app)/[budgetId=id]/categories/[categoryId=id]?/edit', {
 		budgetId: page.params.budgetId!,
 		categoryId: category.id
 	})}

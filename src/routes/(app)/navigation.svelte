@@ -43,7 +43,7 @@
 	<a
 		{href}
 		class={cn(
-			'group flex items-center gap-2 rounded-md bg-background p-2 transition-colors hover:bg-muted/5',
+			'group flex items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
 			isActive && 'bg-info/10 text-info hover:bg-info/15'
 		)}
 	>
@@ -54,8 +54,10 @@
 	</a>
 {/snippet}
 
-<nav class="sticky top-8 flex w-full max-w-80 flex-col gap-6 self-start p-2">
-	<a href={resolve('/')} class="w-fit">
+<nav
+	class="sticky top-8 flex w-full max-w-80 flex-col gap-2 self-start rounded-md border border-muted/10 bg-surface py-2 shadow-2xs"
+>
+	<a href={resolve('/')} class="w-fit px-2">
 		<Logo class="h-12" />
 	</a>
 
@@ -65,7 +67,7 @@
 
 	<Separator orientation="horizontal" />
 
-	<div class="grid space-y-2">
+	<div class="grid space-y-1 px-2">
 		{@render navitem({
 			href: resolve('/(app)/new'),
 			icon: plus,
@@ -92,7 +94,7 @@
 		<form action="/login?/logout" method="post" class="contents">
 			<button
 				type="submit"
-				class="group flex items-center gap-2 rounded-md bg-background p-2 transition-colors hover:cursor-pointer hover:bg-muted/5"
+				class="group flex items-center gap-2 rounded-md p-2 transition-colors hover:cursor-pointer hover:bg-muted/5"
 			>
 				<div aria-hidden="true">
 					<PhSignOut class="size-6 text-muted" />

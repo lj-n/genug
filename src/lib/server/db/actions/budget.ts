@@ -40,6 +40,53 @@ export function createBudgetActions({
 				.all();
 		},
 
+		assign({
+			amount,
+			budgetId,
+			categoryId,
+			month
+		}: {
+			amount: number;
+			budgetId: string;
+			categoryId: string;
+			month: number;
+		}) {
+			return database.transaction((tx) => {
+				const budget = tx
+					.select()
+					.from(tables.budgets)
+					.where(
+						and(
+							eq(tables.budgets.id, budgetId),
+							userHasPermission({
+								budgetIdCol: tables.budgets.id,
+								database,
+								userId: user.id
+							})
+						)
+					);
+
+				if (!budget) {
+					throw new Error('Budget not found');
+				}
+
+				return tx
+					.insert(tables.budgetAssignments)
+					.values({
+						amount,
+						budgetId,
+						categoryId,
+						month
+					})
+					.onConflictDoUpdate({
+						set: { amount },
+						target: [tables.budgetAssignments.categoryId, tables.budgetAssignments.month]
+					})
+					.returning()
+					.get();
+			});
+		},
+
 		create({ name }: { name: string }) {
 			return database.transaction((tx) => {
 				const budget = tx

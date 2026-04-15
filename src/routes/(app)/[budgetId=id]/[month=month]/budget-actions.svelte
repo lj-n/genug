@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
-	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
 	import * as Popover from '$lib/components/ui/popover';
@@ -10,7 +9,7 @@
 	import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { zod4Client } from 'sveltekit-superforms/adapters';
 	import PhArchive from '~icons/ph/archive';
-	import PhListPlus from '~icons/ph/list-plus';
+	import PhStackPlus from '~icons/ph/stack-plus';
 
 	import { createCategorySchema } from '../categories/new/schema';
 
@@ -25,30 +24,48 @@
 	const form = superForm(
 		untrack(() => createForm),
 		{
+			onUpdated(event) {
+				if (event.form.message?.type === 'success') {
+					open = false;
+				}
+			},
 			validators: zod4Client(createCategorySchema)
 		}
 	);
 
 	const { enhance, form: formData } = form;
+
+	let open = $state(false);
 </script>
 
-<ButtonGroup.Root>
-	<Popover.Root>
+<div class="flex gap-0.5">
+	<Popover.Root
+		bind:open
+		onOpenChangeComplete={(isOpen) => {
+			if (!isOpen) {
+				form.reset();
+			}
+		}}
+	>
+		<Button href={resolve('/(app)/[budgetId=id]/categories/new', { budgetId })} class="md:hidden">
+			<PhStackPlus class="size-6" />
+			{m.category_create_button()}
+		</Button>
+
 		<Popover.Trigger>
 			{#snippet child({ props })}
-				<Button {...props}>
-					<PhListPlus class="size-6" />
+				<Button {...props} class="hidden md:flex">
+					<PhStackPlus class="size-6" />
 					{m.category_create_button()}
 				</Button>
 			{/snippet}
 		</Popover.Trigger>
 
-		<Popover.Content align="end" class="w-fit p-2">
+		<Popover.Content align="end" class="w-fit p-4">
 			<form
 				use:enhance
 				action={resolve('/(app)/[budgetId=id]/categories/new', { budgetId })}
 				method="POST"
-				class="flex gap-1"
 			>
 				<Form.Field {form} name="categoryName" class="space-y-0">
 					<Form.Control>
@@ -63,10 +80,6 @@
 					</Form.Control>
 					<Form.FieldErrors />
 				</Form.Field>
-
-				<Form.Button>
-					{m.category_create_button()}
-				</Form.Button>
 			</form>
 		</Popover.Content>
 	</Popover.Root>
@@ -75,4 +88,4 @@
 		<PhArchive class="size-6" />
 		{m.category_archived_link({ amount: archivedAmount })}
 	</Button>
-</ButtonGroup.Root>
+</div>

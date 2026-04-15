@@ -73,5 +73,7 @@
 	"budget_select_previous_month": "Vorherigen Monat auswählen",
 	"budget_select_next_month": "Nächsten Monat auswählen",
 	"budget_select_previous_year": "Vorheriges Jahr auswählen",
-	"budget_select_next_year": "Nächstes Jahr auswählen"
+	"budget_select_next_year": "Nächstes Jahr auswählen",
+	"new_category_title": "Füge eine neue Kategorie hinzu",
+	"new_category_description": "Kategorien sind die verschiedenen Bereiche, in denen du dein Geld ausgibst, wie zum Beispiel Einkaufen, Miete, Freizeit etc. Erstelle Kategorien, um deinem Geld eine Bestimmung zu geben."
 }

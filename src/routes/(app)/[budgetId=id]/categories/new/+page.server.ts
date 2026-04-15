@@ -1,11 +1,19 @@
 import { withPermissions } from '$db/actions';
-import { fail } from '@sveltejs/kit';
-import { message, superValidate } from 'sveltekit-superforms';
+import { fail, redirect } from '@sveltejs/kit';
+import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
-import type { Actions } from './$types';
+import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
 
 import { createCategorySchema } from './schema';
+
+export const load: PageServerLoad = withPermissions(
+	async (_user, _actions, _event: PageServerLoadEvent) => {
+		return {
+			form: await superValidate(zod4(createCategorySchema))
+		};
+	}
+);
 
 export const actions = {
 	default: withPermissions(async (_user, actions, event) => {
@@ -16,6 +24,6 @@ export const actions = {
 
 		actions.category.create({ budgetId: event.params.budgetId, name: categoryName });
 
-		return message(form, { type: 'success' });
+		redirect(303, `/${event.params.budgetId}`);
 	})
 } satisfies Actions;

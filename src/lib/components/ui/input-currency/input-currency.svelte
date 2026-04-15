@@ -24,6 +24,7 @@
 		oninputvalue?: (values: CurrencyInputValues) => void;
 		prefix?: string;
 		ref?: HTMLInputElement | null;
+		selectOnFocus?: boolean;
 		step?: number;
 		suffix?: string;
 		transformRawValue?: (value: string) => string;
@@ -49,9 +50,11 @@
 		min,
 		name,
 		onchangevalue,
+		onfocus,
 		oninputvalue,
 		prefix,
 		ref = $bindable(null),
+		selectOnFocus = false,
 		step,
 		suffix,
 		transformRawValue,
@@ -139,6 +142,14 @@
 	{transformRawValue}
 	oninputvalue={handleInputValue}
 	onchangevalue={handleChangeValue}
+	onfocus={(ev) => {
+		if (selectOnFocus) {
+			ref?.select();
+		}
+		if (onfocus) {
+			onfocus(ev);
+		}
+	}}
 	{...restProps}
 />
 
