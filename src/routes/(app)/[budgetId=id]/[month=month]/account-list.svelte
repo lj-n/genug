@@ -20,16 +20,16 @@
 						accountId: account.id,
 						budgetId: account.budgetId
 					})}
-					class="group flex min-w-40 flex-col gap-0.5 rounded-md p-2 hover:bg-muted/5"
+					class="group flex min-w-40 flex-col gap-1 rounded-md p-2 hover:bg-muted/5"
 				>
-					<div class="flex items-center gap-2">
-						<div aria-hidden="true">
-							<PhPiggyBankDuoTone class="text-muted/70" />
-						</div>
-						{account.name}
-					</div>
+					<div>{account.name}</div>
 
-					<div class="font-currency">{formatCurrency(account.balance)}</div>
+					<div class="flex items-end gap-2">
+						<div aria-hidden="true">
+							<PhPiggyBankDuoTone class="text-muted" />
+						</div>
+						<div class="leading-tight font-currency">{formatCurrency(account.balance)}</div>
+					</div>
 				</a>
 			</li>
 		{/each}

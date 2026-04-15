@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -20,42 +22,73 @@
 	const currentDate = today(getLocalTimeZone());
 	const { formatDate } = getIntlContext();
 
-	let value = $derived(paramsDate);
+	let selectedMonth = $derived(paramsDate);
 
-	let allMonthsThisYear = $derived.by(() =>
-		Array.from({ length: 12 }, (_, i) => value.set({ month: i + 1 }))
+	let monthsInSelectedYear = $derived.by(() =>
+		Array.from({ length: 12 }, (_, i) => selectedMonth.set({ month: i + 1 }))
 	);
 
-	let isCurrentMonth = $derived.by(() => isSameMonth(value, currentDate));
+	let isCurrentMonth = $derived.by(() => isSameMonth(selectedMonth, currentDate));
 
-	function goToSelectedMonth(date: CalendarDate) {
+	function getMonthParam(date: CalendarDate) {
+		return createMonthParam(date.toDate(getLocalTimeZone())).toString();
+	}
+
+	function navigateToMonth(date: CalendarDate) {
+		selectedMonth = date;
 		goto(
 			resolve('/(app)/[budgetId=id]/[month=month]', {
 				budgetId: page.params.budgetId!,
-				month: createMonthParam(date.toDate(getLocalTimeZone())).toString()
-			})
+				month: getMonthParam(date)
+			}),
+			{ keepFocus: true }
 		);
+	}
+
+	function shiftMonth(delta: { months?: number; years?: number }) {
+		navigateToMonth(selectedMonth.add(delta));
 	}
 </script>
 
 <div>
-	<ButtonGroup.Root>
-		<Button
-			aria-label={m.budget_select_previous_month()}
-			size="icon"
-			onclick={() => {
-				value = value.subtract({ months: 1 });
-				goToSelectedMonth(value);
-			}}
-		>
-			<PhArrowFatLeftDuoTone />
+	{#snippet monthStepButton(ariaLabel: string, icon: Snippet, onClick: () => void)}
+		<Button aria-label={ariaLabel} size="icon" onclick={onClick}>
+			{@render icon()}
 		</Button>
+	{/snippet}
+
+	{#snippet yearStepButton(ariaLabel: string, icon: Snippet, onClick: () => void)}
+		<Button class="grow" variant="ghost" size="icon" aria-label={ariaLabel} onclick={onClick}>
+			{@render icon()}
+		</Button>
+	{/snippet}
+
+	{#snippet previousMonthIcon()}
+		<PhArrowFatLeftDuoTone />
+	{/snippet}
+
+	{#snippet nextMonthIcon()}
+		<PhArrowFatRightDuoTone />
+	{/snippet}
+
+	{#snippet previousYearIcon()}
+		<PhCaretLeft />
+	{/snippet}
+
+	{#snippet nextYearIcon()}
+		<PhCaretRight />
+	{/snippet}
+
+	<ButtonGroup.Root>
+		{@render monthStepButton(m.budget_select_previous_month(), previousMonthIcon, () =>
+			shiftMonth({ months: -1 })
+		)}
 
 		<Popover.Root>
 			<Popover.Trigger>
 				{#snippet child({ props })}
-					<Button {...props} class="min-w-26 text-xl font-bold text-foreground">
-						{formatDate(value, {
+					<Button {...props} class="min-w-26 font-bold text-foreground">
+						{formatDate(selectedMonth, {
 							month: 'short',
 							year: '2-digit'
 						})}
@@ -65,45 +98,25 @@
 
 			<Popover.Content align="center" class="w-50 gap-1 rounded-xl p-0 text-sm">
 				<ButtonGroup.Root class="w-full px-1 pt-1">
-					<Button
-						class="grow"
-						variant="ghost"
-						size="icon"
-						aria-label={m.budget_select_previous_year()}
-						onclick={() => {
-							value = value.subtract({ years: 1 });
-							goToSelectedMonth(value);
-						}}
-					>
-						<PhCaretLeft />
-					</Button>
+					{@render yearStepButton(m.budget_select_previous_year(), previousYearIcon, () =>
+						shiftMonth({ years: -1 })
+					)}
 
-					<ButtonGroup.Text>{formatDate(value, { year: 'numeric' })}</ButtonGroup.Text>
+					<ButtonGroup.Text>{formatDate(selectedMonth, { year: 'numeric' })}</ButtonGroup.Text>
 
-					<Button
-						class="grow"
-						variant="ghost"
-						size="icon"
-						aria-label={m.budget_select_next_year()}
-						onclick={() => {
-							value = value.add({ years: 1 });
-							goToSelectedMonth(value);
-						}}
-					>
-						<PhCaretRight />
-					</Button>
+					{@render yearStepButton(m.budget_select_next_year(), nextYearIcon, () =>
+						shiftMonth({ years: 1 })
+					)}
 				</ButtonGroup.Root>
 
 				<Separator />
 
 				<div class="grid grid-cols-3 gap-1 px-1 pb-1">
-					{#each allMonthsThisYear as month (month.toString())}
+					{#each monthsInSelectedYear as month (month.toString())}
 						<Button
+							class={isSameMonth(month, selectedMonth) ? 'bg-info/5 text-info' : undefined}
 							variant="ghost"
-							onclick={() => {
-								value = month;
-								goToSelectedMonth(value);
-							}}
+							onclick={() => navigateToMonth(month)}
 						>
 							{formatDate(month, { month: 'short' })}
 						</Button>
@@ -113,10 +126,7 @@
 						<Button
 							variant="ghost"
 							class="col-span-3 w-full"
-							onclick={() => {
-								value = currentDate;
-								goToSelectedMonth(value);
-							}}
+							onclick={() => navigateToMonth(currentDate)}
 						>
 							{m.budget_go_to_current_month()}
 						</Button>
@@ -125,15 +135,8 @@
 			</Popover.Content>
 		</Popover.Root>
 
-		<Button
-			aria-label={m.budget_select_next_month()}
-			size="icon"
-			onclick={() => {
-				value = value.add({ months: 1 });
-				goToSelectedMonth(value);
-			}}
-		>
-			<PhArrowFatRightDuoTone />
-		</Button>
+		{@render monthStepButton(m.budget_select_next_month(), nextMonthIcon, () =>
+			shiftMonth({ months: 1 })
+		)}
 	</ButtonGroup.Root>
 </div>

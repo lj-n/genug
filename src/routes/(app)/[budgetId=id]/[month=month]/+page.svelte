@@ -8,6 +8,7 @@
 
 	import CategoryDetail from '../categories/[categoryId=id]/category-detail.svelte';
 	import AccountList from './account-list.svelte';
+	import BudgetActions from './budget-actions.svelte';
 	import BudgetTable from './budget-table.svelte';
 	import MonthSwitch from './month-switch.svelte';
 	import Unassigned from './unassigned.svelte';
@@ -43,7 +44,15 @@
 		<Separator orientation="horizontal" />
 
 		<div class="flex flex-col gap-3">
-			<MonthSwitch paramsDate={createDateFromParams(data.month)} />
+			<div class="flex items-end justify-between">
+				<MonthSwitch paramsDate={createDateFromParams(data.month)} />
+
+				<BudgetActions
+					archivedAmount={data.archivedCategories.length}
+					budgetId={data.budget.id}
+					form={data.createCategoryForm}
+				/>
+			</div>
 
 			<BudgetTable
 				categories={data.categories}

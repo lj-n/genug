@@ -28,15 +28,15 @@
 </script>
 
 {#snippet plus(isActive: boolean)}
-	<PhPlus class={cn('size-6', isActive ? 'text-success' : 'text-muted/60')} />
+	<PhPlus class={cn('size-6', isActive ? 'text-success' : 'text-muted')} />
 {/snippet}
 
 {#snippet gear(isActive: boolean)}
-	<PhGearSix class={cn('size-6', isActive ? 'text-info' : 'text-muted/60')} />
+	<PhGearSix class={cn('size-6', isActive ? 'text-info' : 'text-muted')} />
 {/snippet}
 
 {#snippet wrench(isActive: boolean)}
-	<PhWrench class={cn('size-6', isActive ? 'text-info' : 'text-muted/60')} />
+	<PhWrench class={cn('size-6', isActive ? 'text-info' : 'text-muted')} />
 {/snippet}
 
 {#snippet navitem({ href, icon, isActive, label }: NavItemProps)}
@@ -95,7 +95,7 @@
 				class="group flex items-center gap-2 rounded-md bg-background p-2 transition-colors hover:cursor-pointer hover:bg-muted/5"
 			>
 				<div aria-hidden="true">
-					<PhSignOut class="size-6 text-muted/60" />
+					<PhSignOut class="size-6 text-muted" />
 				</div>
 				{m.sign_out_button({ username: user.username })}
 			</button>

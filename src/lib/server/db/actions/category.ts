@@ -91,6 +91,42 @@ export function createCategoryActions({
 				.all();
 		},
 
+		create({ budgetId, name }: { budgetId: string; name: string }) {
+			return database.transaction((tx) => {
+				const budget = tx
+					.select({ id: tables.budgets.id })
+					.from(tables.budgets)
+					.where(
+						and(
+							eq(tables.budgets.id, budgetId),
+							userHasPermission({
+								budgetIdCol: tables.budgets.id,
+								database,
+								userId: user.id
+							})
+						)
+					)
+					.get();
+
+				if (!budget) {
+					throw new Error('Budget not found');
+				}
+
+				const category = tx.insert(tables.categories).values({ budgetId, name }).returning().get();
+
+				tx.insert(tables.userEntityOrder)
+					.values({
+						entityId: category.id,
+						entityType: 'category',
+						position: 0,
+						userId: user.id
+					})
+					.execute();
+
+				return category;
+			});
+		},
+
 		getById({ id }: { id: string }) {
 			return database
 				.select(selectColumns(database))

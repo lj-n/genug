@@ -1,16 +1,15 @@
 <script lang="ts">
 	/* eslint-disable svelte/no-navigation-without-resolve */
 	import type { ResolvedPathname } from '$app/types';
-	import type { Snippet } from 'svelte';
 
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { isCurrentPage } from '$lib/utils/is-current-page';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
+	import { fade, slide } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
+	import PhDotOutlineDuotone from '~icons/ph/dot-outline-duotone';
 	import PhDotsSixVertical from '~icons/ph/dots-six-vertical';
-	import PhPiggyBankDuotone from '~icons/ph/piggy-bank-duotone';
-	import PhScalesDuotone from '~icons/ph/scales-duotone';
 
 	type BudgetData = Array<
 		ReturnType<App.Actions['budget']['all']>[number] & {
@@ -48,26 +47,16 @@
 		dragDisabled?: boolean;
 		dragHandleIdentifier: string;
 		href: ResolvedPathname;
-		icon: Snippet<[isActive: boolean]>;
 		isActive?: boolean;
 		isSubItem?: boolean;
 		name: string;
 	};
 </script>
 
-{#snippet budgetIcon(isActive = false)}
-	<PhScalesDuotone class={cn('size-6', isActive ? 'text-info' : 'text-muted/60')} />
-{/snippet}
-
-{#snippet accountIcon(isActive = false)}
-	<PhPiggyBankDuotone class={cn('size-6', isActive ? 'text-info' : 'text-muted/60')} />
-{/snippet}
-
 {#snippet navitem({
 	dragDisabled = false,
 	dragHandleIdentifier,
 	href,
-	icon,
 	isActive = false,
 	isSubItem = false,
 	name
@@ -78,10 +67,14 @@
 			isActive && 'bg-info/10 text-info hover:bg-info/15'
 		)}
 	>
-		<a {href} class={cn('flex w-full items-center gap-2 p-2', !isSubItem && 'font-medium')}>
-			<div aria-hidden="true">
-				{@render icon(isActive)}
-			</div>
+		<a {href} class={cn('flex w-full items-center p-2', !isSubItem && 'font-medium')}>
+			{#if isActive}
+				<div aria-hidden="true" transition:slide={{ axis: 'x' }}>
+					<div transition:fade>
+						<PhDotOutlineDuotone class="size-6 text-info" />
+					</div>
+				</div>
+			{/if}
 
 			{name}
 		</a>
@@ -104,14 +97,13 @@
 	</div>
 {/snippet}
 
-<ul {@attach budgetSortable.attach} class="grid space-y-2">
+<ul {@attach budgetSortable.attach} class="grid space-y-1">
 	{#each budgets as budget (budget.id)}
 		<li class="flex flex-col" data-drag-item="budget" data-sortable-id={budget.id}>
 			{@render navitem({
 				dragDisabled: budgets.length <= 1,
 				dragHandleIdentifier: 'budget',
-				href: resolve('/(app)/[budget]', { budget: budget.id }),
-				icon: budgetIcon,
+				href: resolve('/(app)/[budgetId=id]', { budgetId: budget.id }),
 				isActive: isCurrentPage(page, budget.id),
 				name: budget.name
 			})}
@@ -134,21 +126,20 @@
 					sortedCallback: saveOrder('account')
 				})}
 
-				<ul {@attach accountSortable.attach} class="p-2">
+				<ul {@attach accountSortable.attach} class="p-1">
 					{#each budget.accounts as account (account.id)}
 						<li
 							data-drag-item={budget.id}
 							data-sortable-id={account.id}
-							class="border-l border-muted/20 pl-2"
+							class="border-l border-muted/20 pl-1"
 						>
 							{@render navitem({
 								dragDisabled: budget.accounts.length <= 1,
 								dragHandleIdentifier: budget.id,
-								href: resolve('/(app)/[budget]/accounts/[account]', {
-									account: account.id,
-									budget: budget.id
+								href: resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', {
+									accountId: account.id,
+									budgetId: budget.id
 								}),
-								icon: accountIcon,
 								isActive: isCurrentPage(page, account.id),
 								isSubItem: true,
 								name: account.name

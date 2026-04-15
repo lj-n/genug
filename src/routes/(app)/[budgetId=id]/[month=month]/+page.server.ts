@@ -1,8 +1,12 @@
 import { withPermissions } from '$db/actions';
 import { getLocale } from '$lib/paraglide/runtime';
 import { redirect } from '@sveltejs/kit';
+import { superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { PageServerLoad } from './$types';
+
+import { createCategorySchema } from '../categories/new/schema';
 
 export const load: PageServerLoad = withPermissions(async (_user, actions, event) => {
 	const categories = actions.budget.month({
@@ -25,6 +29,7 @@ export const load: PageServerLoad = withPermissions(async (_user, actions, event
 	return {
 		archivedCategories,
 		categories,
+		createCategoryForm: await superValidate(zod4(createCategorySchema)),
 		locale: getLocale(),
 		month: event.params.month,
 		unassigned: unassigned?.sum || 0
