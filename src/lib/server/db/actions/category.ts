@@ -126,7 +126,6 @@ export function createCategoryActions({
 				return category;
 			});
 		},
-
 		getById({ id }: { id: string }) {
 			return database
 				.select(selectColumns(database))
@@ -142,6 +141,27 @@ export function createCategoryActions({
 					)
 				)
 				.get();
+		},
+
+		/**
+		 * Retrieves all transactions related to a specific category for a given month, including details such as amount, date, and description.
+		 */
+		monthActivity({ categoryId, month }: { categoryId: string; month: string }) {
+			return database
+				.select(getColumns(tables.transactions))
+				.from(tables.transactions)
+				.where(
+					and(
+						userHasPermission({
+							budgetIdCol: tables.transactions.budgetId,
+							database,
+							userId: user.id
+						}),
+						eq(tables.transactions.categoryId, categoryId),
+						eq(sql`strftime('%Y%m', ${tables.transactions.date})`, month)
+					)
+				)
+				.all();
 		},
 
 		reorder({ orderedIds }: { orderedIds: string[] }) {
