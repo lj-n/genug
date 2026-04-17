@@ -61,6 +61,7 @@
 	"new_account_description": "An account is basically a representation of your actual account. Create one account per bank account, credit card, etc. Each transaction will be assigned an account later on.",
 	"account_placeholder_name": "What should your account be called?",
 	"account_label_name": "Account Name",
+	"account_starting_balance_label": "What is the current balance?",
 	"account_create_button": "Create Account",
 	"settings_title": "Settings",
 	"admin_settings_title": "Admin Settings",
@@ -74,5 +75,6 @@
 	"budget_select_previous_year": "Select previous year",
 	"budget_select_next_year": "Select next year",
 	"new_category_title": "Add a new category",
-	"new_category_description": "Categories are the different areas where you spend your money, such as shopping, rent, leisure, etc. Create categories to keep track of your spending."
+	"new_category_description": "Categories are the different areas where you spend your money, such as shopping, rent, leisure, etc. Create categories to keep track of your spending.",
+	"account_error_duplicate_name": "An account with this name already exists."
 }

@@ -6,6 +6,7 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
 
+import { createAccountSchema } from '../accounts/new/schema';
 import { createCategorySchema } from '../categories/new/schema';
 import { assignmentSchema } from './schema';
 
@@ -31,6 +32,7 @@ export const load: PageServerLoad = withPermissions(async (_user, actions, event
 		archivedCategories,
 		assignmentForm: await superValidate(zod4(assignmentSchema)),
 		categories,
+		createAccountForm: await superValidate(zod4(createAccountSchema)),
 		createCategoryForm: await superValidate(zod4(createCategorySchema)),
 		locale: getLocale(),
 		month: event.params.month,

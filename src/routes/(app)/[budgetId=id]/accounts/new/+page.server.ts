@@ -1,32 +1,44 @@
 import { withPermissions } from '$db/actions';
-import { fail, redirect } from '@sveltejs/kit';
-import { superValidate } from 'sveltekit-superforms';
+import { m } from '$lib/paraglide/messages';
+import { isSqliteUniqueConstraintError } from '$lib/server/utils/is-sqlite-unique-constraint-error';
+import { fail } from '@sveltejs/kit';
+import { message, setError, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
 
-import { schema } from './schema';
+import { createAccountSchema } from './schema';
 
 export const load: PageServerLoad = withPermissions(
-	async (user, actions, event: PageServerLoadEvent) => {
+	async (_user, _actions, event: PageServerLoadEvent) => {
 		const { budget } = await event.parent();
 
 		return {
-			form: await superValidate(zod4(schema)),
+			form: await superValidate(zod4(createAccountSchema)),
 			isFirstAccount: budget.accounts.length === 0
 		};
 	}
 );
 
 export const actions = {
-	default: withPermissions(async (user, actions, event) => {
-		const form = await superValidate(event.request, zod4(schema));
+	default: withPermissions(async (_user, actions, event) => {
+		const form = await superValidate(event.request, zod4(createAccountSchema));
 		if (!form.valid) return fail(400, { form });
 
 		const { accountName } = form.data;
 
-		const account = actions.account.create({ budgetId: event.params.budgetId, name: accountName });
+		try {
+			const account = actions.account.create({
+				budgetId: event.params.budgetId,
+				name: accountName
+			});
+			return message(form, { text: account.id, type: 'success' });
+		} catch (error) {
+			if (isSqliteUniqueConstraintError(error)) {
+				return setError(form, 'accountName', m.account_error_duplicate_name());
+			}
 
-		redirect(303, `/${event.params.budgetId}?newAccount=${account.id}`);
+			return message(form, { type: 'error' });
+		}
 	})
 } satisfies Actions;

@@ -10,9 +10,9 @@
 
 	import type { PageData } from './$types';
 
-	import AssignmentForm from './assignment-form.svelte';
-	import Cell from './budget-cell.svelte';
-	import Head from './budget-head.svelte';
+	import BudgetTableCell from './budget-table-cell.svelte';
+	import BudgetTableHeader from './budget-table-header.svelte';
+	import CategoryAssignmentForm from './category-assignment-form.svelte';
 
 	type BudgetTableRow = PageData['categories'][number];
 
@@ -62,21 +62,21 @@
 <div role="table">
 	<div role="rowgroup">
 		<div role="row" class="flex">
-			<Head class="w-2/5">
+			<BudgetTableHeader class="w-2/5">
 				{m.budget_monthly_table_header_category()}
-			</Head>
-			<Head class="w-1/5">
+			</BudgetTableHeader>
+			<BudgetTableHeader class="w-1/5">
 				{m.budget_monthly_table_header_amount()}
-			</Head>
-			<Head class="w-1/5">
+			</BudgetTableHeader>
+			<BudgetTableHeader class="w-1/5">
 				{m.budget_monthly_table_header_activity()}
-			</Head>
-			<Head class="w-1/5">
+			</BudgetTableHeader>
+			<BudgetTableHeader class="w-1/5">
 				{m.budget_monthly_table_header_remaining()}
-			</Head>
-			<Head class="w-9">
+			</BudgetTableHeader>
+			<BudgetTableHeader class="w-9">
 				<span class="sr-only">{m.budget_monthly_table_header_actions()}</span>
-			</Head>
+			</BudgetTableHeader>
 		</div>
 	</div>
 
@@ -95,7 +95,7 @@
 					''
 				)}
 			>
-				<Cell class="relative flex w-2/5 p-0 hover:bg-surface">
+				<BudgetTableCell class="relative flex w-2/5 p-0 hover:bg-surface">
 					<a
 						class="flex size-full items-center px-2 -outline-offset-2 hover:bg-interactive/15 hover:outline-2 hover:outline-interactive/40"
 						href={resolve('/(app)/[budgetId=id]/categories/[categoryId=id]', {
@@ -114,10 +114,10 @@
 							></div>
 						</div>
 					{/if}
-				</Cell>
+				</BudgetTableCell>
 
-				<Cell class="relative w-1/5 justify-start p-0 hover:bg-surface">
-					<AssignmentForm
+				<BudgetTableCell class="relative w-1/5 justify-start p-0 hover:bg-surface">
+					<CategoryAssignmentForm
 						bind:open={
 							() => isActiveAssignment(row.id),
 							(newOpen) => {
@@ -132,25 +132,25 @@
 						form={assignmentForm}
 						{month}
 					/>
-				</Cell>
+				</BudgetTableCell>
 
-				<Cell class="w-1/5 font-currency">
+				<BudgetTableCell class="w-1/5 font-currency">
 					{formatCurrency(row.thisMonthActivity)}
-				</Cell>
+				</BudgetTableCell>
 
-				<Cell class="w-1/5 justify-end">
+				<BudgetTableCell class="w-1/5 justify-end">
 					<span
 						class={cn(
-							'w-fit rounded-full border border-muted/20 bg-muted/10 px-2 text-lg font-currency',
+							'w-fit rounded-full border border-muted/20 bg-muted/10 px-2 font-currency',
 							row.thisMonthRemaining < 0 && 'border-error/50 bg-error/20',
 							row.thisMonthRemaining > 0 && 'border-success/80 bg-success/20'
 						)}
 					>
 						{formatCurrency(row.thisMonthRemaining)}
 					</span>
-				</Cell>
+				</BudgetTableCell>
 
-				<Cell class="w-9 border-0 last:p-2 ">
+				<BudgetTableCell class="w-9 border-0 last:p-2 ">
 					<button
 						class="flex size-9 cursor-grab items-center justify-center text-muted hover:text-interactive"
 						data-drag-handle="category"
@@ -158,7 +158,7 @@
 					>
 						<PhDotsSixVerticalBold />
 					</button>
-				</Cell>
+				</BudgetTableCell>
 			</div>
 		{/each}
 	</div>

@@ -7,11 +7,11 @@
 	import type { PageProps } from './$types';
 
 	import CategoryDetail from '../categories/[categoryId=id]/category-detail.svelte';
-	import AccountList from './account-list.svelte';
-	import BudgetActions from './budget-actions.svelte';
-	import BudgetTable from './budget-table.svelte';
-	import MonthSwitch from './month-switch.svelte';
-	import Unassigned from './unassigned.svelte';
+	import BudgetAccountList from './budget-account-list.svelte';
+	import CategoryBudgetTable from './category-budget-table.svelte';
+	import CategoryQuickActions from './category-quick-actions.svelte';
+	import MonthNavigator from './month-navigator.svelte';
+	import UnassignedSummary from './unassigned-summary.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -36,24 +36,28 @@
 
 	<Page.Content>
 		<div class="flex justify-between gap-6">
-			<AccountList accounts={data.budget.accounts} />
+			<BudgetAccountList
+				accounts={data.budget.accounts}
+				createAccountForm={data.createAccountForm}
+				budgetId={data.budget.id}
+			/>
 
-			<Unassigned unassigned={data.unassigned} />
+			<UnassignedSummary unassigned={data.unassigned} />
 		</div>
 
 		<Separator orientation="horizontal" />
 
 		<div class="flex items-end justify-between">
-			<MonthSwitch paramsDate={createDateFromParams(data.month)} />
+			<MonthNavigator paramsDate={createDateFromParams(data.month)} />
 
-			<BudgetActions
+			<CategoryQuickActions
 				archivedAmount={data.archivedCategories.length}
 				budgetId={data.budget.id}
 				form={data.createCategoryForm}
 			/>
 		</div>
 
-		<BudgetTable
+		<CategoryBudgetTable
 			categories={data.categories}
 			openCategoryDialog={(category) => {
 				selectedCategoryId = category.id;

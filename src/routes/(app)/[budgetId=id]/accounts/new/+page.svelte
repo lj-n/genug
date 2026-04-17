@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
 	import * as Page from '$lib/components/ui/page';
@@ -10,14 +12,19 @@
 
 	import type { PageProps } from './$types';
 
-	import { schema } from './schema';
+	import { createAccountSchema } from './schema';
 
 	let { data }: PageProps = $props();
 
 	const form = superForm(
 		untrack(() => data.form),
 		{
-			validators: zod4Client(schema)
+			onUpdated: (event) => {
+				if (event.form.message?.type === 'success') {
+					goto(resolve('/(app)/[budgetId=id]', { budgetId: data.budget.id }));
+				}
+			},
+			validators: zod4Client(createAccountSchema)
 		}
 	);
 
