@@ -6,9 +6,8 @@
 	import { page } from '$app/state';
 	import { isCurrentPage } from '$lib/utils/is-current-page';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
-	import { fade, slide } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
-	import PhDotOutlineDuotone from '~icons/ph/dot-outline-duotone';
+	import PhArrowBendDownRightBold from '~icons/ph/arrow-bend-down-right-bold';
 	import PhDotsSixVertical from '~icons/ph/dots-six-vertical';
 
 	type BudgetData = Array<
@@ -63,19 +62,11 @@
 }: NavitemProps)}
 	<div
 		class={cn(
-			'group flex items-center gap-2 rounded-md transition-colors hover:bg-muted/5',
+			'group flex grow items-center gap-2 rounded-md transition-colors hover:bg-muted/5',
 			isActive && 'bg-info/10 text-info hover:bg-info/15'
 		)}
 	>
 		<a {href} class={cn('flex w-full items-center p-2', !isSubItem && 'font-medium')}>
-			{#if isActive}
-				<div aria-hidden="true" transition:slide={{ axis: 'x' }}>
-					<div transition:fade>
-						<PhDotOutlineDuotone class="size-6 text-info" />
-					</div>
-				</div>
-			{/if}
-
 			{name}
 		</a>
 
@@ -97,9 +88,9 @@
 	</div>
 {/snippet}
 
-<ul {@attach budgetSortable.attach} class="grid space-y-1 px-2">
+<ul {@attach budgetSortable.attach} class="grid space-y-2">
 	{#each budgets as budget (budget.id)}
-		<li class="flex flex-col" data-drag-item="budget" data-sortable-id={budget.id}>
+		<li class="grid space-y-1" data-drag-item="budget" data-sortable-id={budget.id}>
 			{@render navitem({
 				dragDisabled: budgets.length <= 1,
 				dragHandleIdentifier: 'budget',
@@ -126,13 +117,14 @@
 					sortedCallback: saveOrder('account')
 				})}
 
-				<ul {@attach accountSortable.attach} class="p-2">
+				<ul {@attach accountSortable.attach} class="space-y-0.5 pl-2">
 					{#each budget.accounts as account (account.id)}
-						<li
-							data-drag-item={budget.id}
-							data-sortable-id={account.id}
-							class="border-l border-muted/20 pl-1"
-						>
+						{@const isActive = isCurrentPage(page, account.id)}
+						<li data-drag-item={budget.id} data-sortable-id={account.id} class="flex">
+							<div class={cn('mx-1 my-auto aspect-square', isActive ? 'text-info' : 'text-muted')}>
+								<PhArrowBendDownRightBold class="size-3" />
+							</div>
+
 							{@render navitem({
 								dragDisabled: budget.accounts.length <= 1,
 								dragHandleIdentifier: budget.id,
@@ -140,7 +132,7 @@
 									accountId: account.id,
 									budgetId: budget.id
 								}),
-								isActive: isCurrentPage(page, account.id),
+								isActive,
 								isSubItem: true,
 								name: account.name
 							})}

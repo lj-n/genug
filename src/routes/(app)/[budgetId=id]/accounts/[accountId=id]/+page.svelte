@@ -1,7 +1,17 @@
 <script lang="ts">
+	import * as Page from '$lib/components/ui/page';
+
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 </script>
 
-<h1 class="text-2xl font-bold">{data.account.name}</h1>
+<Page.Root>
+	<Page.Header>
+		<Page.Title>
+			{data.account.name}
+		</Page.Title>
+	</Page.Header>
+
+	<Page.Content>hello</Page.Content>
+</Page.Root>

@@ -6,7 +6,6 @@
 	import { page } from '$app/state';
 	import Logo from '$lib/components/logo.svelte';
 	import SideMenu from '$lib/components/side-menu.svelte';
-	import { Separator } from '$lib/components/ui/separator';
 	import { m } from '$lib/paraglide/messages';
 	import { isCurrentPage } from '$lib/utils/is-current-page';
 	import { cn } from 'tailwind-variants';
@@ -54,20 +53,16 @@
 	</a>
 {/snippet}
 
-<nav
-	class="sticky top-8 flex w-full max-w-80 flex-col gap-2 self-start rounded-md border border-muted/10 bg-surface py-2 shadow-2xs"
->
-	<a href={resolve('/')} class="w-fit px-2">
+<nav class="sticky top-8 flex w-72 flex-col self-start">
+	<a href={resolve('/')} class="w-fit">
 		<Logo class="h-12" />
 	</a>
 
-	<Separator orientation="horizontal" />
+	<div class="my-6">
+		<SideMenu {budgets} />
+	</div>
 
-	<SideMenu {budgets} />
-
-	<Separator orientation="horizontal" />
-
-	<div class="grid space-y-1 px-2">
+	<div class="grid space-y-0.5">
 		{@render navitem({
 			href: resolve('/(app)/new'),
 			icon: plus,

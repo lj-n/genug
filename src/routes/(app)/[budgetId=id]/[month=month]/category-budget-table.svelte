@@ -82,7 +82,7 @@
 
 	<div
 		role="rowgroup"
-		class="grid overflow-hidden rounded-md border border-muted/10"
+		class="grid overflow-hidden rounded-xs border border-muted/20"
 		{@attach categorySortable.attach}
 	>
 		{#each categories as row (row.id)}
