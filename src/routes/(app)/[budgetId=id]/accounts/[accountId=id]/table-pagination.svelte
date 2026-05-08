@@ -4,6 +4,7 @@
 	import { page as pageState } from '$app/state';
 	import * as Pagination from '$lib/components/ui/pagination';
 	import * as Select from '$lib/components/ui/select';
+	import { m } from '$lib/paraglide/messages';
 
 	import type { PaginationState } from './types';
 
@@ -39,7 +40,11 @@
 		const currentPage = Math.min(page, pageCount);
 		const start = pageTotalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
 		const end = pageTotalCount === 0 ? 0 : Math.min(start + pageSize - 1, pageTotalCount);
-		return `Showing ${start} - ${end} of ${pageTotalCount}`;
+		return m.transactions_pagination_showing({
+			start: String(start),
+			end: String(end),
+			total: String(pageTotalCount)
+		});
 	});
 </script>
 
@@ -57,16 +62,17 @@
 		>
 			<Select.Trigger
 				class="h-auto w-fit border-none bg-transparent px-2 py-1"
-				aria-label="How many transactions should be displayed per page?"
+				aria-label={m.transactions_pagination_page_size_label()}
 			>
-				{pageSize} per page
+				{m.transactions_pagination_per_page({ count: String(pageSize) })}
 			</Select.Trigger>
 			<Select.Content>
-				<Select.Item value="15">15 per page</Select.Item>
-				<Select.Item value="25">25 per page</Select.Item>
-				<Select.Item value="50">50 per page</Select.Item>
-				<Select.Item value="75">75 per page</Select.Item>
-				<Select.Item value="100">100 per page</Select.Item>
+				<Select.Item value="15">{m.transactions_pagination_per_page({ count: '15' })}</Select.Item>
+				<Select.Item value="25">{m.transactions_pagination_per_page({ count: '25' })}</Select.Item>
+				<Select.Item value="50">{m.transactions_pagination_per_page({ count: '50' })}</Select.Item>
+				<Select.Item value="75">{m.transactions_pagination_per_page({ count: '75' })}</Select.Item>
+				<Select.Item value="100">{m.transactions_pagination_per_page({ count: '100' })}</Select.Item
+				>
 			</Select.Content>
 		</Select.Root>
 
