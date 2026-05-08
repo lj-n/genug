@@ -86,5 +86,9 @@
 	"transactions_table_without_category": "Ohne Kategorie",
 	"transactions_pagination_per_page": "{count} pro Seite",
 	"transactions_pagination_showing": "{start} - {end} von {total}",
-	"transactions_pagination_page_size_label": "Wie viele Transaktionen sollen pro Seite angezeigt werden?"
+	"transactions_pagination_page_size_label": "Wie viele Transaktionen sollen pro Seite angezeigt werden?",
+	"pagination_previous": "Zurück",
+	"pagination_next": "Weiter",
+	"dialog_close": "Schließen",
+	"category_detail_title": "Kategorie"
 }

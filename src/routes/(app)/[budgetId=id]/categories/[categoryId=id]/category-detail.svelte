@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Separator } from '$lib/components/ui/separator';
+	import { m } from '$lib/paraglide/messages';
 	import PhHashDuotone from '~icons/ph/hash-duotone';
 
 	import type { PageData } from './$types';
@@ -15,7 +16,7 @@
 <div class="@container w-full">
 	<div class="grid gap-6 @3xl:grid-cols-2">
 		<h1 class="flex items-center gap-2 tracking-tighter italic @3xl:col-span-2">
-			<span class="text-xl font-semibold">Category</span>
+			<span class="text-xl font-semibold">{m.category_detail_title()}</span>
 
 			<span
 				class="flex items-center gap-0.5 rounded-md bg-info/10 px-1 font-mono text-sm text-info"

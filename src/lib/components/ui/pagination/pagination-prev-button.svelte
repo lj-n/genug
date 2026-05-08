@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { buttonVariants } from '$lib/components/ui/button';
+	import { m } from '$lib/paraglide/messages';
 	import { Pagination as PaginationPrimitive } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
 	import PhCaretLeft from '~icons/ph/caret-left';
@@ -14,7 +15,7 @@
 
 {#snippet Fallback()}
 	<PhCaretLeft class={cn('size-4', className)} />
-	<span>Previous</span>
+	<span>{m.pagination_previous()}</span>
 {/snippet}
 
 <PaginationPrimitive.PrevButton

@@ -3,6 +3,7 @@
 	import type { ComponentProps } from 'svelte';
 
 	import { Button } from '$lib/components/ui/button/index.js';
+	import { m } from '$lib/paraglide/messages';
 	import { Dialog as DialogPrimitive, type WithoutChildrenOrChild } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
 	import PhX from '~icons/ph/x';
@@ -41,7 +42,7 @@
 				{#snippet child({ props })}
 					<Button variant="ghost" class="absolute top-4 right-4" size="icon" {...props}>
 						<PhX />
-						<span class="sr-only">Close</span>
+						<span class="sr-only">{m.dialog_close()}</span>
 					</Button>
 				{/snippet}
 			</DialogPrimitive.Close>

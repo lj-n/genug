@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { buttonVariants } from '$lib/components/ui/button';
+	import { m } from '$lib/paraglide/messages';
 	import { Pagination as PaginationPrimitive } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
 	import PhCaretRight from '~icons/ph/caret-right';
@@ -13,7 +14,7 @@
 </script>
 
 {#snippet Fallback()}
-	<span>Next</span>
+	<span>{m.pagination_next()}</span>
 	<PhCaretRight class={cn('size-4', className)} />
 {/snippet}
 

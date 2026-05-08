@@ -85,5 +85,9 @@
 	"transactions_table_without_category": "Without Category",
 	"transactions_pagination_per_page": "{count} per page",
 	"transactions_pagination_showing": "Showing {start} - {end} of {total}",
-	"transactions_pagination_page_size_label": "How many transactions should be displayed per page?"
+	"transactions_pagination_page_size_label": "How many transactions should be displayed per page?",
+	"pagination_previous": "Previous",
+	"pagination_next": "Next",
+	"dialog_close": "Close",
+	"category_detail_title": "Category"
 }
