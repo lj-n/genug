@@ -3,5 +3,5 @@
 </script>
 
 <div class="grid size-full items-center justify-items-start">
-	<span class="truncate">{notes}</span>
+	<span class="truncate text-sm">{notes}</span>
 </div>

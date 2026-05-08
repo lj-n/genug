@@ -1,7 +1,7 @@
 import type { ColumnDef } from '@tanstack/table-core';
 
-import { m } from '$lib/paraglide/messages';
 import { renderComponent } from '$lib/components/ui/data-table';
+import { m } from '$lib/paraglide/messages';
 
 import type { TransactionRow } from './types';
 

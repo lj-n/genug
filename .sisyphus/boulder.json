@@ -1,32 +1,32 @@
 {
-  "active_plan": "/Users/linus/dev/personal/genug-da/.sisyphus/plans/transaction-query.md",
-  "started_at": "2026-05-06T16:14:35.479Z",
+  "active_plan": "/Users/linus/dev/personal/genug-da/.sisyphus/plans/transaction-pages-i18n.md",
+  "started_at": "2026-05-08T10:49:58.300Z",
   "session_ids": [
-    "ses_201fdfa6fffeF0iGAuB6VWmPJi"
+    "ses_1f8d4dad8ffeufUk2mVCAKEqXR"
   ],
   "session_origins": {
-    "ses_201fdfa6fffeF0iGAuB6VWmPJi": "direct"
+    "ses_1f8d4dad8ffeufUk2mVCAKEqXR": "direct"
   },
-  "plan_name": "transaction-query",
+  "plan_name": "transaction-pages-i18n",
   "agent": "atlas",
   "task_sessions": {
+    "todo:1": {
+      "task_key": "todo:1",
+      "task_label": "1",
+      "task_title": "Add translation keys to message files",
+      "session_id": "ses_1f8ca53c4ffe9Oy9obrTt257yN",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-05-08T10:51:17.067Z"
+    },
     "todo:2": {
       "task_key": "todo:2",
       "task_label": "2",
-      "task_title": "Register in Actions class",
-      "session_id": "ses_201e9a062ffeqcNEMLETj7Rprh",
+      "task_title": "Update transaction-table-columns.ts with translation calls",
+      "session_id": "ses_1f8c91276ffehvsx09vfzJmI9H",
       "agent": "Sisyphus-Junior",
       "category": "quick",
-      "updated_at": "2026-05-06T16:20:32.910Z"
-    },
-    "todo:3": {
-      "task_key": "todo:3",
-      "task_label": "3",
-      "task_title": "Use in page.server.ts load function",
-      "session_id": "ses_201e7d408fferhPSSckhCQIf8o",
-      "agent": "Sisyphus-Junior",
-      "category": "quick",
-      "updated_at": "2026-05-06T16:22:23.768Z"
+      "updated_at": "2026-05-08T10:57:10.216Z"
     }
   }
 }
