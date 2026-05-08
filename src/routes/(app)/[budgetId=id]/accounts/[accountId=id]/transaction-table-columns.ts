@@ -1,5 +1,6 @@
 import type { ColumnDef } from '@tanstack/table-core';
 
+import { m } from '$lib/paraglide/messages';
 import { renderComponent } from '$lib/components/ui/data-table';
 
 import type { TransactionRow } from './types';
@@ -20,7 +21,7 @@ export const columns: ColumnDef<TransactionRow>[] = [
 			}),
 		header: ({ table }) =>
 			renderComponent(TableCellSelection, {
-				'aria-label': 'Select all',
+				'aria-label': m.transactions_table_select_all(),
 				checked: table.getIsAllPageRowsSelected(),
 				indeterminate: table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected(),
 				onCheckedChange: (value) => table.toggleAllPageRowsSelected(!!value)
@@ -31,25 +32,25 @@ export const columns: ColumnDef<TransactionRow>[] = [
 		accessorKey: 'categoryName',
 		cell: ({ getValue }) =>
 			renderComponent(TableCellCategory, { categoryName: getValue() as string }),
-		header: 'Category',
+		header: m.transactions_table_header_category(),
 		id: 'categoryName'
 	},
 	{
 		accessorKey: 'notes',
 		cell: ({ getValue }) => renderComponent(TableCellNotes, { notes: getValue() as string }),
-		header: 'Notes',
+		header: m.transactions_table_header_notes(),
 		id: 'notes'
 	},
 	{
 		accessorKey: 'date',
 		cell: ({ getValue }) => renderComponent(TableCellDate, { date: getValue() as string }),
-		header: 'Date',
+		header: m.transactions_table_header_date(),
 		id: 'date'
 	},
 	{
 		accessorKey: 'amount',
 		cell: ({ getValue }) => renderComponent(TableCellAmount, { amount: getValue() as number }),
-		header: 'Amount',
+		header: m.transactions_table_header_amount(),
 		id: 'amount'
 	},
 	{
