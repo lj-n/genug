@@ -76,5 +76,14 @@
 	"budget_select_next_year": "Select next year",
 	"new_category_title": "Add a new category",
 	"new_category_description": "Categories are the different areas where you spend your money, such as shopping, rent, leisure, etc. Create categories to keep track of your spending.",
-	"account_error_duplicate_name": "An account with this name already exists."
+	"account_error_duplicate_name": "An account with this name already exists.",
+	"transactions_table_header_category": "Category",
+	"transactions_table_header_notes": "Notes",
+	"transactions_table_header_date": "Date",
+	"transactions_table_header_amount": "Amount",
+	"transactions_table_select_all": "Select all",
+	"transactions_table_without_category": "Without Category",
+	"transactions_pagination_per_page": "{count} per page",
+	"transactions_pagination_showing": "Showing {start} - {end} of {total}",
+	"transactions_pagination_page_size_label": "How many transactions should be displayed per page?"
 }

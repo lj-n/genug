@@ -77,5 +77,14 @@
 	"budget_select_next_year": "Nächstes Jahr auswählen",
 	"new_category_title": "Füge eine neue Kategorie hinzu",
 	"new_category_description": "Kategorien sind die verschiedenen Bereiche, in denen du dein Geld ausgibst, wie zum Beispiel Einkaufen, Miete, Freizeit etc. Erstelle Kategorien, um deinem Geld eine Bestimmung zu geben.",
-	"account_error_duplicate_name": "Ein Konto mit diesem Namen existiert bereits."
+	"account_error_duplicate_name": "Ein Konto mit diesem Namen existiert bereits.",
+	"transactions_table_header_category": "Kategorie",
+	"transactions_table_header_notes": "Notizen",
+	"transactions_table_header_date": "Datum",
+	"transactions_table_header_amount": "Betrag",
+	"transactions_table_select_all": "Alle auswählen",
+	"transactions_table_without_category": "Ohne Kategorie",
+	"transactions_pagination_per_page": "{count} pro Seite",
+	"transactions_pagination_showing": "{start} - {end} von {total}",
+	"transactions_pagination_page_size_label": "Wie viele Transaktionen sollen pro Seite angezeigt werden?"
 }
