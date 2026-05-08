@@ -9,9 +9,14 @@
 		class: className,
 		ref = $bindable(null),
 		...restProps
-	}: WithElementRef<HTMLAttributes<HTMLTableSectionElement>> = $props();
+	}: WithElementRef<HTMLAttributes<HTMLUListElement>> = $props();
 </script>
 
-<tbody bind:this={ref} data-slot="table-body" class={cn('', className)} {...restProps}>
+<ul
+	bind:this={ref}
+	data-slot="pagination-content"
+	class={cn('flex items-center gap-1', className)}
+	{...restProps}
+>
 	{@render children?.()}
-</tbody>
+</ul>

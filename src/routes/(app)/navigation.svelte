@@ -53,7 +53,7 @@
 	</a>
 {/snippet}
 
-<nav class="sticky top-8 flex w-72 flex-col self-start">
+<nav class="sticky top-8 flex w-full max-w-72 flex-col self-start">
 	<a href={resolve('/')} class="w-fit">
 		<Logo class="h-12" />
 	</a>

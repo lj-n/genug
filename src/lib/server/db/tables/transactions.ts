@@ -49,7 +49,7 @@ export const transactions = sqliteTable(
 			columns: [t.categoryId, t.budgetId],
 			foreignColumns: [categories.id, categories.budgetId]
 		}),
-		check('date_format', sql`${t.date} LIKE '____-__-__'`)
+		check('date_format', sql`${t.date} LIKE '____-__-__'`) // YYYY-MM-DD
 	]
 );
 
