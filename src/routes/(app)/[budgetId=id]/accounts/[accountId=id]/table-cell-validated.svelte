@@ -3,6 +3,7 @@
 
 	import { invalidateAll } from '$app/navigation';
 	import * as Form from '$lib/components/ui/form';
+	import { m } from '$lib/paraglide/messages';
 
 	import type { TransactionRow } from './types';
 
@@ -41,6 +42,6 @@
 			</Form.Control>
 		</Form.Field>
 	{:else}
-		<ValidateCheckbox checked={isValidated} onclick={toggleValidated} />
+		<ValidateCheckbox checked={isValidated} onclick={toggleValidated} aria-label={m.transactions_table_toggle_validated()} />
 	{/if}
 </div>

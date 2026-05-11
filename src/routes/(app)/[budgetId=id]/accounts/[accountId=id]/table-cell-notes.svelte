@@ -3,6 +3,7 @@
 
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
+	import { m } from '$lib/paraglide/messages';
 	import { tick } from 'svelte';
 
 	import type { TransactionRow } from './types';
@@ -38,6 +39,7 @@
 		<button
 			class="flex size-full items-center justify-start truncate border border-transparent px-2"
 			onclick={editCell}
+			aria-label={m.transactions_table_edit_notes()}
 		>
 			{notes}
 		</button>

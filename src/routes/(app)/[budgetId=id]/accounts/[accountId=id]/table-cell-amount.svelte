@@ -3,6 +3,7 @@
 
 	import * as Form from '$lib/components/ui/form';
 	import { InputCurrency } from '$lib/components/ui/input-currency';
+	import { m } from '$lib/paraglide/messages';
 	import { getIntlContext } from '$lib/utils/intl-context.svelte';
 	import { tick } from 'svelte';
 
@@ -46,6 +47,7 @@
 		<button
 			class="flex size-full items-center justify-end truncate border border-transparent px-2 font-currency"
 			onclick={editCell}
+			aria-label={m.transactions_table_edit_amount()}
 		>
 			{intlContext.formatCurrency(amount)}
 		</button>

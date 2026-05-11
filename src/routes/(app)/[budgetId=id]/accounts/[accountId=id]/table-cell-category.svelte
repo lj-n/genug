@@ -57,6 +57,7 @@
 				withoutCategory && 'text-muted'
 			)}
 			onclick={editCell}
+			aria-label={m.transactions_table_edit_category()}
 		>
 			{withoutCategory ? m.transaction_table_cell_category_empty() : categoryName}
 		</button>

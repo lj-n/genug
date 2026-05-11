@@ -4,6 +4,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Calendar } from '$lib/components/ui/calendar';
 	import * as Form from '$lib/components/ui/form';
+	import { m } from '$lib/paraglide/messages';
 	import { getIntlContext } from '$lib/utils/intl-context.svelte';
 	import { type CalendarDate, parseDate } from '@internationalized/date';
 	import { Popover } from 'bits-ui';
@@ -67,7 +68,7 @@
 									role="combobox"
 									aria-expanded={open}
 								>
-									{$formData.date ? df(parseDate($formData.date)) : 'Select date'}
+									{$formData.date ? df(parseDate($formData.date)) : m.transaction_table_cell_date_select()}
 									<!-- <PhCaretUpDown class="opacity-50" /> -->
 								</Button>
 							{/snippet}
@@ -102,6 +103,7 @@
 		<button
 			class="flex size-full items-center justify-end truncate border border-transparent px-2"
 			onclick={editCell}
+			aria-label={m.transactions_table_edit_date()}
 		>
 			{date ? df(parseDate(date)) : ''}
 		</button>

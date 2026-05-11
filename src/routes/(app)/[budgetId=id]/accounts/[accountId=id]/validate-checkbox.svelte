@@ -8,10 +8,11 @@
 	import PhSealCheckDuotone from '~icons/ph/seal-check-duotone';
 
 	let {
+		'aria-label': ariaLabel = undefined,
 		checked = $bindable(false),
 		disabled = false,
 		...props
-	}: LabelProps & { checked?: boolean; disabled?: boolean } = $props();
+	}: LabelProps & { 'aria-label'?: string; checked?: boolean; disabled?: boolean } = $props();
 </script>
 
 <Label
@@ -22,7 +23,7 @@
 	})}
 	{...props}
 >
-	<Checkbox.Root bind:checked class="cursor-pointer" {disabled}>
+	<Checkbox.Root aria-label={ariaLabel} bind:checked class="cursor-pointer" {disabled}>
 		{#snippet children({ checked })}
 			{#if checked}
 				<PhSealCheckDuotone class="size-6 text-success" />

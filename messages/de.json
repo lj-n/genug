@@ -95,5 +95,11 @@
 	"category_detail_title": "Kategorie",
 	"transaction_table_cell_category_empty": "Ohne Kategorie",
 	"transaction_table_cell_category_placeholder": "Suche nach Kategorie...",
-	"transaction_table_cell_category_not_found": "Keine Kategorie gefunden."
+	"transaction_table_cell_category_not_found": "Keine Kategorie gefunden.",
+	"transaction_table_cell_date_select": "Datum auswählen",
+	"transactions_table_edit_category": "Kategorie bearbeiten",
+	"transactions_table_edit_date": "Datum bearbeiten",
+	"transactions_table_edit_notes": "Notizen bearbeiten",
+	"transactions_table_edit_amount": "Betrag bearbeiten",
+	"transactions_table_toggle_validated": "Validierungsstatus umschalten"
 }
