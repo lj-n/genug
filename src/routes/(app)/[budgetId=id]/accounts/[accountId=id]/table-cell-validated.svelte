@@ -1,29 +1,46 @@
 <script lang="ts">
-	import { buttonVariants } from '$lib/components/ui/button';
-	import { Label } from '$lib/components/ui/label';
-	import { Checkbox } from 'bits-ui';
-	import PhSeal from '~icons/ph/seal';
-	import PhSealCheckDuotone from '~icons/ph/seal-check-duotone';
+	import type { Row } from '@tanstack/table-core';
 
-	let { isValidated }: { isValidated: boolean } = $props();
+	import { invalidateAll } from '$app/navigation';
+	import * as Form from '$lib/components/ui/form';
+
+	import type { TransactionRow } from './types';
+
+	import { getTableContext } from './table-context.svelte';
+	import ValidateCheckbox from './validate-checkbox.svelte';
+
+	let { isValidated, row }: { isValidated: boolean; row: Row<TransactionRow> } = $props();
+
+	const tableContext = getTableContext();
+
+	const { form: formData } = tableContext.form;
+
+	function toggleValidated() {
+		fetch('/api/validate', {
+			body: JSON.stringify({
+				transactionIds: [row.id],
+				validated: !isValidated
+			}),
+			method: 'POST'
+		}).then((res) => {
+			if (res.ok) {
+				invalidateAll();
+				isValidated = !isValidated;
+			}
+		});
+	}
 </script>
 
 <div class="grid size-full place-content-center">
-	<Label
-		class={buttonVariants({
-			class: 'rounded-xs hover:bg-transparent',
-			size: 'icon-lg',
-			variant: 'ghost'
-		})}
-	>
-		<Checkbox.Root checked={isValidated} class="cursor-pointer">
-			{#snippet children({ checked })}
-				{#if checked}
-					<PhSealCheckDuotone class="size-6 text-success" />
-				{:else}
-					<PhSeal class="size-6 text-muted" />
-				{/if}
-			{/snippet}
-		</Checkbox.Root>
-	</Label>
+	{#if tableContext.isEditingRow(row.id)}
+		<Form.Field form={tableContext.form} name="validated">
+			<Form.Control>
+				{#snippet children({ props })}
+					<ValidateCheckbox bind:checked={$formData.validated} {...props} />
+				{/snippet}
+			</Form.Control>
+		</Form.Field>
+	{:else}
+		<ValidateCheckbox checked={isValidated} onclick={toggleValidated} />
+	{/if}
 </div>

@@ -1,5 +1,5 @@
 import { tables } from '$db';
-import { and, eq, getColumns } from 'drizzle-orm';
+import { and, eq, getColumns, inArray } from 'drizzle-orm';
 
 import { userHasPermission } from './permissions';
 import {
@@ -18,6 +18,24 @@ export function createTransactionActions({
 	user: App.User;
 }) {
 	return {
+		batchValidate({ ids, validated }: { ids: string[]; validated: boolean }) {
+			return database
+				.update(tables.transactions)
+				.set({ validated })
+				.where(
+					and(
+						inArray(tables.transactions.id, ids),
+						userHasPermission({
+							budgetIdCol: tables.transactions.budgetId,
+							database,
+							userId: user.id
+						})
+					)
+				)
+				.returning()
+				.all();
+		},
+
 		getById({ id }: { id: string }) {
 			return database
 				.select(getColumns(tables.transactions))

@@ -44,11 +44,11 @@
 			<Button
 				{...props}
 				variant="ghost"
-				class="w-full justify-between px-2"
+				class="w-full justify-between border-muted/30 bg-surface/70 px-2 hover:cursor-text hover:bg-surface/70"
 				role="combobox"
 				aria-expanded={open}
 			>
-				{selectedValue || textEmptyTrigger}
+				{selectedValue ?? textEmptyTrigger}
 				<PhCaretUpDown class="opacity-50" />
 			</Button>
 		{/snippet}
@@ -68,14 +68,13 @@
 			<Command.Input placeholder={textInputPlaceholder} />
 			<Command.List>
 				<Command.Empty>{textListEmpty}</Command.Empty>
-				<Command.Group value="categories">
+				<Command.Group>
+					<Command.Item value="null" onSelect={closeAndFocusTrigger}>
+						{textEmptyTrigger}
+					</Command.Item>
+
 					{#each items as item (item.id)}
-						<Command.Item
-							value={item.id}
-							onSelect={() => {
-								closeAndFocusTrigger();
-							}}
-						>
+						<Command.Item value={item.id} onSelect={closeAndFocusTrigger}>
 							{item.name}
 						</Command.Item>
 					{/each}

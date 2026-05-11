@@ -11,6 +11,7 @@ import TableCellDate from './table-cell-date.svelte';
 import TableCellNotes from './table-cell-notes.svelte';
 import TableCellSelection from './table-cell-selection.svelte';
 import TableCellValidated from './table-cell-validated.svelte';
+import ValidateCheckbox from './validate-checkbox.svelte';
 
 export const columns: ColumnDef<TransactionRow>[] = [
 	{
@@ -40,27 +41,30 @@ export const columns: ColumnDef<TransactionRow>[] = [
 	},
 	{
 		accessorKey: 'notes',
-		cell: ({ getValue }) => renderComponent(TableCellNotes, { notes: getValue() as string }),
+		cell: ({ getValue, row }) =>
+			renderComponent(TableCellNotes, { notes: getValue() as string, row }),
 		header: m.transactions_table_header_notes(),
 		id: 'notes'
 	},
 	{
 		accessorKey: 'date',
-		cell: ({ getValue }) => renderComponent(TableCellDate, { date: getValue() as string }),
+		cell: ({ getValue, row }) =>
+			renderComponent(TableCellDate, { date: getValue() as string, row }),
 		header: m.transactions_table_header_date(),
 		id: 'date'
 	},
 	{
 		accessorKey: 'amount',
-		cell: ({ getValue }) => renderComponent(TableCellAmount, { amount: getValue() as number }),
+		cell: ({ getValue, row }) =>
+			renderComponent(TableCellAmount, { amount: getValue() as number, row }),
 		header: m.transactions_table_header_amount(),
 		id: 'amount'
 	},
 	{
 		accessorKey: 'validated',
-		cell: ({ getValue }) =>
-			renderComponent(TableCellValidated, { isValidated: getValue() as boolean }),
-		header: () => renderComponent(TableCellValidated, { isValidated: true }),
+		cell: ({ getValue, row }) =>
+			renderComponent(TableCellValidated, { isValidated: getValue() as boolean, row }),
+		header: () => renderComponent(ValidateCheckbox, { checked: true, disabled: true }),
 		id: 'validated'
 	}
 ];

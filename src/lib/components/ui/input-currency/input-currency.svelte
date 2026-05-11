@@ -119,7 +119,7 @@
 	value={internalValue}
 	data-slot={dataSlot}
 	class={cn(
-		'h-9 w-full rounded-md border border-muted/30 bg-focus/3 px-3 py-1 outline-none placeholder:text-muted/90 focus-visible:bg-focus/5 focus-visible:ring-2 focus-visible:ring-focus/80 aria-invalid:border-error',
+		'h-9 w-full rounded-md border border-muted/30 bg-surface/70 px-3 py-1 outline-none placeholder:text-muted focus-visible:border-focus focus-visible:bg-surface/80 focus-visible:ring-2 focus-visible:ring-focus/50 aria-invalid:border-error',
 		className
 	)}
 	{intlConfig}

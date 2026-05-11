@@ -13,7 +13,9 @@
 </script>
 
 <div data-slot="command-input-wrapper" class="p-1 pb-0">
-	<InputGroup.Root class="h-8! rounded-lg! shadow-none! *:data-[slot=input-group-addon]:pl-2!">
+	<InputGroup.Root
+		class="focus-within: h-8! rounded-lg! shadow-none! *:data-[slot=input-group-addon]:pl-2!"
+	>
 		<CommandPrimitive.Input
 			{value}
 			data-slot="command-input"
@@ -24,7 +26,7 @@
 			{...restProps}
 		>
 			{#snippet child({ props })}
-				<InputGroup.Input {...props} bind:value bind:ref />
+				<InputGroup.Input {...props} bind:value bind:ref class="focus-visible:bg-transparent" />
 			{/snippet}
 		</CommandPrimitive.Input>
 		<InputGroup.Addon>

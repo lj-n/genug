@@ -2,6 +2,8 @@
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"saved": "Gespeichert",
 	"error": "Fehler, bitte versuche es erneut.",
+	"cancel": "Abbrechen",
+	"save": "Speichern",
 	"name_error_minlength": "Der Name muss mindestens {length} Zeichen lang sein.",
 	"name_error_maxlength": "Der Name darf maximal {length} Zeichen lang sein.",
 	"login_admin_introduction": "Als Erstes erstelle den Admin-Nutzer. Mit diesem Nutzer kannst du später weitere Nutzer anlegen.",
