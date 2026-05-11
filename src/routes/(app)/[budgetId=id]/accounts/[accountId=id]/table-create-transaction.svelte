@@ -47,7 +47,7 @@
 		$formData.accountId = page.params.accountId!;
 	});
 
-	const { enhance, errors, form: formData } = form;
+	const { enhance, form: formData } = form;
 
 	const intlContext = getIntlContext();
 
@@ -177,8 +177,6 @@
 {#snippet validated({ props }: { props: Record<string, unknown> })}
 	<ValidateCheckbox bind:checked={$formData.validated} {...props} />
 {/snippet}
-
-<pre>{JSON.stringify({ data: $formData, errors: $errors }, null, 2)}</pre>
 
 <Popover.Root bind:open>
 	<Popover.Trigger>

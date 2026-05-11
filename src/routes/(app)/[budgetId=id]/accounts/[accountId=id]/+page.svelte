@@ -140,7 +140,6 @@
 			bind:open={createFormOpen}
 		/>
 
-		<pre>{JSON.stringify({ form: $formData }, null, 2)}</pre>
 		<div role="table" class="space-y-2">
 			<div role="rowgroup">
 				{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
