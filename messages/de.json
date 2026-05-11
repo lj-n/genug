@@ -90,5 +90,8 @@
 	"pagination_previous": "Zurück",
 	"pagination_next": "Weiter",
 	"dialog_close": "Schließen",
-	"category_detail_title": "Kategorie"
+	"category_detail_title": "Kategorie",
+	"transaction_table_cell_category_empty": "Ohne Kategorie",
+	"transaction_table_cell_category_placeholder": "Suche nach Kategorie...",
+	"transaction_table_cell_category_not_found": "Keine Kategorie gefunden."
 }

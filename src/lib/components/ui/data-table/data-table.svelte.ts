@@ -38,7 +38,9 @@ type MaybeThunk<T extends object> = (() => null | T | undefined) | T;
  * </table>
  * ```
  */
-export function createSvelteTable<TData extends RowData>(options: TableOptions<TData>) {
+export function createSvelteTable<TData extends RowData>(
+	options: TableOptions<TData>
+): ReturnType<typeof createTable<TData>> {
 	const resolvedOptions: TableOptionsResolved<TData> = mergeObjects(
 		{
 			mergeOptions: (
@@ -52,9 +54,9 @@ export function createSvelteTable<TData extends RowData>(options: TableOptions<T
 			state: {}
 		},
 		options
-	);
+	) as TableOptionsResolved<TData>;
 
-	const table = createTable(resolvedOptions);
+	const table = createTable<TData>(resolvedOptions);
 	let state = $state<TableState>(table.initialState);
 
 	function updateOptions() {

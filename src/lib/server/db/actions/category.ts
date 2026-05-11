@@ -72,6 +72,26 @@ export function createCategoryActions({
 				.all();
 		},
 
+		allFlat({ budgetId }: { budgetId?: string }) {
+			let dq = database
+				.select(getColumns(tables.categories))
+				.from(tables.categories)
+				.where(
+					userHasPermission({
+						budgetIdCol: tables.categories.budgetId,
+						database,
+						userId: user.id
+					})
+				)
+				.$dynamic();
+
+			if (budgetId) {
+				dq = dq.where(eq(tables.categories.budgetId, budgetId));
+			}
+
+			return dq.all();
+		},
+
 		archived({ budgetId }: { budgetId: string }) {
 			return database
 				.select(selectColumns(database))

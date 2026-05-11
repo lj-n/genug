@@ -2,25 +2,13 @@ import type { TransactionFilterParam, TransactionSortParam } from '$db/actions/q
 
 import { withPermissions } from '$db/actions';
 import { error } from '@sveltejs/kit';
-import z from 'zod';
+import { superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { PageServerLoad } from './$types';
 
-function parseURLSearchParams(params: URLSearchParams) {
-	const sortParam = z.enum(['asc', 'desc']).optional().catch(undefined);
-
-	return z
-		.object({
-			categoryId: z.string().array().optional().catch([]),
-			page: z.coerce.number().min(1).default(1).catch(1),
-			pageSize: z.coerce.number().min(15).default(15).catch(15),
-			sortAccount: sortParam,
-			sortCategory: sortParam,
-			sortDate: sortParam,
-			sortValidated: sortParam
-		})
-		.parse(Object.fromEntries(params.entries()));
-}
+import { schemaTransactionEdit } from '../../transactions/schema';
+import { schemaURLParams } from './schema';
 
 export const load: PageServerLoad = withPermissions(async (user, actions, event) => {
 	const { budget } = await event.parent();
@@ -31,7 +19,7 @@ export const load: PageServerLoad = withPermissions(async (user, actions, event)
 		error(404, 'Account not found');
 	}
 
-	const params = parseURLSearchParams(event.url.searchParams);
+	const params = schemaURLParams.parse(Object.fromEntries(event.url.searchParams.entries()));
 
 	const filter: TransactionFilterParam = {
 		accountId: account.id,
@@ -61,5 +49,18 @@ export const load: PageServerLoad = withPermissions(async (user, actions, event)
 		pageTotalCount: totalTransactionCount
 	};
 
-	return { account, pagination, totalTransactionCount, transactions };
+	const categories = actions.category
+		.allFlat({ budgetId: budget.id })
+		.filter((cat) => cat.archivedAt === null);
+
+	const formTransactionEdit = await superValidate(zod4(schemaTransactionEdit));
+
+	return {
+		account,
+		categories,
+		formTransactionEdit,
+		pagination,
+		totalTransactionCount,
+		transactions
+	};
 });

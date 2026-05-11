@@ -41,8 +41,8 @@
 		const start = pageTotalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
 		const end = pageTotalCount === 0 ? 0 : Math.min(start + pageSize - 1, pageTotalCount);
 		return m.transactions_pagination_showing({
-			start: String(start),
 			end: String(end),
+			start: String(start),
 			total: String(pageTotalCount)
 		});
 	});

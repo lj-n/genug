@@ -30,8 +30,11 @@ export const columns: ColumnDef<TransactionRow>[] = [
 	},
 	{
 		accessorKey: 'categoryName',
-		cell: ({ getValue }) =>
-			renderComponent(TableCellCategory, { categoryName: getValue() as string }),
+		cell: (ctx) =>
+			renderComponent(TableCellCategory, {
+				categoryName: ctx.getValue() as string,
+				row: ctx.row
+			}),
 		header: m.transactions_table_header_category(),
 		id: 'categoryName'
 	},

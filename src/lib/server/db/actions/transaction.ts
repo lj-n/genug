@@ -1,5 +1,5 @@
 import { tables } from '$db';
-import { eq, getColumns } from 'drizzle-orm';
+import { and, eq, getColumns } from 'drizzle-orm';
 
 import { userHasPermission } from './permissions';
 import {
@@ -18,6 +18,23 @@ export function createTransactionActions({
 	user: App.User;
 }) {
 	return {
+		getById({ id }: { id: string }) {
+			return database
+				.select(getColumns(tables.transactions))
+				.from(tables.transactions)
+				.where(
+					and(
+						eq(tables.transactions.id, id),
+						userHasPermission({
+							budgetIdCol: tables.transactions.budgetId,
+							database,
+							userId: user.id
+						})
+					)
+				)
+				.get();
+		},
+
 		list({
 			filter = {},
 			pagination,
@@ -58,6 +75,30 @@ export function createTransactionActions({
 			return {
 				transactions: dynamicQuery.all()
 			};
+		},
+
+		updateById({
+			id,
+			update
+		}: {
+			id: string;
+			update: Partial<typeof tables.transactions.$inferInsert>;
+		}) {
+			return database
+				.update(tables.transactions)
+				.set(update)
+				.where(
+					and(
+						eq(tables.transactions.id, id),
+						userHasPermission({
+							budgetIdCol: tables.transactions.budgetId,
+							database,
+							userId: user.id
+						})
+					)
+				)
+				.returning()
+				.get();
 		}
 	};
 }

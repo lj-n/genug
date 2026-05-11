@@ -8,6 +8,7 @@ type IntlContextConfig = {
 	locale: string;
 	numberFormatOptions: Intl.NumberFormatOptions;
 };
+
 class IntlContext {
 	locale: string = $state('de');
 	numberFormatOptions: Intl.NumberFormatOptions = $state({
