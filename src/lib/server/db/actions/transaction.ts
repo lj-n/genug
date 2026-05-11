@@ -36,6 +36,31 @@ export function createTransactionActions({
 				.all();
 		},
 
+		create(data: typeof tables.transactions.$inferInsert) {
+			return database.transaction((tx) => {
+				const budget = tx
+					.select({ id: tables.budgets.id })
+					.from(tables.budgets)
+					.where(
+						and(
+							eq(tables.budgets.id, data.budgetId),
+							userHasPermission({
+								budgetIdCol: tables.budgets.id,
+								database,
+								userId: user.id
+							})
+						)
+					)
+					.get();
+
+				if (!budget) {
+					throw new Error('Budget not found');
+				}
+
+				return tx.insert(tables.transactions).values(data).returning().get();
+			});
+		},
+
 		getById({ id }: { id: string }) {
 			return database
 				.select(getColumns(tables.transactions))
@@ -65,7 +90,7 @@ export function createTransactionActions({
 			};
 			sort?: TransactionSortParam;
 		}) {
-			const dynamicQuery = database
+			let dynamicQuery = database
 				.select({
 					...getColumns(tables.transactions),
 					categoryName: tables.categories.name,
@@ -83,11 +108,11 @@ export function createTransactionActions({
 				)
 				.$dynamic();
 
-			withFilter({ dq: dynamicQuery, filter });
-			withSorted({ dq: dynamicQuery, sort });
+			dynamicQuery = withFilter({ dq: dynamicQuery, filter });
+			dynamicQuery = withSorted({ dq: dynamicQuery, sort });
 
 			if (pagination) {
-				withPagination({ dq: dynamicQuery, ...pagination });
+				dynamicQuery = withPagination({ dq: dynamicQuery, ...pagination });
 			}
 
 			return {

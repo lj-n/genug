@@ -20,10 +20,13 @@
 
 	import { schemaTransactionEdit } from '../../transactions/schema';
 	import { setTableContext } from './table-context.svelte';
+	import TableCreateTransaction from './table-create-transaction.svelte';
 	import TablePagination from './table-pagination.svelte';
 	import { columns } from './transaction-table-columns';
 
 	let { data }: PageProps = $props();
+
+	const id = $props.id();
 
 	const tableContext = setTableContext({
 		categories: untrack(() => data.categories),
@@ -70,6 +73,8 @@
 			columnsVisibility = updater;
 		}
 	});
+
+	let createFormOpen = $state(false);
 
 	$effect(() => {
 		if (tableContext.editingRowId) {
@@ -128,6 +133,14 @@
 	</Page.Header>
 
 	<Page.Content>
+		<TableCreateTransaction
+			categories={data.categories}
+			form={data.formTransactionCreate}
+			to="#{id}-create-row"
+			bind:open={createFormOpen}
+		/>
+
+		<pre>{JSON.stringify({ form: $formData }, null, 2)}</pre>
 		<div role="table" class="space-y-2">
 			<div role="rowgroup">
 				{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
@@ -161,6 +174,17 @@
 			</div>
 
 			<div role="rowgroup" class="grid space-y-1.5">
+				<div
+					role="row"
+					aria-hidden={!createFormOpen}
+					id="{id}-create-row"
+					class={cn(
+						gridColsClass,
+						'grid rounded-sm border border-interactive/30 bg-surface shadow shadow-interactive/15',
+						!createFormOpen && 'hidden'
+					)}
+				></div>
+
 				{#each table.getRowModel().rows as row (row.id)}
 					{@const isEditing = tableContext.isEditingRow(row.id)}
 

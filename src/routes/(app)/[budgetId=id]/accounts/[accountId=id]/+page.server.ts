@@ -1,12 +1,14 @@
 import type { TransactionFilterParam, TransactionSortParam } from '$db/actions/queries/transaction';
 
 import { withPermissions } from '$db/actions';
+import { getLocalTimeZone, today } from '@internationalized/date';
 import { error } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { PageServerLoad } from './$types';
 
+import { schemaTransactionCreate } from '../../transactions/new/schema';
 import { schemaTransactionEdit } from '../../transactions/schema';
 import { schemaURLParams } from './schema';
 
@@ -54,10 +56,16 @@ export const load: PageServerLoad = withPermissions(async (user, actions, event)
 		.filter((cat) => cat.archivedAt === null);
 
 	const formTransactionEdit = await superValidate(zod4(schemaTransactionEdit));
+	const formTransactionCreate = await superValidate(
+		{ date: today(getLocalTimeZone()).toString() },
+		zod4(schemaTransactionCreate),
+		{ errors: false }
+	);
 
 	return {
 		account,
 		categories,
+		formTransactionCreate,
 		formTransactionEdit,
 		pagination,
 		totalTransactionCount,

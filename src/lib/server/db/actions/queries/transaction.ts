@@ -64,11 +64,11 @@ export function withFilter<T extends SQLiteSelect>({
 	}
 
 	if (filter?.fromDate) {
-		dq.where(gte(tables.transactions.date, filter.fromDate));
+		dq = dq.where(gte(tables.transactions.date, filter.fromDate));
 	}
 
 	if (filter?.toDate) {
-		dq.where(lte(tables.transactions.date, filter.toDate));
+		dq = dq.where(lte(tables.transactions.date, filter.toDate));
 	}
 
 	return dq;
