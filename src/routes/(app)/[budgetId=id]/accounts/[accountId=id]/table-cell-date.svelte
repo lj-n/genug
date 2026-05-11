@@ -3,7 +3,6 @@
 
 	import { Button } from '$lib/components/ui/button';
 	import { Calendar } from '$lib/components/ui/calendar';
-	import * as Form from '$lib/components/ui/form';
 	import { m } from '$lib/paraglide/messages';
 	import { getIntlContext } from '$lib/utils/intl-context.svelte';
 	import { type CalendarDate, parseDate } from '@internationalized/date';
@@ -12,6 +11,7 @@
 
 	import type { TransactionRow } from './types';
 
+	import TableCellEditable from './table-cell-editable.svelte';
 	import { getTableContext } from './table-context.svelte';
 
 	let { date, row }: { date: string; row: Row<TransactionRow> } = $props();
@@ -20,10 +20,6 @@
 	const intlContext = getIntlContext();
 
 	const { form: formData } = tableContext.form;
-
-	function editCell() {
-		tableContext.setEditingRow(row);
-	}
 
 	let df = $derived((date: CalendarDate) =>
 		intlContext.formatDate(date, {
@@ -34,7 +30,6 @@
 	);
 
 	let open = $state(false);
-
 	let triggerRef = $state<HTMLButtonElement>(null!);
 
 	function closeAndFocusTrigger() {
@@ -53,59 +48,55 @@
 	}
 </script>
 
-<div class="grid size-full items-center justify-items-end">
-	{#if tableContext.isEditingRow(row.id)}
-		<Form.Field form={tableContext.form} name="notes" class="w-full space-y-0">
-			<Form.Control>
-				{#snippet children({ props: triggerProps })}
-					<Popover.Root bind:open>
-						<Popover.Trigger bind:ref={triggerRef} {...triggerProps}>
-							{#snippet child({ props })}
-								<Button
-									{...props}
-									variant="ghost"
-									class="w-full justify-end border-muted/30 bg-surface/70 px-2 hover:cursor-text hover:bg-surface/70"
-									role="combobox"
-									aria-expanded={open}
-								>
-									{$formData.date ? df(parseDate($formData.date)) : m.transaction_table_cell_date_select()}
-									<!-- <PhCaretUpDown class="opacity-50" /> -->
-								</Button>
-							{/snippet}
-						</Popover.Trigger>
-
-						<Popover.Content
-							class="w-full p-0"
-							sideOffset={4}
-							onkeydown={(ev) => {
-								if (ev.key === 'Escape') {
-									closeAndFocusTrigger();
-									ev.stopPropagation();
-								}
-							}}
-						>
-							<Calendar
-								type="single"
-								bind:value={getValue, setValue}
-								locale={intlContext.locale}
-								captionLayout="dropdown"
-								onValueChange={() => {
-									closeAndFocusTrigger();
-								}}
-								class="rounded-xl border border-muted/30 bg-surface-high shadow"
-							/>
-						</Popover.Content>
-					</Popover.Root>
+<TableCellEditable
+	{row}
+	name="date"
+	align="end"
+	ariaLabel={m.transactions_table_edit_date()}
+	buttonClass="truncate"
+>
+	{#snippet view()}
+		{date ? df(parseDate(date)) : ''}
+	{/snippet}
+	{#snippet edit({ props: triggerProps })}
+		<Popover.Root bind:open>
+			<Popover.Trigger bind:ref={triggerRef} {...triggerProps}>
+				{#snippet child({ props })}
+					<Button
+						{...props}
+						variant="ghost"
+						class="w-full justify-end border-muted/30 bg-surface/70 px-2 hover:cursor-text hover:bg-surface/70"
+						role="combobox"
+						aria-expanded={open}
+					>
+						{$formData.date
+							? df(parseDate($formData.date))
+							: m.transaction_table_cell_date_select()}
+					</Button>
 				{/snippet}
-			</Form.Control>
-		</Form.Field>
-	{:else}
-		<button
-			class="flex size-full items-center justify-end truncate border border-transparent px-2"
-			onclick={editCell}
-			aria-label={m.transactions_table_edit_date()}
-		>
-			{date ? df(parseDate(date)) : ''}
-		</button>
-	{/if}
-</div>
+			</Popover.Trigger>
+
+			<Popover.Content
+				class="w-full p-0"
+				sideOffset={4}
+				onkeydown={(ev) => {
+					if (ev.key === 'Escape') {
+						closeAndFocusTrigger();
+						ev.stopPropagation();
+					}
+				}}
+			>
+				<Calendar
+					type="single"
+					bind:value={getValue, setValue}
+					locale={intlContext.locale}
+					captionLayout="dropdown"
+					onValueChange={() => {
+						closeAndFocusTrigger();
+					}}
+					class="rounded-xl border border-muted/30 bg-surface-high shadow"
+				/>
+			</Popover.Content>
+		</Popover.Root>
+	{/snippet}
+</TableCellEditable>

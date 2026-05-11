@@ -44,7 +44,7 @@
 			<Button
 				{...props}
 				variant="ghost"
-				class="w-full justify-between border-muted/30 bg-surface/70 px-2 hover:cursor-text hover:bg-surface/70"
+				class="w-full justify-between border-muted/30 bg-surface/70 px-2 hover:cursor-text hover:bg-surface/70 aria-expanded:border-focus aria-expanded:bg-surface/70 aria-expanded:ring-2 aria-expanded:ring-focus/50"
 				role="combobox"
 				aria-expanded={open}
 			>

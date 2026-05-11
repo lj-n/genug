@@ -28,8 +28,7 @@
 			variant: {
 				default: 'bg-interactive/10 text-interactive hover:bg-interactive/15',
 				destructive: 'bg-error/10 text-error hover:bg-error/15',
-				ghost:
-					'hover:bg-muted/10 hover:text-foreground aria-expanded:bg-muted/10 aria-expanded:text-foreground',
+				ghost: 'hover:bg-muted/10 hover:text-foreground',
 				info: 'bg-info/10 text-info hover:bg-info/15',
 				link: 'text-interactive underline-offset-3 hover:underline'
 			}

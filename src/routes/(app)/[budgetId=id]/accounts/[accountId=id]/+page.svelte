@@ -57,6 +57,12 @@
 	let columnsVisibility = $state<VisibilityState>({
 		selection: false
 	});
+
+	let gridColsClass = $derived(
+		columnsVisibility.selection === false
+			? 'grid-cols-[1fr_1fr_0.5fr_0.5fr_3.5rem]'
+			: 'grid-cols-[3.5rem_1fr_1fr_0.5fr_0.5fr_3.5rem]'
+	);
 	let onColumnVisibilityChange: OnChangeFn<VisibilityState> = $derived((updater) => {
 		if (typeof updater === 'function') {
 			columnsVisibility = updater(columnsVisibility);
@@ -128,9 +134,7 @@
 					<div
 						role="row"
 						class={cn(
-							columnsVisibility.selection === false
-								? 'grid-cols-[1fr_1fr_0.5fr_0.5fr_3.5rem]'
-								: 'grid-cols-[3.5rem_1fr_1fr_0.5fr_0.5fr_3.5rem]',
+							gridColsClass,
 							'grid items-center rounded-sm border border-muted/10 bg-muted/3'
 						)}
 					>
@@ -163,12 +167,10 @@
 					<div
 						role="row"
 						class={cn(
-							columnsVisibility.selection === false
-								? 'grid-cols-[1fr_1fr_0.5fr_0.5fr_3.5rem]'
-								: 'grid-cols-[3.5rem_1fr_1fr_0.5fr_0.5fr_3.5rem]',
+							gridColsClass,
 							'grid rounded-sm border border-muted/10 bg-surface',
-							row.getIsSelected() && 'border-info/20 bg-info/5',
-							isEditing && 'border-interactive/30 bg-interactive/5 shadow shadow-interactive/15'
+							row.getIsSelected() && 'border-info/20',
+							isEditing && 'border-interactive/30 shadow shadow-interactive/15'
 						)}
 						data-state={row.getIsSelected() && 'selected'}
 						{@attach isEditing &&
@@ -177,13 +179,16 @@
 							})}
 					>
 						{#each row.getVisibleCells() as cell (cell.id)}
-							<div role="cell" class={cn('p-2')}>
+							<div role="cell" class={cn('p-2', isEditing && 'bg-interactive/5')}>
 								<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
 							</div>
 						{/each}
 
 						{#if isEditing && isTainted($tainted)}
-							<div role="cell" class="col-span-full flex items-center justify-end gap-2 p-2">
+							<div
+								role="cell"
+								class="col-span-full flex items-center justify-end gap-2 bg-interactive/5 p-2"
+							>
 								<Button
 									variant="ghost"
 									onclick={() => {
