@@ -15,7 +15,7 @@
 	import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { zod4Client } from 'sveltekit-superforms/adapters';
 	import { cn } from 'tailwind-variants';
-	import PhFilePlus from '~icons/ph/file-plus';
+	import PhPlus from '~icons/ph/plus';
 
 	import type { PageData } from './$types';
 
@@ -39,6 +39,12 @@
 	const form = superForm(
 		untrack(() => createForm),
 		{
+			onUpdated: () => {
+				// Only close popover on regular submit, not on submit and continue
+				if (form.options.resetForm) {
+					open = false;
+				}
+			},
 			validators: zod4Client(schemaTransactionCreate)
 		}
 	);
@@ -88,7 +94,31 @@
 	}
 
 	let amountInputRef = $state<HTMLInputElement>(null!);
+
+	function submit() {
+		form.options.resetForm = true;
+		form.submit();
+	}
+
+	function submitAndContinue() {
+		form.options.resetForm = false;
+		form.submit();
+	}
+
+	function cancel() {
+		open = false;
+		form.reset();
+	}
+
+	function onkeydown(ev: KeyboardEvent) {
+		if (!open) return;
+		if (ev.key === 'Enter') {
+			return ev.shiftKey ? submitAndContinue() : submit();
+		}
+	}
 </script>
+
+<svelte:document {onkeydown} />
 
 {#snippet cell({
 	edit,
@@ -97,7 +127,7 @@
 	edit: Snippet<[{ props: Record<string, unknown> }]>;
 	name: FieldName;
 })}
-	<div role="cell" class={cn('flex size-full items-center bg-interactive/2 p-2')}>
+	<div role="cell" class={cn('flex size-full items-center bg-interactive/5 p-2')}>
 		<Form.Field {form} {name} class="w-full space-y-0">
 			<Form.Control>
 				{#snippet children({ props })}
@@ -133,7 +163,7 @@
 					variant="ghost"
 					class="w-full justify-end border-muted/30 bg-surface/70 px-2 hover:cursor-text hover:bg-surface/70"
 					role="combobox"
-					aria-expanded={open}
+					aria-expanded={dateOpen}
 				>
 					{$formData.date ? df(parseDate($formData.date)) : m.transaction_table_cell_date_select()}
 				</Button>
@@ -181,9 +211,9 @@
 <Popover.Root bind:open>
 	<Popover.Trigger>
 		{#snippet child({ props })}
-			<Button {...props}>
-				<PhFilePlus />
-				Create Transaction
+			<Button {...props} class="w-fit">
+				<PhPlus />
+				{m.transactions_table_create_transaction()}
 			</Button>
 		{/snippet}
 	</Popover.Trigger>
@@ -200,6 +230,7 @@
 				<input type="hidden" name="accountId" value={page.params.accountId} />
 				<input type="hidden" name="date" bind:value={$formData.date} />
 				<input type="hidden" name="categoryId" bind:value={$formData.categoryId} />
+
 				{@render cell({ edit: category, name: 'categoryId' })}
 				{@render cell({ edit: notes, name: 'notes' })}
 				{@render cell({ edit: date, name: 'date' })}
@@ -208,10 +239,17 @@
 
 				<div
 					role="cell"
-					class="col-span-full flex items-center justify-end gap-2 bg-interactive/2 p-2"
+					class="col-span-full flex items-center justify-end gap-2 bg-interactive/5 p-2"
 				>
-					<Form.Button type="button" variant="ghost">{m.cancel()}</Form.Button>
-					<Form.Button>{m.save()}</Form.Button>
+					<Form.Button type="button" variant="ghost" onclick={() => cancel()}>
+						{m.cancel()}
+					</Form.Button>
+
+					<Form.Button type="button" onclick={() => submit()}>{m.save()}</Form.Button>
+
+					<Form.Button type="button" onclick={() => submitAndContinue()}>
+						{m.save_and_continue()}
+					</Form.Button>
 				</div>
 			</form>
 		</Popover.ContentStatic>

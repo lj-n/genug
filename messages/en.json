@@ -92,6 +92,7 @@
 	"category_detail_title": "Category",
 	"cancel": "Cancel",
 	"save": "Save",
+	"save_and_continue": "Save & Continue",
 	"transaction_table_cell_category_empty": "No Category",
 	"transaction_table_cell_category_placeholder": "Search for category...",
 	"transaction_table_cell_category_not_found": "No category found.",
@@ -100,5 +101,6 @@
 	"transactions_table_edit_date": "Edit date",
 	"transactions_table_edit_notes": "Edit notes",
 	"transactions_table_edit_amount": "Edit amount",
-	"transactions_table_toggle_validated": "Toggle validated status"
+	"transactions_table_toggle_validated": "Toggle validated status",
+	"transactions_table_create_transaction": "New Transaction"
 }
