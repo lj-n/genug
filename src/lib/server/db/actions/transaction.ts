@@ -18,6 +18,23 @@ export function createTransactionActions({
 	user: App.User;
 }) {
 	return {
+		batchDelete({ ids }: { ids: string[] }) {
+			return database
+				.delete(tables.transactions)
+				.where(
+					and(
+						userHasPermission({
+							budgetIdCol: tables.transactions.budgetId,
+							database,
+							userId: user.id
+						}),
+						inArray(tables.transactions.id, ids)
+					)
+				)
+				.returning()
+				.all();
+		},
+
 		batchValidate({ ids, validated }: { ids: string[]; validated: boolean }) {
 			return database
 				.update(tables.transactions)

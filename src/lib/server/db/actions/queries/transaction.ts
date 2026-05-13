@@ -1,7 +1,7 @@
 import type { SQLiteColumn, SQLiteSelect } from 'drizzle-orm/sqlite-core';
 
 import { tables } from '$db';
-import { asc, desc, eq, gte, ilike, inArray, lte, SQL } from 'drizzle-orm';
+import { asc, desc, eq, gte, inArray, like, lte, SQL } from 'drizzle-orm';
 
 export type TransactionFilterParam = {
 	accountId?: string | string[];
@@ -48,7 +48,7 @@ export function withFilter<T extends SQLiteSelect>({
 	}
 
 	if (filter?.notes) {
-		dq = dq.where(ilike(tables.transactions.notes, `%${escapeLikePattern(filter.notes)}%`));
+		dq = dq.where(like(tables.transactions.notes, `%${escapeLikePattern(filter.notes)}%`));
 	}
 
 	if (filter?.validated !== undefined) {

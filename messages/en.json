@@ -102,5 +102,12 @@
 	"transactions_table_edit_notes": "Edit notes",
 	"transactions_table_edit_amount": "Edit amount",
 	"transactions_table_toggle_validated": "Toggle validated status",
-	"transactions_table_create_transaction": "New Transaction"
+	"transactions_table_create_transaction": "New Transaction",
+	"account_balance_validated": "Validated",
+	"account_balance_pending": "Pending",
+	"account_balance": "Balance",
+	"delete": "Delete",
+	"account_details": "Account Details",
+	"account_back_to_transactions": "Go Back to Transactions",
+	"use": "Set"
 }

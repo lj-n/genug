@@ -16,7 +16,7 @@
 
 	const tableContext = getTableContext();
 
-	let disabled = $derived(tableContext.editingRowId !== null);
+	let disabled = $derived(tableContext.editing);
 </script>
 
 <div class="grid place-content-center">

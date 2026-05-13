@@ -6,69 +6,85 @@ import { error } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
-import type { PageServerLoad } from './$types';
+import type { PageServerLoad, PageServerLoadEvent } from './$types';
 
 import { schemaTransactionCreate } from '../../transactions/new/schema';
 import { schemaTransactionEdit } from '../../transactions/schema';
 import { schemaURLParams } from './schema';
 
-export const load: PageServerLoad = withPermissions(async (user, actions, event) => {
-	const { budget } = await event.parent();
+export const load: PageServerLoad = withPermissions(
+	async (user, actions, event: PageServerLoadEvent) => {
+		const { budget } = await event.parent();
 
-	const account = budget.accounts.find((account) => account.id === event.params.accountId);
+		const account = budget.accounts.find((account) => account.id === event.params.accountId);
 
-	if (!account) {
-		error(404, 'Account not found');
+		if (!account) {
+			error(404, 'Account not found');
+		}
+
+		const { searchParams } = event.url;
+		const params = schemaURLParams.parse({
+			categoryId: searchParams.getAll('categoryId'),
+			notes: searchParams.get('notes'),
+			page: searchParams.get('page'),
+			pageSize: searchParams.get('pageSize')
+		});
+
+		const filter: TransactionFilterParam = {
+			accountId: account.id,
+			...(params.categoryId?.length ? { categoryId: params.categoryId } : {}),
+			...(params.notes ? { notes: params.notes } : {})
+		};
+
+		const sort: TransactionSortParam = {
+			...(params.sortCategory ? { category: params.sortCategory } : {}),
+			...(params.sortAccount ? { account: params.sortAccount } : {}),
+			...(params.sortDate ? { date: params.sortDate } : {}),
+			...(params.sortValidated ? { validated: params.sortValidated } : {})
+		};
+
+		const { transactions } = actions.transaction.list({
+			filter,
+			pagination: {
+				page: params.page - 1, // API is 0-indexed, UI is 1-indexed
+				pageSize: params.pageSize
+			},
+			sort
+		});
+
+		const totalTransactionCount = actions.transaction.list({ filter }).transactions.length;
+		const pagination = {
+			page: params.page,
+			pageSize: params.pageSize,
+			pageTotalCount: totalTransactionCount
+		};
+
+		const categories = actions.category
+			.allFlat({ budgetId: budget.id })
+			.filter((cat) => cat.archivedAt === null);
+
+		const formTransactionEdit = await superValidate(zod4(schemaTransactionEdit));
+		const formTransactionCreate = await superValidate(
+			{ date: today(getLocalTimeZone()).toString() },
+			zod4(schemaTransactionCreate),
+			{ errors: false }
+		);
+
+		const balanceDetail = actions.account.getBalanceDetail({ accountId: account.id });
+
+		return {
+			account,
+			balances: {
+				balance: account.balance,
+				...balanceDetail
+			},
+			categories,
+			filter,
+			formTransactionCreate,
+			formTransactionEdit,
+			pagination,
+			totalTransactionCount,
+			transactions
+		};
 	}
-
-	const params = schemaURLParams.parse(Object.fromEntries(event.url.searchParams.entries()));
-
-	const filter: TransactionFilterParam = {
-		accountId: account.id,
-		...(params.categoryId ? { categoryId: params.categoryId } : {})
-	};
-
-	const sort: TransactionSortParam = {
-		...(params.sortCategory ? { category: params.sortCategory } : {}),
-		...(params.sortAccount ? { account: params.sortAccount } : {}),
-		...(params.sortDate ? { date: params.sortDate } : {}),
-		...(params.sortValidated ? { validated: params.sortValidated } : {})
-	};
-
-	const { transactions } = actions.transaction.list({
-		filter,
-		pagination: {
-			page: params.page - 1, // API is 0-indexed, UI is 1-indexed
-			pageSize: params.pageSize
-		},
-		sort
-	});
-
-	const totalTransactionCount = actions.transaction.list({ filter }).transactions.length;
-	const pagination = {
-		page: params.page,
-		pageSize: params.pageSize,
-		pageTotalCount: totalTransactionCount
-	};
-
-	const categories = actions.category
-		.allFlat({ budgetId: budget.id })
-		.filter((cat) => cat.archivedAt === null);
-
-	const formTransactionEdit = await superValidate(zod4(schemaTransactionEdit));
-	const formTransactionCreate = await superValidate(
-		{ date: today(getLocalTimeZone()).toString() },
-		zod4(schemaTransactionCreate),
-		{ errors: false }
-	);
-
-	return {
-		account,
-		categories,
-		formTransactionCreate,
-		formTransactionEdit,
-		pagination,
-		totalTransactionCount,
-		transactions
-	};
-});
+);

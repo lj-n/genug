@@ -13,7 +13,7 @@
 	let { categoryName, row }: { categoryName: string; row: Row<TransactionRow> } = $props();
 
 	const tableContext = getTableContext();
-	const { form: formData } = tableContext.form;
+	const { form: formData } = tableContext.editForm();
 
 	let open = $state(false);
 
@@ -45,7 +45,7 @@
 		<SelectCommand
 			bind:open
 			bind:value={getValue, setValue}
-			items={tableContext.categories}
+			items={tableContext.categories()}
 			triggerProps={props}
 			textEmptyTrigger={m.transaction_table_cell_category_empty()}
 			textInputPlaceholder={m.transaction_table_cell_category_placeholder()}

@@ -211,7 +211,7 @@
 <Popover.Root bind:open>
 	<Popover.Trigger>
 		{#snippet child({ props })}
-			<Button {...props} class="w-fit">
+			<Button {...props} class="ml-auto w-fit">
 				<PhPlus />
 				{m.transactions_table_create_transaction()}
 			</Button>

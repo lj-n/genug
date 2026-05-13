@@ -19,7 +19,7 @@
 	const tableContext = getTableContext();
 	const intlContext = getIntlContext();
 
-	const { form: formData } = tableContext.form;
+	const { form: formData } = tableContext.editForm();
 
 	let df = $derived((date: CalendarDate) =>
 		intlContext.formatDate(date, {

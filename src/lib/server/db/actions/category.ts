@@ -146,6 +146,7 @@ export function createCategoryActions({
 				return category;
 			});
 		},
+
 		getById({ id }: { id: string }) {
 			return database
 				.select(selectColumns(database))

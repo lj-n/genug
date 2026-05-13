@@ -13,7 +13,7 @@
 	let { notes, row }: { notes: string; row: Row<TransactionRow> } = $props();
 
 	const tableContext = getTableContext();
-	const { form: formData } = tableContext.form;
+	const { form: formData } = tableContext.editForm();
 
 	let inputRef = $state<HTMLInputElement>(null!);
 

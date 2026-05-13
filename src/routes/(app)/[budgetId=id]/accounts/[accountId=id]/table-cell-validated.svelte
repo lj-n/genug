@@ -14,10 +14,10 @@
 
 	const tableContext = getTableContext();
 
-	const { form: formData } = tableContext.form;
+	const { form: formData } = tableContext.editForm();
 
 	function toggleValidated() {
-		fetch('/api/validate', {
+		fetch('/api/transaction/validate', {
 			body: JSON.stringify({
 				transactionIds: [row.id],
 				validated: !isValidated
@@ -34,7 +34,7 @@
 
 <div class="grid size-full place-content-center">
 	{#if tableContext.isEditingRow(row.id)}
-		<Form.Field form={tableContext.form} name="validated">
+		<Form.Field form={tableContext.editForm()} name="validated">
 			<Form.Control>
 				{#snippet children({ props })}
 					<ValidateCheckbox bind:checked={$formData.validated} {...props} />
@@ -42,6 +42,10 @@
 			</Form.Control>
 		</Form.Field>
 	{:else}
-		<ValidateCheckbox checked={isValidated} onclick={toggleValidated} aria-label={m.transactions_table_toggle_validated()} />
+		<ValidateCheckbox
+			checked={isValidated}
+			onclick={toggleValidated}
+			aria-label={m.transactions_table_toggle_validated()}
+		/>
 	{/if}
 </div>

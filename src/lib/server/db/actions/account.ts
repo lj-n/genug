@@ -2,6 +2,7 @@ import { tables } from '$db';
 import { and, asc, eq, inArray, isNull, sql } from 'drizzle-orm';
 
 import { userHasPermission } from './permissions';
+import queries from './queries';
 
 export function createAccountActions({
 	database,
@@ -80,6 +81,40 @@ export function createAccountActions({
 
 				return account;
 			});
+		},
+
+		getBalanceDetail({ accountId }: { accountId: string }) {
+			const detail = database
+				.select({
+					pending: sql<number>`
+						${queries.account.pendingAccountBalance({
+							accountId: tables.accounts.id,
+							database
+						})}`,
+					validated: sql<number>`
+						${queries.account.validatedAccountBalance({
+							accountId: tables.accounts.id,
+							database
+						})}`
+				})
+				.from(tables.accounts)
+				.where(
+					and(
+						userHasPermission({
+							budgetIdCol: tables.accounts.budgetId,
+							database,
+							userId: user.id
+						}),
+						eq(tables.accounts.id, accountId)
+					)
+				)
+				.get();
+
+			if (!detail) {
+				throw new Error('Account not found');
+			}
+
+			return detail;
 		},
 
 		reorder({ orderedIds }: { orderedIds: string[] }) {

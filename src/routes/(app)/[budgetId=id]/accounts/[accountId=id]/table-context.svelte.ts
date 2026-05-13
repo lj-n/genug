@@ -1,60 +1,97 @@
-import type { Row } from '@tanstack/table-core';
+import type { TransactionFilterParam } from '$db/actions/queries/transaction';
 import type { Infer, SuperForm } from 'sveltekit-superforms';
 
-import { getContext, setContext } from 'svelte';
+import { type Component, createContext, type Snippet } from 'svelte';
 
 import type { schemaTransactionEdit } from '../../transactions/schema';
 import type { PageData } from './$types';
 import type { TransactionRow } from './types';
 
-type Categories = PageData['categories'];
-type EditingForm = SuperForm<Infer<typeof schemaTransactionEdit>>;
+import FilterCategory from './filter-category.svelte';
+import FilterNotes from './filter-notes.svelte';
 
-type TableContextParams = {
-	categories: Categories;
-	form: EditingForm;
-};
+export type FilterComponent = Component<{
+	footer: Snippet<
+		[
+			{
+				setParams: () => void;
+			}
+		]
+	>;
 
-class TableContext {
-	categories: Categories;
-	editingRowId = $state<null | string>(null);
-	form: EditingForm;
+	header: Snippet<
+		[
+			{
+				description: string;
+				title: string;
+			}
+		]
+	>;
+}>;
+type Category = PageData['categories'][number];
+type EditForm = SuperForm<Infer<typeof schemaTransactionEdit>>;
+type Filter = TransactionFilterParam;
+type FilterComponentState = { Component: FilterComponent };
+type FilterDialogType = 'category' | 'notes';
+type Transaction = TransactionRow;
 
-	isEditingRow = $derived((rowId: string) => this.editingRowId === rowId);
+export class TableContext {
+	private editingRowId = $state<null | string>(null);
 
-	constructor({ categories, form }: TableContextParams) {
-		this.categories = $state(categories);
-		this.form = form;
+	public editing = $derived(this.editingRowId !== null);
+	public filterComponent = $state<FilterComponentState | null>(null);
+	public filterDialogOpen = $state(false);
+
+	constructor(
+		public categories: () => Category[],
+		public editForm: () => EditForm,
+		public filter: () => Filter,
+		public transactions: () => Transaction[]
+	) {}
+
+	public cancelEditing() {
+		this.editingRowId = null;
+		this.editForm().reset();
 	}
 
-	cancelEdit = () => {
-		this.editingRowId = null;
-		this.form.reset();
-	};
+	public getTransactionById(id: string) {
+		return this.transactions().find((f) => f.id === id);
+	}
 
-	setEditingRow = (row: Row<TransactionRow>) => {
-		this.cancelEdit();
-		this.editingRowId = row.id;
-		this.form.reset({
-			data: {
-				accountId: row.original.accountId,
-				amount: row.original.amount,
-				categoryId: row.original.categoryId,
-				date: row.original.date,
-				notes: row.original.notes,
-				transactionId: row.original.id,
-				validated: row.original.validated
+	public isEditingRow(rowId: string) {
+		return this.editingRowId === rowId;
+	}
+
+	public openFilterDialog(type: FilterDialogType) {
+		switch (type) {
+			case 'category': {
+				this.filterComponent = {
+					Component: FilterCategory
+				};
+				break;
 			}
-		});
-	};
+
+			case 'notes': {
+				this.filterComponent = {
+					Component: FilterNotes
+				};
+				break;
+			}
+		}
+
+		this.filterDialogOpen = true;
+	}
+
+	public setEditingRow(rowId: string) {
+		const transaction = this.getTransactionById(rowId);
+
+		if (transaction) {
+			this.editingRowId = rowId;
+
+			const { id: transactionId, ...rest } = transaction;
+			this.editForm().reset({ data: { transactionId, ...rest } });
+		}
+	}
 }
 
-const TABLE_CONTEXT_KEY = Symbol('TableContext');
-
-export function getTableContext() {
-	return getContext<ReturnType<typeof setTableContext>>(TABLE_CONTEXT_KEY);
-}
-
-export function setTableContext(params: TableContextParams) {
-	return setContext(TABLE_CONTEXT_KEY, new TableContext(params));
-}
+export const [getTableContext, setTableContext] = createContext<TableContext>();
