@@ -115,5 +115,7 @@
 	"transaction_filter_category_description": "Nur Zahlungen der gewählten Kategorien anzeigen.",
 	"transaction_filter_category_deselect_all": "Alle abwählen",
 	"transaction_filter_notes_title": "Notizen Filter",
-	"transaction_filter_notes_description": "Suche nach bestimmten Notizinhalten."
+	"transaction_filter_notes_description": "Suche nach bestimmten Notizinhalten.",
+	"transaction_filter_label_category": "Kategorie ist {value}",
+	"transaction_filter_label_notes": "Notizen beinhaltet {value}"
 }

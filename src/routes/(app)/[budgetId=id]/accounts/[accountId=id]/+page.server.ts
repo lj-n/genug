@@ -1,4 +1,8 @@
-import type { TransactionFilterParam, TransactionSortParam } from '$db/actions/queries/transaction';
+import type {
+	TransactionFilterParam,
+	TransactionPaginationParam,
+	TransactionSortParam
+} from '$db/actions/queries/transaction';
 
 import { withPermissions } from '$db/actions';
 import { getLocalTimeZone, today } from '@internationalized/date';
@@ -53,10 +57,10 @@ export const load: PageServerLoad = withPermissions(
 		});
 
 		const totalTransactionCount = actions.transaction.list({ filter }).transactions.length;
-		const pagination = {
+		const pagination: TransactionPaginationParam = {
 			page: params.page,
 			pageSize: params.pageSize,
-			pageTotalCount: totalTransactionCount
+			totalTransactionCount
 		};
 
 		const categories = actions.category

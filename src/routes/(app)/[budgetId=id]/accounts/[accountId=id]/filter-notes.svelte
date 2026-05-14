@@ -12,10 +12,6 @@
 	const filter = tableContext.filter();
 
 	let value = $state<string>(filter.notes ?? '');
-
-	function setParams() {
-		//
-	}
 </script>
 
 {@render header({
@@ -27,4 +23,8 @@
 	<Input bind:value />
 </div>
 
-{@render footer({ setParams })}
+{@render footer({
+	setParams: () => {
+		tableContext.setFilterParams({ notes: value });
+	}
+})}

@@ -1,7 +1,7 @@
 import type { SQLiteColumn, SQLiteSelect } from 'drizzle-orm/sqlite-core';
 
 import { tables } from '$db';
-import { asc, desc, eq, gte, inArray, like, lte, SQL } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, inArray, like, lte, SQL } from 'drizzle-orm';
 
 export type TransactionFilterParam = {
 	accountId?: string | string[];
@@ -12,6 +12,12 @@ export type TransactionFilterParam = {
 	notes?: string;
 	toDate?: string; // YYYY-MM-DD
 	validated?: boolean;
+};
+
+export type TransactionPaginationParam = {
+	page: number;
+	pageSize: number;
+	totalTransactionCount: number;
 };
 
 export type TransactionSortParam = {
@@ -31,47 +37,42 @@ export function withFilter<T extends SQLiteSelect>({
 	dq: T;
 	filter?: TransactionFilterParam;
 }) {
-	if (filter?.accountId) {
-		if (typeof filter.accountId === 'string') {
-			dq = dq.where(eq(tables.transactions.accountId, filter.accountId));
-		} else {
-			dq = dq.where(inArray(tables.transactions.accountId, filter.accountId));
-		}
+	const conditions: (SQL | undefined)[] = [];
+
+	if (filter.accountId) {
+		conditions.push(
+			typeof filter.accountId === 'string'
+				? eq(tables.transactions.accountId, filter.accountId)
+				: inArray(tables.transactions.accountId, filter.accountId)
+		);
+	}
+	if (filter.categoryId) {
+		conditions.push(
+			typeof filter.categoryId === 'string'
+				? eq(tables.transactions.categoryId, filter.categoryId)
+				: inArray(tables.transactions.categoryId, filter.categoryId)
+		);
+	}
+	if (filter.notes) {
+		conditions.push(like(tables.transactions.notes, `%${escapeLikePattern(filter.notes)}%`));
+	}
+	if (filter.validated !== undefined) {
+		conditions.push(eq(tables.transactions.validated, filter.validated));
+	}
+	if (filter.maxAmount) {
+		conditions.push(gte(tables.transactions.amount, filter.maxAmount));
+	}
+	if (filter.minAmount) {
+		conditions.push(lte(tables.transactions.amount, filter.minAmount));
+	}
+	if (filter.fromDate) {
+		conditions.push(gte(tables.transactions.date, filter.fromDate));
+	}
+	if (filter.toDate) {
+		conditions.push(lte(tables.transactions.date, filter.toDate));
 	}
 
-	if (filter?.categoryId) {
-		if (typeof filter.categoryId === 'string') {
-			dq = dq.where(eq(tables.transactions.categoryId, filter.categoryId));
-		} else {
-			dq = dq.where(inArray(tables.transactions.categoryId, filter.categoryId));
-		}
-	}
-
-	if (filter?.notes) {
-		dq = dq.where(like(tables.transactions.notes, `%${escapeLikePattern(filter.notes)}%`));
-	}
-
-	if (filter?.validated !== undefined) {
-		dq = dq.where(eq(tables.transactions.validated, filter.validated));
-	}
-
-	if (filter?.maxAmount) {
-		dq = dq.where(gte(tables.transactions.amount, filter.maxAmount));
-	}
-
-	if (filter?.minAmount) {
-		dq = dq.where(lte(tables.transactions.amount, filter.minAmount));
-	}
-
-	if (filter?.fromDate) {
-		dq = dq.where(gte(tables.transactions.date, filter.fromDate));
-	}
-
-	if (filter?.toDate) {
-		dq = dq.where(lte(tables.transactions.date, filter.toDate));
-	}
-
-	return dq;
+	return dq.where(and(...conditions));
 }
 
 export function withPagination<T extends SQLiteSelect>({

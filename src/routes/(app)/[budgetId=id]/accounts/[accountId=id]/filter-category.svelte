@@ -35,10 +35,6 @@
 			buttonRefs[id]?.focus();
 		});
 	}
-
-	function setParams() {
-		//
-	}
 </script>
 
 {@render header({
@@ -80,4 +76,10 @@
 	{/if}
 </div>
 
-{@render footer({ setParams })}
+{@render footer({
+	setParams: () => {
+		tableContext.setFilterParams({
+			categoryId: selected.values().toArray()
+		});
+	}
+})}

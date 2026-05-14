@@ -6,7 +6,7 @@
 	import PhFunnel from '~icons/ph/funnel';
 
 	import { getTableContext } from './table-context.svelte';
-	import TableFilterLabel from './table-filter-label.svelte';
+	import TableFilterList from './table-filter-list.svelte';
 
 	const tableContext = getTableContext();
 </script>
@@ -37,11 +37,11 @@
 		</DropdownMenu.Content>
 	</DropdownMenu.Root>
 
-	<TableFilterLabel />
+	<TableFilterList />
 </div>
 
 <Dialog.Root bind:open={tableContext.filterDialogOpen}>
-	<Dialog.Content class="max-w-80">
+	<Dialog.Content class="max-w-120">
 		<div class="contents">
 			{#if tableContext.filterComponent}
 				{@const { Component } = tableContext.filterComponent}
@@ -57,7 +57,14 @@
 					{#snippet footer({ setParams })}
 						<Dialog.Footer>
 							<Dialog.Close class={buttonVariants({ variant: 'ghost' })}>{m.cancel()}</Dialog.Close>
-							<Button onclick={() => setParams()}>{m.use()}</Button>
+							<Button
+								onclick={() => {
+									setParams();
+									tableContext.filterDialogOpen = false;
+								}}
+							>
+								{m.use()}
+							</Button>
 						</Dialog.Footer>
 					{/snippet}
 				</Component>

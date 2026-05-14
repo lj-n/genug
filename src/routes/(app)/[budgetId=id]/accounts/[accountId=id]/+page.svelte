@@ -13,6 +13,7 @@
 		type RowSelectionState,
 		type VisibilityState
 	} from '@tanstack/table-core';
+	import { untrack } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4Client } from 'sveltekit-superforms/adapters';
@@ -42,10 +43,14 @@
 					onUpdated() {
 						tableContext.cancelEditing();
 					},
-					validators: zod4Client(schemaTransactionEdit)
+					validators: zod4Client(schemaTransactionEdit),
+					warnings: { duplicateId: false }
 				}),
 			() => data.filter,
-			() => data.transactions
+			() => data.pagination,
+			() => data.transactions,
+			untrack(() => data.account.id),
+			untrack(() => data.budget.id)
 		)
 	);
 
@@ -277,7 +282,7 @@
 			</div>
 
 			<div class="grid items-center rounded-sm border border-muted/10 bg-muted/3 px-2">
-				<TablePagination {...data.pagination} />
+				<TablePagination />
 			</div>
 		</div>
 	</Page.Content>

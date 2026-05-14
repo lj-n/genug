@@ -1,51 +1,29 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
-	import { page as pageState } from '$app/state';
 	import * as Pagination from '$lib/components/ui/pagination';
 	import * as Select from '$lib/components/ui/select';
 	import { m } from '$lib/paraglide/messages';
 
-	import type { PaginationState } from './types';
+	import { getTableContext } from './table-context.svelte';
 
-	let { page, pageSize, pageTotalCount }: PaginationState = $props();
+	const tableContext = getTableContext();
+	const { page, pageSize, totalTransactionCount: total } = $derived(tableContext.pagination());
 
-	async function setPaginationQueryParam(
-		param: 'page' | 'pageSize',
-		value: string,
-		updateState: () => void
-	) {
-		const { searchParams } = pageState.url;
-		searchParams.set(param, value);
-
-		await goto(
-			resolve(`/(app)/[budgetId=id]/accounts/[accountId=id]?${searchParams.toString()}`, {
-				accountId: pageState.params.accountId!,
-				budgetId: pageState.params.budgetId!
-			}),
-			{
-				invalidateAll: true,
-				noScroll: true
-			}
-		);
-
-		updateState();
-	}
-
-	let pageCount = $derived(Math.max(1, Math.ceil(pageTotalCount / pageSize)));
+	let pageCount = $derived(Math.max(1, Math.ceil(total / pageSize)));
 	let isFirstPage = $derived(page === 1);
 	let isLastPage = $derived(page === pageCount);
 
 	let pagesInfo: string = $derived.by(() => {
 		const currentPage = Math.min(page, pageCount);
-		const start = pageTotalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-		const end = pageTotalCount === 0 ? 0 : Math.min(start + pageSize - 1, pageTotalCount);
+		const start = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+		const end = total === 0 ? 0 : Math.min(start + pageSize - 1, total);
 		return m.transactions_pagination_showing({
 			end: String(end),
 			start: String(start),
-			total: String(pageTotalCount)
+			total: String(total)
 		});
 	});
+
+	const PAGE_SIZES = ['15', '25', '50', '100'] as const;
 </script>
 
 <div class="flex items-center justify-between gap-4">
@@ -54,10 +32,9 @@
 			type="single"
 			bind:value={
 				() => pageSize.toString(),
-				async (newPageSize) =>
-					setPaginationQueryParam('pageSize', newPageSize, () => {
-						pageSize = Number(newPageSize);
-					})
+				async (newPageSize) => {
+					tableContext.setPaginationParam('pageSize', newPageSize);
+				}
 			}
 		>
 			<Select.Trigger
@@ -67,12 +44,11 @@
 				{m.transactions_pagination_per_page({ count: String(pageSize) })}
 			</Select.Trigger>
 			<Select.Content>
-				<Select.Item value="15">{m.transactions_pagination_per_page({ count: '15' })}</Select.Item>
-				<Select.Item value="25">{m.transactions_pagination_per_page({ count: '25' })}</Select.Item>
-				<Select.Item value="50">{m.transactions_pagination_per_page({ count: '50' })}</Select.Item>
-				<Select.Item value="75">{m.transactions_pagination_per_page({ count: '75' })}</Select.Item>
-				<Select.Item value="100">{m.transactions_pagination_per_page({ count: '100' })}</Select.Item
-				>
+				{#each PAGE_SIZES as size (size)}
+					<Select.Item value={size}>
+						{m.transactions_pagination_per_page({ count: size })}
+					</Select.Item>
+				{/each}
 			</Select.Content>
 		</Select.Root>
 
@@ -83,14 +59,13 @@
 
 	<Pagination.Root
 		class="ml-auto w-fit"
-		count={pageTotalCount}
+		count={total}
 		perPage={pageSize}
 		bind:page={
 			() => page,
-			async (newPage) =>
-				setPaginationQueryParam('page', String(newPage), () => {
-					page = newPage;
-				})
+			async (newPage) => {
+				tableContext.setPaginationParam('page', newPage.toString());
+			}
 		}
 	>
 		{#snippet children({ currentPage, pages })}
