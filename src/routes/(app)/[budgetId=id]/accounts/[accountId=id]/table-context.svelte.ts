@@ -36,7 +36,7 @@ type Category = PageData['categories'][number];
 type EditForm = SuperForm<Infer<typeof schemaTransactionEdit>>;
 type Filter = TransactionFilterParam;
 type FilterComponentState = { Component: FilterComponent };
-type FilterDialogType = 'category' | 'notes';
+type FilterDialogType = 'amount' | 'category' | 'date' | 'notes' | 'validated';
 type Pagination = TransactionPaginationParam;
 type Transaction = TransactionRow;
 

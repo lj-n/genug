@@ -20,7 +20,7 @@
 	<div
 		role="button"
 		tabindex="0"
-		class="flex items-center gap-0.5 rounded-full border border-muted/20 bg-surface pl-2 text-sm shadow-xs hover:cursor-pointer hover:border-interactive/30 hover:bg-interactive/5"
+		class="flex items-center gap-0.5 rounded-full border border-info/15 bg-info/5 pl-2 text-sm shadow-xs hover:cursor-pointer hover:border-interactive/30 hover:bg-interactive/5"
 		onclick={props.openDialog}
 		onkeydown={(e) => e.key === 'Enter' && props.openDialog()}
 	>

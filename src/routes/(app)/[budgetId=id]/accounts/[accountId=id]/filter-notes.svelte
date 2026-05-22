@@ -19,9 +19,16 @@
 	title: m.transaction_filter_notes_title()
 })}
 
-<div>
-	<Input bind:value />
-</div>
+<form
+	onsubmit={(e) => {
+		e.preventDefault();
+		tableContext.setFilterParams({ notes: value });
+		tableContext.filterDialogOpen = false;
+	}}
+>
+	<Input bind:value aria-label={m.transaction_filter_notes_title()} />
+	<input type="submit" hidden />
+</form>
 
 {@render footer({
 	setParams: () => {

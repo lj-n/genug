@@ -111,11 +111,16 @@
 	"account_balance": "Kontostand",
 	"account_details": "Konto Details",
 	"account_back_to_transactions": "Zurück zu Zahlungen",
+	"transaction_filter_title": "Filter",
 	"transaction_filter_category_title": "Kategorien Filter",
 	"transaction_filter_category_description": "Nur Zahlungen der gewählten Kategorien anzeigen.",
 	"transaction_filter_category_deselect_all": "Alle abwählen",
 	"transaction_filter_notes_title": "Notizen Filter",
 	"transaction_filter_notes_description": "Suche nach bestimmten Notizinhalten.",
 	"transaction_filter_label_category": "Kategorie ist {value}",
-	"transaction_filter_label_notes": "Notizen beinhaltet {value}"
+	"transaction_filter_label_notes": "Notizen beinhaltet {value}",
+	"transaction_filter_active": "{value} Filter Aktiv",
+	"transaction_filter_date_title": "Datum Filter",
+	"transaction_filter_amount_title": "Betrag Filter",
+	"transaction_filter_validated_title": "Abgebucht Filter"
 }

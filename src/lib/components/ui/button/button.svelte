@@ -14,7 +14,7 @@
 		variants: {
 			size: {
 				default:
-					'h-9 gap-1.5 px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
+					'h-9 gap-1.5 px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 w-fit',
 				icon: 'size-9',
 				'icon-lg': 'size-10',
 				'icon-sm':
