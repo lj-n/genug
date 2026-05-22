@@ -38,14 +38,16 @@
 	const tableContext = setTableContext(
 		new TableContext(
 			() => data.categories,
-			() =>
-				superForm(data.formTransactionEdit, {
+			superForm(
+				untrack(() => data.formTransactionEdit),
+				{
 					onUpdated() {
 						tableContext.cancelEditing();
 					},
 					validators: zod4Client(schemaTransactionEdit),
 					warnings: { duplicateId: false }
-				}),
+				}
+			),
 			() => data.filter,
 			() => data.pagination,
 			() => data.transactions,
@@ -55,7 +57,7 @@
 	);
 
 	const { editForm } = tableContext;
-	const { enhance, form: formData } = editForm();
+	const { enhance, form: formData } = editForm;
 
 	let rowSelection = $state<RowSelectionState>({});
 	let onRowSelectionChange: OnChangeFn<RowSelectionState> = $derived((updater) => {
@@ -129,7 +131,7 @@
 	}
 
 	function submit() {
-		tableContext.editForm().submit();
+		tableContext.editForm.submit();
 	}
 
 	function deleteTransaction(id: string) {
@@ -242,7 +244,7 @@
 						data-state={row.getIsSelected() && 'selected'}
 						{@attach isEditing &&
 							clickOutside({
-								callback: tableContext.cancelEditing
+								callback: () => tableContext.cancelEditing()
 							})}
 					>
 						{#each row.getVisibleCells() as cell (cell.id)}

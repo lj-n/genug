@@ -16,7 +16,7 @@
 	const tableContext = getTableContext();
 	const intlContext = getIntlContext();
 
-	const { form: formData } = tableContext.editForm();
+	const { form: formData } = tableContext.editForm;
 
 	let inputRef = $state<HTMLInputElement>(null!);
 
@@ -45,7 +45,7 @@
 			bind:value={$formData.amount}
 			{...props}
 			intlConfig={{ locale: intlContext.locale, ...intlContext.numberFormatOptions }}
-			class="px-2 text-right font-medium"
+			class="px-2 text-right font-currency font-medium"
 		/>
 	{/snippet}
 </TableCellEditable>

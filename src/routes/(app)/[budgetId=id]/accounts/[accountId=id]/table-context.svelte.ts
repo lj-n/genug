@@ -49,7 +49,7 @@ export class TableContext {
 
 	constructor(
 		public categories: () => Category[],
-		public editForm: () => EditForm,
+		public editForm: EditForm,
 		public filter: () => Filter,
 		public pagination: () => Pagination,
 		public transactions: () => Transaction[],
@@ -59,7 +59,7 @@ export class TableContext {
 
 	public cancelEditing() {
 		this.editingRowId = null;
-		this.editForm().reset();
+		this.editForm.reset();
 	}
 
 	public clearAllFilters() {
@@ -111,7 +111,7 @@ export class TableContext {
 			this.editingRowId = rowId;
 
 			const { id: transactionId, ...rest } = transaction;
-			this.editForm().reset({ data: { transactionId, ...rest } });
+			this.editForm.reset({ data: { transactionId, ...rest } });
 		}
 	}
 

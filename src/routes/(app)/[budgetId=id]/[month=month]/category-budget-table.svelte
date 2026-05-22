@@ -62,7 +62,7 @@
 <div role="table">
 	<div role="rowgroup">
 		<div role="row" class="flex">
-			<BudgetTableHeader class="w-2/5">
+			<BudgetTableHeader class="w-2/5 text-lg font-bold tracking-tight text-foreground">
 				{m.budget_monthly_table_header_category()}
 			</BudgetTableHeader>
 			<BudgetTableHeader class="w-1/5">

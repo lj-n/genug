@@ -48,7 +48,7 @@
 	)}
 >
 	{#if tableContext.isEditingRow(row.id)}
-		<Form.Field form={tableContext.editForm()} {name} class="w-full space-y-0">
+		<Form.Field form={tableContext.editForm} {name} class="w-full space-y-0">
 			<Form.Control>
 				{#snippet children({ props })}
 					{@render edit({ props })}

@@ -13,7 +13,7 @@
 	let { categoryName, row }: { categoryName: string; row: Row<TransactionRow> } = $props();
 
 	const tableContext = getTableContext();
-	const { form: formData } = tableContext.editForm();
+	const { form: formData } = tableContext.editForm;
 
 	let open = $state(false);
 
