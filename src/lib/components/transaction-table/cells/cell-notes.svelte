@@ -3,12 +3,12 @@
 
 	import { Input } from '$lib/components/ui/input';
 	import { m } from '$lib/paraglide/messages';
-	import { tick } from 'svelte';
+	import { focusAndSelect } from '$lib/utils/focus-and-select';
 
-	import type { TransactionRow } from './types';
+	import type { TransactionRow } from '../types';
 
-	import TableCellEditable from './table-cell-editable.svelte';
-	import { getTableContext } from './table-context.svelte';
+	import { getTableContext } from '../context.svelte';
+	import CellEditable from './cell-editable.svelte';
 
 	let { notes, row }: { notes: string; row: Row<TransactionRow> } = $props();
 
@@ -16,22 +16,15 @@
 	const { form: formData } = tableContext.editForm;
 
 	let inputRef = $state<HTMLInputElement>(null!);
-
-	function onEdit() {
-		tick().then(() => {
-			inputRef.focus();
-			inputRef.select();
-		});
-	}
 </script>
 
-<TableCellEditable
+<CellEditable
 	{row}
 	name="notes"
 	align="start"
 	ariaLabel={m.transactions_table_edit_notes()}
 	buttonClass="truncate"
-	{onEdit}
+	onEdit={() => focusAndSelect(inputRef)}
 >
 	{#snippet view()}
 		{notes}
@@ -39,4 +32,4 @@
 	{#snippet edit({ props })}
 		<Input bind:ref={inputRef} class="px-2" bind:value={$formData.notes} {...props} />
 	{/snippet}
-</TableCellEditable>
+</CellEditable>

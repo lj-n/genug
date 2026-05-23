@@ -1,17 +1,13 @@
 <script lang="ts">
 	import type { Row } from '@tanstack/table-core';
 	import type { Snippet } from 'svelte';
-	import type { Infer } from 'sveltekit-superforms';
 
 	import * as Form from '$lib/components/ui/form';
 	import { cn } from 'tailwind-variants';
 
-	import type { schemaTransactionEdit } from '../../transactions/schema';
-	import type { TransactionRow } from './types';
+	import type { TransactionEditFieldName, TransactionRow } from '../types';
 
-	import { getTableContext } from './table-context.svelte';
-
-	type FieldName = keyof Infer<typeof schemaTransactionEdit>;
+	import { getTableContext } from '../context.svelte';
 
 	let {
 		align = 'start',
@@ -27,7 +23,7 @@
 		ariaLabel: string;
 		buttonClass?: string;
 		edit: Snippet<[{ props: Record<string, unknown> }]>;
-		name: FieldName;
+		name: TransactionEditFieldName;
 		onEdit?: () => void;
 		row: Row<TransactionRow>;
 		view: Snippet;

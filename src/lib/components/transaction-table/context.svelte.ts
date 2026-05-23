@@ -2,6 +2,7 @@ import type {
 	TransactionFilterParam,
 	TransactionPaginationParam
 } from '$db/actions/queries/transaction';
+import type { schemaTransactionEdit } from '$lib/schemas/transactions';
 import type { Infer, SuperForm } from 'sveltekit-superforms';
 
 import { goto } from '$app/navigation';
@@ -10,12 +11,10 @@ import { page } from '$app/state';
 import { type Component, createContext, type Snippet } from 'svelte';
 import { SvelteURLSearchParams } from 'svelte/reactivity';
 
-import type { schemaTransactionEdit } from '../../transactions/schema';
-import type { PageData } from './$types';
-import type { TransactionRow } from './types';
+import type { CategoryItem, TransactionRow } from './types';
 
-import FilterCategory from './filter-category.svelte';
-import FilterNotes from './filter-notes.svelte';
+import FilterCategory from './filter/filter-category.svelte';
+import FilterNotes from './filter/filter-notes.svelte';
 
 const FILTER_KEYS = [
 	'accountId',
@@ -32,13 +31,17 @@ export type FilterComponent = Component<{
 	footer: Snippet<[{ setParams: () => void }]>;
 	header: Snippet<[{ description: string; title: string }]>;
 }>;
-type Category = PageData['categories'][number];
+
 type EditForm = SuperForm<Infer<typeof schemaTransactionEdit>>;
 type Filter = TransactionFilterParam;
 type FilterComponentState = { Component: FilterComponent };
 type FilterDialogType = 'amount' | 'category' | 'date' | 'notes' | 'validated';
 type Pagination = TransactionPaginationParam;
-type Transaction = TransactionRow;
+
+const FILTER_DIALOG_MAP: Partial<Record<FilterDialogType, FilterComponent>> = {
+	category: FilterCategory,
+	notes: FilterNotes
+};
 
 export class TableContext {
 	private editingRowId = $state<null | string>(null);
@@ -47,12 +50,16 @@ export class TableContext {
 
 	public filterDialogOpen = $state(false);
 
+	public get editFormAction() {
+		return resolve('/(app)/[budgetId=id]/transactions', { budgetId: this.budgetId });
+	}
+
 	constructor(
-		public categories: () => Category[],
+		public categories: () => CategoryItem[],
 		public editForm: EditForm,
 		public filter: () => Filter,
 		public pagination: () => Pagination,
-		public transactions: () => Transaction[],
+		public transactions: () => TransactionRow[],
 		private accountId: string,
 		private budgetId: string
 	) {}
@@ -78,22 +85,8 @@ export class TableContext {
 	}
 
 	public openFilterDialog(type: FilterDialogType) {
-		switch (type) {
-			case 'category': {
-				this.filterComponent = {
-					Component: FilterCategory
-				};
-				break;
-			}
-
-			case 'notes': {
-				this.filterComponent = {
-					Component: FilterNotes
-				};
-				break;
-			}
-		}
-
+		const Component = FILTER_DIALOG_MAP[type];
+		if (Component) this.filterComponent = { Component };
 		this.filterDialogOpen = true;
 	}
 

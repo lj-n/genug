@@ -6,7 +6,7 @@
 	import PhCircleDashedLight from '~icons/ph/circle-dashed-light';
 	import PhMinusCircleDuotone from '~icons/ph/minus-circle-duotone';
 
-	import { getTableContext } from './table-context.svelte';
+	import { getTableContext } from '../context.svelte';
 
 	let {
 		checked = $bindable(false),

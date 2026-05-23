@@ -5,16 +5,14 @@ import type {
 } from '$db/actions/queries/transaction';
 
 import { withPermissions } from '$db/actions';
+import { schemaURLParams } from '$lib/components/transaction-table/schema';
+import { schemaTransactionCreate, schemaTransactionEdit } from '$lib/schemas/transactions';
 import { getLocalTimeZone, today } from '@internationalized/date';
 import { error } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
-
-import { schemaTransactionCreate } from '../../transactions/new/schema';
-import { schemaTransactionEdit } from '../../transactions/schema';
-import { schemaURLParams } from './schema';
 
 export const load: PageServerLoad = withPermissions(
 	async (user, actions, event: PageServerLoadEvent) => {

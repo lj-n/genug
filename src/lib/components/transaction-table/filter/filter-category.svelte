@@ -7,7 +7,7 @@
 	import { fly } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
 
-	import { type FilterComponent, getTableContext } from './table-context.svelte';
+	import { type FilterComponent, getTableContext } from '../context.svelte';
 
 	let { footer, header }: ComponentProps<FilterComponent> = $props();
 

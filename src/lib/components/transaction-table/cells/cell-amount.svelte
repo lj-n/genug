@@ -3,13 +3,13 @@
 
 	import { InputCurrency } from '$lib/components/ui/input-currency';
 	import { m } from '$lib/paraglide/messages';
+	import { focusAndSelect } from '$lib/utils/focus-and-select';
 	import { getIntlContext } from '$lib/utils/intl-context.svelte';
-	import { tick } from 'svelte';
 
-	import type { TransactionRow } from './types';
+	import type { TransactionRow } from '../types';
 
-	import TableCellEditable from './table-cell-editable.svelte';
-	import { getTableContext } from './table-context.svelte';
+	import { getTableContext } from '../context.svelte';
+	import CellEditable from './cell-editable.svelte';
 
 	let { amount, row }: { amount: number; row: Row<TransactionRow> } = $props();
 
@@ -19,22 +19,15 @@
 	const { form: formData } = tableContext.editForm;
 
 	let inputRef = $state<HTMLInputElement>(null!);
-
-	function onEdit() {
-		tick().then(() => {
-			inputRef.focus();
-			inputRef.select();
-		});
-	}
 </script>
 
-<TableCellEditable
+<CellEditable
 	{row}
 	name="amount"
 	align="end"
 	ariaLabel={m.transactions_table_edit_amount()}
 	buttonClass="truncate font-currency"
-	{onEdit}
+	onEdit={() => focusAndSelect(inputRef)}
 >
 	{#snippet view()}
 		{intlContext.formatCurrency(amount)}
@@ -48,4 +41,4 @@
 			class="px-2 text-right font-currency font-medium"
 		/>
 	{/snippet}
-</TableCellEditable>
+</CellEditable>

@@ -9,14 +9,14 @@
 	import FunnelDuotoneIcon from '~icons/ph/funnel-duotone';
 	import FunnelXDuotoneIcon from '~icons/ph/funnel-x-duotone';
 
-	import { getFilterLength } from '../table-filter-util';
-	import { getTableContext } from './table-context.svelte';
-	import TableFilterList from './table-filter-list.svelte';
+	import { getTableContext } from '../context.svelte';
+	import FilterList from './filter-list.svelte';
+	import { getFilterLength } from './filter-util';
 
 	const tableContext = getTableContext();
 
-	let filterLenght = $derived(getFilterLength(tableContext.filter()));
-	let showAsButtonGroup = $derived(filterLenght > 0);
+	let filterLength = $derived(getFilterLength(tableContext.filter()));
+	let showAsButtonGroup = $derived(filterLength > 0);
 </script>
 
 <div class="flex flex-col gap-2">
@@ -25,7 +25,7 @@
 			<DropdownMenu.Trigger>
 				{#snippet child({ props })}
 					<Button {...props} size="icon" class={cn(showAsButtonGroup && 'border-r-0')}>
-						{#if filterLenght > 0}
+						{#if filterLength > 0}
 							<FunnelDuotoneIcon />
 						{:else}
 							<FunnelIcon />
@@ -46,22 +46,13 @@
 					<DropdownMenu.Item onSelect={() => tableContext.openFilterDialog('notes')}>
 						{m.transaction_filter_notes_title()}
 					</DropdownMenu.Item>
-					<!-- <DropdownMenu.Item onSelect={() => tableContext.openFilterDialog('date')}>
-						{m.transaction_filter_date_title()}
-					</DropdownMenu.Item>
-					<DropdownMenu.Item onSelect={() => tableContext.openFilterDialog('amount')}>
-						{m.transaction_filter_amount_title()}
-					</DropdownMenu.Item>
-					<DropdownMenu.Item onSelect={() => tableContext.openFilterDialog('validated')}>
-						{m.transaction_filter_validated_title()}
-					</DropdownMenu.Item> -->
 				</DropdownMenu.Group>
 			</DropdownMenu.Content>
 		</DropdownMenu.Root>
 
 		{#if showAsButtonGroup}
 			<ButtonGroup.Text class="bg-info/5 text-info">
-				{m.transaction_filter_active({ value: filterLenght })}
+				{m.transaction_filter_active({ value: filterLength })}
 			</ButtonGroup.Text>
 
 			<Button
@@ -76,7 +67,7 @@
 		{/if}
 	</ButtonGroup.Root>
 
-	<TableFilterList />
+	<FilterList />
 </div>
 
 <Dialog.Root bind:open={tableContext.filterDialogOpen}>

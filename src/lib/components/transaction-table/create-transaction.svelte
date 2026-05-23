@@ -8,6 +8,8 @@
 	import { InputCurrency } from '$lib/components/ui/input-currency';
 	import { SelectCommand } from '$lib/components/ui/select-command';
 	import { m } from '$lib/paraglide/messages';
+	import { schemaTransactionCreate } from '$lib/schemas/transactions';
+	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { getIntlContext } from '$lib/utils/intl-context.svelte';
 	import { CalendarDate, parseDate } from '@internationalized/date';
 	import { Popover } from 'bits-ui';
@@ -17,10 +19,9 @@
 	import { cn } from 'tailwind-variants';
 	import PhPlus from '~icons/ph/plus';
 
-	import type { PageData } from './$types';
+	import type { CategoryItem } from './types';
 
-	import { schemaTransactionCreate } from '../../transactions/new/schema';
-	import ValidateCheckbox from './validate-checkbox.svelte';
+	import ValidateCheckbox from './cells/validate-checkbox.svelte';
 
 	let {
 		categories,
@@ -28,7 +29,7 @@
 		open = $bindable(false),
 		to
 	}: {
-		categories: PageData['categories'];
+		categories: CategoryItem[];
 		form: SuperValidated<Infer<typeof schemaTransactionCreate>>;
 		open?: boolean;
 		to: string;
@@ -50,7 +51,9 @@
 	);
 
 	$effect(() => {
-		$formData.accountId = page.params.accountId!;
+		if ($formData.accountId !== page.params.accountId) {
+			$formData.accountId = page.params.accountId!;
+		}
 	});
 
 	const { enhance, form: formData } = form;
@@ -66,14 +69,6 @@
 	function setCategoryValue(value: string) {
 		$formData.categoryId = value === 'null' ? null : value;
 	}
-
-	let df = $derived((date: CalendarDate) =>
-		intlContext.formatDate(date, {
-			day: '2-digit',
-			month: 'short',
-			year: '2-digit'
-		})
-	);
 
 	let dateOpen = $state(false);
 	let dateTriggerRef = $state<HTMLButtonElement>(null!);
@@ -165,7 +160,9 @@
 					role="combobox"
 					aria-expanded={dateOpen}
 				>
-					{$formData.date ? df(parseDate($formData.date)) : m.transaction_table_cell_date_select()}
+					{$formData.date
+						? formatTransactionDate(intlContext, parseDate($formData.date))
+						: m.transaction_table_cell_date_select()}
 				</Button>
 			{/snippet}
 		</Popover.Trigger>

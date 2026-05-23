@@ -1,11 +1,10 @@
 import { withPermissions } from '$db/actions';
+import { schemaTransactionEdit } from '$lib/schemas/transactions';
 import { fail } from '@sveltejs/kit';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
-
-import { schemaTransactionEdit } from './schema';
 
 export const load: PageServerLoad = withPermissions(async (_user, _actions, _event) => {
 	return { title: 'Transactions' };

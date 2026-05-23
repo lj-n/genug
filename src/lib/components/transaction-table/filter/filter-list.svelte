@@ -3,7 +3,7 @@
 	import { m } from '$lib/paraglide/messages';
 	import PhXCircle from '~icons/ph/x-circle';
 
-	import { getTableContext } from './table-context.svelte';
+	import { getTableContext } from '../context.svelte';
 
 	const tableContext = getTableContext();
 
@@ -40,23 +40,13 @@
 {/snippet}
 
 <div class="flex flex-wrap gap-1">
-	{#if filter.categoryId}
-		{#if Array.isArray(filter.categoryId)}
-			{#each filter.categoryId as id (id)}
-				{@render filterTag({
-					label: getCategoryLabel(id),
-					openDialog: () => tableContext.openFilterDialog('category'),
-					removeTag: () => tableContext.removeFilterParams('categoryId', id)
-				})}
-			{/each}
-		{:else}
-			{@render filterTag({
-				label: getCategoryLabel(filter.categoryId),
-				openDialog: () => tableContext.openFilterDialog('category'),
-				removeTag: () => tableContext.removeFilterParams('categoryId', filter.categoryId as string)
-			})}
-		{/if}
-	{/if}
+	{#each [filter.categoryId].flat().filter(Boolean) as id (id)}
+		{@render filterTag({
+			label: getCategoryLabel(id),
+			openDialog: () => tableContext.openFilterDialog('category'),
+			removeTag: () => tableContext.removeFilterParams('categoryId', id)
+		})}
+	{/each}
 
 	{#if filter.notes}
 		{@render filterTag({

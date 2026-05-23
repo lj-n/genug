@@ -3,7 +3,7 @@
 	import * as Select from '$lib/components/ui/select';
 	import { m } from '$lib/paraglide/messages';
 
-	import { getTableContext } from './table-context.svelte';
+	import { getTableContext } from './context.svelte';
 
 	const tableContext = getTableContext();
 	const { page, pageSize, totalTransactionCount: total } = $derived(tableContext.pagination());

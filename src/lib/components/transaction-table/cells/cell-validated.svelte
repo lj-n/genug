@@ -5,9 +5,9 @@
 	import * as Form from '$lib/components/ui/form';
 	import { m } from '$lib/paraglide/messages';
 
-	import type { TransactionRow } from './types';
+	import type { TransactionRow } from '../types';
 
-	import { getTableContext } from './table-context.svelte';
+	import { getTableContext } from '../context.svelte';
 	import ValidateCheckbox from './validate-checkbox.svelte';
 
 	let { isValidated, row }: { isValidated: boolean; row: Row<TransactionRow> } = $props();

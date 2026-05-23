@@ -1,10 +1,9 @@
 import { withPermissions } from '$db/actions';
+import { schemaTransactionCreate } from '$lib/schemas/transactions';
 import { fail, message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions } from './$types';
-
-import { schemaTransactionCreate } from './schema';
 
 export const actions = {
 	default: withPermissions(async (user, actions, event) => {

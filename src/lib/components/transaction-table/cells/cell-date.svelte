@@ -4,15 +4,16 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Calendar } from '$lib/components/ui/calendar';
 	import { m } from '$lib/paraglide/messages';
+	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { getIntlContext } from '$lib/utils/intl-context.svelte';
 	import { type CalendarDate, parseDate } from '@internationalized/date';
 	import { Popover } from 'bits-ui';
 	import { tick } from 'svelte';
 
-	import type { TransactionRow } from './types';
+	import type { TransactionRow } from '../types';
 
-	import TableCellEditable from './table-cell-editable.svelte';
-	import { getTableContext } from './table-context.svelte';
+	import { getTableContext } from '../context.svelte';
+	import CellEditable from './cell-editable.svelte';
 
 	let { date, row }: { date: string; row: Row<TransactionRow> } = $props();
 
@@ -20,14 +21,6 @@
 	const intlContext = getIntlContext();
 
 	const { form: formData } = tableContext.editForm;
-
-	let df = $derived((date: CalendarDate) =>
-		intlContext.formatDate(date, {
-			day: '2-digit',
-			month: 'short',
-			year: '2-digit'
-		})
-	);
 
 	let open = $state(false);
 	let triggerRef = $state<HTMLButtonElement>(null!);
@@ -48,7 +41,7 @@
 	}
 </script>
 
-<TableCellEditable
+<CellEditable
 	{row}
 	name="date"
 	align="end"
@@ -56,7 +49,7 @@
 	buttonClass="truncate"
 >
 	{#snippet view()}
-		{date ? df(parseDate(date)) : ''}
+		{date ? formatTransactionDate(intlContext, parseDate(date)) : ''}
 	{/snippet}
 	{#snippet edit({ props: triggerProps })}
 		<Popover.Root bind:open>
@@ -70,7 +63,7 @@
 						aria-expanded={open}
 					>
 						{$formData.date
-							? df(parseDate($formData.date))
+							? formatTransactionDate(intlContext, parseDate($formData.date))
 							: m.transaction_table_cell_date_select()}
 					</Button>
 				{/snippet}
@@ -99,4 +92,4 @@
 			</Popover.Content>
 		</Popover.Root>
 	{/snippet}
-</TableCellEditable>
+</CellEditable>

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { AccountBalances } from '$lib/components/transaction-table/types';
+
 	import { m } from '$lib/paraglide/messages';
 	import { getIntlContext } from '$lib/utils/intl-context.svelte';
 	import { cn } from 'tailwind-variants';
@@ -7,9 +9,7 @@
 	import PhSeal from '~icons/ph/seal';
 	import PhSealCheckDuotone from '~icons/ph/seal-check-duotone';
 
-	import type { PageData } from './$types';
-
-	let { balances }: { balances: PageData['balances'] } = $props();
+	let { balances }: { balances: AccountBalances } = $props();
 
 	const intlContext = getIntlContext();
 </script>

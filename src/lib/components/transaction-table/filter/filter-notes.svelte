@@ -4,7 +4,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { m } from '$lib/paraglide/messages';
 
-	import { type FilterComponent, getTableContext } from './table-context.svelte';
+	import { type FilterComponent, getTableContext } from '../context.svelte';
 
 	let { footer, header }: ComponentProps<FilterComponent> = $props();
 

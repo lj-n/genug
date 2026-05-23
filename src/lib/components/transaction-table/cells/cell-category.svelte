@@ -5,10 +5,10 @@
 	import { m } from '$lib/paraglide/messages';
 	import { cn } from 'tailwind-variants';
 
-	import type { TransactionRow } from './types';
+	import type { TransactionRow } from '../types';
 
-	import TableCellEditable from './table-cell-editable.svelte';
-	import { getTableContext } from './table-context.svelte';
+	import { getTableContext } from '../context.svelte';
+	import CellEditable from './cell-editable.svelte';
 
 	let { categoryName, row }: { categoryName: string; row: Row<TransactionRow> } = $props();
 
@@ -28,7 +28,7 @@
 	}
 </script>
 
-<TableCellEditable
+<CellEditable
 	{row}
 	name="categoryId"
 	align="start"
@@ -52,4 +52,4 @@
 			textListEmpty={m.transaction_table_cell_category_empty()}
 		/>
 	{/snippet}
-</TableCellEditable>
+</CellEditable>

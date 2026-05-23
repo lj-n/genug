@@ -10,6 +10,9 @@ node_modules
 /.sisyphus
 /.claude
 
+# Claude
+CLAUDE.md
+
 # OS
 .DS_Store
 Thumbs.db
