@@ -8,7 +8,7 @@
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import * as Page from '$lib/components/ui/page';
 	import { copyToClipboard } from '$lib/utils/copy-to-clipboard';
-	import { untrack } from 'svelte';
+	import { tick, untrack } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4Client } from 'sveltekit-superforms/adapters';
@@ -25,7 +25,6 @@
 	let { data }: PageProps = $props();
 
 	let openDeleteUserDialog = $state(false);
-
 	const formDeleteUser = superForm(
 		untrack(() => data.formDeleteUser),
 		{
@@ -40,6 +39,20 @@
 
 	let openPasswordDialog = $state(false);
 	let generatedPassword: string | undefined = $state();
+
+	const formResetUserPassword = superForm(
+		untrack(() => data.formResetUserPassword),
+		{
+			onUpdated: (event) => {
+				if (event.form.message?.type === 'success') {
+					generatedPassword = event.form.message.text;
+					openPasswordDialog = true;
+				}
+			}
+		}
+	);
+	const { enhance: formResetUserPasswordEnhance, form: formResetUserPasswordData } =
+		formResetUserPassword;
 
 	const formCreateUser = superForm(
 		untrack(() => data.formCreateUser),
@@ -119,7 +132,15 @@
 								<div class="ml-auto rounded-lg bg-info/10 px-3 py-0.5 text-info">Admin</div>
 							{:else}
 								<ButtonGroup.Root class="ml-auto opacity-0 group-hover:opacity-100">
-									<Button size="icon-sm">
+									<Button
+										size="icon-sm"
+										onclick={() => {
+											formResetUserPassword.reset({ data: { userId: user.id } });
+											tick().then(() => {
+												formResetUserPassword.submit();
+											});
+										}}
+									>
 										<ArrowCounterClockwiseIcon />
 										<span class="sr-only"> Passwort Zurücksetzen </span>
 									</Button>
@@ -202,5 +223,14 @@
 				</Dialog.Footer>
 			</Dialog.Content>
 		</Dialog.Root>
+
+		<form
+			action={resolve('/(app)/admin?/resetUserPassword')}
+			use:formResetUserPasswordEnhance
+			method="post"
+			class="hidden"
+		>
+			<input type="hidden" name="userId" value={$formResetUserPasswordData.userId} />
+		</form>
 	</Page.Content>
 </Page.Root>

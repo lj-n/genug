@@ -16,7 +16,8 @@ export const load: PageServerLoad = withAdminPermissions(
 		const users = actions.admin.users();
 		return {
 			formCreateUser: await superValidate(zod4(schemaUserCreate)),
-			formDeleteUser: await superValidate(zod4(schemaUserDelete)),
+			formDeleteUser: await superValidate(zod4(schemaUserDelete), { id: 'delete-form' }),
+			formResetUserPassword: await superValidate(zod4(schemaUserDelete), { id: 'reset-form' }),
 			users
 		};
 	}
@@ -61,5 +62,18 @@ export const actions = {
 		actions.admin.removeUser({ userId });
 
 		return message(form, { type: 'success' });
+	}),
+
+	resetUserPassword: withAdminPermissions(async (admin, actions, event) => {
+		const form = await superValidate(event, zod4(schemaUserDelete));
+		if (!form.valid) return fail(400, { form });
+
+		const { userId } = form.data;
+
+		if (userId === admin.id) return fail(500, 'Admin cannot be reset!');
+
+		const newPassword = await actions.admin.resetUserPassword({ userId });
+
+		return message(form, { text: newPassword, type: 'success' });
 	})
 } satisfies Actions;
