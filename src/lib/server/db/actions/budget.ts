@@ -1,5 +1,5 @@
 import { tables } from '$db';
-import { and, asc, eq, getColumns, inArray, isNull, sql } from 'drizzle-orm';
+import { and, asc, eq, getColumns, inArray, isNull, notExists, sql } from 'drizzle-orm';
 
 import { userHasPermission } from './permissions';
 import queries from './queries';
@@ -107,6 +107,29 @@ export function createBudgetActions({
 
 				return budget;
 			});
+		},
+
+		eligibleUsers({ budgetId }: { budgetId: string }) {
+			return database
+				.select({
+					id: tables.users.id,
+					name: tables.users.username
+				})
+				.from(tables.users)
+				.where(
+					notExists(
+						database
+							.select()
+							.from(tables.usersToBudgets)
+							.where(
+								and(
+									eq(tables.usersToBudgets.userId, tables.users.id),
+									eq(tables.usersToBudgets.budgetId, budgetId)
+								)
+							)
+					)
+				)
+				.all();
 		},
 
 		/**
@@ -281,6 +304,35 @@ export function createBudgetActions({
 						.execute();
 				}
 			});
+		},
+
+		users({ budgetId }: { budgetId: string }) {
+			return database
+				.select({
+					id: tables.users.id,
+					name: tables.users.username,
+					role: tables.usersToBudgets.role
+				})
+				.from(tables.usersToBudgets)
+				.innerJoin(tables.users, eq(tables.users.id, tables.usersToBudgets.userId))
+				.where(
+					and(
+						eq(tables.usersToBudgets.budgetId, budgetId),
+						userHasPermission({
+							budgetIdCol: tables.usersToBudgets.budgetId,
+							database,
+							userId: user.id
+						})
+					)
+				)
+				.orderBy(
+					sql`CASE ${tables.usersToBudgets.role} 
+						WHEN 'OWNER' THEN 1 
+						WHEN 'MEMBER' THEN 2 
+						WHEN 'INVITEE' THEN 3 
+						END`
+				)
+				.all();
 		}
 	};
 }

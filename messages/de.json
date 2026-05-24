@@ -122,5 +122,7 @@
 	"transaction_filter_active": "{value} Filter Aktiv",
 	"transaction_filter_date_title": "Datum Filter",
 	"transaction_filter_amount_title": "Betrag Filter",
-	"transaction_filter_validated_title": "Abgebucht Filter"
+	"transaction_filter_validated_title": "Abgebucht Filter",
+	"account_create_starting_balance": "Kontostand",
+	"user_error_duplicate_name": "{value} existiert bereits."
 }

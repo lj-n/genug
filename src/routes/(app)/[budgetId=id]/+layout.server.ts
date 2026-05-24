@@ -5,7 +5,7 @@ import { error } from '@sveltejs/kit';
 import type { LayoutServerLoadEvent, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = withPermissions(
-	async (user, _actions, event: LayoutServerLoadEvent) => {
+	async (user, actions, event: LayoutServerLoadEvent) => {
 		const { budgets } = await event.parent();
 
 		const budget = budgets.find((budget) => budget.id === event.params.budgetId);
@@ -14,6 +14,8 @@ export const load: PageServerLoad = withPermissions(
 			error(404, 'Budget not found');
 		}
 
-		return { budget, locale: getLocale(), user };
+		const users = actions.budget.users({ budgetId: budget.id });
+
+		return { budget, locale: getLocale(), user, users };
 	}
 );

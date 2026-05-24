@@ -1,8 +1,13 @@
 <script lang="ts">
+	import { BudgetUserManager } from '$lib/components/budget-user-manager';
+	import { Button } from '$lib/components/ui/button';
+	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Page from '$lib/components/ui/page';
 	import { Separator } from '$lib/components/ui/separator';
+	import { m } from '$lib/paraglide/messages';
 	import { createDateFromParams } from '$lib/utils/create-date-from-params';
+	import PencilIcon from '~icons/ph/pencil';
 
 	import type { PageProps } from './$types';
 
@@ -28,10 +33,21 @@
 </script>
 
 <Page.Root>
-	<Page.Header>
+	<Page.Header class="flex-row justify-between gap-4">
 		<Page.Title>
 			{data.budget.name}
 		</Page.Title>
+
+		<ButtonGroup.Root>
+			<Button variant="ghost" size="icon-lg" class="bg-muted/10 hover:bg-muted/20">
+				<PencilIcon class="size-5" />
+				<span class="sr-only">
+					{m.settings_title()}
+				</span>
+			</Button>
+
+			<BudgetUserManager users={data.users} budgetId={data.budget.id} />
+		</ButtonGroup.Root>
 	</Page.Header>
 
 	<Page.Content>

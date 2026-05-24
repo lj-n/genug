@@ -18,7 +18,6 @@ export const actions = {
 				createdBy: user.id,
 				...parsedData
 			});
-			console.log('transaction', transaction);
 			return message(form, { text: transaction.id, type: 'success' });
 		} catch (_error) {
 			console.log(_error);

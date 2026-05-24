@@ -5,6 +5,7 @@
 	import { getIntlContext } from '$lib/utils/intl-context.svelte';
 	import { cn } from 'tailwind-variants';
 	import PhEquals from '~icons/ph/equals';
+	import PhPiggyBankDuoTone from '~icons/ph/piggy-bank-duotone';
 	import PhPlus from '~icons/ph/plus';
 	import PhSeal from '~icons/ph/seal';
 	import PhSealCheckDuotone from '~icons/ph/seal-check-duotone';
@@ -43,7 +44,13 @@
 		<div class={cn('text-lg font-currency', balances.balance < 0 && 'text-error')}>
 			{intlContext.formatCurrency(balances.balance)}
 		</div>
-		<div class={cn('text-sm text-info', balances.balance < 0 && 'text-foreground')}>
+		<div
+			class={cn(
+				'flex items-center gap-0.5 text-sm text-info',
+				balances.balance < 0 && 'text-foreground'
+			)}
+		>
+			<PhPiggyBankDuoTone />
 			<span>{m.account_balance()}</span>
 		</div>
 	</div>

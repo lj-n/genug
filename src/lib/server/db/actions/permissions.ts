@@ -4,7 +4,7 @@ import { database, tables } from '$db';
 import { redirect } from '@sveltejs/kit';
 import { and, eq, exists, sql } from 'drizzle-orm';
 
-import { Actions } from '.';
+import { Actions, AdminActions } from '.';
 
 type EventWithLocals = {
 	locals: App.Locals;
@@ -32,6 +32,20 @@ export function userHasPermission({
 	);
 }
 
+export function withAdminPermissions<TEvent extends EventWithLocals, TResult>(
+	handler: (user: App.User, actions: AdminActions, event: TEvent) => TResult
+): (event: TEvent) => Promise<Awaited<TResult>>;
+export function withAdminPermissions(
+	handler: (user: App.User, actions: AdminActions, event: EventWithLocals) => unknown
+) {
+	return async (event: EventWithLocals) => {
+		const session = event.locals.session;
+		if (!session) redirect(307, '/login');
+		if (!session.user.isAdmin) redirect(307, '/');
+		return await handler(session.user, new AdminActions({ database, user: session.user }), event);
+	};
+}
+
 export function withPermissions<TEvent extends EventWithLocals, TResult>(
 	handler: (user: App.User, actions: App.Actions, event: TEvent) => TResult
 ): (event: TEvent) => Promise<Awaited<TResult>>;
@@ -40,18 +54,7 @@ export function withPermissions(
 ) {
 	return async (event: EventWithLocals) => {
 		const session = event.locals.session;
-
-		if (!session) {
-			redirect(307, '/login');
-		}
-
-		return await handler(
-			session.user,
-			new Actions({
-				database,
-				user: session.user
-			}),
-			event
-		);
+		if (!session) redirect(307, '/login');
+		return await handler(session.user, new Actions({ database, user: session.user }), event);
 	};
 }
