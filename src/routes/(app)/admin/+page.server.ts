@@ -16,8 +16,6 @@ export const load: PageServerLoad = withAdminPermissions(
 		const users = actions.admin.users();
 		return {
 			formCreateUser: await superValidate(zod4(schemaUserCreate)),
-			formDeleteUser: await superValidate(zod4(schemaUserDelete), { id: 'delete-form' }),
-			formResetUserPassword: await superValidate(zod4(schemaUserDelete), { id: 'reset-form' }),
 			users
 		};
 	}

@@ -124,5 +124,11 @@
 	"transaction_filter_amount_title": "Betrag Filter",
 	"transaction_filter_validated_title": "Abgebucht Filter",
 	"account_create_starting_balance": "Kontostand",
-	"user_error_duplicate_name": "{value} existiert bereits."
+	"user_error_duplicate_name": "{value} existiert bereits.",
+	"budget_users_error_already_access": "{value} hat bereits Zugriff.",
+	"budget_users_error_already_invited": "{value} wurde bereits eingeladen.",
+	"budget_users_error_not_found": "{value} existiert nicht.",
+	"budget_users_error_its_you": "Das bist du...",
+	"budget_users_error_username_minlength": "Mindestens {length} Zeichen.",
+	"budget_users_error_username_maxlength": "Maximal {length} Zeichen."
 }

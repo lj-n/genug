@@ -164,6 +164,18 @@ export function createBudgetActions({
 				.get();
 		},
 
+		inviteUser({ budgetId, userId }: { budgetId: string; userId: string }) {
+			return database
+				.insert(tables.usersToBudgets)
+				.values({
+					budgetId,
+					role: 'INVITEE',
+					userId
+				})
+				.returning()
+				.get();
+		},
+
 		/**
 		 * Retrieves all categories for a given budget and month, along with various aggregated data such as activity, assigned budget, and related transactions.
 		 */

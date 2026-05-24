@@ -8,7 +8,7 @@
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import * as Page from '$lib/components/ui/page';
 	import { copyToClipboard } from '$lib/utils/copy-to-clipboard';
-	import { tick, untrack } from 'svelte';
+	import { untrack } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4Client } from 'sveltekit-superforms/adapters';
@@ -26,7 +26,7 @@
 
 	let openDeleteUserDialog = $state(false);
 	const formDeleteUser = superForm(
-		untrack(() => data.formDeleteUser),
+		{ userId: '' },
 		{
 			onUpdated: (event) => {
 				if (event.form.message?.type === 'success') {
@@ -40,9 +40,11 @@
 	let openPasswordDialog = $state(false);
 	let generatedPassword: string | undefined = $state();
 
-	const formResetUserPassword = superForm(
-		untrack(() => data.formResetUserPassword),
+	const { enhance: enhanceResetPassword } = superForm(
+		{ userId: '' },
 		{
+			invalidateAll: false,
+			multipleSubmits: 'abort',
 			onUpdated: (event) => {
 				if (event.form.message?.type === 'success') {
 					generatedPassword = event.form.message.text;
@@ -51,8 +53,6 @@
 			}
 		}
 	);
-	const { enhance: formResetUserPasswordEnhance, form: formResetUserPasswordData } =
-		formResetUserPassword;
 
 	const formCreateUser = superForm(
 		untrack(() => data.formCreateUser),
@@ -134,12 +134,10 @@
 								<ButtonGroup.Root class="ml-auto opacity-0 group-hover:opacity-100">
 									<Button
 										size="icon-sm"
-										onclick={() => {
-											formResetUserPassword.reset({ data: { userId: user.id } });
-											tick().then(() => {
-												formResetUserPassword.submit();
-											});
-										}}
+										form="reset-form"
+										type="submit"
+										name="userId"
+										value={user.id}
 									>
 										<ArrowCounterClockwiseIcon />
 										<span class="sr-only"> Passwort Zurücksetzen </span>
@@ -226,11 +224,10 @@
 
 		<form
 			action={resolve('/(app)/admin?/resetUserPassword')}
-			use:formResetUserPasswordEnhance
+			use:enhanceResetPassword
 			method="post"
 			class="hidden"
-		>
-			<input type="hidden" name="userId" value={$formResetUserPasswordData.userId} />
-		</form>
+			id="reset-form"
+		></form>
 	</Page.Content>
 </Page.Root>

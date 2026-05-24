@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { BudgetUserManager } from '$lib/components/budget-user-manager';
 	import { Button } from '$lib/components/ui/button';
 	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -13,6 +12,7 @@
 
 	import CategoryDetail from '../categories/[categoryId=id]/category-detail.svelte';
 	import BudgetAccountList from './budget-account-list.svelte';
+	import BudgetUserManager from './budget-user-manager.svelte';
 	import CategoryBudgetTable from './category-budget-table.svelte';
 	import CategoryQuickActions from './category-quick-actions.svelte';
 	import MonthNavigator from './month-navigator.svelte';
@@ -46,7 +46,7 @@
 				</span>
 			</Button>
 
-			<BudgetUserManager users={data.users} budgetId={data.budget.id} />
+			<BudgetUserManager users={data.users} form={data.formInviteUser} />
 		</ButtonGroup.Root>
 	</Page.Header>
 
