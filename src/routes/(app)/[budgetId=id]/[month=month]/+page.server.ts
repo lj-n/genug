@@ -88,6 +88,17 @@ export const actions = {
 		actions.budget.inviteUser({ budgetId: event.params.budgetId, userId: foundUserId });
 
 		return message(form, { type: 'success' });
+	}),
+
+	removeUser: withPermissions(async (_user, actions, event) => {
+		const formData = await event.request.formData();
+		const userId = formData.get('userId') as string;
+
+		if (!userId) return fail(400);
+
+		actions.budget.removeUser({ budgetId: event.params.budgetId, removeUserId: userId });
+
+		return { success: true };
 	})
 } satisfies Actions;
 

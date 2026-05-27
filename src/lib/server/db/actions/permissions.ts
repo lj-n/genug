@@ -2,7 +2,7 @@ import type { SQLiteColumn } from 'drizzle-orm/sqlite-core';
 
 import { database, tables } from '$db';
 import { redirect } from '@sveltejs/kit';
-import { and, eq, exists, sql } from 'drizzle-orm';
+import { and, eq, exists, ne, sql } from 'drizzle-orm';
 
 import { Actions, AdminActions } from '.';
 
@@ -26,7 +26,8 @@ export function userHasPermission({
 			.where(
 				and(
 					eq(tables.usersToBudgets.userId, userId),
-					eq(tables.usersToBudgets.budgetId, budgetIdCol)
+					eq(tables.usersToBudgets.budgetId, budgetIdCol),
+					ne(tables.usersToBudgets.role, 'INVITEE')
 				)
 			)
 	);

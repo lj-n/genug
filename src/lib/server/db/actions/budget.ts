@@ -165,6 +165,21 @@ export function createBudgetActions({
 		},
 
 		inviteUser({ budgetId, userId }: { budgetId: string; userId: string }) {
+			const currentUser = database
+				.select({ role: tables.usersToBudgets.role })
+				.from(tables.usersToBudgets)
+				.where(
+					and(
+						eq(tables.usersToBudgets.budgetId, budgetId),
+						eq(tables.usersToBudgets.userId, user.id)
+					)
+				)
+				.get();
+
+			if (currentUser?.role !== 'OWNER') {
+				throw new Error('Forbidden');
+			}
+
 			return database
 				.insert(tables.usersToBudgets)
 				.values({
@@ -274,6 +289,32 @@ export function createBudgetActions({
 					asc(tables.categories.id)
 				)
 				.all();
+		},
+
+		removeUser({ budgetId, removeUserId }: { budgetId: string; removeUserId: string }) {
+			const budgetUsers = database
+				.select({ id: tables.usersToBudgets.userId, role: tables.usersToBudgets.role })
+				.from(tables.usersToBudgets)
+				.where(eq(tables.usersToBudgets.budgetId, budgetId))
+				.all();
+
+			const currentUser = budgetUsers.find(({ id }) => id === user.id);
+			const isOwner = currentUser?.role === 'OWNER';
+			const isDenyingOwnInvite = currentUser?.role === 'INVITEE' && removeUserId === user.id;
+
+			if (!isOwner && !isDenyingOwnInvite) {
+				throw new Error('Forbidden');
+			}
+
+			return database
+				.delete(tables.usersToBudgets)
+				.where(
+					and(
+						eq(tables.usersToBudgets.budgetId, budgetId),
+						eq(tables.usersToBudgets.userId, removeUserId)
+					)
+				)
+				.run();
 		},
 
 		reorder({ orderedIds }: { orderedIds: string[] }) {
