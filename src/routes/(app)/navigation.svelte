@@ -16,7 +16,11 @@
 
 	import type { LayoutData } from './$types';
 
-	let { budgets, user }: { budgets: LayoutData['budgets']; user: LayoutData['user'] } = $props();
+	let {
+		budgets,
+		invitations,
+		user
+	}: { budgets: LayoutData['budgets']; invitations: Snippet; user: LayoutData['user'] } = $props();
 
 	type NavItemProps = {
 		href: string;
@@ -57,6 +61,8 @@
 	<a href={resolve('/')} class="w-fit">
 		<Logo class="h-12" />
 	</a>
+
+	{@render invitations?.()}
 
 	<div class="my-6">
 		<SideMenu {budgets} />

@@ -46,7 +46,7 @@
 				</span>
 			</Button>
 
-			<BudgetUserManager users={data.users} form={data.formInviteUser} />
+			<BudgetUserManager users={data.users} form={data.formInviteUser} budgetId={data.budget.id} />
 		</ButtonGroup.Root>
 	</Page.Header>
 

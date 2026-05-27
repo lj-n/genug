@@ -11,5 +11,7 @@ export const load: LayoutServerLoad = withPermissions((user, actions, _event) =>
 		accounts: accounts.filter((account) => account.budgetId === budget.id)
 	}));
 
-	return { budgets, user };
+	const invitations = actions.budget.getInvitations();
+
+	return { budgets, invitations, user };
 });

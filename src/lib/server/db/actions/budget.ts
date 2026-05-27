@@ -1,5 +1,6 @@
 import { tables } from '$db';
 import { and, asc, eq, getColumns, inArray, isNull, notExists, sql } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/sqlite-core';
 
 import { userHasPermission } from './permissions';
 import queries from './queries';
@@ -12,6 +13,27 @@ export function createBudgetActions({
 	user: App.User;
 }) {
 	return {
+		acceptInvite({ budgetId }: { budgetId: string }) {
+			const result = database
+				.update(tables.usersToBudgets)
+				.set({ role: 'MEMBER' })
+				.where(
+					and(
+						eq(tables.usersToBudgets.budgetId, budgetId),
+						eq(tables.usersToBudgets.userId, user.id),
+						eq(tables.usersToBudgets.role, 'INVITEE')
+					)
+				)
+				.returning()
+				.get();
+
+			if (!result) {
+				throw new Error('No pending invitation found');
+			}
+
+			return result;
+		},
+
 		all() {
 			return database
 				.select(getColumns(tables.budgets))
@@ -128,6 +150,32 @@ export function createBudgetActions({
 								)
 							)
 					)
+				)
+				.all();
+		},
+
+		getInvitations() {
+			const inviterAlias = alias(tables.usersToBudgets, 'inviter_utb');
+			const inviterUserAlias = alias(tables.users, 'inviter_user');
+
+			return database
+				.select({
+					budgetId: tables.usersToBudgets.budgetId,
+					budgetName: tables.budgets.name,
+					inviterName: inviterUserAlias.username
+				})
+				.from(tables.usersToBudgets)
+				.innerJoin(
+					inviterAlias,
+					and(
+						eq(inviterAlias.budgetId, tables.usersToBudgets.budgetId),
+						eq(inviterAlias.role, 'OWNER')
+					)
+				)
+				.innerJoin(inviterUserAlias, eq(inviterUserAlias.id, inviterAlias.userId))
+				.leftJoin(tables.budgets, eq(tables.budgets.id, tables.usersToBudgets.budgetId))
+				.where(
+					and(eq(tables.usersToBudgets.userId, user.id), eq(tables.usersToBudgets.role, 'INVITEE'))
 				)
 				.all();
 		},

@@ -2,6 +2,7 @@
 	import type { tables } from '$db';
 
 	import { enhance } from '$app/forms';
+	import { resolve } from '$app/paths';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import * as Collapsible from '$lib/components/ui/collapsible';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -22,14 +23,16 @@
 	import UsersThreeIcon from '~icons/ph/users-three';
 	import XIconBold from '~icons/ph/x-bold';
 
-	import type { schemaInviteUser } from './schema';
+	import type { schemaInviteUser } from '../schema';
 
 	type Role = typeof tables.usersToBudgets.$inferSelect.role;
 
 	let {
+		budgetId,
 		form,
 		users
 	}: {
+		budgetId: string;
 		form: SuperValidated<Infer<typeof schemaInviteUser>>;
 		users: { id: string; name: string; role: Role }[];
 	} = $props();
@@ -169,7 +172,12 @@
 			<Collapsible.Content
 				class="overflow-hidden px-2 pb-2 data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down"
 			>
-				<form method="post" action="?/inviteUser" use:inviteEnhance class="grid gap-2">
+				<form
+					method="post"
+					action={resolve(`/(app)/[budgetId=id]?/inviteUser`, { budgetId })}
+					use:inviteEnhance
+					class="grid gap-2"
+				>
 					<input type="hidden" name="invite" value={$formData.invite} />
 
 					<div class="rounded-lg bg-error/5 p-3 text-error">
@@ -227,8 +235,18 @@
 	</Dialog.Content>
 </Dialog.Root>
 
-<form id="remove" action="?/removeUser" method="post" use:enhance></form>
+<form
+	id="remove"
+	action={resolve(`/(app)/[budgetId=id]?/removeUser`, { budgetId })}
+	method="post"
+	use:enhance
+></form>
 
-<form id="check" method="POST" action="?/check" use:submitEnhance>
+<form
+	id="check"
+	method="POST"
+	action={resolve(`/(app)/[budgetId=id]?/checkUser`, { budgetId })}
+	use:submitEnhance
+>
 	<input type="hidden" name="invite" value={$formData.invite} />
 </form>
