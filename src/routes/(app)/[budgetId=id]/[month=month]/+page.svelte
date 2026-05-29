@@ -46,17 +46,13 @@
 				</span>
 			</Button>
 
-			<BudgetUserManager users={data.users} form={data.formInviteUser} budgetId={data.budget.id} />
+			<BudgetUserManager users={data.budgetUsers} form={data.forms.inviteUser} />
 		</ButtonGroup.Root>
 	</Page.Header>
 
 	<Page.Content>
 		<div class="flex justify-between gap-6">
-			<BudgetAccountList
-				accounts={data.budget.accounts}
-				createAccountForm={data.createAccountForm}
-				budgetId={data.budget.id}
-			/>
+			<BudgetAccountList accounts={data.accounts} createAccountForm={data.forms.accountCreate} />
 
 			<UnassignedSummary unassigned={data.unassigned} />
 		</div>
@@ -68,8 +64,7 @@
 
 			<CategoryQuickActions
 				archivedAmount={data.archivedCategories.length}
-				budgetId={data.budget.id}
-				form={data.createCategoryForm}
+				form={data.forms.categoryCreate}
 			/>
 		</div>
 
@@ -79,7 +74,7 @@
 				selectedCategoryId = category.id;
 				openCategoryDetail = true;
 			}}
-			assignmentForm={data.assignmentForm}
+			assignmentForm={data.forms.monthlyAssignment}
 			month={data.month}
 		/>
 	</Page.Content>

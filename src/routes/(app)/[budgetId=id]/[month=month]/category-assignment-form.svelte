@@ -9,7 +9,7 @@
 	import { cn } from 'tailwind-variants';
 
 	import type { PageData } from './$types';
-	import type { assignmentSchema } from './schema';
+	import type { schemaMonthlyAssigment } from './schema';
 
 	let {
 		category,
@@ -18,7 +18,7 @@
 		open = $bindable(false)
 	}: {
 		category: PageData['categories'][number];
-		form: SuperValidated<Infer<typeof assignmentSchema>>;
+		form: SuperValidated<Infer<typeof schemaMonthlyAssigment>>;
 		month: PageData['month'];
 		open?: boolean;
 	} = $props();

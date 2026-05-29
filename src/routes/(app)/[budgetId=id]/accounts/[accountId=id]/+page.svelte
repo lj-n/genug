@@ -24,7 +24,7 @@
 		new TableContext(
 			() => data.categories,
 			superForm(
-				untrack(() => data.formTransactionEdit),
+				untrack(() => data.forms.transactionEdit),
 				{
 					onUpdated() {
 						tableContext.cancelEditing();
@@ -65,6 +65,6 @@
 
 		<Separator orientation="horizontal" />
 
-		<TransactionTable categories={data.categories} form={data.formTransactionCreate} />
+		<TransactionTable categories={data.categories} form={data.forms.transactionCreate} />
 	</Page.Content>
 </Page.Root>

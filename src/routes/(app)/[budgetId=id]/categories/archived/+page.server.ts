@@ -8,8 +8,6 @@ export const load: PageServerLoad = withPermissions(
 			budgetId: event.params.budgetId
 		});
 
-		const { budget } = await event.parent();
-
-		return { budget, categories };
+		return { categories };
 	}
 );

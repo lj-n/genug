@@ -6,16 +6,13 @@ import type { LayoutServerLoadEvent, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = withPermissions(
 	async (user, actions, event: LayoutServerLoadEvent) => {
-		const { budgets } = await event.parent();
+		const { budgetId } = event.params;
 
-		const budget = budgets.find((budget) => budget.id === event.params.budgetId);
+		const budget = actions.budget.getById({ budgetId });
+		if (!budget) error(404, 'Budget not found');
 
-		if (!budget) {
-			error(404, 'Budget not found');
-		}
+		const budgetUsers = actions.budget.getUsers({ budgetId });
 
-		const users = actions.budget.users({ budgetId: budget.id });
-
-		return { budget, locale: getLocale(), user, users };
+		return { budget, budgetUsers, locale: getLocale(), user };
 	}
 );

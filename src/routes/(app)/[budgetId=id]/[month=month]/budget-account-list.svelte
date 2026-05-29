@@ -6,28 +6,27 @@
 	import { InputCurrency } from '$lib/components/ui/input-currency';
 	import * as Popover from '$lib/components/ui/popover';
 	import { m } from '$lib/paraglide/messages';
+	import { getBudgetContext } from '$lib/utils/budget-context';
 	import { getIntlContext } from '$lib/utils/intl-context.svelte';
 	import { untrack } from 'svelte';
-	import { superForm } from 'sveltekit-superforms';
+	import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { zod4Client } from 'sveltekit-superforms/adapters';
 	import PhPiggyBankDuoTone from '~icons/ph/piggy-bank-duotone';
 	import PhPlus from '~icons/ph/plus';
 
-	import type { PageData } from './$types';
-
-	import { createAccountSchema } from '../accounts/new/schema';
+	import { schemaAccountCreate } from '../accounts/new/schema';
 
 	let {
 		accounts,
-		budgetId,
 		createAccountForm
 	}: {
-		accounts: PageData['budget']['accounts'];
-		budgetId: string;
-		createAccountForm: PageData['createAccountForm'];
+		accounts: App.Account[];
+		createAccountForm: SuperValidated<Infer<typeof schemaAccountCreate>>;
 	} = $props();
 
 	const { formatCurrency, locale, numberFormatOptions } = getIntlContext();
+	const budget = getBudgetContext();
+	const { id: budgetId } = budget();
 
 	const form = superForm(
 		untrack(() => createAccountForm),
@@ -37,7 +36,7 @@
 					openCreateAccountForm = false;
 				}
 			},
-			validators: zod4Client(createAccountSchema)
+			validators: zod4Client(schemaAccountCreate)
 		}
 	);
 

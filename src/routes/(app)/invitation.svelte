@@ -3,7 +3,7 @@
 	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import { getUserContext } from '$lib/utils/user-context.svelte';
+	import { getUserContext } from '$lib/utils/user-context';
 	import EnvelopeDuotoneIcon from '~icons/ph/envelope-duotone';
 
 	type Invitation = ReturnType<App.Actions['budget']['getInvitations']>[number];

@@ -8,22 +8,23 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
 
-import { createAccountSchema } from './schema';
+import { schemaAccountCreate } from './schema';
 
 export const load: PageServerLoad = withPermissions(
-	async (_user, _actions, event: PageServerLoadEvent) => {
+	async (_user, actions, event: PageServerLoadEvent) => {
 		const { budget } = await event.parent();
+		const isFirstAccount = actions.account.all().some((f) => f.budgetId === budget.id);
 
 		return {
-			form: await superValidate(zod4(createAccountSchema)),
-			isFirstAccount: budget.accounts.length === 0
+			form: await superValidate(zod4(schemaAccountCreate)),
+			isFirstAccount
 		};
 	}
 );
 
 export const actions = {
 	default: withPermissions(async (_user, actions, event) => {
-		const form = await superValidate(event.request, zod4(createAccountSchema));
+		const form = await superValidate(event.request, zod4(schemaAccountCreate));
 		if (!form.valid) return fail(400, { form });
 
 		const { accountName, startingBalance } = form.data;

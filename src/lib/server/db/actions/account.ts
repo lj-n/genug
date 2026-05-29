@@ -117,6 +117,29 @@ export function createAccountActions({
 			return detail;
 		},
 
+		getById({ id }: { id: string }) {
+			return database
+				.select({
+					balance: sql<number>`COALESCE(SUM(${tables.transactions.amount}), 0)`,
+					budgetId: tables.accounts.budgetId,
+					id: tables.accounts.id,
+					name: tables.accounts.name
+				})
+				.from(tables.accounts)
+				.leftJoin(tables.transactions, eq(tables.transactions.accountId, tables.accounts.id))
+				.where(
+					and(
+						eq(tables.accounts.id, id),
+						userHasPermission({
+							budgetIdCol: tables.accounts.budgetId,
+							database,
+							userId: user.id
+						})
+					)
+				)
+				.get();
+		},
+
 		reorder({ orderedIds }: { orderedIds: string[] }) {
 			const availableAccountIds = database
 				.select({ id: tables.accounts.id })

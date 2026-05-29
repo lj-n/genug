@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { setBudgetContext } from '$lib/utils/budget-context';
 	import { setIntlContext } from '$lib/utils/intl-context.svelte';
 	import { untrack } from 'svelte';
 
@@ -12,6 +13,8 @@
 			currency: untrack(() => data.budget.currency)
 		}
 	});
+
+	setBudgetContext(() => data.budget);
 </script>
 
 {@render children()}

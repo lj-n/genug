@@ -154,6 +154,23 @@ export function createBudgetActions({
 				.all();
 		},
 
+		getById({ budgetId }: { budgetId: string }) {
+			return database
+				.select()
+				.from(tables.budgets)
+				.where(
+					and(
+						eq(tables.budgets.id, budgetId),
+						userHasPermission({
+							budgetIdCol: tables.budgets.id,
+							database,
+							userId: user.id
+						})
+					)
+				)
+				.get();
+		},
+
 		getInvitations() {
 			const inviterAlias = alias(tables.usersToBudgets, 'inviter_utb');
 			const inviterUserAlias = alias(tables.users, 'inviter_user');
@@ -210,6 +227,35 @@ export function createBudgetActions({
 					)
 				)
 				.get();
+		},
+
+		getUsers({ budgetId }: { budgetId: string }) {
+			return database
+				.select({
+					id: tables.users.id,
+					name: tables.users.username,
+					role: tables.usersToBudgets.role
+				})
+				.from(tables.usersToBudgets)
+				.innerJoin(tables.users, eq(tables.users.id, tables.usersToBudgets.userId))
+				.where(
+					and(
+						eq(tables.usersToBudgets.budgetId, budgetId),
+						userHasPermission({
+							budgetIdCol: tables.usersToBudgets.budgetId,
+							database,
+							userId: user.id
+						})
+					)
+				)
+				.orderBy(
+					sql`CASE ${tables.usersToBudgets.role} 
+						WHEN 'OWNER' THEN 1 
+						WHEN 'MEMBER' THEN 2 
+						WHEN 'INVITEE' THEN 3 
+						END`
+				)
+				.all();
 		},
 
 		inviteUser({ budgetId, userId }: { budgetId: string; userId: string }) {
@@ -405,35 +451,6 @@ export function createBudgetActions({
 						.execute();
 				}
 			});
-		},
-
-		users({ budgetId }: { budgetId: string }) {
-			return database
-				.select({
-					id: tables.users.id,
-					name: tables.users.username,
-					role: tables.usersToBudgets.role
-				})
-				.from(tables.usersToBudgets)
-				.innerJoin(tables.users, eq(tables.users.id, tables.usersToBudgets.userId))
-				.where(
-					and(
-						eq(tables.usersToBudgets.budgetId, budgetId),
-						userHasPermission({
-							budgetIdCol: tables.usersToBudgets.budgetId,
-							database,
-							userId: user.id
-						})
-					)
-				)
-				.orderBy(
-					sql`CASE ${tables.usersToBudgets.role} 
-						WHEN 'OWNER' THEN 1 
-						WHEN 'MEMBER' THEN 2 
-						WHEN 'INVITEE' THEN 3 
-						END`
-				)
-				.all();
 		}
 	};
 }

@@ -5,21 +5,24 @@
 	import { Input } from '$lib/components/ui/input';
 	import * as Popover from '$lib/components/ui/popover';
 	import { m } from '$lib/paraglide/messages';
+	import { getBudgetContext } from '$lib/utils/budget-context';
 	import { untrack } from 'svelte';
 	import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { zod4Client } from 'sveltekit-superforms/adapters';
 	import PhArchive from '~icons/ph/archive';
 	import PhStackPlus from '~icons/ph/stack-plus';
 
-	import { createCategorySchema } from '../categories/new/schema';
+	import { schemaCategoryCreate } from '../categories/new/schema';
 
 	type BudgetActionsProps = {
 		archivedAmount: number;
-		budgetId: string;
-		form: SuperValidated<Infer<typeof createCategorySchema>>;
+		form: SuperValidated<Infer<typeof schemaCategoryCreate>>;
 	};
 
-	let { archivedAmount, budgetId, form: createForm }: BudgetActionsProps = $props();
+	let { archivedAmount, form: createForm }: BudgetActionsProps = $props();
+
+	const budget = getBudgetContext();
+	const { id: budgetId } = budget();
 
 	const form = superForm(
 		untrack(() => createForm),
@@ -29,7 +32,7 @@
 					open = false;
 				}
 			},
-			validators: zod4Client(createCategorySchema)
+			validators: zod4Client(schemaCategoryCreate)
 		}
 	);
 

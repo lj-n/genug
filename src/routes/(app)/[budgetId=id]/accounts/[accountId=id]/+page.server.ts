@@ -14,17 +14,27 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { PageServerLoad, PageServerLoadEvent } from './$types';
 
+async function loadForms() {
+	const [transactionEdit, transactionCreate] = await Promise.all([
+		superValidate(zod4(schemaTransactionEdit)),
+		superValidate({ date: today(getLocalTimeZone()).toString() }, zod4(schemaTransactionCreate), {
+			errors: false
+		})
+	]);
+
+	return { transactionCreate, transactionEdit };
+}
+
 export const load: PageServerLoad = withPermissions(
 	async (user, actions, event: PageServerLoadEvent) => {
+		const { accountId } = event.params;
+		const { searchParams } = event.url;
+
 		const { budget } = await event.parent();
 
-		const account = budget.accounts.find((account) => account.id === event.params.accountId);
+		const account = actions.account.getById({ id: accountId });
+		if (!account) error(404, 'Account not found');
 
-		if (!account) {
-			error(404, 'Account not found');
-		}
-
-		const { searchParams } = event.url;
 		const params = schemaURLParams.parse({
 			categoryId: searchParams.getAll('categoryId'),
 			notes: searchParams.get('notes'),
@@ -65,13 +75,6 @@ export const load: PageServerLoad = withPermissions(
 			.allFlat({ budgetId: budget.id })
 			.filter((cat) => cat.archivedAt === null);
 
-		const formTransactionEdit = await superValidate(zod4(schemaTransactionEdit));
-		const formTransactionCreate = await superValidate(
-			{ date: today(getLocalTimeZone()).toString() },
-			zod4(schemaTransactionCreate),
-			{ errors: false }
-		);
-
 		const balanceDetail = actions.account.getBalanceDetail({ accountId: account.id });
 
 		return {
@@ -82,8 +85,7 @@ export const load: PageServerLoad = withPermissions(
 			},
 			categories,
 			filter,
-			formTransactionCreate,
-			formTransactionEdit,
+			forms: await loadForms(),
 			pagination,
 			totalTransactionCount,
 			transactions

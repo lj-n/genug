@@ -1,6 +1,6 @@
 import { nameSchema } from '$lib/utils/zod-schema-name';
 import z from 'zod';
 
-export const createCategorySchema = z.object({
+export const schemaCategoryCreate = z.object({
 	categoryName: nameSchema
 });

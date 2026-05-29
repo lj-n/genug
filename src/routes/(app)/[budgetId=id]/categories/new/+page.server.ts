@@ -5,19 +5,19 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
 
-import { createCategorySchema } from './schema';
+import { schemaCategoryCreate } from './schema';
 
 export const load: PageServerLoad = withPermissions(
 	async (_user, _actions, _event: PageServerLoadEvent) => {
 		return {
-			form: await superValidate(zod4(createCategorySchema))
+			form: await superValidate(zod4(schemaCategoryCreate))
 		};
 	}
 );
 
 export const actions = {
 	default: withPermissions(async (_user, actions, event) => {
-		const form = await superValidate(event.request, zod4(createCategorySchema));
+		const form = await superValidate(event.request, zod4(schemaCategoryCreate));
 		if (!form.valid) return fail(400, { form });
 
 		const { categoryName } = form.data;

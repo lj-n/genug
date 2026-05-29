@@ -8,11 +8,8 @@ import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
 import { schema } from './schema';
 
 export const load: PageServerLoad = withPermissions(
-	async (_user, _actions, event: PageServerLoadEvent) => {
-		const { budgets } = await event.parent();
-
-		const isFirstBudget = budgets.length === 0;
-
+	async (_user, actions, _event: PageServerLoadEvent) => {
+		const isFirstBudget = actions.budget.all().length === 0;
 		return { form: await superValidate(zod4(schema)), isFirstBudget };
 	}
 );

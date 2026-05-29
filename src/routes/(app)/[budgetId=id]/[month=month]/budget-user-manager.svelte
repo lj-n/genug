@@ -8,8 +8,9 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Form from '$lib/components/ui/form';
 	import * as InputGroup from '$lib/components/ui/input-group';
+	import { getBudgetContext } from '$lib/utils/budget-context';
 	import { debounce } from '$lib/utils/debounce';
-	import { getUserContext } from '$lib/utils/user-context.svelte';
+	import { getUserContext } from '$lib/utils/user-context';
 	import { untrack } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
@@ -28,14 +29,15 @@
 	type Role = typeof tables.usersToBudgets.$inferSelect.role;
 
 	let {
-		budgetId,
 		form,
 		users
 	}: {
-		budgetId: string;
 		form: SuperValidated<Infer<typeof schemaInviteUser>>;
 		users: { id: string; name: string; role: Role }[];
 	} = $props();
+
+	const budget = getBudgetContext();
+	const { id: budgetId } = budget();
 
 	let invitedUsers = $derived(users.filter(({ role }) => role === 'INVITEE'));
 	let budgetUsers = $derived(users.filter(({ role }) => role !== 'INVITEE'));

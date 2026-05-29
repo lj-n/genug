@@ -130,5 +130,9 @@
 	"budget_users_error_not_found": "{value} existiert nicht.",
 	"budget_users_error_its_you": "Das bist du...",
 	"budget_users_error_username_minlength": "Mindestens {length} Zeichen.",
-	"budget_users_error_username_maxlength": "Maximal {length} Zeichen."
+	"budget_users_error_username_maxlength": "Maximal {length} Zeichen.",
+	"password_error_min_length": "Mindestens {length} Zeichen.",
+	"password_error_max_length": "Maximal {length} Zeichen.",
+	"password_error_number": "Mindestens eine Zahl (0-9).",
+	"password_error_special": "Mindestens ein Sonderzeichen (!@#$%^&*?)."
 }

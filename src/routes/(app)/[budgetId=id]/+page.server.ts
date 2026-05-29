@@ -1,4 +1,3 @@
-import { resolve } from '$app/paths';
 import { withPermissions } from '$db/actions';
 import { m } from '$lib/paraglide/messages';
 import { createMonthParam } from '$lib/utils/date-utils';
@@ -31,7 +30,7 @@ export const actions = {
 
 		actions.budget.acceptInvite({ budgetId: event.params.budgetId });
 
-		redirect(302, resolve('/(app)/[budgetId=id]', { budgetId: event.params.budgetId }));
+		return { success: true };
 	}),
 
 	checkUser: withPermissions(async (user, actions, event) => {
@@ -79,7 +78,7 @@ function checkUserEligible(
 		return null;
 	}
 
-	const budgetUsers = actions.budget.users({ budgetId });
+	const budgetUsers = actions.budget.getUsers({ budgetId });
 	const foundBudgetUser = budgetUsers.find(({ name }) => name === form.data.invite);
 
 	if (foundBudgetUser) {

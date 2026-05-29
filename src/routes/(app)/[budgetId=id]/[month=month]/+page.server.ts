@@ -1,3 +1,4 @@
+import { resolve } from '$app/paths';
 import { withPermissions } from '$db/actions';
 import { getLocale } from '$lib/paraglide/runtime';
 import { fail, redirect } from '@sveltejs/kit';
@@ -6,10 +7,21 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
 
-import { createAccountSchema } from '../accounts/new/schema';
-import { createCategorySchema } from '../categories/new/schema';
+import { schemaAccountCreate } from '../accounts/new/schema';
+import { schemaCategoryCreate } from '../categories/new/schema';
 import { schemaInviteUser } from '../schema';
-import { assignmentSchema } from './schema';
+import { schemaMonthlyAssigment } from './schema';
+
+async function loadForms() {
+	const [monthlyAssignment, accountCreate, categoryCreate, inviteUser] = await Promise.all([
+		superValidate(zod4(schemaMonthlyAssigment)),
+		superValidate(zod4(schemaAccountCreate)),
+		superValidate(zod4(schemaCategoryCreate)),
+		superValidate(zod4(schemaInviteUser), { id: 'invite-form' })
+	]);
+
+	return { accountCreate, categoryCreate, inviteUser, monthlyAssignment };
+}
 
 export const load: PageServerLoad = withPermissions(
 	async (_user, actions, event: PageServerLoadEvent) => {
@@ -24,19 +36,21 @@ export const load: PageServerLoad = withPermissions(
 
 		const unassigned = actions.budget.getUnassigned({ budgetId: event.params.budgetId });
 
-		const { budget } = await event.parent();
+		const {
+			budget: { id: budgetId }
+		} = await event.parent();
 
-		if (budget.accounts.length === 0) {
-			redirect(307, `/${event.params.budgetId}/accounts/new`);
+		const accounts = actions.account.all().filter((f) => f.budgetId === budgetId);
+
+		if (accounts.length === 0) {
+			redirect(307, resolve(`/(app)/[budgetId=id]/accounts/new`, { budgetId }));
 		}
 
 		return {
+			accounts,
 			archivedCategories,
-			assignmentForm: await superValidate(zod4(assignmentSchema)),
 			categories,
-			createAccountForm: await superValidate(zod4(createAccountSchema)),
-			createCategoryForm: await superValidate(zod4(createCategorySchema)),
-			formInviteUser: await superValidate(zod4(schemaInviteUser), { id: 'invite-form' }),
+			forms: await loadForms(),
 			locale: getLocale(),
 			month: event.params.month,
 			unassigned: unassigned?.sum || 0
@@ -46,17 +60,13 @@ export const load: PageServerLoad = withPermissions(
 
 export const actions = {
 	assignment: withPermissions(async (_user, actions, event) => {
-		const form = await superValidate(event.request, zod4(assignmentSchema));
-
+		const form = await superValidate(event.request, zod4(schemaMonthlyAssigment));
 		if (!form.valid) return fail(400, { form });
 
-		const { amount, categoryId } = form.data;
-
 		actions.budget.assign({
-			amount,
 			budgetId: event.params.budgetId,
-			categoryId,
-			month: parseInt(event.params.month)
+			month: parseInt(event.params.month),
+			...form.data
 		});
 
 		return message(form, { type: 'success' });

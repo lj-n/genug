@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { setUserContext } from '$lib/utils/user-context.svelte';
+	import { setUserContext } from '$lib/utils/user-context';
 
 	import type { LayoutProps } from './$types';
 
@@ -12,7 +12,7 @@
 </script>
 
 <div class="mx-auto flex w-full max-w-9xl grow gap-2">
-	<Navigation budgets={data.budgets} user={data.user}>
+	<Navigation {...data}>
 		{#snippet invitations()}
 			{#each data.invitations as invitation (invitation.budgetId)}
 				<Invitation {invitation} />

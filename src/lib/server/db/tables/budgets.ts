@@ -5,6 +5,8 @@ import { createId } from '../../utils/create-id';
 import { categories } from './categories';
 import { users } from './users';
 
+export type Budget = typeof budgets.$inferSelect;
+
 export const budgets = sqliteTable('budgets', (t) => ({
 	createdAt: t
 		.integer('created_at', { mode: 'timestamp' })

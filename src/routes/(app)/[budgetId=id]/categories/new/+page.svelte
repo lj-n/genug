@@ -10,14 +10,14 @@
 
 	import type { PageProps } from './$types';
 
-	import { createCategorySchema } from './schema';
+	import { schemaCategoryCreate } from './schema';
 
 	let { data }: PageProps = $props();
 
 	const form = superForm(
 		untrack(() => data.form),
 		{
-			validators: zod4Client(createCategorySchema)
+			validators: zod4Client(schemaCategoryCreate)
 		}
 	);
 

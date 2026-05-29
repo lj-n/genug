@@ -12,7 +12,7 @@
 
 	import type { PageProps } from './$types';
 
-	import { createAccountSchema } from './schema';
+	import { schemaAccountCreate } from './schema';
 
 	let { data }: PageProps = $props();
 
@@ -24,7 +24,7 @@
 					goto(resolve('/(app)/[budgetId=id]', { budgetId: data.budget.id }));
 				}
 			},
-			validators: zod4Client(createAccountSchema)
+			validators: zod4Client(schemaAccountCreate)
 		}
 	);
 

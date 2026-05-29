@@ -14,13 +14,17 @@
 	import PhSignOut from '~icons/ph/sign-out';
 	import PhWrench from '~icons/ph/wrench';
 
-	import type { LayoutData } from './$types';
-
 	let {
-		budgets,
+		accounts,
+		budgets: allBudgets,
 		invitations,
 		user
-	}: { budgets: LayoutData['budgets']; invitations: Snippet; user: LayoutData['user'] } = $props();
+	}: {
+		accounts: App.Account[];
+		budgets: App.Budget[];
+		invitations: Snippet;
+		user: App.User;
+	} = $props();
 
 	type NavItemProps = {
 		href: string;
@@ -28,6 +32,10 @@
 		isActive: boolean;
 		label: string;
 	};
+
+	let budgets = $derived(
+		allBudgets.map((b) => ({ ...b, accounts: accounts.filter((f) => f.budgetId === b.id) }))
+	);
 </script>
 
 {#snippet plus(isActive: boolean)}

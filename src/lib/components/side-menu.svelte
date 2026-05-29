@@ -6,6 +6,7 @@
 	import { page } from '$app/state';
 	import { isCurrentPage } from '$lib/utils/is-current-page';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
+	import { slide } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
 	import PhArrowBendDownRightBold from '~icons/ph/arrow-bend-down-right-bold';
 	import PhDotsSixVertical from '~icons/ph/dots-six-vertical';
@@ -88,9 +89,14 @@
 	</div>
 {/snippet}
 
-<ul {@attach budgetSortable.attach} class="grid space-y-2">
+<ul {@attach budgetSortable.attach} class="grid">
 	{#each budgets as budget (budget.id)}
-		<li class="grid space-y-1" data-drag-item="budget" data-sortable-id={budget.id}>
+		<li
+			transition:slide={{ axis: 'y' }}
+			class="grid space-y-1 pt-2"
+			data-drag-item="budget"
+			data-sortable-id={budget.id}
+		>
 			{@render navitem({
 				dragDisabled: budgets.length <= 1,
 				dragHandleIdentifier: 'budget',
