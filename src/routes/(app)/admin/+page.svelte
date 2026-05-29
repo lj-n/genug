@@ -7,6 +7,7 @@
 	import * as Form from '$lib/components/ui/form';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import * as Page from '$lib/components/ui/page';
+	import { m } from '$lib/paraglide/messages';
 	import { copyToClipboard } from '$lib/utils/copy-to-clipboard';
 	import { untrack } from 'svelte';
 	import { slide } from 'svelte/transition';
@@ -71,16 +72,13 @@
 
 <Page.Root>
 	<Page.Header>
-		<Page.Title>Admin Einstellungen</Page.Title>
+		<Page.Title>{m.admin_settings_title()}</Page.Title>
 	</Page.Header>
 
 	<Page.Content>
 		<div class="grid max-w-2xl gap-3">
 			<div class="rounded-lg bg-muted/5 p-3">
-				Füge hier neue Benutzer hinzu. Die Nutzer melden sich mit Benutzernamen und Passwort an. Das
-				Passwort wird vom Administrator (dir) generiert und zur Verfügung gestellt. Benutzer können
-				ihren Benutzernamen und ihr Passwort auf ihrer Einstellungsseite ändern. Nur du kannst
-				Benutzer hinzufügen oder löschen.
+				{m.admin_description()}
 			</div>
 
 			<form action={resolve('/(app)/admin?/createUser')} method="post" use:formCreateUserEnhance>
@@ -92,7 +90,7 @@
 									<InputGroup.Input
 										{...props}
 										bind:value={$formCreateUserData.username}
-										placeholder="Nutzername"
+										placeholder={m.admin_input_placeholder_username()}
 										class="w-full bg-transparent"
 									/>
 									<InputGroup.Addon>
@@ -100,7 +98,7 @@
 									</InputGroup.Addon>
 
 									<InputGroup.Addon align="inline-end">
-										<Form.Button type="submit">Benutzer Erstellen</Form.Button>
+										<Form.Button type="submit">{m.admin_create_user_button()}</Form.Button>
 									</InputGroup.Addon>
 								</InputGroup.Root>
 							{/snippet}
@@ -111,7 +109,7 @@
 				</div>
 			</form>
 
-			<div class="text-lg font-medium tracking-tighter">Benutzer</div>
+			<div class="text-lg font-medium tracking-tighter">{m.admin_users_title()}</div>
 
 			<ul>
 				{#each data.users as user (user.id)}
@@ -124,12 +122,14 @@
 							<div>
 								{user.name}
 								{#if isCurrentUser}
-									<span class="text-muted"> (Du) </span>
+									<span class="text-muted"> {m.admin_user_you_indicator()} </span>
 								{/if}
 							</div>
 
 							{#if isCurrentUser}
-								<div class="ml-auto rounded-lg bg-info/10 px-3 py-0.5 text-info">Admin</div>
+								<div class="ml-auto rounded-lg bg-info/10 px-3 py-0.5 text-info">
+									{m.admin_role_admin_label()}
+								</div>
 							{:else}
 								<ButtonGroup.Root class="ml-auto opacity-0 group-hover:opacity-100">
 									<Button
@@ -140,7 +140,7 @@
 										value={user.id}
 									>
 										<ArrowCounterClockwiseIcon />
-										<span class="sr-only"> Passwort Zurücksetzen </span>
+										<span class="sr-only">{m.admin_reset_password_sr()}</span>
 									</Button>
 
 									<Button
@@ -152,7 +152,7 @@
 										}}
 									>
 										<TrashIcon />
-										<span class="sr-only"> Benutzer Entfernen </span>
+										<span class="sr-only">{m.admin_remove_user_sr()}</span>
 									</Button>
 								</ButtonGroup.Root>
 							{/if}
@@ -178,18 +178,18 @@
 					method="post"
 				>
 					<AlertDialog.Header>
-						<AlertDialog.Title>Bist du dir ganz sicher?</AlertDialog.Title>
+						<AlertDialog.Title>{m.admin_delete_user_confirm_title()}</AlertDialog.Title>
 						<AlertDialog.Description>
-							Diese Aktion kann nicht rückgängig gemacht werden. Der Benutzer und all seine Daten
-							werden gelöscht werden.
+							{m.admin_delete_user_confirm_description()}
 						</AlertDialog.Description>
 					</AlertDialog.Header>
 
 					<input type="hidden" name="userId" bind:value={$formDeleteUserData.userId} />
 
 					<AlertDialog.Footer>
-						<AlertDialog.Cancel type="button">Abbrechen</AlertDialog.Cancel>
-						<AlertDialog.Action type="submit" variant="destructive">Löschen</AlertDialog.Action>
+						<AlertDialog.Cancel type="button">{m.cancel()}</AlertDialog.Cancel>
+						<AlertDialog.Action type="submit" variant="destructive">{m.delete()}</AlertDialog.Action
+						>
 					</AlertDialog.Footer>
 				</form>
 			</AlertDialog.Content>
@@ -205,8 +205,8 @@
 		>
 			<Dialog.Content class="max-w-lg">
 				<Dialog.Header>
-					<Dialog.Title>Zufällig generiertes Passwort</Dialog.Title>
-					<Dialog.Description>Sende das generierte Password an den Benutzer</Dialog.Description>
+					<Dialog.Title>{m.admin_generated_password_title()}</Dialog.Title>
+					<Dialog.Description>{m.admin_generated_password_description()}</Dialog.Description>
 				</Dialog.Header>
 
 				<div class="flex items-center justify-between gap-4 rounded-lg bg-muted/5 p-2">
@@ -217,7 +217,9 @@
 				</div>
 
 				<Dialog.Footer>
-					<Dialog.Close class={buttonVariants({ variant: 'default' })}>Schließen</Dialog.Close>
+					<Dialog.Close class={buttonVariants({ variant: 'default' })}
+						>{m.dialog_close()}</Dialog.Close
+					>
 				</Dialog.Footer>
 			</Dialog.Content>
 		</Dialog.Root>

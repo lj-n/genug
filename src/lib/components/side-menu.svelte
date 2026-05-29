@@ -4,6 +4,7 @@
 
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import { m } from '$lib/paraglide/messages';
 	import { isCurrentPage } from '$lib/utils/is-current-page';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
 	import { slide } from 'svelte/transition';
@@ -73,8 +74,8 @@
 
 		<button
 			type="button"
-			aria-label="Drag Handle"
-			title="Drag Handle"
+			aria-label={m.drag_handle_label()}
+			title={m.drag_handle_label()}
 			disabled={dragDisabled}
 			aria-disabled={dragDisabled}
 			class={cn(

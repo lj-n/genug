@@ -8,9 +8,11 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Form from '$lib/components/ui/form';
 	import * as InputGroup from '$lib/components/ui/input-group';
+	import { m } from '$lib/paraglide/messages';
 	import { getBudgetContext } from '$lib/utils/budget-context';
 	import { debounce } from '$lib/utils/debounce';
 	import { getUserContext } from '$lib/utils/user-context';
+	import { ParaglideMessage } from '@inlang/paraglide-js-svelte';
 	import { untrack } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
@@ -86,16 +88,16 @@
 
 	<Dialog.Content class="max-w-lg gap-0" interactOutsideBehavior="ignore">
 		<Dialog.Header>
-			<Dialog.Title>Wer hat Zugriff auf diesen Budgetplan?</Dialog.Title>
+			<Dialog.Title>{m.budget_users_dialog_title()}</Dialog.Title>
 			<Dialog.Description class="grid gap-4">
 				<div>
-					Als Ersteller kannst du andere Nutzer einladen, um beim Budgetplan mitzugestalten.
+					{m.budget_users_dialog_description()}
 				</div>
 			</Dialog.Description>
 		</Dialog.Header>
 
 		<div class="mt-6 grid gap-2">
-			<div class="text-sm font-medium">Nutzer mit Zugriff</div>
+			<div class="text-sm font-medium">{m.budget_users_with_access_title()}</div>
 			<ul>
 				{#each budgetUsers as user (user.id)}
 					<li
@@ -108,7 +110,7 @@
 						</div>
 
 						{#if user.role === 'OWNER'}
-							<div class="ml-auto text-info">Hat den Budgetplan erstellt.</div>
+							<div class="ml-auto text-info">{m.budget_users_creator_label()}</div>
 						{:else if isOwner}
 							<Button
 								form="remove"
@@ -119,7 +121,7 @@
 								value={user.id}
 								class="ml-auto opacity-0 group-hover:opacity-100"
 							>
-								Entfernen
+								{m.budget_users_remove_button()}
 							</Button>
 						{/if}
 					</li>
@@ -129,7 +131,7 @@
 
 		{#if invitedUsers.length}
 			<div class="grid gap-2 pt-4" transition:slide={{ axis: 'y' }}>
-				<div class="text-sm font-medium">Eingeladene Nutzer</div>
+				<div class="text-sm font-medium">{m.budget_users_invited_title()}</div>
 				<ul>
 					{#each invitedUsers as user (user.id)}
 						<li
@@ -151,7 +153,7 @@
 									value={user.id}
 									class="ml-auto opacity-0 group-hover:opacity-100"
 								>
-									Löschen
+									{m.delete()}
 								</Button>
 							{/if}
 						</li>
@@ -164,7 +166,7 @@
 			<Collapsible.Trigger
 				class={cn(buttonVariants({ variant: 'ghost' }), 'w-full gap-4 px-0.5 font-medium')}
 			>
-				Lade andere Nutzer ein
+				{m.budget_users_invite_trigger()}
 
 				<div class="h-px grow bg-muted/20"></div>
 
@@ -183,8 +185,11 @@
 					<input type="hidden" name="invite" value={$formData.invite} />
 
 					<div class="rounded-lg bg-error/5 p-3 text-error">
-						Wenn du eine Einladung annimmst, kannst du auf den <b>gesamten</b> Budgetplan und dessen Accounts,
-						Kategorien, Transaktionen usw. zugreifen.
+						<ParaglideMessage message={m.budget_users_invite_warning} inputs={{}}>
+							{#snippet b({ children })}
+								<b>{@render children?.()}</b>
+							{/snippet}
+						</ParaglideMessage>
 					</div>
 
 					<div class="flex w-full items-center gap-2">
@@ -195,7 +200,7 @@
 										<InputGroup.Input
 											{...props}
 											bind:value={$formData.invite}
-											placeholder="Nutzername"
+											placeholder={m.admin_input_placeholder_username()}
 											class="w-full bg-transparent text-base"
 											oninput={checkUsername}
 										/>
@@ -211,16 +216,18 @@
 											{:else if $formData.invite && 'invite' in $errors}
 												<div class="flex items-center gap-1 text-success">
 													<CheckFatIcon />
-													Nutzer kann eingeladen werden.
+													{m.budget_users_invite_success()}
 												</div>
 											{:else}
 												<div class="flex items-center gap-1 text-muted">
 													<UserCirclePlusIcon />
-													Achte auf Groß- und Kleinschreibung!
+													{m.budget_users_username_case_hint()}
 												</div>
 											{/if}
 
-											<Form.Button type="submit" class="ms-auto">Einladung Senden</Form.Button>
+											<Form.Button type="submit" class="ms-auto"
+												>{m.budget_users_invite_button()}</Form.Button
+											>
 										</InputGroup.Addon>
 									</InputGroup.Root>
 								{/snippet}
@@ -232,7 +239,7 @@
 		</Collapsible.Root>
 
 		<Dialog.Footer class="mt-6">
-			<Dialog.Close class={buttonVariants({ variant: 'ghost' })}>Schließen</Dialog.Close>
+			<Dialog.Close class={buttonVariants({ variant: 'ghost' })}>{m.dialog_close()}</Dialog.Close>
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>

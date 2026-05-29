@@ -154,7 +154,7 @@
 					<button
 						class="flex size-9 cursor-grab items-center justify-center text-muted hover:text-interactive"
 						data-drag-handle="category"
-						aria-label="Drag Handle"
+						aria-label={m.drag_handle_label()}
 					>
 						<PhDotsSixVerticalBold />
 					</button>

@@ -2,6 +2,7 @@
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
 	import * as Page from '$lib/components/ui/page';
+	import { m } from '$lib/paraglide/messages';
 	import { untrack } from 'svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod4Client } from 'sveltekit-superforms/adapters';
@@ -40,7 +41,7 @@
 			<Form.Field form={formUsername} name="username">
 				<Form.Control>
 					{#snippet children({ props })}
-						<Form.Label>Anzeigename</Form.Label>
+						<Form.Label>{m.settings_label_display_name()}</Form.Label>
 						<Input {...props} bind:value={$formUsernameData.username} class="text-lg" />
 					{/snippet}
 				</Form.Control>
@@ -57,7 +58,7 @@
 			<Form.Field form={formPassword} name="oldPassword">
 				<Form.Control>
 					{#snippet children({ props })}
-						<Form.Label>Aktuelles Passwort</Form.Label>
+						<Form.Label>{m.settings_label_current_password()}</Form.Label>
 						<Input {...props} bind:value={$formPasswordData.oldPassword} class="text-lg" />
 					{/snippet}
 				</Form.Control>
@@ -67,7 +68,7 @@
 			<Form.Field form={formPassword} name="password">
 				<Form.Control>
 					{#snippet children({ props })}
-						<Form.Label>Neues Passwort</Form.Label>
+						<Form.Label>{m.settings_label_new_password()}</Form.Label>
 						<Input {...props} bind:value={$formPasswordData.password} class="text-lg" />
 					{/snippet}
 				</Form.Control>
