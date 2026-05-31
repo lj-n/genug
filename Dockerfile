@@ -8,7 +8,7 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-RUN npm run build
+RUN DATABASE_URL=build npm run build
 
 
 FROM node:22-alpine
@@ -20,6 +20,6 @@ COPY --from=builder /app/build ./build
 COPY --from=builder /app/src/lib/server/db/migrations ./src/lib/server/db/migrations
 COPY --from=builder /app/package.json ./
 
-EXPOSE 3001
+EXPOSE 3002
 
 CMD ["node", "build/index.js"]
