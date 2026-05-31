@@ -8,6 +8,10 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = withPermissions(async (_user, actions) => {
 	const [firstBudget] = actions.budget.all();
 
+	if (!firstBudget) {
+		redirect(307, resolve('/(app)/new'));
+	}
+
 	redirect(
 		307,
 		resolve('/(app)/[budgetId=id]/[month=month]', {
