@@ -33,7 +33,7 @@
 
 	const { enhance, form: formData, formId } = form;
 
-	let open = $state(true);
+	let open = $state(false);
 </script>
 
 <Dialog.Root bind:open>
@@ -41,16 +41,16 @@
 		{#snippet child({ props })}
 			<Button {...props} variant="ghost" size="icon-lg" class="bg-muted/10 hover:bg-muted/20">
 				<PencilIcon class="size-5" />
-				<span class="sr-only"> Budget Einstellungen </span>
+				<span class="sr-only">{m.budget_settings_title()}</span>
 			</Button>
 		{/snippet}
 	</Dialog.Trigger>
 
 	<Dialog.Content class="max-w-lg gap-0" interactOutsideBehavior="ignore">
 		<Dialog.Header>
-			<Dialog.Title>Budget Einstellungen</Dialog.Title>
+			<Dialog.Title>{m.budget_settings_title()}</Dialog.Title>
 			<Dialog.Description class="grid gap-4">
-				<p>Hier kannst du Namen und Währung des Budgetplans ändern.</p>
+				<p>{m.budget_settings_description()}</p>
 			</Dialog.Description>
 		</Dialog.Header>
 
@@ -66,7 +66,7 @@
 			<Form.Field {form} name="name">
 				<Form.Control>
 					{#snippet children({ props })}
-						<Form.Label>Budget Name</Form.Label>
+						<Form.Label>{m.budget_label_name()}</Form.Label>
 						<InputGroup.Root>
 							<InputGroup.Input {...props} bind:value={$formData.name} />
 						</InputGroup.Root>
@@ -79,14 +79,14 @@
 			<Form.Field {form} name="currency">
 				<Form.Control>
 					{#snippet children({ props })}
-						<Form.Label>Währung</Form.Label>
+						<Form.Label>{m.budget_settings_label_currency()}</Form.Label>
 						<Select.Root type="single" name={props.name} bind:value={$formData.currency}>
 							<Select.Trigger class="font-semibold" {...props}>
 								{$formData.currency}
 							</Select.Trigger>
 							<Select.Content>
 								<Select.Group>
-									<Select.Label>Verfügbare Währungen</Select.Label>
+									<Select.Label>{m.budget_settings_available_currencies()}</Select.Label>
 									{#each CURRENCIES as currency (currency)}
 										<Select.Item value={currency} label={currency} class="font-semibold">
 											{currency}

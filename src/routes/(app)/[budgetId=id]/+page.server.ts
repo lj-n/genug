@@ -1,7 +1,6 @@
 import { withPermissions } from '$db/actions';
 import { m } from '$lib/paraglide/messages';
 import { createMonthParam } from '$lib/utils/date-utils';
-import { isSqliteUniqueConstraintError } from '$server/utils/is-sqlite-unique-constraint-error';
 import { fail, redirect } from '@sveltejs/kit';
 import {
 	type Infer,

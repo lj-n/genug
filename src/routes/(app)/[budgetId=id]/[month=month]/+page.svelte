@@ -1,12 +1,9 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
 	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Page from '$lib/components/ui/page';
 	import { Separator } from '$lib/components/ui/separator';
-	import { m } from '$lib/paraglide/messages';
 	import { createDateFromParams } from '$lib/utils/create-date-from-params';
-	import PencilIcon from '~icons/ph/pencil';
 
 	import type { PageProps } from './$types';
 
