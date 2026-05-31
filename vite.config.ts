@@ -7,9 +7,6 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	define: { 'import.meta.vitest': 'undefined' },
-	ssr: {
-		external: ['@node-rs/argon2', 'better-sqlite3']
-	},
 	plugins: [
 		tailwindcss(),
 		sveltekit(),
