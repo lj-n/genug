@@ -7,6 +7,7 @@
 	"plugin.inlang.messageFormat": {
 		"pathPattern": "./messages/{locale}.json"
 	},
-	"baseLocale": "de",
+	"strategy": ["localStorage", "cookie", "preferredLanguage", "baseLocale"],
+	"baseLocale": "en",
 	"locales": ["en", "de"]
 }

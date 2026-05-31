@@ -9,18 +9,20 @@ import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
 
 import { schemaAccountCreate } from '../accounts/new/schema';
 import { schemaCategoryCreate } from '../categories/new/schema';
-import { schemaInviteUser } from '../schema';
+import { schemaEditBudget, schemaInviteUser } from '../schema';
 import { schemaMonthlyAssigment } from './schema';
 
-async function loadForms() {
-	const [monthlyAssignment, accountCreate, categoryCreate, inviteUser] = await Promise.all([
-		superValidate(zod4(schemaMonthlyAssigment)),
-		superValidate(zod4(schemaAccountCreate)),
-		superValidate(zod4(schemaCategoryCreate)),
-		superValidate(zod4(schemaInviteUser), { id: 'invite-form' })
-	]);
+async function loadForms(budget: App.Budget) {
+	const [monthlyAssignment, accountCreate, categoryCreate, inviteUser, editBudget] =
+		await Promise.all([
+			superValidate(zod4(schemaMonthlyAssigment)),
+			superValidate(zod4(schemaAccountCreate)),
+			superValidate(zod4(schemaCategoryCreate)),
+			superValidate(zod4(schemaInviteUser), { id: 'invite-form' }),
+			superValidate({ currency: budget.currency, name: budget.name }, zod4(schemaEditBudget))
+		]);
 
-	return { accountCreate, categoryCreate, inviteUser, monthlyAssignment };
+	return { accountCreate, categoryCreate, editBudget, inviteUser, monthlyAssignment };
 }
 
 export const load: PageServerLoad = withPermissions(
@@ -36,9 +38,8 @@ export const load: PageServerLoad = withPermissions(
 
 		const unassigned = actions.budget.getUnassigned({ budgetId: event.params.budgetId });
 
-		const {
-			budget: { id: budgetId }
-		} = await event.parent();
+		const { budget } = await event.parent();
+		const budgetId = budget.id;
 
 		const accounts = actions.account.all().filter((f) => f.budgetId === budgetId);
 
@@ -50,7 +51,7 @@ export const load: PageServerLoad = withPermissions(
 			accounts,
 			archivedCategories,
 			categories,
-			forms: await loadForms(),
+			forms: await loadForms(budget),
 			locale: getLocale(),
 			month: event.params.month,
 			unassigned: unassigned?.sum || 0

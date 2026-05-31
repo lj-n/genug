@@ -1,3 +1,4 @@
+import { CURRENCIES } from '$lib/utils/currencies';
 import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, primaryKey, sqliteTable } from 'drizzle-orm/sqlite-core';
 
@@ -12,12 +13,7 @@ export const budgets = sqliteTable('budgets', (t) => ({
 		.integer('created_at', { mode: 'timestamp' })
 		.$defaultFn(() => new Date())
 		.notNull(),
-	currency: t
-		.text('currency', {
-			enum: ['EUR', 'USD', 'GBP', 'CAD', 'AUD', 'JPY']
-		})
-		.default('EUR')
-		.notNull(),
+	currency: t.text('currency', { enum: CURRENCIES }).default('EUR').notNull(),
 	id: t
 		.text('id')
 		.primaryKey()

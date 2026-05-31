@@ -131,6 +131,31 @@ export function createBudgetActions({
 			});
 		},
 
+		edit({
+			budgetId,
+			update
+		}: {
+			budgetId: string;
+			update: Pick<typeof tables.budgets.$inferInsert, 'currency' | 'name'>;
+		}) {
+			const currentUser = database
+				.select({ role: tables.usersToBudgets.role })
+				.from(tables.usersToBudgets)
+				.where(
+					and(
+						eq(tables.usersToBudgets.budgetId, budgetId),
+						eq(tables.usersToBudgets.userId, user.id)
+					)
+				)
+				.get();
+
+			if (currentUser?.role !== 'OWNER') {
+				throw new Error('Forbidden');
+			}
+
+			return database.update(tables.budgets).set(update).returning().get();
+		},
+
 		eligibleUsers({ budgetId }: { budgetId: string }) {
 			return database
 				.select({

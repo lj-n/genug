@@ -174,7 +174,7 @@
 			</Collapsible.Trigger>
 
 			<Collapsible.Content
-				class="overflow-hidden px-2 pb-2 data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down"
+				class="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down"
 			>
 				<form
 					method="post"
@@ -184,7 +184,7 @@
 				>
 					<input type="hidden" name="invite" value={$formData.invite} />
 
-					<div class="rounded-lg bg-error/5 p-3 text-error">
+					<div class="rounded-lg bg-info/5 p-3 text-sm text-info">
 						<ParaglideMessage message={m.budget_users_invite_warning} inputs={{}}>
 							{#snippet b({ children })}
 								<b>{@render children?.()}</b>
@@ -192,7 +192,7 @@
 						</ParaglideMessage>
 					</div>
 
-					<div class="flex w-full items-center gap-2">
+					<div class="flex w-full items-center gap-2 rounded-lg bg-muted/5 p-3">
 						<Form.Field form={formInvite} name="invite" class="w-full">
 							<Form.Control>
 								{#snippet children({ props })}

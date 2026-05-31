@@ -45,7 +45,12 @@
 	</InputGroup.Button>
 {/snippet}
 
-<form {action} method="POST" use:enhance class="mx-auto mt-20 grid w-full max-w-sm space-y-6">
+<form
+	{action}
+	method="POST"
+	use:enhance
+	class="mx-auto mt-20 grid w-full max-w-sm space-y-6 rounded-lg bg-muted/5 p-3 py-6"
+>
 	<Logo class="mx-auto mt-auto w-52" aria-hidden />
 
 	{#if data.isFirstUser}
@@ -101,7 +106,7 @@
 			<Form.FieldErrors />
 
 			{#if data.isFirstUser}
-				<Form.Description class="mt-3 rounded-md bg-info/4 p-2 text-center text-base text-info">
+				<Form.Description class="mt-3 rounded-md bg-info/5 p-2 text-center text-base text-info">
 					{m.login_admin_credentials_info()}
 				</Form.Description>
 			{/if}

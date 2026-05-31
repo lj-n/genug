@@ -166,5 +166,10 @@
 	"budget_users_invite_success": "Nutzer kann eingeladen werden.",
 	"budget_users_username_case_hint": "Achte auf Groß- und Kleinschreibung!",
 	"budget_users_invite_button": "Einladung Senden",
-	"drag_handle_label": "Ziehpunkt"
+	"drag_handle_label": "Ziehpunkt",
+	"settings_change_display_name": "Anzeigenamen ändern",
+	"settings_change_password": "Passwort ändern",
+	"settings_save_and_logout": "Speichern & Ausloggen",
+	"settings_language": "Sprache",
+	"settings_available_languages": "Verfügbare Sprachen"
 }

@@ -13,6 +13,10 @@ export function createUserActions({ database, user }: { database: App.Database; 
 				.set({ username })
 				.where(eq(tables.users.id, user.id))
 				.run();
+		},
+
+		deleteSessions() {
+			return database.delete(tables.sessions).where(eq(tables.sessions.userId, user.id)).run();
 		}
 	};
 }

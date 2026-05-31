@@ -166,5 +166,10 @@
 	"budget_users_invite_success": "User can be invited.",
 	"budget_users_username_case_hint": "Username is case-sensitive!",
 	"budget_users_invite_button": "Send Invitation",
-	"drag_handle_label": "Drag Handle"
+	"drag_handle_label": "Drag Handle",
+	"settings_change_display_name": "Change Display Name",
+	"settings_change_password": "Change Password",
+	"settings_save_and_logout": "Save & Log Out",
+	"settings_language": "Language",
+	"settings_available_languages": "Available Languages"
 }

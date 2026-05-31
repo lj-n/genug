@@ -1,3 +1,4 @@
+import { auth, database } from '$db';
 import { withPermissions } from '$db/actions';
 import { m } from '$lib/paraglide/messages';
 import { isSqliteUniqueConstraintError } from '$server/utils/is-sqlite-unique-constraint-error';
@@ -27,7 +28,18 @@ export const actions = {
 		const form = await superValidate(event, zod4(schemaChangePassword));
 		if (!form.valid) return fail(400, { form });
 
+		const { oldPassword } = form.data;
+
+		try {
+			await auth.authenticateUser({ database, password: oldPassword, username: user.username });
+		} catch (error) {
+			if (error === 'INVALID_CREDENTIALS') {
+				return setError(form, 'oldPassword', m.login_error_invalid_credentials());
+			}
+		}
+
 		await actions.user.changePassword(form.data);
+		actions.user.deleteSessions();
 
 		return message(form, { type: 'success' });
 	}),

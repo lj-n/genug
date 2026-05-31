@@ -1,6 +1,7 @@
 import { withPermissions } from '$db/actions';
 import { m } from '$lib/paraglide/messages';
 import { createMonthParam } from '$lib/utils/date-utils';
+import { isSqliteUniqueConstraintError } from '$server/utils/is-sqlite-unique-constraint-error';
 import { fail, redirect } from '@sveltejs/kit';
 import {
 	type Infer,
@@ -13,7 +14,7 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
 
-import { schemaInviteUser } from './schema';
+import { schemaEditBudget, schemaInviteUser } from './schema';
 
 export const load: PageServerLoad = withPermissions(
 	async (_user, _actions, event: PageServerLoadEvent) => {
@@ -41,6 +42,15 @@ export const actions = {
 		}
 
 		return { form };
+	}),
+
+	editBudget: withPermissions(async (user, actions, event) => {
+		const form = await superValidate(event.request, zod4(schemaEditBudget));
+		if (!form.valid) return fail(400, { form });
+
+		actions.budget.edit({ budgetId: event.params.budgetId, update: form.data });
+
+		return message(form, { type: 'success' });
 	}),
 
 	inviteUser: withPermissions(async (user, actions, event) => {

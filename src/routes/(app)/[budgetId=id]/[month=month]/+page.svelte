@@ -12,6 +12,7 @@
 
 	import CategoryDetail from '../categories/[categoryId=id]/category-detail.svelte';
 	import BudgetAccountList from './budget-account-list.svelte';
+	import BudgetEditDetails from './budget-edit-details.svelte';
 	import BudgetUserManager from './budget-user-manager.svelte';
 	import CategoryBudgetTable from './category-budget-table.svelte';
 	import CategoryQuickActions from './category-quick-actions.svelte';
@@ -39,12 +40,7 @@
 		</Page.Title>
 
 		<ButtonGroup.Root>
-			<Button variant="ghost" size="icon-lg" class="bg-muted/10 hover:bg-muted/20">
-				<PencilIcon class="size-5" />
-				<span class="sr-only">
-					{m.settings_title()}
-				</span>
-			</Button>
+			<BudgetEditDetails form={data.forms.editBudget} />
 
 			<BudgetUserManager users={data.budgetUsers} form={data.forms.inviteUser} />
 		</ButtonGroup.Root>

@@ -32,7 +32,8 @@
 				if (event.form.message?.type === 'success') {
 					open = false;
 				}
-			}
+			},
+			warnings: { duplicateId: false }
 		}
 	);
 

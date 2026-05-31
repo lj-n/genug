@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { Infer, SuperValidated } from 'sveltekit-superforms';
+
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
 	import { clamp } from '$lib/utils/clamp';
@@ -9,6 +11,7 @@
 	import PhDotsSixVerticalBold from '~icons/ph/dots-six-vertical-bold';
 
 	import type { PageData } from './$types';
+	import type { schemaMonthlyAssigment } from './schema';
 
 	import BudgetTableCell from './budget-table-cell.svelte';
 	import BudgetTableHeader from './budget-table-header.svelte';
@@ -22,7 +25,7 @@
 		month,
 		openCategoryDialog
 	}: {
-		assignmentForm: PageData['assignmentForm'];
+		assignmentForm: SuperValidated<Infer<typeof schemaMonthlyAssigment>>;
 		categories: BudgetTableRow[];
 		month: PageData['month'];
 		openCategoryDialog: (category: BudgetTableRow) => void;
