@@ -6,6 +6,7 @@ import type {
 
 import { withPermissions } from '$db/actions';
 import { schemaURLParams } from '$lib/components/transaction-table/schema';
+import * as m from '$lib/paraglide/messages';
 import { schemaTransactionCreate, schemaTransactionEdit } from '$lib/schemas/transactions';
 import { getLocalTimeZone, today } from '@internationalized/date';
 import { error } from '@sveltejs/kit';
@@ -33,7 +34,7 @@ export const load: PageServerLoad = withPermissions(
 		const { budget } = await event.parent();
 
 		const account = actions.account.getById({ id: accountId });
-		if (!account) error(404, 'Account not found');
+		if (!account) error(404, { message: m.error_account_not_found() });
 
 		const params = schemaURLParams.parse({
 			categoryId: searchParams.getAll('categoryId'),

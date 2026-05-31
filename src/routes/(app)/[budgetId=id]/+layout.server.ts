@@ -9,7 +9,7 @@ export const load: PageServerLoad = withPermissions(
 		const { budgetId } = event.params;
 
 		const budget = actions.budget.getById({ budgetId });
-		if (!budget) error(404, 'Budget not found');
+		if (!budget) error(404, { message: 'Dieser Budgetplan existiert nicht.' });
 
 		const budgetUsers = actions.budget.getUsers({ budgetId });
 

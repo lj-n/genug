@@ -9,7 +9,13 @@ declare global {
 		type Budget = import('$db').tables.Budget;
 		type Database = import('$db').Database;
 
+		interface Error {
+			logId?: string;
+			message: string;
+		}
+
 		interface Locals {
+			logger: import('pino').Logger;
 			session: import('$db/auth').Session | null;
 		}
 

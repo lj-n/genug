@@ -175,5 +175,13 @@
 	"budget_settings_title": "Budget Einstellungen",
 	"budget_settings_description": "Hier kannst du Namen und Währung des Budgetplans ändern.",
 	"budget_settings_label_currency": "Währung",
-	"budget_settings_available_currencies": "Verfügbare Währungen"
+	"budget_settings_available_currencies": "Verfügbare Währungen",
+	"error_page_unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
+	"error_page_log_id": "Fehler-ID:",
+	"error_page_go_home": "Zurück zur Startseite",
+	"error_unauthorized": "Nicht autorisiert.",
+	"error_invalid_request_body": "Ungültige Anfrage.",
+	"error_unable_to_save_order": "Reihenfolge konnte nicht gespeichert werden.",
+	"error_account_not_found": "Konto nicht gefunden.",
+	"error_category_not_found": "Kategorie nicht gefunden."
 }

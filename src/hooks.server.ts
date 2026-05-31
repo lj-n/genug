@@ -1,10 +1,30 @@
-import type { Handle } from '@sveltejs/kit';
+import type { Handle, HandleServerError } from '@sveltejs/kit';
 
 import { database } from '$db';
 import * as auth from '$db/auth';
 import { getTextDirection } from '$lib/paraglide/runtime';
 import { paraglideMiddleware } from '$lib/paraglide/server';
+import { logger } from '$lib/server/logger';
+import { createId } from '$server/utils/create-id';
 import { sequence } from '@sveltejs/kit/hooks';
+
+const handleLogging: Handle = async ({ event, resolve }) => {
+	const requestId = createId();
+	const start = performance.now();
+
+	event.locals.logger = logger.child({ requestId });
+
+	const response = await resolve(event);
+
+	event.locals.logger.info({
+		method: event.request.method,
+		ms: Math.round(performance.now() - start),
+		path: event.url.pathname,
+		status: response.status
+	});
+
+	return response;
+};
 
 const handleAuth: Handle = async ({ event, resolve }) => {
 	const sessionToken = event.cookies.get(auth.SESSION_COOKIE_NAME);
@@ -43,4 +63,15 @@ const handleParaglide: Handle = ({ event, resolve }) =>
 		});
 	});
 
-export const handle = sequence(handleAuth, handleParaglide);
+export const handle = sequence(handleLogging, handleAuth, handleParaglide);
+
+export const handleError: HandleServerError = ({ error, event, status }) => {
+	const logId = createId();
+	const log = event.locals.logger ?? logger;
+
+	if (status !== 404) {
+		log.error({ err: error, logId, status }, 'unhandled server error');
+	}
+
+	return { logId, message: 'An unexpected error occurred.' };
+};

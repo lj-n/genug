@@ -175,5 +175,13 @@
 	"budget_settings_title": "Budget Settings",
 	"budget_settings_description": "Here you can change the name and currency of your budget.",
 	"budget_settings_label_currency": "Currency",
-	"budget_settings_available_currencies": "Available Currencies"
+	"budget_settings_available_currencies": "Available Currencies",
+	"error_page_unexpected": "An unexpected error occurred.",
+	"error_page_log_id": "Error ID:",
+	"error_page_go_home": "Go back home",
+	"error_unauthorized": "Unauthorized.",
+	"error_invalid_request_body": "Invalid request.",
+	"error_unable_to_save_order": "Unable to save order.",
+	"error_account_not_found": "Account not found.",
+	"error_category_not_found": "Category not found."
 }

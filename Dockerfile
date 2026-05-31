@@ -23,6 +23,8 @@ RUN npm prune --production
 FROM node:22-alpine
 WORKDIR /app
 
+ENV NODE_ENV=production
+
 COPY --from=builder /app/build build/
 COPY --from=builder /app/node_modules node_modules/
 COPY --from=builder /app/src/lib/server/db/migrations src/lib/server/db/migrations/

@@ -1,5 +1,6 @@
 import { withPermissions } from '$db/actions';
 import { entityOrderTypes } from '$db/tables';
+import * as m from '$lib/paraglide/messages';
 import { error, json } from '@sveltejs/kit';
 import { z } from 'zod';
 
@@ -19,14 +20,14 @@ export const POST: RequestHandler = withPermissions(async (_user, actions, { loc
 	const session = locals.session;
 
 	if (!session) {
-		error(401, 'Unauthorized');
+		error(401, { message: m.error_unauthorized() });
 	}
 
 	const rawBody = await request.json();
 	const parsed = reorderSchema.safeParse(rawBody);
 
 	if (!parsed.success) {
-		return error(400, 'Invalid request body');
+		return error(400, { message: m.error_invalid_request_body() });
 	}
 
 	try {
@@ -43,7 +44,8 @@ export const POST: RequestHandler = withPermissions(async (_user, actions, { loc
 		}
 
 		return json({ success: true });
-	} catch {
-		error(400, 'Unable to save order');
+	} catch (err) {
+		locals.logger.error({ err }, 'failed to reorder entity');
+		error(500, { message: m.error_unable_to_save_order() });
 	}
 });

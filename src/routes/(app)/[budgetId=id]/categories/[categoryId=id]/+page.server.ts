@@ -1,4 +1,5 @@
 import { withPermissions } from '$db/actions';
+import * as m from '$lib/paraglide/messages';
 import { error, fail } from '@sveltejs/kit';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
@@ -14,7 +15,7 @@ export const load: PageServerLoad = withPermissions(
 
 		const category = categories.find((c) => c.id === event.params.categoryId);
 
-		if (!category) error(404, 'Category not found');
+		if (!category) error(404, { message: m.error_category_not_found() });
 
 		return { category };
 	}
@@ -23,7 +24,7 @@ export const load: PageServerLoad = withPermissions(
 export const actions = {
 	archive: withPermissions(async (_user, actions, event) => {
 		const category = actions.category.getById({ id: event.params.categoryId });
-		if (!category || !isArchivable(category)) error(404, 'Category not found');
+		if (!category || !isArchivable(category)) error(404, { message: m.error_category_not_found() });
 
 		actions.category.update({
 			data: { archivedAt: new Date() },
@@ -35,7 +36,7 @@ export const actions = {
 
 	edit: withPermissions(async (_user, actions, event) => {
 		const category = actions.category.getById({ id: event.params.categoryId });
-		if (!category) error(404, 'Category not found');
+		if (!category) error(404, { message: m.error_category_not_found() });
 
 		const form = await superValidate(event.request, zod4(editSchema));
 		if (!form.valid) return fail(400, { form });
@@ -52,7 +53,8 @@ export const actions = {
 
 	restore: withPermissions(async (_user, actions, event) => {
 		const category = actions.category.getById({ id: event.params.categoryId });
-		if (!category || category.archivedAt === null) error(404, 'Category not found');
+		if (!category || category.archivedAt === null)
+			error(404, { message: m.error_category_not_found() });
 
 		actions.category.update({
 			data: { archivedAt: null },
