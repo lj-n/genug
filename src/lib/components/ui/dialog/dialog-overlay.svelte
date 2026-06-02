@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Dialog as DialogPrimitive } from 'bits-ui';
+	import { fade } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
 
 	let {
@@ -9,12 +10,18 @@
 	}: DialogPrimitive.OverlayProps = $props();
 </script>
 
-<DialogPrimitive.Overlay
-	bind:ref
-	data-slot="dialog-overlay"
-	class={cn(
-		'fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0',
-		className
-	)}
-	{...restProps}
-/>
+<DialogPrimitive.Overlay data-slot="dialog-overlay" {...restProps} forceMount>
+	{#snippet child({ open, props })}
+		{#if open}
+			<div
+				bind:this={ref}
+				{...props}
+				class={cn(
+					'fixed inset-0 z-50 w-screen bg-black/10 supports-backdrop-filter:backdrop-blur-xs',
+					className
+				)}
+				transition:fade={{ duration: 150 }}
+			></div>
+		{/if}
+	{/snippet}
+</DialogPrimitive.Overlay>

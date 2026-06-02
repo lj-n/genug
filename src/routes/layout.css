@@ -193,6 +193,7 @@
 @layer base {
 	html {
 		@apply font-sans;
+		scrollbar-gutter: stable;
 	}
 	body {
 		@apply flex min-h-screen flex-col bg-background text-foreground;

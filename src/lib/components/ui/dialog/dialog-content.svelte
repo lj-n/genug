@@ -5,6 +5,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { m } from '$lib/paraglide/messages';
 	import { Dialog as DialogPrimitive, type WithoutChildrenOrChild } from 'bits-ui';
+	import { fly } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
 	import PhX from '~icons/ph/x';
 
@@ -27,25 +28,31 @@
 
 <DialogPortal {...portalProps}>
 	<Dialog.Overlay />
-	<DialogPrimitive.Content
-		bind:ref
-		data-slot="dialog-content"
-		class={cn(
-			'fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-6 rounded-md bg-surface p-6 text-sm ring-1 ring-foreground/10 duration-100 outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
-			className
-		)}
-		{...restProps}
-	>
-		{@render children?.()}
-		{#if showCloseButton}
-			<DialogPrimitive.Close data-slot="dialog-close">
-				{#snippet child({ props })}
-					<Button variant="ghost" class="absolute top-4 right-4" size="icon" {...props}>
-						<PhX />
-						<span class="sr-only">{m.dialog_close()}</span>
-					</Button>
-				{/snippet}
-			</DialogPrimitive.Close>
-		{/if}
+	<DialogPrimitive.Content data-slot="dialog-content" {...restProps} forceMount>
+		{#snippet child({ open, props })}
+			{#if open}
+				<div
+					bind:this={ref}
+					{...props}
+					class={cn(
+						'fixed inset-0 z-50 m-auto grid h-fit w-full max-w-[calc(100%-2rem)] gap-6 rounded-md bg-surface p-6 text-sm ring-1 ring-foreground/10 outline-none',
+						className
+					)}
+					transition:fly={{ duration: 150, x: 6, y: 6 }}
+				>
+					{@render children?.()}
+					{#if showCloseButton}
+						<DialogPrimitive.Close data-slot="dialog-close">
+							{#snippet child({ props: closeProps })}
+								<Button variant="ghost" class="absolute top-4 right-4" size="icon" {...closeProps}>
+									<PhX />
+									<span class="sr-only">{m.dialog_close()}</span>
+								</Button>
+							{/snippet}
+						</DialogPrimitive.Close>
+					{/if}
+				</div>
+			{/if}
+		{/snippet}
 	</DialogPrimitive.Content>
 </DialogPortal>
