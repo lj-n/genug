@@ -3,7 +3,8 @@
 	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
 	import { m } from '$lib/paraglide/messages';
-	import { getIntlContext } from '$lib/utils/intl-context.svelte';
+	import { getBudgetContext } from '$lib/utils/budget-context';
+	import { formatCurrency } from '$lib/utils/format-currency';
 	import { ParaglideMessage } from '@inlang/paraglide-js-svelte';
 	import { cn } from 'tailwind-variants';
 	import PhArchiveTrayBold from '~icons/ph/archive-tray-bold';
@@ -15,7 +16,8 @@
 
 	let { category }: { category: PageData['category'] } = $props();
 
-	const { formatCurrency } = getIntlContext();
+	const getBudget = getBudgetContext();
+	const currency = $derived(getBudget().currency);
 
 	let isArchived = $derived(category.archivedAt !== null);
 
@@ -64,15 +66,16 @@
 					<ParaglideMessage message={m.category_not_archivable_balance} inputs={{}}>
 						{#snippet sum()}
 							<span class="font-semibold tabular-nums">
-								{formatCurrency(
-									category.totalAssignedBudgetSum + category.totalRelatedTransactionSum
-								)}
+								{formatCurrency({
+									centValue: category.totalAssignedBudgetSum + category.totalRelatedTransactionSum,
+									currency
+								})}
 							</span>
 						{/snippet}
 
 						{#snippet required()}
 							<span class="font-semibold tabular-nums">
-								{formatCurrency(0)}
+								{formatCurrency({ centValue: 0, currency })}
 							</span>
 						{/snippet}
 					</ParaglideMessage>

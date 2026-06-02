@@ -6,7 +6,8 @@
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { m } from '$lib/paraglide/messages';
-	import { getIntlContext } from '$lib/utils/intl-context.svelte';
+	import { getBudgetContext } from '$lib/utils/budget-context';
+	import { formatCurrency } from '$lib/utils/format-currency';
 	import { createSingletonToast } from '$lib/utils/singleton-toast.svelte';
 	import { untrack } from 'svelte';
 	import { fly } from 'svelte/transition';
@@ -25,7 +26,8 @@
 
 	let { category }: CategoryEditProps = $props();
 
-	const { formatCurrency, locale, numberFormatOptions } = getIntlContext();
+	const getBudget = getBudgetContext();
+	const currency = $derived(getBudget().currency);
 
 	let savedToast = createSingletonToast();
 
@@ -116,9 +118,9 @@
 					<InputGroup.InputCurrency
 						{...props}
 						bind:value={$formData.targetBalance}
-						intlConfig={{ locale, ...numberFormatOptions }}
+						{currency}
 						class="h-12 text-center text-xl font-semibold placeholder:text-base placeholder:font-normal"
-						placeholder={formatCurrency(0)}
+						placeholder={formatCurrency({ centValue: 0, currency })}
 						aria-label={m.category_label_targetbalance()}
 						onblur={editCategory}
 					/>

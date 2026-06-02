@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
+	import { getLocale } from '$lib/paraglide/runtime.js';
 	import { type DateValue, isEqualMonth } from '@internationalized/date';
 	import { Calendar as CalendarPrimitive, type WithoutChildrenOrChild } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
@@ -15,7 +16,7 @@
 		class: className,
 		day,
 		disableDaysOutsideMonth = false,
-		locale = 'en-US',
+		locale = getLocale(),
 		monthFormat: monthFormatProp,
 		months: monthsProp,
 		placeholder = $bindable(),

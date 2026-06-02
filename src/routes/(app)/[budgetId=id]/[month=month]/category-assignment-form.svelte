@@ -2,7 +2,8 @@
 	import { resolve } from '$app/paths';
 	import * as Form from '$lib/components/ui/form';
 	import { InputCurrency } from '$lib/components/ui/input-currency';
-	import { getIntlContext } from '$lib/utils/intl-context.svelte';
+	import { getBudgetContext } from '$lib/utils/budget-context';
+	import { formatCurrency } from '$lib/utils/format-currency';
 	import { Popover } from 'bits-ui';
 	import { untrack } from 'svelte';
 	import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
@@ -23,7 +24,8 @@
 		open?: boolean;
 	} = $props();
 
-	const { formatCurrency, locale, numberFormatOptions } = getIntlContext();
+	const getBudget = getBudgetContext();
+	const currency = $derived(getBudget().currency);
 
 	const form = superForm(
 		untrack(() => assignmentForm),
@@ -56,7 +58,7 @@
 			open && 'hidden'
 		)}
 	>
-		{formatCurrency(category.thisMonthAmount)}
+		{formatCurrency({ centValue: category.thisMonthAmount, currency })}
 	</Popover.Trigger>
 
 	<Popover.ContentStatic class="absolute inset-0 outline-2 -outline-offset-2 outline-focus">
@@ -75,7 +77,7 @@
 					{#snippet children({ props })}
 						<InputCurrency
 							{...props}
-							intlConfig={{ locale, ...numberFormatOptions }}
+							{currency}
 							bind:value={$formData.amount}
 							class="h-full w-full rounded-none px-2 text-right font-currency ring-0 outline-none"
 							selectOnFocus

@@ -3,8 +3,9 @@
 
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
+	import { getBudgetContext } from '$lib/utils/budget-context';
 	import { clamp } from '$lib/utils/clamp';
-	import { getIntlContext } from '$lib/utils/intl-context.svelte';
+	import { formatCurrency } from '$lib/utils/format-currency';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
 	import { useDialog } from '$lib/utils/use-dialog';
 	import { cn } from 'tailwind-variants';
@@ -31,7 +32,8 @@
 		openCategoryDialog: (category: BudgetTableRow) => void;
 	} = $props();
 
-	const { formatCurrency } = getIntlContext();
+	const getBudget = getBudgetContext();
+	const currency = $derived(getBudget().currency);
 
 	function saveOrder() {
 		return (orderedIds: string[]) =>
@@ -138,7 +140,7 @@
 				</BudgetTableCell>
 
 				<BudgetTableCell class="w-1/5 font-currency">
-					{formatCurrency(row.thisMonthActivity)}
+					{formatCurrency({ centValue: row.thisMonthActivity, currency })}
 				</BudgetTableCell>
 
 				<BudgetTableCell class="w-1/5 justify-end">
@@ -149,7 +151,7 @@
 							row.thisMonthRemaining > 0 && 'border-success/80 bg-success/20'
 						)}
 					>
-						{formatCurrency(row.thisMonthRemaining)}
+						{formatCurrency({ centValue: row.thisMonthRemaining, currency })}
 					</span>
 				</BudgetTableCell>
 

@@ -9,8 +9,8 @@
 	import { SelectCommand } from '$lib/components/ui/select-command';
 	import { m } from '$lib/paraglide/messages';
 	import { schemaTransactionCreate } from '$lib/schemas/transactions';
+	import { getBudgetContext } from '$lib/utils/budget-context';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
-	import { getIntlContext } from '$lib/utils/intl-context.svelte';
 	import { CalendarDate, parseDate } from '@internationalized/date';
 	import { Popover } from 'bits-ui';
 	import { type Snippet, tick, untrack } from 'svelte';
@@ -58,7 +58,8 @@
 
 	const { enhance, form: formData } = form;
 
-	const intlContext = getIntlContext();
+	const getBudget = getBudgetContext();
+	const currency = $derived(getBudget().currency);
 
 	let categoryOpen = $state(false);
 
@@ -161,7 +162,7 @@
 					aria-expanded={dateOpen}
 				>
 					{$formData.date
-						? formatTransactionDate(intlContext, parseDate($formData.date))
+						? formatTransactionDate(parseDate($formData.date))
 						: m.transaction_table_cell_date_select()}
 				</Button>
 			{/snippet}
@@ -180,7 +181,6 @@
 			<Calendar
 				type="single"
 				bind:value={getDateValue, setDateValue}
-				locale={intlContext.locale}
 				captionLayout="dropdown"
 				onValueChange={() => {
 					closeAndFocusDateTrigger();
@@ -196,7 +196,7 @@
 		bind:ref={amountInputRef}
 		bind:value={$formData.amount}
 		{...props}
-		intlConfig={{ locale: intlContext.locale, ...intlContext.numberFormatOptions }}
+		{currency}
 		class="px-2 text-right font-medium"
 	/>
 {/snippet}

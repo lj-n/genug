@@ -3,8 +3,9 @@
 
 	import { InputCurrency } from '$lib/components/ui/input-currency';
 	import { m } from '$lib/paraglide/messages';
+	import { getBudgetContext } from '$lib/utils/budget-context';
 	import { focusAndSelect } from '$lib/utils/focus-and-select';
-	import { getIntlContext } from '$lib/utils/intl-context.svelte';
+	import { formatCurrency } from '$lib/utils/format-currency';
 
 	import type { TransactionRow } from '../types';
 
@@ -14,7 +15,8 @@
 	let { amount, row }: { amount: number; row: Row<TransactionRow> } = $props();
 
 	const tableContext = getTableContext();
-	const intlContext = getIntlContext();
+	const getBudget = getBudgetContext();
+	const currency = $derived(getBudget().currency);
 
 	const { form: formData } = tableContext.editForm;
 
@@ -30,14 +32,15 @@
 	onEdit={() => focusAndSelect(inputRef)}
 >
 	{#snippet view()}
-		{intlContext.formatCurrency(amount)}
+		{formatCurrency({ centValue: amount, currency })}
 	{/snippet}
+
 	{#snippet edit({ props })}
 		<InputCurrency
 			bind:ref={inputRef}
 			bind:value={$formData.amount}
 			{...props}
-			intlConfig={{ locale: intlContext.locale, ...intlContext.numberFormatOptions }}
+			{currency}
 			class="px-2 text-right font-currency font-medium"
 		/>
 	{/snippet}

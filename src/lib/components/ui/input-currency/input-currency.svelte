@@ -1,13 +1,16 @@
 <script lang="ts">
-	import type { CurrencyInputValues, IntlConfig } from '@canutin/svelte-currency-input';
+	import type { CURRENCIES } from '$lib/utils/currencies';
+	import type { CurrencyInputValues } from '@canutin/svelte-currency-input';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
+	import { getLocale, type Locale } from '$lib/paraglide/runtime';
 	import { CurrencyInput } from '@canutin/svelte-currency-input';
 	import { cn } from 'tailwind-variants';
 
 	type Props = Omit<HTMLInputAttributes, 'onchangevalue' | 'oninputvalue' | 'value'> & {
 		allowDecimals?: boolean;
 		allowNegativeValue?: boolean;
+		currency: (typeof CURRENCIES)[number];
 		decimalScale?: number;
 		decimalSeparator?: string;
 		decimalsLimit?: number;
@@ -16,7 +19,8 @@
 		fixedDecimalLength?: number;
 		formatValueOnBlur?: boolean;
 		groupSeparator?: string;
-		intlConfig?: IntlConfig;
+		intlConfig?: Intl.NumberFormatOptions;
+		locale?: Locale;
 		max?: number;
 		maxLength?: number;
 		min?: number;
@@ -35,6 +39,7 @@
 		allowDecimals,
 		allowNegativeValue,
 		class: className,
+		currency,
 		'data-slot': dataSlot = 'input',
 		decimalScale,
 		decimalSeparator,
@@ -45,6 +50,7 @@
 		formatValueOnBlur,
 		groupSeparator,
 		intlConfig,
+		locale = getLocale(),
 		max,
 		maxLength,
 		min,
@@ -122,7 +128,7 @@
 		'h-9 w-full rounded-md border border-muted/30 bg-surface/70 px-3 py-1 outline-none placeholder:text-muted focus-visible:border-focus focus-visible:bg-surface/80 focus-visible:ring-2 focus-visible:ring-focus/50 aria-invalid:border-error',
 		className
 	)}
-	{intlConfig}
+	intlConfig={{ currency, locale, ...intlConfig }}
 	{prefix}
 	{suffix}
 	{decimalSeparator}

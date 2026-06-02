@@ -10,7 +10,7 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { m } from '$lib/paraglide/messages';
 	import { createMonthParam } from '$lib/utils/date-utils';
-	import { getIntlContext } from '$lib/utils/intl-context.svelte';
+	import { formatDate } from '$lib/utils/format-date';
 	import { CalendarDate, getLocalTimeZone, isSameMonth, today } from '@internationalized/date';
 	import PhArrowFatLeftDuoTone from '~icons/ph/arrow-fat-left-duotone';
 	import PhArrowFatRightDuoTone from '~icons/ph/arrow-fat-right-duotone';
@@ -20,7 +20,6 @@
 	let { paramsDate }: { paramsDate: CalendarDate } = $props();
 
 	const currentDate = today(getLocalTimeZone());
-	const { formatDate } = getIntlContext();
 
 	let selectedMonth = $derived(paramsDate);
 
@@ -88,10 +87,7 @@
 			<Popover.Trigger>
 				{#snippet child({ props })}
 					<Button {...props} class="min-w-26 font-bold text-foreground">
-						{formatDate(selectedMonth, {
-							month: 'short',
-							year: '2-digit'
-						})}
+						{formatDate({ date: selectedMonth, options: { month: 'short', year: '2-digit' } })}
 					</Button>
 				{/snippet}
 			</Popover.Trigger>
@@ -102,7 +98,9 @@
 						shiftMonth({ years: -1 })
 					)}
 
-					<ButtonGroup.Text>{formatDate(selectedMonth, { year: 'numeric' })}</ButtonGroup.Text>
+					<ButtonGroup.Text
+						>{formatDate({ date: selectedMonth, options: { year: 'numeric' } })}</ButtonGroup.Text
+					>
 
 					{@render yearStepButton(m.budget_select_next_year(), nextYearIcon, () =>
 						shiftMonth({ years: 1 })
@@ -118,7 +116,7 @@
 							variant="ghost"
 							onclick={() => navigateToMonth(month)}
 						>
-							{formatDate(month, { month: 'short' })}
+							{formatDate({ date: month, options: { month: 'short' } })}
 						</Button>
 					{/each}
 

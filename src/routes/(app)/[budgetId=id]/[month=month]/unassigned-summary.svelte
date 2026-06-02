@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
-	import { getIntlContext } from '$lib/utils/intl-context.svelte';
+	import { getBudgetContext } from '$lib/utils/budget-context';
+	import { formatCurrency } from '$lib/utils/format-currency';
 	import { cn } from 'tailwind-variants';
 	import PhCheckFat from '~icons/ph/check-fat';
 	import PhSparkle from '~icons/ph/sparkle';
@@ -8,7 +9,8 @@
 
 	let { unassigned }: { unassigned: number } = $props();
 
-	let { formatCurrency } = getIntlContext();
+	const getBudget = getBudgetContext();
+	const currency = $derived(getBudget().currency);
 </script>
 
 {#snippet label()}
@@ -40,7 +42,7 @@
 
 	{#if unassigned !== 0}
 		<div class="ml-auto text-xl font-semibold text-foreground tabular-nums">
-			{formatCurrency(unassigned)}
+			{formatCurrency({ centValue: unassigned, currency })}
 		</div>
 	{/if}
 </div>

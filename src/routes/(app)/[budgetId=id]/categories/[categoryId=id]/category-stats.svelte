@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
+	import { getBudgetContext } from '$lib/utils/budget-context';
 	import { clamp } from '$lib/utils/clamp';
-	import { formatCentToFloatString } from '$lib/utils/formatCentToFloatString';
-	import { getIntlContext } from '$lib/utils/intl-context.svelte';
-	import { formatValue } from '@canutin/svelte-currency-input';
+	import { formatCurrency } from '$lib/utils/format-currency';
 
 	import type { PageData } from './$types';
 
@@ -13,14 +12,8 @@
 
 	let { category }: CategoryDetailProps = $props();
 
-	const { locale, numberFormatOptions } = getIntlContext();
-
-	let formatCurrency = $derived((value: number) =>
-		formatValue({
-			intlConfig: { locale, ...numberFormatOptions },
-			value: formatCentToFloatString(value)
-		})
-	);
+	const getBudget = getBudgetContext();
+	const currency = $derived(getBudget().currency);
 </script>
 
 <section
@@ -29,7 +22,7 @@
 >
 	<div class="rounded-md border border-info/20 bg-info/10 p-2 text-center">
 		<div class="text-xl font-bold tabular-nums">
-			{formatCurrency(category.totalRelatedTransactionSum)}
+			{formatCurrency({ centValue: category.totalRelatedTransactionSum, currency })}
 		</div>
 		<div class="text-sm">{m.category_stats_spent()}</div>
 	</div>

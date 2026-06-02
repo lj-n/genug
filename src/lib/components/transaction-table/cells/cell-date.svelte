@@ -5,7 +5,6 @@
 	import { Calendar } from '$lib/components/ui/calendar';
 	import { m } from '$lib/paraglide/messages';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
-	import { getIntlContext } from '$lib/utils/intl-context.svelte';
 	import { type CalendarDate, parseDate } from '@internationalized/date';
 	import { Popover } from 'bits-ui';
 	import { tick } from 'svelte';
@@ -18,7 +17,6 @@
 	let { date, row }: { date: string; row: Row<TransactionRow> } = $props();
 
 	const tableContext = getTableContext();
-	const intlContext = getIntlContext();
 
 	const { form: formData } = tableContext.editForm;
 
@@ -49,7 +47,7 @@
 	buttonClass="truncate"
 >
 	{#snippet view()}
-		{date ? formatTransactionDate(intlContext, parseDate(date)) : ''}
+		{date ? formatTransactionDate(parseDate(date)) : ''}
 	{/snippet}
 	{#snippet edit({ props: triggerProps })}
 		<Popover.Root bind:open>
@@ -63,7 +61,7 @@
 						aria-expanded={open}
 					>
 						{$formData.date
-							? formatTransactionDate(intlContext, parseDate($formData.date))
+							? formatTransactionDate(parseDate($formData.date))
 							: m.transaction_table_cell_date_select()}
 					</Button>
 				{/snippet}
@@ -82,7 +80,6 @@
 				<Calendar
 					type="single"
 					bind:value={getValue, setValue}
-					locale={intlContext.locale}
 					captionLayout="dropdown"
 					onValueChange={() => {
 						closeAndFocusTrigger();

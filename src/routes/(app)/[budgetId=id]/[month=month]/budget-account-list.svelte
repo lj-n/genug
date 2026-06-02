@@ -7,7 +7,7 @@
 	import * as Popover from '$lib/components/ui/popover';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudgetContext } from '$lib/utils/budget-context';
-	import { getIntlContext } from '$lib/utils/intl-context.svelte';
+	import { formatCurrency } from '$lib/utils/format-currency';
 	import { untrack } from 'svelte';
 	import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { zod4Client } from 'sveltekit-superforms/adapters';
@@ -24,9 +24,9 @@
 		createAccountForm: SuperValidated<Infer<typeof schemaAccountCreate>>;
 	} = $props();
 
-	const { formatCurrency, locale, numberFormatOptions } = getIntlContext();
-	const budget = getBudgetContext();
-	const { id: budgetId } = budget();
+	const getBudget = getBudgetContext();
+	const budgetId = $derived(getBudget().id);
+	const currency = $derived(getBudget().currency);
 
 	const form = superForm(
 		untrack(() => createAccountForm),
@@ -79,8 +79,8 @@
 							<InputCurrency
 								{...props}
 								class="text-right"
-								placeholder={formatCurrency(0)}
-								intlConfig={{ locale, ...numberFormatOptions }}
+								placeholder={formatCurrency({ centValue: 0, currency })}
+								{currency}
 								bind:value={$formData.startingBalance}
 							/>
 						{/snippet}
@@ -107,7 +107,7 @@
 					<div class="flex items-center gap-2 text-sm">
 						<PhPiggyBankDuoTone class="text-muted" />
 						<span class="font-currency">
-							{formatCurrency(account.balance)}
+							{formatCurrency({ centValue: account.balance, currency })}
 						</span>
 					</div>
 				</a>

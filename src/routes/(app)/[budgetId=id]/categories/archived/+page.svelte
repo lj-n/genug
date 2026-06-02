@@ -6,7 +6,7 @@
 	import * as Page from '$lib/components/ui/page';
 	import { m } from '$lib/paraglide/messages';
 	import { createMonthParam } from '$lib/utils/date-utils';
-	import { getIntlContext } from '$lib/utils/intl-context.svelte';
+	import { formatDate } from '$lib/utils/format-date';
 	import { flip } from 'svelte/animate';
 	import PhArchive from '~icons/ph/archive';
 	import PhHandWithdraw from '~icons/ph/hand-withdraw';
@@ -14,8 +14,6 @@
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
-
-	const { formatDate } = getIntlContext();
 </script>
 
 <Page.Root>
@@ -46,9 +44,9 @@
 							</a>
 							<span class="flex items-center gap-1 text-sm text-muted">
 								<PhArchive />
-								{formatDate(new Date(category.archivedAt!), {
-									dateStyle: 'medium',
-									timeStyle: 'short'
+								{formatDate({
+									date: new Date(category.archivedAt!),
+									options: { dateStyle: 'medium', timeStyle: 'short' }
 								})}
 							</span>
 						</div>
