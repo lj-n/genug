@@ -187,5 +187,7 @@
 	"budget_account_list_accounts_label": "{budgetName} Accounts",
 	"budget_account_list_add_account": "Add Account",
 	"budget_account_list_dialog_title": "Account",
-	"budget_account_list_dialog_description": "Add a new account to {budgetName}."
+	"budget_account_list_dialog_description": "Add a new account to {budgetName}.",
+	"budget_monthly_action_cover_overspend": "Cover overspend",
+	"budget_monthly_action_cover_overspend_label": "Adjust monthly budget so the remaining balance is zero"
 }

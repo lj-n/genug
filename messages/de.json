@@ -187,5 +187,7 @@
 	"budget_account_list_accounts_label": "{budgetName} Konten",
 	"budget_account_list_add_account": "Konto hinzufügen",
 	"budget_account_list_dialog_title": "Konto",
-	"budget_account_list_dialog_description": "Füge {budgetName} ein neues Konto hinzu."
+	"budget_account_list_dialog_description": "Füge {budgetName} ein neues Konto hinzu.",
+	"budget_monthly_action_cover_overspend": "Überschreitung decken",
+	"budget_monthly_action_cover_overspend_label": "Monatliches Budget so anpassen, dass der Restbetrag 0 beträgt"
 }

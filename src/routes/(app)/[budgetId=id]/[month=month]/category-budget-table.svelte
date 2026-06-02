@@ -17,6 +17,7 @@
 	import BudgetTableCell from './budget-table-cell.svelte';
 	import BudgetTableHeader from './budget-table-header.svelte';
 	import CategoryAssignmentForm from './category-assignment-form.svelte';
+	import CategoryRemainingActions from './category-remaining-actions.svelte';
 
 	type BudgetTableRow = PageData['categories'][number];
 
@@ -144,15 +145,7 @@
 				</BudgetTableCell>
 
 				<BudgetTableCell class="w-1/5 justify-end">
-					<span
-						class={cn(
-							'w-fit rounded-full border border-muted/20 bg-muted/10 px-2 font-currency',
-							row.thisMonthRemaining < 0 && 'border-error/50 bg-error/20',
-							row.thisMonthRemaining > 0 && 'border-success/80 bg-success/20'
-						)}
-					>
-						{formatCurrency({ centValue: row.thisMonthRemaining, currency })}
-					</span>
+					<CategoryRemainingActions category={row} {month} />
 				</BudgetTableCell>
 
 				<BudgetTableCell class="w-9 border-0 last:p-2 ">
