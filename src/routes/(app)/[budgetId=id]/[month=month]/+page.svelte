@@ -2,7 +2,6 @@
 	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Page from '$lib/components/ui/page';
-	import { Separator } from '$lib/components/ui/separator';
 	import { createDateFromParams } from '$lib/utils/create-date-from-params';
 
 	import type { PageProps } from './$types';
@@ -39,26 +38,22 @@
 		<ButtonGroup.Root>
 			<BudgetEditDetails form={data.forms.editBudget} />
 
+			<BudgetAccountList accounts={data.accounts} createAccountForm={data.forms.accountCreate} />
+
 			<BudgetUserManager users={data.budgetUsers} form={data.forms.inviteUser} />
 		</ButtonGroup.Root>
 	</Page.Header>
 
 	<Page.Content>
-		<div class="flex justify-between gap-6">
-			<BudgetAccountList accounts={data.accounts} createAccountForm={data.forms.accountCreate} />
-
-			<UnassignedSummary unassigned={data.unassigned} />
-		</div>
-
-		<Separator orientation="horizontal" />
-
-		<div class="flex items-end justify-between">
+		<div class="flex items-end gap-3">
 			<MonthNavigator paramsDate={createDateFromParams(data.month)} />
 
 			<CategoryQuickActions
 				archivedAmount={data.archivedCategories.length}
 				form={data.forms.categoryCreate}
 			/>
+
+			<UnassignedSummary unassigned={data.unassigned} />
 		</div>
 
 		<CategoryBudgetTable

@@ -72,9 +72,9 @@
 	"settings_title": "Einstellungen",
 	"admin_settings_title": "Admin-Einstellungen",
 	"sign_out_button": "{username} abmelden",
-	"unassigned_money_label": "noch nicht verteilt",
-	"all_assigned_money_label": "alles verteilt",
-	"negative_unassigned_money_label": "zu viel verteilt",
+	"unassigned_money_label": "Noch nicht verteilt:",
+	"all_assigned_money_label": "Alles verteilt.",
+	"negative_unassigned_money_label": "Zu viel verteilt:",
 	"budget_go_to_current_month": "Aktueller Monat",
 	"budget_select_previous_month": "Vorherigen Monat auswählen",
 	"budget_select_next_month": "Nächsten Monat auswählen",
@@ -183,5 +183,9 @@
 	"error_invalid_request_body": "Ungültige Anfrage.",
 	"error_unable_to_save_order": "Reihenfolge konnte nicht gespeichert werden.",
 	"error_account_not_found": "Konto nicht gefunden.",
-	"error_category_not_found": "Kategorie nicht gefunden."
+	"error_category_not_found": "Kategorie nicht gefunden.",
+	"budget_account_list_accounts_label": "{budgetName} Konten",
+	"budget_account_list_add_account": "Konto hinzufügen",
+	"budget_account_list_dialog_title": "Konto",
+	"budget_account_list_dialog_description": "Füge {budgetName} ein neues Konto hinzu."
 }

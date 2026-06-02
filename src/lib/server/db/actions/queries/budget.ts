@@ -1,6 +1,7 @@
+import type { SQLiteColumn } from 'drizzle-orm/sqlite-core';
+
 import { tables } from '$db';
 import { and, eq, isNull, sql } from 'drizzle-orm';
-import { SQLiteColumn } from 'drizzle-orm/sqlite-core';
 
 /**
  * Calculates the total sum of assigned budget for a specific budget.

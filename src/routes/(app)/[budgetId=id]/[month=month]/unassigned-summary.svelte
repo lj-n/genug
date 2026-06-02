@@ -3,9 +3,8 @@
 	import { getBudgetContext } from '$lib/utils/budget-context';
 	import { formatCurrency } from '$lib/utils/format-currency';
 	import { cn } from 'tailwind-variants';
-	import PhCheckFat from '~icons/ph/check-fat';
-	import PhSparkle from '~icons/ph/sparkle';
-	import PhWarningOctagon from '~icons/ph/warning-octagon';
+	import CheckFatDuoToneIcon from '~icons/ph/check-fat-duotone';
+	import WarningOctagonBoldIcon from '~icons/ph/warning-octagon-bold';
 
 	let { unassigned }: { unassigned: number } = $props();
 
@@ -15,33 +14,30 @@
 
 {#snippet label()}
 	{#if unassigned === 0}
-		<PhCheckFat class="size-6 text-muted" />
+		<CheckFatDuoToneIcon />
 		{m.all_assigned_money_label()}
 	{:else if unassigned > 0}
-		<PhSparkle class="size-6 animate-pulse" />
 		{m.unassigned_money_label()}
 	{:else}
-		<PhWarningOctagon class="text-destructive size-6 animate-pulse" />
+		<WarningOctagonBoldIcon />
 		{m.negative_unassigned_money_label()}
 	{/if}
 {/snippet}
 
 <div
 	class={cn(
-		'mt-auto flex flex-col gap-0.5 rounded-md p-2 shadow-xs',
+		'ml-auto flex h-9 items-center gap-2 rounded-lg px-3',
 		unassigned === 0
 			? 'bg-muted/10 text-muted'
 			: unassigned > 0
-				? 'bg-info/10 text-info'
-				: 'bg-error/10 text-error'
+				? 'border border-info/30 bg-info/10 text-info shadow-xs shadow-info/25'
+				: 'border border-error/60 bg-error/10 text-error'
 	)}
 >
-	<div class="flex items-center gap-2">
-		{@render label()}
-	</div>
+	{@render label()}
 
 	{#if unassigned !== 0}
-		<div class="ml-auto text-xl font-semibold text-foreground tabular-nums">
+		<div class="font-semibold text-foreground tabular-nums">
 			{formatCurrency({ centValue: unassigned, currency })}
 		</div>
 	{/if}

@@ -1,6 +1,7 @@
+import type { SQLiteColumn } from 'drizzle-orm/sqlite-core';
+
 import { tables } from '$db';
 import { and, eq, lte, sql } from 'drizzle-orm';
-import { SQLiteColumn } from 'drizzle-orm/sqlite-core';
 
 /**
  * Calculates the count of pending transactions for a specific category

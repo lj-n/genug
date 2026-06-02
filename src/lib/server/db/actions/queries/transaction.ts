@@ -1,7 +1,7 @@
 import type { SQLiteColumn, SQLiteSelect } from 'drizzle-orm/sqlite-core';
 
 import { tables } from '$db';
-import { and, asc, desc, eq, gte, inArray, like, lte, SQL } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, inArray, like, lte, type SQL } from 'drizzle-orm';
 
 export type TransactionFilterParam = {
 	accountId?: string | string[];
