@@ -476,6 +476,86 @@ export function createBudgetActions({
 						.execute();
 				}
 			});
+		},
+
+		transfer({
+			amount,
+			budgetId,
+			fromCategoryId,
+			month,
+			toCategoryId
+		}: {
+			amount: number;
+			budgetId: string;
+			fromCategoryId: null | string;
+			month: number;
+			toCategoryId: string;
+		}) {
+			return database.transaction((tx) => {
+				const budget = tx
+					.select()
+					.from(tables.budgets)
+					.where(
+						and(
+							eq(tables.budgets.id, budgetId),
+							userHasPermission({
+								budgetIdCol: tables.budgets.id,
+								database,
+								userId: user.id
+							})
+						)
+					);
+
+				if (!budget) {
+					throw new Error('Budget not found');
+				}
+
+				if (fromCategoryId !== null) {
+					const fromCurrent = tx
+						.select({ amount: tables.budgetAssignments.amount })
+						.from(tables.budgetAssignments)
+						.where(
+							and(
+								eq(tables.budgetAssignments.categoryId, fromCategoryId),
+								eq(tables.budgetAssignments.month, month)
+							)
+						)
+						.get();
+
+					const fromNewAmount = (fromCurrent?.amount ?? 0) - amount;
+
+					tx.insert(tables.budgetAssignments)
+						.values({ amount: fromNewAmount, budgetId, categoryId: fromCategoryId, month })
+						.onConflictDoUpdate({
+							set: { amount: fromNewAmount },
+							target: [tables.budgetAssignments.categoryId, tables.budgetAssignments.month]
+						})
+						.execute();
+				}
+
+				const toCurrent = tx
+					.select({ amount: tables.budgetAssignments.amount })
+					.from(tables.budgetAssignments)
+					.where(
+						and(
+							eq(tables.budgetAssignments.categoryId, toCategoryId),
+							eq(tables.budgetAssignments.month, month)
+						)
+					)
+					.get();
+
+				const toNewAmount = (toCurrent?.amount ?? 0) + amount;
+
+				return tx
+					.insert(tables.budgetAssignments)
+					.values({ amount: toNewAmount, budgetId, categoryId: toCategoryId, month })
+					.onConflictDoUpdate({
+						set: { amount: toNewAmount },
+						target: [tables.budgetAssignments.categoryId, tables.budgetAssignments.month]
+					})
+					.returning()
+					.get();
+			});
 		}
 	};
 }

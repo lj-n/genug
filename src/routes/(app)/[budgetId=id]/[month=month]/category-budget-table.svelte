@@ -12,7 +12,7 @@
 	import PhDotsSixVerticalBold from '~icons/ph/dots-six-vertical-bold';
 
 	import type { PageData } from './$types';
-	import type { schemaMonthlyAssigment } from './schema';
+	import type { schemaMonthlyAssigment, schemaTransferAssignment } from './schema';
 
 	import BudgetTableCell from './budget-table-cell.svelte';
 	import BudgetTableHeader from './budget-table-header.svelte';
@@ -25,12 +25,14 @@
 		assignmentForm,
 		categories,
 		month,
-		openCategoryDialog
+		openCategoryDialog,
+		transferForm
 	}: {
 		assignmentForm: SuperValidated<Infer<typeof schemaMonthlyAssigment>>;
 		categories: BudgetTableRow[];
 		month: PageData['month'];
 		openCategoryDialog: (category: BudgetTableRow) => void;
+		transferForm: SuperValidated<Infer<typeof schemaTransferAssignment>>;
 	} = $props();
 
 	const getBudget = getBudgetContext();
@@ -145,7 +147,12 @@
 				</BudgetTableCell>
 
 				<BudgetTableCell class="w-1/5 justify-end">
-					<CategoryRemainingActions category={row} {month} />
+					<CategoryRemainingActions
+						category={row}
+						{month}
+						otherCategories={categories.filter((c) => c.id !== row.id)}
+						{transferForm}
+					/>
 				</BudgetTableCell>
 
 				<BudgetTableCell class="w-9 border-0 last:p-2 ">

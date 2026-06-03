@@ -188,6 +188,8 @@
 	"budget_account_list_add_account": "Konto hinzufügen",
 	"budget_account_list_dialog_title": "Konto",
 	"budget_account_list_dialog_description": "Füge {budgetName} ein neues Konto hinzu.",
-	"budget_monthly_action_cover_overspend": "Überschreitung decken",
-	"budget_monthly_action_cover_overspend_label": "Monatliches Budget so anpassen, dass der Restbetrag 0 beträgt"
+	"budget_monthly_action_move_to_category": "Betrag verschieben",
+	"budget_monthly_action_cover_from_category": "Decken",
+	"budget_monthly_action_cover_from_unassigned": "Von nicht zugewiesenem Geld",
+	"budget_monthly_action_select_category": "Kategorie auswählen..."
 }

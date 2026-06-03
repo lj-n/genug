@@ -63,6 +63,7 @@
 				openCategoryDetail = true;
 			}}
 			assignmentForm={data.forms.monthlyAssignment}
+			transferForm={data.forms.transferAssignment}
 			month={data.month}
 		/>
 	</Page.Content>

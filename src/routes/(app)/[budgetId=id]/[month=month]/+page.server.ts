@@ -10,19 +10,33 @@ import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
 import { schemaAccountCreate } from '../accounts/new/schema';
 import { schemaCategoryCreate } from '../categories/new/schema';
 import { schemaEditBudget, schemaInviteUser } from '../schema';
-import { schemaMonthlyAssigment } from './schema';
+import { schemaMonthlyAssigment, schemaTransferAssignment } from './schema';
 
 async function loadForms(budget: App.Budget) {
-	const [monthlyAssignment, accountCreate, categoryCreate, inviteUser, editBudget] =
-		await Promise.all([
-			superValidate(zod4(schemaMonthlyAssigment)),
-			superValidate(zod4(schemaAccountCreate)),
-			superValidate(zod4(schemaCategoryCreate)),
-			superValidate(zod4(schemaInviteUser), { id: 'invite-form' }),
-			superValidate({ currency: budget.currency, name: budget.name }, zod4(schemaEditBudget))
-		]);
+	const [
+		monthlyAssignment,
+		transferAssignment,
+		accountCreate,
+		categoryCreate,
+		inviteUser,
+		editBudget
+	] = await Promise.all([
+		superValidate(zod4(schemaMonthlyAssigment)),
+		superValidate(zod4(schemaTransferAssignment)),
+		superValidate(zod4(schemaAccountCreate)),
+		superValidate(zod4(schemaCategoryCreate)),
+		superValidate(zod4(schemaInviteUser), { id: 'invite-form' }),
+		superValidate({ currency: budget.currency, name: budget.name }, zod4(schemaEditBudget))
+	]);
 
-	return { accountCreate, categoryCreate, editBudget, inviteUser, monthlyAssignment };
+	return {
+		accountCreate,
+		categoryCreate,
+		editBudget,
+		inviteUser,
+		monthlyAssignment,
+		transferAssignment
+	};
 }
 
 export const load: PageServerLoad = withPermissions(
@@ -68,6 +82,21 @@ export const actions = {
 			budgetId: event.params.budgetId,
 			month: parseInt(event.params.month),
 			...form.data
+		});
+
+		return message(form, { type: 'success' });
+	}),
+
+	transfer: withPermissions(async (_user, actions, event) => {
+		const form = await superValidate(event.request, zod4(schemaTransferAssignment));
+		if (!form.valid) return fail(400, { form });
+
+		actions.budget.transfer({
+			amount: form.data.amount,
+			budgetId: event.params.budgetId,
+			fromCategoryId: form.data.fromCategoryId ?? null,
+			month: parseInt(event.params.month),
+			toCategoryId: form.data.toCategoryId
 		});
 
 		return message(form, { type: 'success' });

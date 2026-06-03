@@ -65,7 +65,8 @@
 
 	<DropdownMenu.Content align="end" class="w-fit [--radius:1rem]">
 		<DropdownMenu.Group>
-			<DropdownMenu.Label>{m.budget_account_list_accounts_label({ budgetName })}</DropdownMenu.Label>
+			<DropdownMenu.Label>{m.budget_account_list_accounts_label({ budgetName })}</DropdownMenu.Label
+			>
 
 			{#each accounts as account (account.id)}
 				<DropdownMenu.Item>

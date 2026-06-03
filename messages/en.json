@@ -188,6 +188,8 @@
 	"budget_account_list_add_account": "Add Account",
 	"budget_account_list_dialog_title": "Account",
 	"budget_account_list_dialog_description": "Add a new account to {budgetName}.",
-	"budget_monthly_action_cover_overspend": "Cover overspend",
-	"budget_monthly_action_cover_overspend_label": "Adjust monthly budget so the remaining balance is zero"
+	"budget_monthly_action_move_to_category": "Move amount",
+	"budget_monthly_action_cover_from_category": "Cover",
+	"budget_monthly_action_cover_from_unassigned": "From unassigned money",
+	"budget_monthly_action_select_category": "Select category..."
 }
