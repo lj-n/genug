@@ -7,7 +7,7 @@
 	import { CurrencyInput } from '@canutin/svelte-currency-input';
 	import { cn } from 'tailwind-variants';
 
-	type Props = Omit<HTMLInputAttributes, 'onchangevalue' | 'oninputvalue' | 'value'> & {
+	type Props = Omit<HTMLInputAttributes, 'onchangevalue' | 'oninputvalue' | 'type' | 'value'> & {
 		allowDecimals?: boolean;
 		allowNegativeValue?: boolean;
 		currency: (typeof CURRENCIES)[number];

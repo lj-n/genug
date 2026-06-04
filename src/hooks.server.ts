@@ -1,6 +1,5 @@
 import type { Handle, HandleServerError } from '@sveltejs/kit';
 
-import { database } from '$db';
 import * as auth from '$db/auth';
 import { getTextDirection } from '$lib/paraglide/runtime';
 import { paraglideMiddleware } from '$lib/paraglide/server';
@@ -27,20 +26,20 @@ const handleLogging: Handle = async ({ event, resolve }) => {
 };
 
 const handleAuth: Handle = async ({ event, resolve }) => {
-	const sessionToken = event.cookies.get(auth.SESSION_COOKIE_NAME);
+	const sessionToken = auth.getSessionCookie(event);
 
 	if (!sessionToken) {
 		event.locals.session = null;
 		return resolve(event);
 	}
 
-	const session = await auth.validateSession({ database, sessionToken });
+	const session = await auth.validateSession({ sessionToken });
 
 	if (!session) {
-		auth.deleteSessionCookie({ event });
+		auth.deleteSessionCookie(event);
 	} else {
 		auth.setSessionCookie({
-			event,
+			cookies: event.cookies,
 			expiresAt: session.expiresAt,
 			sessionToken
 		});

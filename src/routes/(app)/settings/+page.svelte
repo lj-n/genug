@@ -1,43 +1,19 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
-	import * as Form from '$lib/components/ui/form';
+	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { InputPassword } from '$lib/components/ui/input-password';
 	import * as Page from '$lib/components/ui/page';
 	import * as Select from '$lib/components/ui/select';
 	import { m } from '$lib/paraglide/messages';
 	import { getLocale, type Locale, locales, setLocale } from '$lib/paraglide/runtime';
-	import { untrack } from 'svelte';
-	import { superForm } from 'sveltekit-superforms';
-	import { zod4Client } from 'sveltekit-superforms/adapters';
+	import { changePassword, changeUsername, getUser } from '$lib/remote-functions/user.remote';
 
 	import type { PageProps } from './$types';
 
-	import { schemaChangePassword, schemaUsername } from './schema';
-
 	let { data }: PageProps = $props();
 
-	const formPassword = superForm(
-		untrack(() => data.forms.changePassword),
-		{
-			onUpdated(event) {
-				if (event.form.message?.type === 'success') {
-					goto(resolve('/login'));
-				}
-			},
-			validators: zod4Client(schemaChangePassword)
-		}
-	);
-	const { enhance: enhancePassword, form: formPasswordData } = formPassword;
-
-	const formUsername = superForm(
-		untrack(() => data.forms.changeUsername),
-		{ resetForm: false, validators: zod4Client(schemaUsername) }
-	);
-	const { enhance: enhanceUsername, form: formUsernameData } = formUsername;
-
 	let value: Locale = $state(getLocale());
+	const user = $derived(await getUser());
 </script>
 
 <Page.Root>
@@ -46,59 +22,46 @@
 	</Page.Header>
 
 	<Page.Content class="max-w-xl">
-		<form
-			action="?/changeUsername"
-			method="post"
-			class="grid rounded-lg bg-muted/5 p-3"
-			use:enhanceUsername
-		>
-			<h2 class="mb-6 font-semibold">{m.settings_change_display_name()}</h2>
+		<form {...changeUsername} class="grid gap-3 rounded-lg bg-muted/5 p-3">
+			<h2 class="font-semibold">{m.settings_change_display_name()}</h2>
 
-			<Form.Field form={formUsername} name="username">
-				<Form.Control>
-					{#snippet children({ props })}
-						<Form.Label>{m.settings_label_display_name()}</Form.Label>
-						<Input {...props} bind:value={$formUsernameData.username} class="text-lg" />
-					{/snippet}
-				</Form.Control>
-				<Form.FieldErrors />
-			</Form.Field>
+			<Input
+				aria-label={m.settings_label_display_name()}
+				{...changeUsername.fields.username.as('text', user.username)}
+			/>
 
-			<Form.Button class="ml-auto">{m.save()}</Form.Button>
+			{#each changeUsername.fields.username.issues() as issue (issue)}
+				<p class="text-sm text-error">{issue.message}</p>
+			{/each}
+
+			<Button type="submit" class="ml-auto">{m.save()}</Button>
 		</form>
 
-		<form
-			action="?/changePassword"
-			method="post"
-			class="grid rounded-lg bg-muted/5 p-3"
-			use:enhancePassword
-		>
-			<h2 class="mb-6 font-semibold">{m.settings_change_password()}</h2>
+		<form {...changePassword} class="grid gap-3 rounded-lg bg-muted/5 p-3">
+			<h2 class="font-semibold">{m.settings_change_password()}</h2>
 
-			<Form.Field form={formPassword} name="oldPassword">
-				<Form.Control>
-					{#snippet children({ props })}
-						<Form.Label>{m.settings_label_current_password()}</Form.Label>
-						<InputPassword hideKeyIcon {...props} bind:value={$formPasswordData.oldPassword} />
-					{/snippet}
-				</Form.Control>
-				<Form.FieldErrors />
-			</Form.Field>
+			<label class="space-y-1">
+				<span class="text-sm font-medium text-muted">{m.settings_label_current_password()}</span>
+				<InputPassword hideKeyIcon {...changePassword.fields._oldPassword.as('text')} />
+			</label>
 
-			<Form.Field form={formPassword} name="password">
-				<Form.Control>
-					{#snippet children({ props })}
-						<Form.Label>{m.settings_label_new_password()}</Form.Label>
-						<InputPassword hideKeyIcon {...props} bind:value={$formPasswordData.password} />
-					{/snippet}
-				</Form.Control>
-				<Form.FieldErrors />
-			</Form.Field>
+			{#each changePassword.fields._oldPassword.issues() as issue (issue)}
+				<p class="text-sm text-error">{issue.message}</p>
+			{/each}
 
-			<Form.Button class="ml-auto">{m.settings_save_and_logout()}</Form.Button>
+			<label class="space-y-1">
+				<span class="text-sm font-medium text-muted">{m.settings_label_new_password()}</span>
+				<InputPassword hideKeyIcon {...changePassword.fields._password.as('text')} />
+			</label>
+
+			{#each changePassword.fields._password.issues() as issue (issue)}
+				<p class="text-sm text-error">{issue.message}</p>
+			{/each}
+
+			<Button type="submit" class="ml-auto">{m.settings_save_and_logout()}</Button>
 		</form>
 
-		<form action="" method="post" class="grid rounded-lg bg-muted/5 p-3">
+		<div class="grid rounded-lg bg-muted/5 p-3">
 			<h2 class="mb-6 font-semibold">{m.settings_language()}</h2>
 
 			<Select.Root
@@ -123,6 +86,6 @@
 					</Select.Group>
 				</Select.Content>
 			</Select.Root>
-		</form>
+		</div>
 	</Page.Content>
 </Page.Root>

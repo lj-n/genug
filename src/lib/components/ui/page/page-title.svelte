@@ -2,6 +2,7 @@
 	import type { WithElementRef } from 'bits-ui';
 	import type { HTMLAttributes } from 'svelte/elements';
 
+	import { page } from '$app/state';
 	import { cn } from 'tailwind-variants';
 
 	let {
@@ -17,5 +18,9 @@
 	class={cn('flex items-center gap-2 text-3xl font-bold tracking-tighter', className)}
 	{...restProps}
 >
-	{@render children?.()}
+	{#if children}
+		{@render children()}
+	{:else if page.data.title}
+		{page.data.title}
+	{/if}
 </h1>

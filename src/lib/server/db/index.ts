@@ -7,9 +7,17 @@ if (!env.DATABASE_URL) {
 }
 
 const database = createDatabase(env.DATABASE_URL);
-
 export { createDatabase, type Database, database };
 
-export * as auth from './auth';
 export * as tables from './tables';
-export * as users from './users';
+
+import * as account from './account';
+import * as auth from './auth';
+import * as budget from './budget';
+import * as user from './user';
+export const actions = {
+	account,
+	auth,
+	budget,
+	user
+};

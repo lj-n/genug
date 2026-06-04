@@ -8,6 +8,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { m } from '$lib/paraglide/messages';
+	import { signout } from '$lib/remote-functions/auth.remote';
 	import { isCurrentPage } from '$lib/utils/is-current-page';
 	import { cn } from 'tailwind-variants';
 	import ArrowBendDownRightBoldIcon from '~icons/ph/arrow-bend-down-right-bold';
@@ -168,7 +169,7 @@
 				{/if}
 
 				<li class="flex">
-					<form action="/login?/logout" method="post" class="contents">
+					<form {...signout} class="contents">
 						<button
 							type="submit"
 							class="group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:cursor-pointer hover:bg-muted/5"

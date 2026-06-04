@@ -1,8 +1,8 @@
+import { DAY_IN_MS } from '$db/auth.utils';
 import { sql } from 'drizzle-orm';
 import { index, primaryKey, sqliteTable, unique, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 import { createId } from '../../utils/create-id';
-import { DAY_IN_MS } from '../../utils/day-in-ms';
 
 export const entityOrderTypes = ['budget', 'account', 'category'] as const;
 

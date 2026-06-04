@@ -7,6 +7,7 @@
 	import Logo from '$lib/components/logo.svelte';
 	import SideMenu from '$lib/components/side-menu.svelte';
 	import { m } from '$lib/paraglide/messages';
+	import { signout } from '$lib/remote-functions/auth.remote';
 	import { isCurrentPage } from '$lib/utils/is-current-page';
 	import { cn } from 'tailwind-variants';
 	import PhGearSix from '~icons/ph/gear-six';
@@ -100,7 +101,7 @@
 			})}
 		{/if}
 
-		<form action="/login?/logout" method="post" class="contents">
+		<form {...signout} class="contents">
 			<button
 				type="submit"
 				class="group flex items-center gap-2 rounded-md p-2 transition-colors hover:cursor-pointer hover:bg-muted/5"

@@ -16,7 +16,7 @@ declare global {
 
 		interface Locals {
 			logger: import('pino').Logger;
-			session: import('$db/auth').Session | null;
+			session: import('$db/auth.utils').Session | null;
 		}
 
 		interface PageData {

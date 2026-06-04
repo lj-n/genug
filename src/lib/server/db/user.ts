@@ -1,10 +1,20 @@
-import { auth, createDatabase, type Database, tables } from '$db';
-import { users } from '$db';
-import { and, eq, ne, notExists } from 'drizzle-orm';
+import { database, type Database, tables } from '$db';
+import { and, desc, eq, getColumns, ne, notExists } from 'drizzle-orm';
 
-export function deleteUser({ database, userId }: { database: Database; userId: string }) {
-	database.transaction((tx) => {
-		// Budgets wo dieser User der einzige Member ist → löschen
+import { hashPassword } from './auth';
+
+export function createUser({
+	db = database,
+	...userData
+}: typeof tables.users.$inferInsert & {
+	db?: Database;
+}) {
+	const { passwordHash: _, ...columns } = getColumns(tables.users);
+	return db.insert(tables.users).values(userData).returning(columns).get();
+}
+
+export function deleteUser({ db = database, userId }: { db?: Database; userId: string }) {
+	db.transaction((tx) => {
 		const soloOwnerBudgets = tx
 			.select({ budgetId: tables.usersToBudgets.budgetId })
 			.from(tables.usersToBudgets)
@@ -30,7 +40,6 @@ export function deleteUser({ database, userId }: { database: Database; userId: s
 			tx.delete(tables.budgets).where(eq(tables.budgets.id, budgetId)).run();
 		}
 
-		// Budgets wo dieser User OWNER ist aber noch andere Members hat → neuen Owner bestimmen
 		const ownedBudgetsWithMembers = tx
 			.select({ budgetId: tables.usersToBudgets.budgetId })
 			.from(tables.usersToBudgets)
@@ -68,22 +77,39 @@ export function deleteUser({ database, userId }: { database: Database; userId: s
 	});
 }
 
-if (import.meta.vitest) {
-	const { expect, it } = import.meta.vitest;
+export function getAllUsers({ db = database }: { db?: Database } = {}) {
+	const { id, username } = getColumns(tables.users);
+	return db.select({ id, username }).from(tables.users).orderBy(desc(tables.users.isAdmin)).all();
+}
 
-	it('deleteUser', async () => {
-		const db = createDatabase(':memory:');
-		const username = 'testuser';
-		const passwordHash = await auth.hashPassword({
-			password: 'password123'
-		});
+export async function isFirstUser({ db = database }: { db?: Database } = {}) {
+	return (await db.$count(tables.users)) === 0;
+}
 
-		const user = await users.createUser({ database: db, passwordHash, username });
+export async function setPassword({
+	db = database,
+	password,
+	userId
+}: {
+	db?: Database;
+	password: string;
+	userId: string;
+}) {
+	const passwordHashValue = await hashPassword({ password });
+	db.update(tables.users)
+		.set({ passwordHash: passwordHashValue })
+		.where(eq(tables.users.id, userId))
+		.run();
+}
 
-		await deleteUser({ database: db, userId: user.id });
-
-		const foundUser = await users.getUserById({ database: db, id: user.id });
-
-		expect(foundUser).toBeUndefined();
-	});
+export function setUsername({
+	db = database,
+	userId,
+	username
+}: {
+	db?: Database;
+	userId: string;
+	username: string;
+}) {
+	db.update(tables.users).set({ username }).where(eq(tables.users.id, userId)).run();
 }

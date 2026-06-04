@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { BudgetAccountList } from '$lib/components/budget-account-list';
+	import { BudgetSettings } from '$lib/components/budget-settings';
+	import BudgetUserManager from '$lib/components/budget-user-manager/budget-user-manager.svelte';
 	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Page from '$lib/components/ui/page';
@@ -7,15 +10,12 @@
 	import type { PageProps } from './$types';
 
 	import CategoryDetail from '../categories/[categoryId=id]/category-detail.svelte';
-	import BudgetAccountList from './budget-account-list.svelte';
-	import BudgetEditDetails from './budget-edit-details.svelte';
-	import BudgetUserManager from './budget-user-manager.svelte';
 	import CategoryBudgetTable from './category-budget-table.svelte';
 	import CategoryQuickActions from './category-quick-actions.svelte';
 	import MonthNavigator from './month-navigator.svelte';
 	import UnassignedSummary from './unassigned-summary.svelte';
 
-	let { data }: PageProps = $props();
+	let { data, params }: PageProps = $props();
 
 	let openCategoryDetail = $state(false);
 	let selectedCategoryId = $state<null | string>(null);
@@ -36,11 +36,11 @@
 		</Page.Title>
 
 		<ButtonGroup.Root>
-			<BudgetEditDetails form={data.forms.editBudget} />
+			<BudgetSettings budgetId={params.budgetId} />
 
-			<BudgetAccountList accounts={data.accounts} createAccountForm={data.forms.accountCreate} />
+			<BudgetAccountList budgetId={params.budgetId} />
 
-			<BudgetUserManager users={data.budgetUsers} form={data.forms.inviteUser} />
+			<BudgetUserManager budgetId={params.budgetId} />
 		</ButtonGroup.Root>
 	</Page.Header>
 

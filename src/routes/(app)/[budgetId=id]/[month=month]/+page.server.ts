@@ -7,30 +7,21 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
 
-import { schemaAccountCreate } from '../accounts/new/schema';
 import { schemaCategoryCreate } from '../categories/new/schema';
 import { schemaEditBudget, schemaInviteUser } from '../schema';
 import { schemaMonthlyAssigment, schemaTransferAssignment } from './schema';
 
 async function loadForms(budget: App.Budget) {
-	const [
-		monthlyAssignment,
-		transferAssignment,
-		accountCreate,
-		categoryCreate,
-		inviteUser,
-		editBudget
-	] = await Promise.all([
-		superValidate(zod4(schemaMonthlyAssigment)),
-		superValidate(zod4(schemaTransferAssignment)),
-		superValidate(zod4(schemaAccountCreate)),
-		superValidate(zod4(schemaCategoryCreate)),
-		superValidate(zod4(schemaInviteUser), { id: 'invite-form' }),
-		superValidate({ currency: budget.currency, name: budget.name }, zod4(schemaEditBudget))
-	]);
+	const [monthlyAssignment, transferAssignment, categoryCreate, inviteUser, editBudget] =
+		await Promise.all([
+			superValidate(zod4(schemaMonthlyAssigment)),
+			superValidate(zod4(schemaTransferAssignment)),
+			superValidate(zod4(schemaCategoryCreate)),
+			superValidate(zod4(schemaInviteUser), { id: 'invite-form' }),
+			superValidate({ currency: budget.currency, name: budget.name }, zod4(schemaEditBudget))
+		]);
 
 	return {
-		accountCreate,
 		categoryCreate,
 		editBudget,
 		inviteUser,
@@ -62,7 +53,6 @@ export const load: PageServerLoad = withPermissions(
 		}
 
 		return {
-			accounts,
 			archivedCategories,
 			categories,
 			forms: await loadForms(budget),
