@@ -1,28 +1,33 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
+	import type { Snippet } from 'svelte';
+
 	import { m } from '$lib/paraglide/messages';
-	import { type ComponentProps, tick } from 'svelte';
+	import { getCategoriesFlat } from '$lib/remote-functions/category.remote';
 	import { flip } from 'svelte/animate';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { fly } from 'svelte/transition';
-	import { cn } from 'tailwind-variants';
 
-	import { type FilterComponent, getTableContext } from '../context.svelte';
+	let {
+		budgetId,
+		currentCategoryIds = [],
+		footer,
+		header,
+		onApply
+	}: {
+		budgetId: string;
+		currentCategoryIds: string[];
+		footer: Snippet<[{ setParams: () => void }]>;
+		header: Snippet<[{ description: string; title: string }]>;
+		onApply: (categoryIds: string[]) => void;
+	} = $props();
 
-	let { footer, header }: ComponentProps<FilterComponent> = $props();
+	const categories = $derived(await getCategoriesFlat({ budgetId }));
 
-	const tableContext = getTableContext();
-
-	const filter = tableContext.filter();
-
-	const initialData = filter.categoryId !== undefined ? [filter.categoryId].flat() : undefined;
-
-	let selected = new SvelteSet<string>(initialData);
-
-	let buttonRefs = $state<Record<string, HTMLButtonElement>>({});
+	// svelte-ignore state_referenced_locally
+	let selected = new SvelteSet<string>(currentCategoryIds);
 
 	let sortedCategories = $derived(
-		[...tableContext.categories()].sort((a, b) => +selected.has(b.id) - +selected.has(a.id))
+		[...categories].sort((a, b) => +selected.has(b.id) - +selected.has(a.id))
 	);
 
 	function toggle(id: string) {
@@ -31,9 +36,6 @@
 		} else {
 			selected.add(id);
 		}
-		tick().then(() => {
-			buttonRefs[id]?.focus();
-		});
 	}
 </script>
 
@@ -46,12 +48,11 @@
 	{#each sortedCategories as category (category.id)}
 		<li animate:flip={{ duration: 150 }}>
 			<button
-				bind:this={buttonRefs[category.id]}
 				onclick={() => toggle(category.id)}
-				class={cn(
+				class={[
 					'rounded-full border border-muted/10 bg-muted/5 px-2 text-sm',
 					selected.has(category.id) && 'border-info bg-info/10 text-info shadow-xs shadow-info/20'
-				)}
+				].join(' ')}
 			>
 				{category.name}
 			</button>
@@ -59,27 +60,18 @@
 	{/each}
 </ul>
 
-<div class="-mb-6 h-9">
-	{#if selected.size > 0}
-		<div transition:fly={{ duration: 150, x: -20 }}>
-			<Button
-				variant="destructive"
-				size="xs"
-				class="w-fit"
-				onclick={() => {
-					selected.clear();
-				}}
-			>
+{#if selected.size > 0}
+	<div transition:fly={{ duration: 150, x: -20 }}>
+		<p>
+			<button class="text-destructive text-sm hover:underline" onclick={() => selected.clear()}>
 				{m.transaction_filter_category_deselect_all()}
-			</Button>
-		</div>
-	{/if}
-</div>
+			</button>
+		</p>
+	</div>
+{/if}
 
 {@render footer({
 	setParams: () => {
-		tableContext.setFilterParams({
-			categoryId: selected.values().toArray()
-		});
+		onApply(selected.values().toArray());
 	}
 })}

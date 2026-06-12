@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { AccountBalances } from '$lib/components/transaction-table/types';
+	import type { CURRENCIES } from '$lib/utils/currencies';
 
 	import { m } from '$lib/paraglide/messages';
-	import { getBudgetContext } from '$lib/utils/budget-context';
 	import { formatCurrency } from '$lib/utils/format-currency';
 	import { cn } from 'tailwind-variants';
 	import PhEquals from '~icons/ph/equals';
@@ -11,10 +11,8 @@
 	import PhSeal from '~icons/ph/seal';
 	import PhSealCheckDuotone from '~icons/ph/seal-check-duotone';
 
-	let { balances }: { balances: AccountBalances } = $props();
-
-	const getBudget = getBudgetContext();
-	const currency = $derived(getBudget().currency);
+	let { balances, currency }: { balances: AccountBalances; currency: (typeof CURRENCIES)[number] } =
+		$props();
 </script>
 
 <div class="flex w-fit items-center gap-6 rounded-md bg-muted/5 p-3">

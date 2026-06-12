@@ -1,55 +1,22 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
-	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
 	import * as Popover from '$lib/components/ui/popover';
 	import { m } from '$lib/paraglide/messages';
-	import { getBudgetContext } from '$lib/utils/budget-context';
-	import { untrack } from 'svelte';
-	import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
-	import { zod4Client } from 'sveltekit-superforms/adapters';
+	import { createCategory, getArchivedCategories } from '$lib/remote-functions/category.remote';
 	import PhArchive from '~icons/ph/archive';
 	import PhStackPlus from '~icons/ph/stack-plus';
 
-	import { schemaCategoryCreate } from '../categories/new/schema';
+	let { budgetId }: { budgetId: string } = $props();
 
-	type BudgetActionsProps = {
-		archivedAmount: number;
-		form: SuperValidated<Infer<typeof schemaCategoryCreate>>;
-	};
-
-	let { archivedAmount, form: createForm }: BudgetActionsProps = $props();
-
-	const budget = getBudgetContext();
-	const { id: budgetId } = budget();
-
-	const form = superForm(
-		untrack(() => createForm),
-		{
-			onUpdated(event) {
-				if (event.form.message?.type === 'success') {
-					open = false;
-				}
-			},
-			validators: zod4Client(schemaCategoryCreate)
-		}
-	);
-
-	const { enhance, form: formData } = form;
+	const archivedCategories = $derived(await getArchivedCategories({ budgetId }));
 
 	let open = $state(false);
 </script>
 
 <div class="flex gap-0.5">
-	<Popover.Root
-		bind:open
-		onOpenChangeComplete={(isOpen) => {
-			if (!isOpen) {
-				form.reset();
-			}
-		}}
-	>
+	<Popover.Root bind:open>
 		<Button href={resolve('/(app)/[budgetId=id]/categories/new', { budgetId })} class="md:hidden">
 			<PhStackPlus class="size-6" />
 			{m.category_create_button()}
@@ -66,29 +33,25 @@
 
 		<Popover.Content align="end" class="w-fit p-4">
 			<form
-				use:enhance
-				action={resolve('/(app)/[budgetId=id]/categories/new', { budgetId })}
-				method="POST"
+				{...createCategory.enhance(async (form) => {
+					if (await form.submit()) {
+						open = false;
+						form.element.reset();
+					}
+				})}
 			>
-				<Form.Field {form} name="categoryName" class="space-y-0">
-					<Form.Control>
-						{#snippet children({ props })}
-							<Input
-								{...props}
-								bind:value={$formData.categoryName}
-								placeholder={m.category_placeholder_name()}
-								aria-label={m.category_label_name()}
-							/>
-						{/snippet}
-					</Form.Control>
-					<Form.FieldErrors />
-				</Form.Field>
+				<input {...createCategory.fields.budgetId.as('hidden', budgetId)} />
+				<Input
+					{...createCategory.fields.categoryName.as('text')}
+					placeholder={m.category_placeholder_name()}
+					aria-label={m.category_label_name()}
+				/>
 			</form>
 		</Popover.Content>
 	</Popover.Root>
 
 	<Button variant="ghost" href={resolve('/(app)/[budgetId=id]/categories/archived', { budgetId })}>
 		<PhArchive class="size-6" />
-		{m.category_archived_link({ amount: archivedAmount })}
+		{m.category_archived_link({ amount: archivedCategories.length })}
 	</Button>
 </div>

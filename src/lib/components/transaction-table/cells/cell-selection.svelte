@@ -1,22 +1,28 @@
 <script lang="ts">
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
-	import { Checkbox, type WithoutChildrenOrChild } from 'bits-ui';
 	import PhCircleDashedDuotone from '~icons/ph/circle-dashed-duotone';
 	import PhCircleDashedLight from '~icons/ph/circle-dashed-light';
 	import PhMinusCircleDuotone from '~icons/ph/minus-circle-duotone';
 
-	import { getTableContext } from '../context.svelte';
+	import type { HTMLInputAttributes } from 'svelte/elements';
 
 	let {
 		checked = $bindable(false),
-		ref = $bindable(null),
+		indeterminate = false,
+		disabled = false,
+		onCheckedChange,
 		...restProps
-	}: WithoutChildrenOrChild<Checkbox.RootProps> = $props();
+	}: {
+		indeterminate?: boolean;
+		onCheckedChange?: (e: Event) => void;
+	} & HTMLInputAttributes = $props();
 
-	const tableContext = getTableContext();
+	let inputEl: HTMLInputElement | undefined = $state();
 
-	let disabled = $derived(tableContext.editing);
+	$effect(() => {
+		if (inputEl) inputEl.indeterminate = indeterminate;
+	});
 </script>
 
 <div class="grid place-content-center">
@@ -27,23 +33,23 @@
 			variant: 'ghost'
 		})}
 	>
-		<Checkbox.Root
+		<input
+			type="checkbox"
 			bind:checked
-			bind:ref
-			{...restProps}
+			bind:this={inputEl}
 			{disabled}
+			{...restProps}
+			aria-checked={checked || indeterminate}
 			aria-disabled={disabled}
-			class="cursor-pointer text-muted aria-checked:text-info aria-disabled:cursor-auto aria-disabled:opacity-50"
-		>
-			{#snippet children({ checked, indeterminate })}
-				{#if checked}
-					<PhCircleDashedDuotone class="size-5" />
-				{:else if indeterminate}
-					<PhMinusCircleDuotone class="size-5" />
-				{:else}
-					<PhCircleDashedLight class="size-5" />
-				{/if}
-			{/snippet}
-		</Checkbox.Root>
+			onchange={onCheckedChange}
+			class="sr-only cursor-pointer"
+		/>
+		{#if checked}
+			<PhCircleDashedDuotone class="size-5" />
+		{:else if indeterminate}
+			<PhMinusCircleDuotone class="size-5" />
+		{:else}
+			<PhCircleDashedLight class="size-5" />
+		{/if}
 	</Label>
 </div>

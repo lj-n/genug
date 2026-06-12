@@ -2,9 +2,9 @@ import { resolve } from '$app/paths';
 import { form, query } from '$app/server';
 import { actions } from '$db';
 import { m } from '$lib/paraglide/messages';
-import { AccountCreateSchema } from '$lib/schemas/account';
+import { AccountCreateSchema, AccountIdSchema } from '$lib/schemas/account';
 import { BudgetIdSchema } from '$lib/schemas/budget';
-import { redirect } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 
 import { requireUser } from './remote.utils';
 
@@ -28,3 +28,15 @@ export const createAccount = form(
 		);
 	}
 );
+
+export const getAccountById = query(AccountIdSchema, async ({ accountId }) => {
+	const [user] = requireUser();
+	const account = actions.account.getAccountById({ id: accountId, userId: user.id });
+	if (!account) error(404, { message: m.error_account_not_found() });
+	return account;
+});
+
+export const getAccountBalanceDetail = query(AccountIdSchema, async ({ accountId }) => {
+	requireUser();
+	return actions.account.getAccountBalanceDetail({ accountId });
+});

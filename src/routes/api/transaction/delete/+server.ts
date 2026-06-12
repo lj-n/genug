@@ -1,10 +1,13 @@
-import { withPermissions } from '$db/actions';
-import { json } from '@sveltejs/kit';
+import { actions } from '$db';
+import { json, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = withPermissions(async (user, actions, event) => {
+export const POST: RequestHandler = async ({ locals, request }) => {
+	if (!locals.session) redirect(307, '/login');
+	const { user } = locals.session;
+
 	const parsed = z
 		.object({
 			transactionIds: z
@@ -13,7 +16,7 @@ export const POST: RequestHandler = withPermissions(async (user, actions, event)
 				.or(z.string())
 				.transform((v) => (typeof v === 'string' ? [v] : v))
 		})
-		.safeParse(await event.request.json());
+		.safeParse(await request.json());
 
 	if (!parsed.success) {
 		return json({ error: `Invalid request` }, { status: 400 });
@@ -22,14 +25,14 @@ export const POST: RequestHandler = withPermissions(async (user, actions, event)
 	const { transactionIds } = parsed.data;
 
 	const invalidId = transactionIds.some((id) => {
-		return actions.transaction.getById({ id }) === undefined;
+		return actions.transaction.getTransactionById({ id, userId: user.id }) === undefined;
 	});
 
 	if (invalidId) {
 		return json({ error: 'Invalid transaction id' }, { status: 400 });
 	}
 
-	actions.transaction.batchDelete({ ids: transactionIds });
+	actions.transaction.batchDeleteTransactions({ ids: transactionIds, userId: user.id });
 
 	return json({ success: true });
-});
+};

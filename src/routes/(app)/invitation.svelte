@@ -8,7 +8,7 @@
 	import { ParaglideMessage } from '@inlang/paraglide-js-svelte';
 	import EnvelopeDuotoneIcon from '~icons/ph/envelope-duotone';
 
-	type Invitation = ReturnType<App.Actions['budget']['getInvitations']>[number];
+	type Invitation = ReturnType<typeof import('$db').actions.budget.getBudgetInvitations>[number];
 
 	let { invitation }: { invitation: Invitation } = $props();
 

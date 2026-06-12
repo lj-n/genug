@@ -101,7 +101,7 @@
 			})}
 		{/if}
 
-		<form {...signout} class="contents">
+		<form {...signout.for('desktop-navigation')} class="contents">
 			<button
 				type="submit"
 				class="group flex items-center gap-2 rounded-md p-2 transition-colors hover:cursor-pointer hover:bg-muted/5"

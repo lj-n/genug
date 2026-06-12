@@ -2,13 +2,16 @@ import { form, query } from '$app/server';
 import { actions } from '$db';
 import { m } from '$lib/paraglide/messages';
 import {
+	AssignmentSchema,
 	BudgetAndUserIdSchema,
 	BudgetIdSchema,
+	BudgetMonthSchema,
 	BudgetSchema,
 	FindBudgetUserSchema,
-	SetBudgetSchema
+	SetBudgetSchema,
+	TransferAssignmentSchema
 } from '$lib/schemas/budget';
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 
 import { requireUser } from './remote.utils';
 
@@ -36,7 +39,7 @@ export const getBudgetUsers = query(BudgetIdSchema, async ({ budgetId }) => {
 export const createBudget = form(BudgetSchema, async (data) => {
 	const [user] = requireUser();
 	const budget = actions.budget.createBudget({ data, userId: user.id });
-	return { budget };
+	redirect(303, `/${budget.id}`);
 });
 
 export const setBudget = form(SetBudgetSchema, async ({ budgetId, ...data }) => {
@@ -83,3 +86,30 @@ export const inviteUser = form(FindBudgetUserSchema, async ({ budgetId, inviteeN
 	const [user] = requireUser();
 	actions.budget.inviteBudgetUser({ budgetId, inviteeName, userId: user.id });
 });
+
+export const getBudgetMonth = query(BudgetMonthSchema, async ({ budgetId, month }) => {
+	const [user] = requireUser();
+	return actions.budget.getBudgetMonth({ budgetId, month, userId: user.id });
+});
+
+export const getBudgetUnassigned = query(BudgetIdSchema, async ({ budgetId }) => {
+	const [user] = requireUser();
+	return actions.budget.getBudgetUnassigned({ budgetId, userId: user.id });
+});
+
+export const assignBudget = form(AssignmentSchema, async (data) => {
+	const [user] = requireUser();
+	actions.budget.assignBudget({ ...data, userId: user.id });
+});
+
+export const transferBudget = form(
+	TransferAssignmentSchema,
+	async ({ fromCategoryId, ...data }) => {
+		const [user] = requireUser();
+		actions.budget.transferBudget({
+			...data,
+			fromCategoryId: fromCategoryId || null,
+			userId: user.id
+		});
+	}
+);

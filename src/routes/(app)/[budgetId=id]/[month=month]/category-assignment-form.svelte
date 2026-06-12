@@ -1,52 +1,35 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
-	import * as Form from '$lib/components/ui/form';
 	import { InputCurrency } from '$lib/components/ui/input-currency';
-	import { getBudgetContext } from '$lib/utils/budget-context';
+	import { assignBudget, getBudget } from '$lib/remote-functions/budget.remote';
 	import { formatCurrency } from '$lib/utils/format-currency';
 	import { Popover } from 'bits-ui';
-	import { untrack } from 'svelte';
-	import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { cn } from 'tailwind-variants';
 
-	import type { PageData } from './$types';
-	import type { schemaMonthlyAssigment } from './schema';
+	type Category = {
+		budgetId: string;
+		id: string;
+		thisMonthAmount: number;
+	};
 
 	let {
+		budgetId,
 		category,
-		form: assignmentForm,
 		month,
 		open = $bindable(false)
 	}: {
-		category: PageData['categories'][number];
-		form: SuperValidated<Infer<typeof schemaMonthlyAssigment>>;
-		month: PageData['month'];
+		budgetId: string;
+		category: Category;
+		month: string;
 		open?: boolean;
 	} = $props();
 
-	const getBudget = getBudgetContext();
-	const currency = $derived(getBudget().currency);
+	const { currency } = $derived(await getBudget({ budgetId }));
 
-	const form = superForm(
-		untrack(() => assignmentForm),
-		{
-			onUpdated(event) {
-				if (event.form.message?.type === 'success') {
-					open = false;
-				}
-			},
-			warnings: { duplicateId: false }
-		}
-	);
-
-	const { enhance, form: formData } = form;
+	const scopedForm = $derived(assignBudget.for(category.id));
 
 	$effect(() => {
 		if (open) {
-			$formData = {
-				amount: category.thisMonthAmount,
-				categoryId: category.id
-			};
+			scopedForm.fields.amount.set(category.thisMonthAmount);
 		}
 	});
 </script>
@@ -63,29 +46,33 @@
 
 	<Popover.ContentStatic class="absolute inset-0 outline-2 -outline-offset-2 outline-focus">
 		<form
-			action={resolve('/(app)/[budgetId=id]/[month=month]?/assignment', {
-				budgetId: category.budgetId,
-				month
+			{...scopedForm.enhance(async (form) => {
+				if (await form.submit()) {
+					open = false;
+				}
 			})}
-			method="POST"
 			class="contents"
-			use:enhance
 		>
-			<input type="hidden" name="categoryId" value={category.id} />
-			<Form.Field {form} name="amount" class="h-full w-full">
-				<Form.Control>
-					{#snippet children({ props })}
-						<InputCurrency
-							{...props}
-							{currency}
-							bind:value={$formData.amount}
-							class="h-full w-full rounded-none px-2 text-right font-currency ring-0 outline-none"
-							selectOnFocus
-						/>
-					{/snippet}
-				</Form.Control>
-				<Form.FieldErrors />
-			</Form.Field>
+			<input {...scopedForm.fields.budgetId.as('hidden', budgetId)} />
+			<input {...scopedForm.fields.categoryId.as('hidden', category.id)} />
+			<input
+				type="hidden"
+				name={scopedForm.fields.month.as('number').name}
+				value={parseInt(month)}
+			/>
+
+			<div class="h-full w-full">
+				<InputCurrency
+					name={scopedForm.fields.amount.as('number').name}
+					bind:value={
+						() => scopedForm.fields.amount.value() ?? category.thisMonthAmount,
+						(v) => scopedForm.fields.amount.set(v)
+					}
+					{currency}
+					class="h-full w-full rounded-none px-2 text-right font-currency ring-0 outline-none"
+					selectOnFocus
+				/>
+			</div>
 
 			<input type="submit" value="" class="hidden" />
 		</form>

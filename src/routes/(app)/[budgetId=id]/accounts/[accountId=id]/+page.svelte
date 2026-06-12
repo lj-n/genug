@@ -1,58 +1,42 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import { AccountBalances } from '$lib/components/account';
-	import {
-		setTableContext,
-		TableContext,
-		TransactionTable
-	} from '$lib/components/transaction-table';
 	import { Button } from '$lib/components/ui/button';
 	import * as Page from '$lib/components/ui/page';
 	import { Separator } from '$lib/components/ui/separator';
 	import { m } from '$lib/paraglide/messages';
-	import { schemaTransactionEdit } from '$lib/schemas/transactions';
-	import { untrack } from 'svelte';
-	import { superForm } from 'sveltekit-superforms';
-	import { zod4Client } from 'sveltekit-superforms/adapters';
+	import { getAccountBalanceDetail, getAccountById } from '$lib/remote-functions/account.remote';
+	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import PhChartLineUp from '~icons/ph/chart-line-up';
 
-	import type { PageProps } from './$types';
+	import Table from './table.svelte';
 
-	let { data }: PageProps = $props();
+	const accountId = $derived(page.params.accountId!);
+	const budgetId = $derived(page.params.budgetId!);
 
-	const tableContext = setTableContext(
-		new TableContext(
-			() => data.categories,
-			superForm(
-				untrack(() => data.forms.transactionEdit),
-				{
-					onUpdated() {
-						tableContext.cancelEditing();
-					},
-					validators: zod4Client(schemaTransactionEdit),
-					warnings: { duplicateId: false }
-				}
-			),
-			() => data.filter,
-			() => data.pagination,
-			() => data.transactions,
-			untrack(() => data.account.id),
-			untrack(() => data.budget.id)
-		)
-	);
+	const account = $derived(await getAccountById({ accountId }));
+	const balanceDetail = $derived(await getAccountBalanceDetail({ accountId }));
+	const budget = $derived(await getBudget({ budgetId }));
+
+	const balances = $derived({
+		balance: account.balance,
+		pending: balanceDetail.pending,
+		validated: balanceDetail.validated
+	});
 </script>
 
 <Page.Root>
 	<Page.Header class="flex-row justify-between gap-4">
 		<Page.Title>
-			{data.account.name}
+			{account.name}
 		</Page.Title>
 
 		<Button
 			variant="ghost"
 			href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/detail', {
-				accountId: data.account.id,
-				budgetId: data.budget.id
+				accountId,
+				budgetId
 			})}
 		>
 			<PhChartLineUp class="size-6 text-muted" />
@@ -61,10 +45,10 @@
 	</Page.Header>
 
 	<Page.Content>
-		<AccountBalances balances={data.balances} />
+		<AccountBalances {balances} currency={budget.currency} />
 
 		<Separator orientation="horizontal" />
 
-		<TransactionTable categories={data.categories} form={data.forms.transactionCreate} />
+		<Table {accountId} {budgetId} />
 	</Page.Content>
 </Page.Root>

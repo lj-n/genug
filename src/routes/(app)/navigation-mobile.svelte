@@ -169,7 +169,7 @@
 				{/if}
 
 				<li class="flex">
-					<form {...signout} class="contents">
+					<form {...signout.for('mobile-navigation')} class="contents">
 						<button
 							type="submit"
 							class="group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:cursor-pointer hover:bg-muted/5"

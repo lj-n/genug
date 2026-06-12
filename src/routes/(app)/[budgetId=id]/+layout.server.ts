@@ -1,18 +1,20 @@
-import { withPermissions } from '$db/actions';
+import { actions } from '$db';
 import { getLocale } from '$lib/paraglide/runtime';
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 
-import type { LayoutServerLoadEvent, PageServerLoad } from './$types';
+import type { LayoutServerLoad } from './$types';
 
-export const load: PageServerLoad = withPermissions(
-	async (user, actions, event: LayoutServerLoadEvent) => {
-		const { budgetId } = event.params;
+export const load: LayoutServerLoad = async (event) => {
+	const { locals, params } = event;
+	if (!locals.session) redirect(307, '/login');
+	const { user } = locals.session;
 
-		const budget = actions.budget.getById({ budgetId });
-		if (!budget) error(404, { message: 'Dieser Budgetplan existiert nicht.' });
+	const { budgetId } = params;
 
-		const budgetUsers = actions.budget.getUsers({ budgetId });
+	const budget = actions.budget.getBudgetById({ budgetId, userId: user.id });
+	if (!budget) error(404, { message: 'Dieser Budgetplan existiert nicht.' });
 
-		return { budget, budgetUsers, locale: getLocale(), user };
-	}
-);
+	const budgetUsers = actions.budget.getBudgetUsers({ budgetId, userId: user.id });
+
+	return { budget, budgetUsers, currency: budget.currency, locale: getLocale(), user };
+};

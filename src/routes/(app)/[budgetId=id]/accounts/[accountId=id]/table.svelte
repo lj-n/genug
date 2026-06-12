@@ -1,0 +1,118 @@
+<script lang="ts">
+	import { page } from '$app/state';
+	import { Button } from '$lib/components/ui/button';
+	import { m } from '$lib/paraglide/messages';
+	import {
+		batchValidateTransactions,
+		listTransactions
+	} from '$lib/remote-functions/transaction.remote';
+	import { getCurrency } from '$lib/utils/currency';
+	import { formatCurrency } from '$lib/utils/format-currency';
+	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
+	import { parseDate } from '@internationalized/date';
+	import SealIcon from '~icons/ph/seal';
+	import SealCheckDuotoneIcon from '~icons/ph/seal-check-duotone';
+
+	import TableBody from './table-body.svelte';
+	import TableCell from './table-cell.svelte';
+	import TableFilter from './table-filter.svelte';
+	import TableHeader from './table-header.svelte';
+	import TablePagination from './table-pagination.svelte';
+	import TableRowCreate from './table-row-create.svelte';
+	import TableRowEdit from './table-row-edit.svelte';
+	import TableRow from './table-row.svelte';
+	import { getTransactionURLParams } from './utils';
+
+	let { accountId, budgetId }: { accountId: string; budgetId: string } = $props();
+
+	const currency = getCurrency();
+
+	const result = $derived(
+		await listTransactions({ accountId, ...getTransactionURLParams(page.url) })
+	);
+	const transactions = $derived(result.transactions);
+	const pagination = $derived(result.pagination);
+
+	let openCreateRow = $state(false);
+</script>
+
+<Button onclick={() => (openCreateRow = true)}>create</Button>
+
+<div class="space-y-3">
+	<div>
+		<TableFilter {budgetId} />
+	</div>
+
+	<div role="table" class="space-y-3">
+		<TableHeader />
+
+		<TableBody data={transactions}>
+			{#snippet createrow()}
+				<TableRowCreate bind:open={openCreateRow} {accountId} {budgetId} />
+			{/snippet}
+
+			{#snippet row({ cancelEditing, isEditing, item, setEditing })}
+				{#if isEditing}
+					<TableRowEdit transaction={item} {budgetId} {cancelEditing} />
+				{:else}
+					{@const validation = batchValidateTransactions.for(item.id)}
+
+					<TableRow>
+						<TableCell aria-label={m.transactions_table_edit_category()} onclick={setEditing}>
+							{item.categoryName ?? m.transaction_table_cell_category_empty()}
+						</TableCell>
+
+						<TableCell aria-label={m.transactions_table_edit_notes()} onclick={setEditing}>
+							{item.notes ?? ''}
+						</TableCell>
+
+						<TableCell
+							aria-label={m.transactions_table_edit_date()}
+							onclick={setEditing}
+							class="justify-end"
+						>
+							{formatTransactionDate(parseDate(item.date))}
+						</TableCell>
+
+						<TableCell
+							aria-label={m.transactions_table_edit_amount()}
+							onclick={setEditing}
+							class="justify-end font-currency font-normal"
+						>
+							{formatCurrency({ centValue: item.amount, currency: currency() })}
+						</TableCell>
+
+						<TableCell>
+							{#snippet child()}
+								<form {...validation} class="grid size-full place-content-center">
+									<input {...validation.fields.validated.as('hidden', !item.validated)} />
+
+									<Button
+										type="submit"
+										name={validation.fields.ids.as('select multiple').name}
+										value={[item.id]}
+										size="icon-lg"
+										variant="ghost"
+										class="rounded-xs hover:bg-transparent"
+									>
+										{#if item.validated}
+											<SealCheckDuotoneIcon class="size-6 text-success" />
+										{:else}
+											<SealIcon class="size-6 text-muted" />
+										{/if}
+									</Button>
+								</form>
+							{/snippet}
+						</TableCell>
+					</TableRow>
+				{/if}
+			{/snippet}
+		</TableBody>
+	</div>
+
+	<TablePagination
+		pageSize={pagination.pageSize}
+		currentPage={pagination.page}
+		total={pagination.totalTransactionCount}
+	/>
+</div>

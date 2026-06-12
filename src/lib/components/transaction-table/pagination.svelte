@@ -1,20 +1,29 @@
 <script lang="ts">
-	import * as Pagination from '$lib/components/ui/pagination';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
+	import * as PaginationPrimitive from '$lib/components/ui/pagination';
 	import * as Select from '$lib/components/ui/select';
 	import { m } from '$lib/paraglide/messages';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
 
-	import { getTableContext } from './context.svelte';
+	import type { PaginationState } from './types';
 
-	const tableContext = getTableContext();
-	const { page, pageSize, totalTransactionCount: total } = $derived(tableContext.pagination());
+	let {
+		pagination
+	}: {
+		pagination: PaginationState;
+	} = $props();
 
-	let pageCount = $derived(Math.max(1, Math.ceil(total / pageSize)));
-	let isFirstPage = $derived(page === 1);
-	let isLastPage = $derived(page === pageCount);
+	const { page: currentPage, pageSize, totalTransactionCount: total } = $derived(pagination);
 
-	let pagesInfo: string = $derived.by(() => {
-		const currentPage = Math.min(page, pageCount);
-		const start = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+	const pageCount = $derived(Math.max(1, Math.ceil(total / pageSize)));
+	const isFirstPage = $derived(currentPage === 1);
+	const isLastPage = $derived(currentPage === pageCount);
+
+	const pagesInfo: string = $derived.by(() => {
+		const p = Math.min(currentPage, pageCount);
+		const start = total === 0 ? 0 : (p - 1) * pageSize + 1;
 		const end = total === 0 ? 0 : Math.min(start + pageSize - 1, total);
 		return m.transactions_pagination_showing({
 			end: String(end),
@@ -24,19 +33,37 @@
 	});
 
 	const PAGE_SIZES = ['15', '25', '50', '100'] as const;
+
+	function navigate(searchParams: URLSearchParams) {
+		return goto(
+			resolve(
+				`/(app)/[budgetId=id]/accounts/[accountId=id]?${searchParams.toString()}`,
+				{
+					accountId: page.params.accountId!,
+					budgetId: page.params.budgetId!
+				}
+			),
+			{ keepFocus: true, noScroll: true }
+		);
+	}
+
+	function setPageSize(newSize: string) {
+		const searchParams = new SvelteURLSearchParams(page.url.searchParams);
+		searchParams.set('pageSize', newSize);
+		searchParams.delete('page');
+		navigate(searchParams);
+	}
+
+	function setPage(newPage: number) {
+		const searchParams = new SvelteURLSearchParams(page.url.searchParams);
+		searchParams.set('page', String(newPage));
+		navigate(searchParams);
+	}
 </script>
 
 <div class="flex items-center justify-between gap-4">
 	<div class="flex items-center gap-2">
-		<Select.Root
-			type="single"
-			bind:value={
-				() => pageSize.toString(),
-				async (newPageSize) => {
-					tableContext.setPaginationParam('pageSize', newPageSize);
-				}
-			}
-		>
+		<Select.Root type="single" bind:value={() => pageSize.toString(), (v) => setPageSize(v)}>
 			<Select.Trigger
 				class="h-auto w-fit border-none bg-transparent px-2 py-1"
 				aria-label={m.transactions_pagination_page_size_label()}
@@ -57,41 +84,36 @@
 		</div>
 	</div>
 
-	<Pagination.Root
+	<PaginationPrimitive.Root
 		class="ml-auto w-fit"
 		count={total}
 		perPage={pageSize}
-		bind:page={
-			() => page,
-			async (newPage) => {
-				tableContext.setPaginationParam('page', newPage.toString());
-			}
-		}
+		bind:page={() => currentPage, (v) => setPage(v)}
 	>
-		{#snippet children({ currentPage, pages })}
-			<Pagination.Content>
-				<Pagination.Item>
-					<Pagination.PrevButton disabled={isFirstPage} aria-disabled={isFirstPage} />
-				</Pagination.Item>
+		{#snippet children({ currentPage: cp, pages })}
+			<PaginationPrimitive.Content>
+				<PaginationPrimitive.Item>
+					<PaginationPrimitive.PrevButton disabled={isFirstPage} aria-disabled={isFirstPage} />
+				</PaginationPrimitive.Item>
 
-				{#each pages as page (page.key)}
-					{#if page.type === 'ellipsis'}
-						<Pagination.Item>
-							<Pagination.Ellipsis />
-						</Pagination.Item>
+				{#each pages as p (p.key)}
+					{#if p.type === 'ellipsis'}
+						<PaginationPrimitive.Item>
+							<PaginationPrimitive.Ellipsis />
+						</PaginationPrimitive.Item>
 					{:else}
-						<Pagination.Item>
-							<Pagination.Link {page} isActive={currentPage === page.value}>
-								{page.value}
-							</Pagination.Link>
-						</Pagination.Item>
+						<PaginationPrimitive.Item>
+							<PaginationPrimitive.Link page={p} isActive={cp === p.value}>
+								{p.value}
+							</PaginationPrimitive.Link>
+						</PaginationPrimitive.Item>
 					{/if}
 				{/each}
 
-				<Pagination.Item>
-					<Pagination.NextButton disabled={isLastPage} aria-disabled={isLastPage} />
-				</Pagination.Item>
-			</Pagination.Content>
+				<PaginationPrimitive.Item>
+					<PaginationPrimitive.NextButton disabled={isLastPage} aria-disabled={isLastPage} />
+				</PaginationPrimitive.Item>
+			</PaginationPrimitive.Content>
 		{/snippet}
-	</Pagination.Root>
+	</PaginationPrimitive.Root>
 </div>

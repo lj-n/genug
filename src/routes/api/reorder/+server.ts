@@ -1,7 +1,7 @@
-import { withPermissions } from '$db/actions';
+import { actions } from '$db';
 import { entityOrderTypes } from '$db/tables';
 import * as m from '$lib/paraglide/messages';
-import { error, json } from '@sveltejs/kit';
+import { error, json, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 
 import type { RequestHandler } from './$types';
@@ -16,12 +16,9 @@ const reorderSchema = z
 		path: ['orderedIds']
 	});
 
-export const POST: RequestHandler = withPermissions(async (_user, actions, { locals, request }) => {
-	const session = locals.session;
-
-	if (!session) {
-		error(401, { message: m.error_unauthorized() });
-	}
+export const POST: RequestHandler = async ({ locals, request }) => {
+	if (!locals.session) redirect(307, '/login');
+	const { user } = locals.session;
 
 	const rawBody = await request.json();
 	const parsed = reorderSchema.safeParse(rawBody);
@@ -33,13 +30,13 @@ export const POST: RequestHandler = withPermissions(async (_user, actions, { loc
 	try {
 		switch (parsed.data.entity) {
 			case 'account':
-				actions.account.reorder({ orderedIds: parsed.data.orderedIds });
+				actions.account.reorderAccounts({ orderedIds: parsed.data.orderedIds, userId: user.id });
 				break;
 			case 'budget':
-				actions.budget.reorder({ orderedIds: parsed.data.orderedIds });
+				actions.budget.reorderBudgets({ orderedIds: parsed.data.orderedIds, userId: user.id });
 				break;
 			case 'category':
-				actions.category.reorder({ orderedIds: parsed.data.orderedIds });
+				actions.category.reorderCategories({ orderedIds: parsed.data.orderedIds, userId: user.id });
 				break;
 		}
 
@@ -48,4 +45,4 @@ export const POST: RequestHandler = withPermissions(async (_user, actions, { loc
 		locals.logger.error({ err }, 'failed to reorder entity');
 		error(500, { message: m.error_unable_to_save_order() });
 	}
-});
+};

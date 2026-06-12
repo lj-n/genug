@@ -14,10 +14,14 @@ export * as tables from './tables';
 import * as account from './account';
 import * as auth from './auth';
 import * as budget from './budget';
+import * as category from './category';
+import * as transaction from './transaction';
 import * as user from './user';
 export const actions = {
 	account,
 	auth,
 	budget,
+	category,
+	transaction,
 	user
 };

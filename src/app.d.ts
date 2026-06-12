@@ -4,8 +4,7 @@ import 'unplugin-icons/types/svelte';
 // for information about these interfaces
 declare global {
 	namespace App {
-		type Account = ReturnType<Actions['account']['all']>[number];
-		type Actions = import('$db/actions').Actions;
+		type Account = ReturnType<typeof import('$db').actions.account.getAllAccounts>[number];
 		type Budget = import('$db').tables.Budget;
 		type Database = import('$db').Database;
 

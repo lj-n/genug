@@ -1,53 +1,36 @@
 <script lang="ts">
-	import type { Infer, SuperValidated } from 'sveltekit-superforms';
-
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
-	import { getBudgetContext } from '$lib/utils/budget-context';
-	import { clamp } from '$lib/utils/clamp';
+	import { getBudget, getBudgetMonth } from '$lib/remote-functions/budget.remote';
 	import { formatCurrency } from '$lib/utils/format-currency';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
 	import { useDialog } from '$lib/utils/use-dialog';
 	import { cn } from 'tailwind-variants';
 	import PhDotsSixVerticalBold from '~icons/ph/dots-six-vertical-bold';
 
-	import type { PageData } from './$types';
-	import type { schemaMonthlyAssigment, schemaTransferAssignment } from './schema';
-
 	import BudgetTableCell from './budget-table-cell.svelte';
 	import BudgetTableHeader from './budget-table-header.svelte';
 	import CategoryAssignmentForm from './category-assignment-form.svelte';
 	import CategoryRemainingActions from './category-remaining-actions.svelte';
 
-	type BudgetTableRow = PageData['categories'][number];
-
 	let {
-		assignmentForm,
-		categories,
+		budgetId,
 		month,
-		openCategoryDialog,
-		transferForm
+		openCategoryDialog
 	}: {
-		assignmentForm: SuperValidated<Infer<typeof schemaMonthlyAssigment>>;
-		categories: BudgetTableRow[];
-		month: PageData['month'];
-		openCategoryDialog: (category: BudgetTableRow) => void;
-		transferForm: SuperValidated<Infer<typeof schemaTransferAssignment>>;
+		budgetId: string;
+		month: string;
+		openCategoryDialog: (categoryId: string) => void;
 	} = $props();
 
-	const getBudget = getBudgetContext();
-	const currency = $derived(getBudget().currency);
+	const { currency } = $derived(await getBudget({ budgetId }));
+	const categories = $derived(await getBudgetMonth({ budgetId, month: parseInt(month) }));
 
 	function saveOrder() {
 		return (orderedIds: string[]) =>
 			fetch('/api/reorder', {
-				body: JSON.stringify({
-					entity: 'category',
-					orderedIds
-				}),
-				headers: {
-					'content-type': 'application/json'
-				},
+				body: JSON.stringify({ entity: 'category', orderedIds }),
+				headers: { 'content-type': 'application/json' },
 				method: 'POST'
 			});
 	}
@@ -110,7 +93,7 @@
 							budgetId: row.budgetId,
 							categoryId: row.id
 						})}
-						{@attach useDialog(() => openCategoryDialog(row))}
+						{@attach useDialog(() => openCategoryDialog(row.id))}
 					>
 						{row.name}
 					</a>
@@ -118,7 +101,7 @@
 						<div class="absolute bottom-0 flex w-full">
 							<div
 								class="h-1 bg-success/60"
-								style="width: {clamp(row.currentTargetPercentage, 0, 100)}%"
+								style="width: {Math.min(row.currentTargetPercentage, 100)}%"
 							></div>
 						</div>
 					{/if}
@@ -137,7 +120,7 @@
 							}
 						}
 						category={row}
-						form={assignmentForm}
+						{budgetId}
 						{month}
 					/>
 				</BudgetTableCell>
@@ -149,13 +132,13 @@
 				<BudgetTableCell class="w-1/5 justify-end">
 					<CategoryRemainingActions
 						category={row}
+						{budgetId}
 						{month}
 						otherCategories={categories.filter((c) => c.id !== row.id)}
-						{transferForm}
 					/>
 				</BudgetTableCell>
 
-				<BudgetTableCell class="w-9 border-0 last:p-2 ">
+				<BudgetTableCell class="w-9 border-0 last:p-2">
 					<button
 						class="flex size-9 cursor-grab items-center justify-center text-muted hover:text-interactive"
 						data-drag-handle="category"

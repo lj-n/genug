@@ -1,74 +1,58 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
 	import { Calendar } from '$lib/components/ui/calendar';
-	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
 	import { InputCurrency } from '$lib/components/ui/input-currency';
 	import { SelectCommand } from '$lib/components/ui/select-command';
 	import { m } from '$lib/paraglide/messages';
-	import { schemaTransactionCreate } from '$lib/schemas/transactions';
-	import { getBudgetContext } from '$lib/utils/budget-context';
+	import { getBudget } from '$lib/remote-functions/budget.remote';
+	import { getCategoriesFlat } from '$lib/remote-functions/category.remote';
+	import { createTransaction } from '$lib/remote-functions/transaction.remote';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
-	import { CalendarDate, parseDate } from '@internationalized/date';
+	import { CalendarDate, getLocalTimeZone, parseDate, today } from '@internationalized/date';
 	import { Popover } from 'bits-ui';
-	import { type Snippet, tick, untrack } from 'svelte';
-	import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
-	import { zod4Client } from 'sveltekit-superforms/adapters';
-	import { cn } from 'tailwind-variants';
+	import { tick } from 'svelte';
 	import PhPlus from '~icons/ph/plus';
-
-	import type { CategoryItem } from './types';
 
 	import ValidateCheckbox from './cells/validate-checkbox.svelte';
 
 	let {
-		categories,
-		form: createForm,
+		budgetId,
 		open = $bindable(false),
 		to
 	}: {
-		categories: CategoryItem[];
-		form: SuperValidated<Infer<typeof schemaTransactionCreate>>;
+		budgetId: string;
 		open?: boolean;
 		to: string;
 	} = $props();
 
-	type FieldName = keyof Infer<typeof schemaTransactionCreate>;
+	const categories = $derived(await getCategoriesFlat({ budgetId }));
+	const budget = $derived(await getBudget({ budgetId }));
+	const currency = $derived(budget.currency);
 
-	const form = superForm(
-		untrack(() => createForm),
-		{
-			onUpdated: () => {
-				// Only close popover on regular submit, not on submit and continue
-				if (form.options.resetForm) {
-					open = false;
-				}
-			},
-			validators: zod4Client(schemaTransactionCreate)
-		}
-	);
+	let formEl = $state<HTMLFormElement | null>(null);
+	let continueAfterSubmit = $state(false);
 
 	$effect(() => {
-		if ($formData.accountId !== page.params.accountId) {
-			$formData.accountId = page.params.accountId!;
-		}
+		const accountId = page.params.accountId;
+		if (accountId) createTransaction.fields.accountId.set(accountId);
 	});
 
-	const { enhance, form: formData } = form;
-
-	const getBudget = getBudgetContext();
-	const currency = $derived(getBudget().currency);
+	$effect(() => {
+		if (open && !createTransaction.fields.date.value()) {
+			createTransaction.fields.date.set(today(getLocalTimeZone()).toString());
+		}
+	});
 
 	let categoryOpen = $state(false);
 
 	function getCategoryValue() {
-		return $formData.categoryId ?? 'null';
+		return createTransaction.fields.categoryId.value() ?? 'null';
 	}
 
 	function setCategoryValue(value: string) {
-		$formData.categoryId = value === 'null' ? null : value;
+		createTransaction.fields.categoryId.set(value === 'null' ? undefined : value);
 	}
 
 	let dateOpen = $state(false);
@@ -82,28 +66,31 @@
 	}
 
 	function getDateValue() {
-		return parseDate($formData.date);
+		const d = createTransaction.fields.date.value();
+		return d ? parseDate(d) : today(getLocalTimeZone());
 	}
 
 	function setDateValue(newValue: CalendarDate) {
-		$formData.date = newValue.toString();
+		createTransaction.fields.date.set(newValue.toString());
 	}
 
 	let amountInputRef = $state<HTMLInputElement>(null!);
 
 	function submit() {
-		form.options.resetForm = true;
-		form.submit();
+		continueAfterSubmit = false;
+		formEl?.requestSubmit();
 	}
 
 	function submitAndContinue() {
-		form.options.resetForm = false;
-		form.submit();
+		continueAfterSubmit = true;
+		formEl?.requestSubmit();
 	}
 
 	function cancel() {
 		open = false;
-		form.reset();
+		createTransaction.fields.amount.set(0);
+		createTransaction.fields.categoryId.set(undefined);
+		createTransaction.fields.notes.set(undefined);
 	}
 
 	function onkeydown(ev: KeyboardEvent) {
@@ -115,95 +102,6 @@
 </script>
 
 <svelte:document {onkeydown} />
-
-{#snippet cell({
-	edit,
-	name
-}: {
-	edit: Snippet<[{ props: Record<string, unknown> }]>;
-	name: FieldName;
-})}
-	<div role="cell" class={cn('flex size-full items-center bg-interactive/5 p-2')}>
-		<Form.Field {form} {name} class="w-full space-y-0">
-			<Form.Control>
-				{#snippet children({ props })}
-					{@render edit({ props })}
-				{/snippet}
-			</Form.Control>
-		</Form.Field>
-	</div>
-{/snippet}
-
-{#snippet category({ props }: { props: Record<string, unknown> })}
-	<SelectCommand
-		bind:open={categoryOpen}
-		bind:value={getCategoryValue, setCategoryValue}
-		items={categories}
-		textEmptyTrigger={m.transaction_table_cell_category_empty()}
-		textInputPlaceholder={m.transaction_table_cell_category_placeholder()}
-		textListEmpty={m.transaction_table_cell_category_empty()}
-		{...props}
-	/>
-{/snippet}
-
-{#snippet notes({ props }: { props: Record<string, unknown> })}
-	<Input bind:value={$formData.notes} {...props} />
-{/snippet}
-
-{#snippet date({ props: triggerProps }: { props: Record<string, unknown> })}
-	<Popover.Root bind:open={dateOpen}>
-		<Popover.Trigger bind:ref={dateTriggerRef} {...triggerProps}>
-			{#snippet child({ props })}
-				<Button
-					{...props}
-					variant="ghost"
-					class="w-full justify-end border-muted/30 bg-surface/70 px-2 hover:cursor-text hover:bg-surface/70"
-					role="combobox"
-					aria-expanded={dateOpen}
-				>
-					{$formData.date
-						? formatTransactionDate(parseDate($formData.date))
-						: m.transaction_table_cell_date_select()}
-				</Button>
-			{/snippet}
-		</Popover.Trigger>
-
-		<Popover.Content
-			class="w-full p-0"
-			sideOffset={4}
-			onkeydown={(ev) => {
-				if (ev.key === 'Escape') {
-					closeAndFocusDateTrigger();
-					ev.stopPropagation();
-				}
-			}}
-		>
-			<Calendar
-				type="single"
-				bind:value={getDateValue, setDateValue}
-				captionLayout="dropdown"
-				onValueChange={() => {
-					closeAndFocusDateTrigger();
-				}}
-				class="rounded-xl border border-muted/30 bg-surface-high shadow"
-			/>
-		</Popover.Content>
-	</Popover.Root>
-{/snippet}
-
-{#snippet amount({ props }: { props: Record<string, unknown> })}
-	<InputCurrency
-		bind:ref={amountInputRef}
-		bind:value={$formData.amount}
-		{...props}
-		{currency}
-		class="px-2 text-right font-medium"
-	/>
-{/snippet}
-
-{#snippet validated({ props }: { props: Record<string, unknown> })}
-	<ValidateCheckbox bind:checked={$formData.validated} {...props} />
-{/snippet}
 
 <Popover.Root bind:open>
 	<Popover.Trigger>
@@ -217,36 +115,134 @@
 	<Popover.Portal {to}>
 		<Popover.ContentStatic class="contents">
 			<form
-				action={resolve('/(app)/[budgetId=id]/transactions/new', {
-					budgetId: page.params.budgetId!
+				{...createTransaction.enhance(async (f) => {
+					if (await f.submit()) {
+						if (!continueAfterSubmit) {
+							open = false;
+						}
+						createTransaction.fields.amount.set(0);
+						createTransaction.fields.categoryId.set(undefined);
+						createTransaction.fields.notes.set(undefined);
+					}
 				})}
-				use:enhance
+				bind:this={formEl}
 				class="contents"
-				method="POST"
 			>
-				<input type="hidden" name="accountId" value={page.params.accountId} />
-				<input type="hidden" name="date" bind:value={$formData.date} />
-				<input type="hidden" name="categoryId" bind:value={$formData.categoryId} />
+				<input {...createTransaction.fields.budgetId.as('hidden', budgetId)} />
+				<input {...createTransaction.fields.accountId.as('hidden', page.params.accountId!)} />
+				<input
+					type="hidden"
+					name={createTransaction.fields.date.as('text').name}
+					value={createTransaction.fields.date.value() ?? ''}
+				/>
+				<input
+					type="hidden"
+					name={createTransaction.fields.categoryId.as('text').name}
+					value={createTransaction.fields.categoryId.value() ?? ''}
+				/>
 
-				{@render cell({ edit: category, name: 'categoryId' })}
-				{@render cell({ edit: notes, name: 'notes' })}
-				{@render cell({ edit: date, name: 'date' })}
-				{@render cell({ edit: amount, name: 'amount' })}
-				{@render cell({ edit: validated, name: 'validated' })}
+				<div role="cell" class="flex size-full items-center bg-interactive/5 p-2">
+					<SelectCommand
+						bind:open={categoryOpen}
+						bind:value={getCategoryValue, setCategoryValue}
+						items={categories}
+						textEmptyTrigger={m.transaction_table_cell_category_empty()}
+						textInputPlaceholder={m.transaction_table_cell_category_placeholder()}
+						textListEmpty={m.transaction_table_cell_category_empty()}
+					/>
+				</div>
+
+				<div role="cell" class="flex size-full items-center bg-interactive/5 p-2">
+					<Input
+						name={createTransaction.fields.notes.as('text').name}
+						bind:value={
+							() => createTransaction.fields.notes.value() ?? '',
+							(v) => createTransaction.fields.notes.set(v || undefined)
+						}
+					/>
+				</div>
+
+				<div role="cell" class="flex size-full items-center bg-interactive/5 p-2">
+					<Popover.Root bind:open={dateOpen}>
+						<Popover.Trigger bind:ref={dateTriggerRef}>
+							{#snippet child({ props })}
+								<Button
+									{...props}
+									variant="ghost"
+									class="w-full justify-end border-muted/30 bg-surface/70 px-2 hover:cursor-text hover:bg-surface/70"
+									role="combobox"
+									aria-expanded={dateOpen}
+								>
+									{createTransaction.fields.date.value()
+										? formatTransactionDate(parseDate(createTransaction.fields.date.value()!))
+										: m.transaction_table_cell_date_select()}
+								</Button>
+							{/snippet}
+						</Popover.Trigger>
+
+						<Popover.Content
+							class="w-full p-0"
+							sideOffset={4}
+							onkeydown={(ev) => {
+								if (ev.key === 'Escape') {
+									closeAndFocusDateTrigger();
+									ev.stopPropagation();
+								}
+							}}
+						>
+							<Calendar
+								type="single"
+								bind:value={getDateValue, setDateValue}
+								captionLayout="dropdown"
+								onValueChange={() => {
+									closeAndFocusDateTrigger();
+								}}
+								class="rounded-xl border border-muted/30 bg-surface-high shadow"
+							/>
+						</Popover.Content>
+					</Popover.Root>
+				</div>
+
+				<div role="cell" class="flex size-full items-center bg-interactive/5 p-2">
+					<InputCurrency
+						bind:ref={amountInputRef}
+						name={createTransaction.fields.amount.as('number').name}
+						bind:value={
+							() => createTransaction.fields.amount.value() ?? 0,
+							(v) => createTransaction.fields.amount.set(v)
+						}
+						{currency}
+						class="px-2 text-right font-medium"
+					/>
+				</div>
+
+				<div role="cell" class="flex size-full items-center justify-center bg-interactive/5 p-2">
+					<ValidateCheckbox
+						bind:checked={
+							() => createTransaction.fields.validated.value() ?? false,
+							(v) => createTransaction.fields.validated.set(v === true)
+						}
+					/>
+					<input
+						type="hidden"
+						name={createTransaction.fields.validated.as('checkbox').name}
+						value={String(createTransaction.fields.validated.value() ?? false)}
+					/>
+				</div>
 
 				<div
 					role="cell"
 					class="col-span-full flex items-center justify-end gap-2 bg-interactive/5 p-2"
 				>
-					<Form.Button type="button" variant="ghost" onclick={() => cancel()}>
+					<Button type="button" variant="ghost" onclick={() => cancel()}>
 						{m.cancel()}
-					</Form.Button>
+					</Button>
 
-					<Form.Button type="button" onclick={() => submit()}>{m.save()}</Form.Button>
+					<Button type="button" onclick={() => submit()}>{m.save()}</Button>
 
-					<Form.Button type="button" onclick={() => submitAndContinue()}>
+					<Button type="button" onclick={() => submitAndContinue()}>
 						{m.save_and_continue()}
-					</Form.Button>
+					</Button>
 				</div>
 			</form>
 		</Popover.ContentStatic>

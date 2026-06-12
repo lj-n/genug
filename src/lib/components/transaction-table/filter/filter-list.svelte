@@ -1,14 +1,24 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { m } from '$lib/paraglide/messages';
+	import { getCategoriesFlat } from '$lib/remote-functions/category.remote';
 	import PhXCircle from '~icons/ph/x-circle';
 
-	import { getTableContext } from '../context.svelte';
+	let {
+		budgetId,
+		categoryIds = [],
+		notes,
+		onOpenDialog,
+		onRemoveFilterParam
+	}: {
+		budgetId: string;
+		categoryIds?: string[];
+		notes?: null | string;
+		onOpenDialog: (type: 'category' | 'notes') => void;
+		onRemoveFilterParam: (key: string, value?: string) => void;
+	} = $props();
 
-	const tableContext = getTableContext();
-
-	const categories = $derived(tableContext.categories());
-	const filter = $derived(tableContext.filter());
+	const categories = $derived(await getCategoriesFlat({ budgetId }));
 
 	const getCategoryLabel = (id: string) => {
 		const name = categories.find((f) => f.id === id)?.name ?? '';
@@ -40,19 +50,19 @@
 {/snippet}
 
 <div class="flex flex-wrap gap-1">
-	{#each [filter.categoryId].flat().filter(Boolean) as id (id)}
+	{#each categoryIds as id (id)}
 		{@render filterTag({
 			label: getCategoryLabel(id),
-			openDialog: () => tableContext.openFilterDialog('category'),
-			removeTag: () => tableContext.removeFilterParams('categoryId', id)
+			openDialog: () => onOpenDialog('category'),
+			removeTag: () => onRemoveFilterParam('categoryId', id)
 		})}
 	{/each}
 
-	{#if filter.notes}
+	{#if notes}
 		{@render filterTag({
-			label: m.transaction_filter_label_notes({ value: filter.notes }),
-			openDialog: () => tableContext.openFilterDialog('notes'),
-			removeTag: () => tableContext.removeFilterParams('notes')
+			label: m.transaction_filter_label_notes({ value: notes }),
+			openDialog: () => onOpenDialog('notes'),
+			removeTag: () => onRemoveFilterParam('notes')
 		})}
 	{/if}
 </div>

@@ -1,29 +1,29 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
 	import { m } from '$lib/paraglide/messages';
-	import { getBudgetContext } from '$lib/utils/budget-context';
+	import { getBudget } from '$lib/remote-functions/budget.remote';
+	import {
+		archiveCategory,
+		getCategoryById,
+		restoreCategory
+	} from '$lib/remote-functions/category.remote';
 	import { formatCurrency } from '$lib/utils/format-currency';
 	import { ParaglideMessage } from '@inlang/paraglide-js-svelte';
 	import { cn } from 'tailwind-variants';
 	import PhArchiveTrayBold from '~icons/ph/archive-tray-bold';
 	import PhTrayArrowUpBold from '~icons/ph/tray-arrow-up-bold';
 
-	import type { PageData } from './$types';
-
 	import { hasNoPendingTransactions, hasNoRemainingBudget, isArchivable } from './category-utils';
 
-	let { category }: { category: PageData['category'] } = $props();
+	let { categoryId }: { categoryId: string } = $props();
 
-	const getBudget = getBudgetContext();
-	const currency = $derived(getBudget().currency);
+	const category = $derived(await getCategoryById({ categoryId }));
+	const budget = $derived(await getBudget({ budgetId: category.budgetId }));
+	const currency = $derived(budget.currency);
 
 	let isArchived = $derived(category.archivedAt !== null);
-
 	let noRemainingBudget = $derived(hasNoRemainingBudget(category));
 	let noPendingTransactions = $derived(hasNoPendingTransactions(category));
-
 	let archivable = $derived(isArchivable(category));
 
 	let { buttonText, description, title } = $derived({
@@ -31,18 +31,6 @@
 		description: isArchived ? m.category_restore_info : m.category_archive_info,
 		title: isArchived ? m.category_section_title_restore : m.category_section_title_archive
 	});
-
-	let action = $derived(
-		isArchived
-			? resolve('/(app)/[budgetId=id]/categories/[categoryId=id]?/restore', {
-					budgetId: category.budgetId,
-					categoryId: category.id
-				})
-			: resolve('/(app)/[budgetId=id]/categories/[categoryId=id]?/archive', {
-					budgetId: category.budgetId,
-					categoryId: category.id
-				})
-	);
 </script>
 
 <section
@@ -90,15 +78,21 @@
 		</div>
 	{/if}
 
-	<form method="POST" {action} class="mt-auto ml-auto" use:enhance>
-		<Button type="submit" disabled={!archivable} aria-disabled={!archivable}>
-			{#if isArchived}
+	{#if isArchived}
+		<form {...restoreCategory} class="mt-auto ml-auto">
+			<input {...restoreCategory.fields.categoryId.as('hidden', categoryId)} />
+			<Button type="submit">
 				<PhTrayArrowUpBold class="size-4" />
-			{:else}
+				{buttonText()}
+			</Button>
+		</form>
+	{:else}
+		<form {...archiveCategory} class="mt-auto ml-auto">
+			<input {...archiveCategory.fields.categoryId.as('hidden', categoryId)} />
+			<Button type="submit" disabled={!archivable} aria-disabled={!archivable}>
 				<PhArchiveTrayBold class="size-4" />
-			{/if}
-
-			{buttonText()}
-		</Button>
-	</form>
+				{buttonText()}
+			</Button>
+		</form>
+	{/if}
 </section>

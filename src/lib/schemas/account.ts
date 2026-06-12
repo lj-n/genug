@@ -2,6 +2,8 @@ import * as v from 'valibot';
 
 import { BudgetIdSchema } from './budget';
 
+export const AccountIdSchema = v.object({ accountId: v.pipe(v.string(), v.minLength(1)) });
+
 export const AccountCreateSchema = v.object({
 	...BudgetIdSchema.entries,
 	accountName: v.pipe(v.string(), v.minLength(1)),

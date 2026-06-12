@@ -19,14 +19,6 @@
 
 	let openCategoryDetail = $state(false);
 	let selectedCategoryId = $state<null | string>(null);
-	let selectedCategory = $derived.by(() => {
-		if (!selectedCategoryId) return null;
-		return (
-			data.categories.find((c) => c.id === selectedCategoryId) ??
-			data.archivedCategories.find((c) => c.id === selectedCategoryId) ??
-			null
-		);
-	});
 </script>
 
 <Page.Root>
@@ -46,25 +38,20 @@
 
 	<Page.Content>
 		<div class="flex items-end gap-3">
-			<MonthNavigator paramsDate={createDateFromParams(data.month)} />
+			<MonthNavigator paramsDate={createDateFromParams(params.month)} />
 
-			<CategoryQuickActions
-				archivedAmount={data.archivedCategories.length}
-				form={data.forms.categoryCreate}
-			/>
+			<CategoryQuickActions budgetId={params.budgetId} />
 
-			<UnassignedSummary unassigned={data.unassigned} />
+			<UnassignedSummary budgetId={params.budgetId} />
 		</div>
 
 		<CategoryBudgetTable
-			categories={data.categories}
-			openCategoryDialog={(category) => {
-				selectedCategoryId = category.id;
+			budgetId={params.budgetId}
+			month={params.month}
+			openCategoryDialog={(categoryId) => {
+				selectedCategoryId = categoryId;
 				openCategoryDetail = true;
 			}}
-			assignmentForm={data.forms.monthlyAssignment}
-			transferForm={data.forms.transferAssignment}
-			month={data.month}
 		/>
 	</Page.Content>
 </Page.Root>
@@ -74,8 +61,8 @@
 	onOpenChangeComplete={(isOpen) => !isOpen && (selectedCategoryId = null)}
 >
 	<Dialog.Content class="max-w-4xl">
-		{#if selectedCategory}
-			<CategoryDetail category={selectedCategory} />
+		{#if selectedCategoryId}
+			<CategoryDetail categoryId={selectedCategoryId} />
 		{/if}
 	</Dialog.Content>
 </Dialog.Root>

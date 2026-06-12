@@ -3,14 +3,12 @@
 	import { m } from '$lib/paraglide/messages';
 	import PhHashDuotone from '~icons/ph/hash-duotone';
 
-	import type { PageData } from './$types';
-
 	import CategoryArchive from './category-archive.svelte';
 	import CategoryDelete from './category-delete.svelte';
 	import CategoryEdit from './category-edit.svelte';
 	import CategoryStats from './category-stats.svelte';
 
-	let { category }: { category: PageData['category'] } = $props();
+	let { categoryId }: { categoryId: string } = $props();
 </script>
 
 <div class="@container w-full">
@@ -22,24 +20,24 @@
 				class="flex items-center gap-0.5 rounded-md bg-info/10 px-1 font-mono text-sm text-info"
 			>
 				<PhHashDuotone />
-				{category.id}
+				{categoryId}
 			</span>
 		</h1>
 
 		<Separator class="@3xl:col-span-2" />
 
-		<CategoryEdit {category} />
+		<CategoryEdit {categoryId} />
 
 		<Separator class="@3xl:hidden" />
 
-		<CategoryStats {category} />
+		<CategoryStats {categoryId} />
 
 		<Separator class="@3xl:hidden" />
 
 		<Separator class="col-span-2 hidden @3xl:block" orientation="horizontal" />
 
-		<CategoryArchive {category} />
+		<CategoryArchive {categoryId} />
 
-		<CategoryDelete {category} />
+		<CategoryDelete {categoryId} />
 	</div>
 </div>

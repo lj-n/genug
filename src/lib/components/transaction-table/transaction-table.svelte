@@ -1,155 +1,144 @@
 <script lang="ts">
-	import { invalidateAll } from '$app/navigation';
-	import { Button } from '$lib/components/ui/button';
-	import { createSvelteTable, FlexRender } from '$lib/components/ui/data-table';
+	import { page } from '$app/state';
 	import { m } from '$lib/paraglide/messages';
-	import { schemaTransactionCreate } from '$lib/schemas/transactions';
-	import { clickOutside } from '$lib/utils/click-outside';
-	import {
-		getCoreRowModel,
-		type OnChangeFn,
-		type RowSelectionState,
-		type VisibilityState
-	} from '@tanstack/table-core';
-	import { flip } from 'svelte/animate';
-	import { type Infer, type SuperValidated } from 'sveltekit-superforms';
+	import { listTransactions } from '$lib/remote-functions/transaction.remote';
+	import { SvelteSet } from 'svelte/reactivity';
 	import { cn } from 'tailwind-variants';
-	import PhTrash from '~icons/ph/trash';
 
-	import type { CategoryItem } from './types';
-
-	import { columns } from './columns';
-	import { getTableContext } from './context.svelte';
+	import CellAmount from './cells/cell-amount.svelte';
+	import CellCategory from './cells/cell-category.svelte';
+	import CellDate from './cells/cell-date.svelte';
+	import CellNotes from './cells/cell-notes.svelte';
+	import CellSelection from './cells/cell-selection.svelte';
+	import CellValidated from './cells/cell-validated.svelte';
+	import ValidateCheckbox from './cells/validate-checkbox.svelte';
+	import { setCellContext } from './context.svelte';
 	import CreateTransaction from './create-transaction.svelte';
+	import EditTransactionRow from './edit-transaction-row.svelte';
 	import Filter from './filter/filter.svelte';
 	import Pagination from './pagination.svelte';
+	import { schemaURLParams } from './schema';
 
-	let {
-		categories,
-		form
-	}: {
-		categories: CategoryItem[];
-		form: SuperValidated<Infer<typeof schemaTransactionCreate>>;
-	} = $props();
-
-	const tableContext = getTableContext();
-	const { editForm } = tableContext;
-	const { enhance, form: formData } = editForm;
+	let { accountId, budgetId }: { accountId: string; budgetId: string } = $props();
 
 	const id = $props.id();
 
-	let rowSelection = $state<RowSelectionState>({});
-	let onRowSelectionChange: OnChangeFn<RowSelectionState> = $derived((updater) => {
-		if (typeof updater === 'function') {
-			rowSelection = updater(rowSelection);
-		} else {
-			rowSelection = updater;
-		}
-	});
-
-	let columnsVisibility = $state<VisibilityState>({ selection: false });
-	let onColumnVisibilityChange: OnChangeFn<VisibilityState> = $derived((updater) => {
-		if (typeof updater === 'function') {
-			columnsVisibility = updater(columnsVisibility);
-		} else {
-			columnsVisibility = updater;
-		}
-	});
-
-	let gridColsClass = $derived(
-		columnsVisibility.selection === false
-			? 'grid-cols-[1fr_1fr_0.5fr_0.5fr_3.5rem]'
-			: 'grid-cols-[3.5rem_1fr_1fr_0.5fr_0.5fr_3.5rem]'
-	);
-
+	// ── Editing-State ───────────────────────────────────────────
+	let editingRowId = $state<null | string>(null);
+	let selectedRowIds = $state(new Set<string>());
+	let showSelection = $state(false);
 	let createFormOpen = $state(false);
 
-	$effect(() => {
-		if (tableContext.editing) {
-			rowSelection = {};
-		}
+	function editRow(rowId: string) {
+		selectedRowIds = new Set();
+		editingRowId = rowId;
+	}
+
+	setCellContext({
+		get budgetId() {
+			return budgetId;
+		},
+		editRow
 	});
 
-	const table = createSvelteTable({
-		columns,
-		get data() {
-			return tableContext.transactions();
-		},
-		getCoreRowModel: getCoreRowModel(),
-		getRowId: (row) => row.id,
-		manualFiltering: true,
-		manualPagination: true,
-		manualSorting: true,
-		get onColumnVisibilityChange() {
-			return onColumnVisibilityChange;
-		},
-		get onRowSelectionChange() {
-			return onRowSelectionChange;
-		},
-		state: {
-			get columnVisibility() {
-				return columnsVisibility;
-			},
-			get rowSelection() {
-				return rowSelection;
-			}
+	// ── URL-Parameter lesen ─────────────────────────────────────
+	const urlParams = $derived(
+		schemaURLParams.parse({
+			categoryId: page.url.searchParams.getAll('categoryId'),
+			notes: page.url.searchParams.get('notes'),
+			page: page.url.searchParams.get('page'),
+			pageSize: page.url.searchParams.get('pageSize'),
+			sortAccount: page.url.searchParams.get('sortAccount'),
+			sortCategory: page.url.searchParams.get('sortCategory'),
+			sortDate: page.url.searchParams.get('sortDate'),
+			sortValidated: page.url.searchParams.get('sortValidated')
+		})
+	);
+
+	// ── Daten ───────────────────────────────────────────────────
+	const result = $derived(
+		await listTransactions({
+			accountId,
+			categoryId: urlParams.categoryId,
+			notes: urlParams.notes,
+			page: urlParams.page,
+			pageSize: urlParams.pageSize,
+			sortAccount: urlParams.sortAccount,
+			sortCategory: urlParams.sortCategory,
+			sortDate: urlParams.sortDate,
+			sortValidated: urlParams.sortValidated
+		})
+	);
+
+	// ── Selection- und Grid-State ───────────────────────────────
+	function toggleRow(transactionId: string) {
+		const next = new SvelteSet(selectedRowIds);
+		if (next.has(transactionId)) {
+			next.delete(transactionId);
+		} else {
+			next.add(transactionId);
 		}
-	});
-
-	function handleKeyDown(ev: KeyboardEvent) {
-		if (!tableContext.editing) return;
-		if (ev.key === 'Escape') tableContext.cancelEditing();
-		if (ev.key === 'Enter') submit();
+		selectedRowIds = next;
 	}
 
-	function submit() {
-		tableContext.editForm.submit();
+	function toggleAll() {
+		if (selectedRowIds.size === result.transactions.length) {
+			selectedRowIds = new Set();
+		} else {
+			selectedRowIds = new Set(result.transactions.map((t) => t.id));
+		}
 	}
 
-	function deleteTransaction(transactionId: string) {
-		fetch('/api/transaction/delete', {
-			body: JSON.stringify({ transactionIds: [transactionId] }),
-			method: 'POST'
-		}).then((res) => {
-			if (res.ok) {
-				invalidateAll();
-				tableContext.cancelEditing();
-			}
-		});
-	}
+	const allPageRowsSelected = $derived(
+		result.transactions.length > 0 && selectedRowIds.size === result.transactions.length
+	);
+
+	const somePageRowsSelected = $derived(selectedRowIds.size > 0 && !allPageRowsSelected);
+
+	const gridColsClass = $derived(
+		showSelection
+			? 'grid-cols-[3.5rem_1fr_1fr_0.5fr_0.5fr_3.5rem]'
+			: 'grid-cols-[1fr_1fr_0.5fr_0.5fr_3.5rem]'
+	);
 </script>
 
-<svelte:document onkeydown={handleKeyDown} />
-
 <div class="flex gap-2">
-	<Filter />
-	<CreateTransaction {categories} {form} to="#{id}-create-row" bind:open={createFormOpen} />
+	<Filter {budgetId} />
+	<CreateTransaction {budgetId} to="#{id}-create-row" bind:open={createFormOpen} />
 </div>
 
 <div role="table" class="space-y-2">
 	<div role="rowgroup">
-		{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
-			<div
-				role="row"
-				class={cn(gridColsClass, 'grid items-center rounded-sm border border-muted/10 bg-muted/3')}
-			>
-				{#each headerGroup.headers as header (header.id)}
-					<div
-						role="columnheader"
-						class={cn(
-							'px-4 text-sm font-semibold',
-							header.column.columnDef.id === 'date' && 'justify-self-end',
-							header.column.columnDef.id === 'amount' && 'justify-self-end',
-							header.column.columnDef.id === 'validated' && 'px-2'
-						)}
-					>
-						{#if !header.isPlaceholder}
-							<FlexRender content={header.column.columnDef.header} context={header.getContext()} />
-						{/if}
-					</div>
-				{/each}
+		<div
+			role="row"
+			class={cn(gridColsClass, 'grid items-center rounded-sm border border-muted/10 bg-muted/3')}
+		>
+			{#if showSelection}
+				<div role="columnheader">
+					<CellSelection
+						aria-label={m.transactions_table_select_all()}
+						checked={allPageRowsSelected}
+						indeterminate={somePageRowsSelected}
+						onCheckedChange={toggleAll}
+					/>
+				</div>
+			{/if}
+			<div role="columnheader" class="px-4 text-sm font-semibold">
+				{m.transactions_table_header_category()}
 			</div>
-		{/each}
+			<div role="columnheader" class="px-4 text-sm font-semibold">
+				{m.transactions_table_header_notes()}
+			</div>
+			<div role="columnheader" class="justify-self-end px-4 text-sm font-semibold">
+				{m.transactions_table_header_date()}
+			</div>
+			<div role="columnheader" class="justify-self-end px-4 text-sm font-semibold">
+				{m.transactions_table_header_amount()}
+			</div>
+			<div role="columnheader" class="px-2 text-sm font-semibold">
+				<ValidateCheckbox checked={true} disabled={true} />
+			</div>
+		</div>
 	</div>
 
 	<div role="rowgroup" class="grid space-y-1.5">
@@ -164,64 +153,56 @@
 			)}
 		></div>
 
-		{#each table.getRowModel().rows as row (row.id)}
-			{@const isEditing = tableContext.isEditingRow(row.id)}
+		{#each result.transactions as transaction (transaction.id)}
+			{#if editingRowId === transaction.id}
+				<EditTransactionRow
+					{transaction}
+					{budgetId}
+					{gridColsClass}
+					onCancel={() => {
+						editingRowId = null;
+					}}
+				/>
+			{:else}
+				<div
+					role="row"
+					class={cn(
+						gridColsClass,
+						'grid rounded-sm border border-muted/10 bg-surface',
+						selectedRowIds.has(transaction.id) && 'border-info/20'
+					)}
+					data-state={selectedRowIds.has(transaction.id) && 'selected'}
+				>
+					{#if showSelection}
+						<div role="cell" class="p-2">
+							<CellSelection
+								checked={selectedRowIds.has(transaction.id)}
+								onCheckedChange={() => toggleRow(transaction.id)}
+							/>
+						</div>
+					{/if}
 
-			<div
-				animate:flip={{ duration: 150 }}
-				role="row"
-				class={cn(
-					gridColsClass,
-					'grid rounded-sm border border-muted/10 bg-surface',
-					row.getIsSelected() && 'border-info/20',
-					isEditing && 'border-interactive/30 shadow shadow-interactive/15'
-				)}
-				data-state={row.getIsSelected() && 'selected'}
-				{@attach isEditing &&
-					clickOutside({
-						callback: () => tableContext.cancelEditing()
-					})}
-			>
-				{#each row.getVisibleCells() as cell (cell.id)}
-					<div role="cell" class={cn('p-2', isEditing && 'bg-interactive/5')}>
-						<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
+					<div role="cell" class="p-2">
+						<CellCategory categoryName={transaction.categoryName} rowId={transaction.id} />
 					</div>
-				{/each}
-
-				{#if isEditing}
-					<div
-						role="cell"
-						class="col-span-full flex items-center justify-end gap-2 bg-interactive/5 p-2"
-					>
-						<Button variant="ghost" onclick={() => tableContext.cancelEditing()}>
-							{m.cancel()}
-						</Button>
-
-						<Button variant="destructive" size="icon" onclick={() => deleteTransaction(row.id)}>
-							<PhTrash />
-							<span class="sr-only">{m.delete()}</span>
-						</Button>
-
-						<Button onclick={() => submit()}>
-							{m.save()}
-						</Button>
+					<div role="cell" class="p-2">
+						<CellNotes notes={transaction.notes ?? ''} rowId={transaction.id} />
 					</div>
-				{/if}
-			</div>
+					<div role="cell" class="p-2">
+						<CellDate date={transaction.date} rowId={transaction.id} />
+					</div>
+					<div role="cell" class="p-2">
+						<CellAmount amount={transaction.amount} rowId={transaction.id} />
+					</div>
+					<div role="cell" class="p-2">
+						<CellValidated isValidated={transaction.validated} rowId={transaction.id} />
+					</div>
+				</div>
+			{/if}
 		{/each}
 	</div>
 
 	<div class="grid items-center rounded-sm border border-muted/10 bg-muted/3 px-2">
-		<Pagination />
+		<Pagination pagination={result.pagination} />
 	</div>
 </div>
-
-<form method="POST" action={tableContext.editFormAction} use:enhance class="hidden">
-	<input type="hidden" name="transactionId" bind:value={$formData.transactionId} />
-	<input type="hidden" name="accountId" bind:value={$formData.accountId} />
-	<input type="hidden" name="categoryId" bind:value={$formData.categoryId} />
-	<input type="hidden" name="date" bind:value={$formData.date} />
-	<input type="hidden" name="amount" bind:value={$formData.amount} />
-	<input type="hidden" name="notes" bind:value={$formData.notes} />
-	<input type="hidden" name="validated" bind:value={$formData.validated} />
-</form>

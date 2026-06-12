@@ -1,7 +1,7 @@
 import type { SQLiteColumn } from 'drizzle-orm/sqlite-core';
 
 import { database, tables } from '$db';
-import { and, eq, exists, ne, sql } from 'drizzle-orm';
+import { and, eq, exists, isNull, ne, sql } from 'drizzle-orm';
 
 export type BudgetUser = {
 	id: string;
@@ -17,6 +17,36 @@ export function orderByRole(roleColumn: SQLiteColumn) {
         WHEN 'INVITEE' THEN 3 
         END
     `;
+}
+
+export function totalSumOfAssingments({
+	budgetId,
+	database
+}: {
+	budgetId: SQLiteColumn;
+	database: App.Database;
+}) {
+	return database
+		.select({
+			sum: sql<number>`coalesce(sum(${tables.budgetAssignments.amount}), 0)`
+		})
+		.from(tables.budgetAssignments)
+		.where(eq(tables.budgetAssignments.budgetId, budgetId));
+}
+
+export function totalSumOfIncome({
+	budgetId,
+	database
+}: {
+	budgetId: SQLiteColumn;
+	database: App.Database;
+}) {
+	return database
+		.select({
+			sum: sql<number>`coalesce(sum(${tables.transactions.amount}), 0)`
+		})
+		.from(tables.transactions)
+		.where(and(eq(tables.transactions.budgetId, budgetId), isNull(tables.transactions.categoryId)));
 }
 
 export function userHasRole(

@@ -13,11 +13,6 @@ export const getUser = query(async () => {
 	return user;
 });
 
-export const getBudgets = query(async () => {
-	const [user] = requireUser();
-	return actions.budget.getAllBudgets({ userId: user.id });
-});
-
 export const changeUsername = form(UsernameChangeSchema, async ({ username }, issue) => {
 	const [user] = requireUser();
 

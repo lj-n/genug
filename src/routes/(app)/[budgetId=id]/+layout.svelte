@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { setBudgetContext } from '$lib/utils/budget-context';
+	import { setCurrency } from '$lib/utils/currency';
 
 	import type { LayoutProps } from './$types';
 
 	let { children, data }: LayoutProps = $props();
-
-	setBudgetContext(() => data.budget);
+	setCurrency(() => data.currency);
 </script>
 
-{@render children()}
+{@render children?.()}

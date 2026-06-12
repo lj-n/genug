@@ -1,7 +1,8 @@
 import { database, type Database, tables } from '$db';
 import { getLocalTimeZone, today } from '@internationalized/date';
-import { and, asc, eq, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, sql } from 'drizzle-orm';
 
+import * as accountQueries from './account.utils';
 import { userHasRole } from './budget.utils';
 
 export function createAccount({
@@ -53,12 +54,58 @@ export function createAccount({
 	});
 }
 
+export function getAccountBalanceDetail({
+	accountId,
+	db = database
+}: {
+	accountId: string;
+	db?: Database;
+}) {
+	const detail = db
+		.select({
+			pending: sql<number>`${accountQueries.pendingAccountBalance({ accountId: tables.accounts.id, database: db })}`,
+			validated: sql<number>`${accountQueries.validatedAccountBalance({ accountId: tables.accounts.id, database: db })}`
+		})
+		.from(tables.accounts)
+		.where(eq(tables.accounts.id, accountId))
+		.get();
+
+	if (!detail) throw new Error('Account not found');
+
+	return detail;
+}
+
+export function getAccountById({
+	db = database,
+	id,
+	userId
+}: {
+	db?: Database;
+	id: string;
+	userId: string;
+}) {
+	return db
+		.select({
+			balance: sql<number>`COALESCE(SUM(${tables.transactions.amount}), 0)`,
+			budgetId: tables.accounts.budgetId,
+			id: tables.accounts.id,
+			name: tables.accounts.name
+		})
+		.from(tables.accounts)
+		.leftJoin(tables.transactions, eq(tables.transactions.accountId, tables.accounts.id))
+		.where(
+			and(eq(tables.accounts.id, id), userHasRole('MEMBER', tables.accounts.budgetId, userId, db))
+		)
+		.groupBy(tables.accounts.id)
+		.get();
+}
+
 export function getAllAccounts({
 	budgetId,
 	db = database,
 	userId
 }: {
-	budgetId: string;
+	budgetId?: string;
 	db?: Database;
 	userId: string;
 }) {
@@ -87,10 +134,52 @@ export function getAllAccounts({
 		)
 		.where(
 			and(
-				eq(tables.accounts.budgetId, budgetId),
+				budgetId ? eq(tables.accounts.budgetId, budgetId) : undefined,
 				userHasRole('MEMBER', tables.accounts.budgetId, userId, db)
 			)
 		)
 		.groupBy(tables.accounts.id)
 		.all();
+}
+
+export function reorderAccounts({
+	db = database,
+	orderedIds,
+	userId
+}: {
+	db?: Database;
+	orderedIds: string[];
+	userId: string;
+}) {
+	const availableAccountIds = db
+		.select({ id: tables.accounts.id })
+		.from(tables.accounts)
+		.where(
+			and(
+				inArray(tables.accounts.id, orderedIds),
+				isNull(tables.accounts.archivedAt),
+				userHasRole('MEMBER', tables.accounts.budgetId, userId, db)
+			)
+		)
+		.all();
+
+	if (availableAccountIds.length !== orderedIds.length) {
+		throw new Error('Invalid account ids');
+	}
+
+	db.transaction((tx) => {
+		for (const [position, accountId] of orderedIds.entries()) {
+			tx.insert(tables.userEntityOrder)
+				.values({ entityId: accountId, entityType: 'account', position, userId })
+				.onConflictDoUpdate({
+					set: { position },
+					target: [
+						tables.userEntityOrder.userId,
+						tables.userEntityOrder.entityType,
+						tables.userEntityOrder.entityId
+					]
+				})
+				.execute();
+		}
+	});
 }

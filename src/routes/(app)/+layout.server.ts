@@ -1,12 +1,15 @@
-import { withPermissions } from '$db/actions';
+import { actions } from '$db';
+import { redirect } from '@sveltejs/kit';
 
 import type { LayoutServerLoad } from './$types';
 
-export const load: LayoutServerLoad = withPermissions((user, actions, _event) => {
-	const budgets = actions.budget.all();
-	const accounts = actions.account.all();
+export const load: LayoutServerLoad = async ({ locals }) => {
+	if (!locals.session) redirect(307, '/login');
+	const { user } = locals.session;
 
-	const invitations = actions.budget.getInvitations();
+	const budgets = actions.budget.getAllBudgets({ userId: user.id });
+	const accounts = actions.account.getAllAccounts({ userId: user.id });
+	const invitations = actions.budget.getBudgetInvitations({ userId: user.id });
 
 	return { accounts, budgets, invitations, user };
-});
+};

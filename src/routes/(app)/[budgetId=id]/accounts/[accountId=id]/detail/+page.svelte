@@ -1,12 +1,16 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
 	import * as Page from '$lib/components/ui/page';
 	import { m } from '$lib/paraglide/messages';
+	import { getAccountById } from '$lib/remote-functions/account.remote';
 	import PhArrowFatLeft from '~icons/ph/arrow-fat-left';
 
-	import type { PageProps } from './$types';
-	let { data }: PageProps = $props();
+	const accountId = $derived(page.params.accountId!);
+	const budgetId = $derived(page.params.budgetId!);
+
+	const account = $derived(await getAccountById({ accountId }));
 </script>
 
 <Page.Root>
@@ -15,8 +19,8 @@
 			variant="ghost"
 			class="w-fit"
 			href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', {
-				accountId: data.account.id,
-				budgetId: data.budget.id
+				accountId,
+				budgetId
 			})}
 		>
 			<PhArrowFatLeft class="text-muted" />
@@ -24,7 +28,7 @@
 		</Button>
 
 		<Page.Title>
-			{data.account.name}
+			{account.name}
 		</Page.Title>
 	</Page.Header>
 

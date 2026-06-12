@@ -1,4 +1,4 @@
-import type { TransactionFilterParam } from '$db/actions/queries/transaction';
+import type { TransactionFilterParam } from '$db/transaction';
 
 export function getFilterLength(filter: TransactionFilterParam) {
 	const { categoryId, fromDate, maxAmount, minAmount, notes, toDate, validated } = filter;

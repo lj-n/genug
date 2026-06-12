@@ -1,27 +1,14 @@
 <script lang="ts">
-	import * as Form from '$lib/components/ui/form';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { Input } from '$lib/components/ui/input';
 	import * as Page from '$lib/components/ui/page';
 	import { m } from '$lib/paraglide/messages';
-	import { untrack } from 'svelte';
-	import { superForm } from 'sveltekit-superforms';
-	import { zod4Client } from 'sveltekit-superforms/adapters';
+	import { createCategory } from '$lib/remote-functions/category.remote';
 	import PhStack from '~icons/ph/stack';
 
-	import type { PageProps } from './$types';
-
-	import { schemaCategoryCreate } from './schema';
-
-	let { data }: PageProps = $props();
-
-	const form = superForm(
-		untrack(() => data.form),
-		{
-			validators: zod4Client(schemaCategoryCreate)
-		}
-	);
-
-	const { enhance, form: formData } = form;
+	const budgetId = page.params.budgetId!;
+	const formId = $props.id();
 </script>
 
 <Page.Root class="max-w-lg">
@@ -36,24 +23,26 @@
 	</Page.Header>
 
 	<Page.Content>
-		<form method="post" use:enhance class="grid rounded-md border border-muted/20 bg-surface p-2">
-			<Form.Field {form} name="categoryName">
-				<Form.Control>
-					{#snippet children({ props })}
-						<Input
-							{...props}
-							bind:value={$formData.categoryName}
-							placeholder={m.category_placeholder_name()}
-							aria-label={m.category_label_name()}
-						/>
-					{/snippet}
-				</Form.Control>
-				<Form.FieldErrors />
-			</Form.Field>
+		<form
+			{...createCategory.enhance(async (form) => {
+				if (await form.submit()) {
+					goto(`/${budgetId}`);
+				}
+			})}
+			id={formId}
+			class="grid rounded-md border border-muted/20 bg-surface p-2"
+		>
+			<input {...createCategory.fields.budgetId.as('hidden', budgetId)} />
 
-			<Form.Button class="ml-auto">
+			<Input
+				{...createCategory.fields.categoryName.as('text')}
+				placeholder={m.category_placeholder_name()}
+				aria-label={m.category_label_name()}
+			/>
+
+			<button type="submit" class="mt-2 ml-auto rounded px-3 py-1.5 text-sm font-medium">
 				{m.category_create_button()}
-			</Form.Button>
+			</button>
 		</form>
 	</Page.Content>
 </Page.Root>

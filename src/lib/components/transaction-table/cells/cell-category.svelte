@@ -1,55 +1,30 @@
 <script lang="ts">
-	import type { Row } from '@tanstack/table-core';
-
-	import { SelectCommand } from '$lib/components/ui/select-command';
 	import { m } from '$lib/paraglide/messages';
 	import { cn } from 'tailwind-variants';
 
-	import type { TransactionRow } from '../types';
+	import { getCellContext } from '../context.svelte';
 
-	import { getTableContext } from '../context.svelte';
-	import CellEditable from './cell-editable.svelte';
+	let {
+		categoryName,
+		rowId
+	}: {
+		categoryName: null | string;
+		rowId: string;
+	} = $props();
 
-	let { categoryName, row }: { categoryName: string; row: Row<TransactionRow> } = $props();
-
-	const tableContext = getTableContext();
-	const { form: formData } = tableContext.editForm;
-
-	let open = $state(false);
+	const cellContext = getCellContext();
 
 	let withoutCategory = $derived(categoryName === null);
-
-	function getValue() {
-		return $formData.categoryId ?? 'null';
-	}
-
-	function setValue(value: string) {
-		$formData.categoryId = value === 'null' ? null : value;
-	}
 </script>
 
-<CellEditable
-	{row}
-	name="categoryId"
-	align="start"
-	ariaLabel={m.transactions_table_edit_category()}
-	buttonClass={cn('gap-2', withoutCategory && 'text-muted')}
-	onEdit={() => {
-		open = true;
-	}}
+<button
+	class={cn(
+		'flex size-full items-center justify-start gap-2 border border-transparent px-2',
+		withoutCategory && 'text-muted'
+	)}
+	onclick={() => cellContext.editRow(rowId)}
+	aria-label={m.transactions_table_edit_category()}
+	type="button"
 >
-	{#snippet view()}
-		{withoutCategory ? m.transaction_table_cell_category_empty() : categoryName}
-	{/snippet}
-	{#snippet edit({ props })}
-		<SelectCommand
-			bind:open
-			bind:value={getValue, setValue}
-			items={tableContext.categories()}
-			triggerProps={props}
-			textEmptyTrigger={m.transaction_table_cell_category_empty()}
-			textInputPlaceholder={m.transaction_table_cell_category_placeholder()}
-			textListEmpty={m.transaction_table_cell_category_empty()}
-		/>
-	{/snippet}
-</CellEditable>
+	{withoutCategory ? m.transaction_table_cell_category_empty() : categoryName}
+</button>

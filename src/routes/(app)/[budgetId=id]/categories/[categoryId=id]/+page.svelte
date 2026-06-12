@@ -3,7 +3,7 @@
 
 	import CategoryDetail from './category-detail.svelte';
 
-	let { data }: PageProps = $props();
+	let { params }: PageProps = $props();
 </script>
 
-<CategoryDetail category={data.category} />
+<CategoryDetail categoryId={params.categoryId} />

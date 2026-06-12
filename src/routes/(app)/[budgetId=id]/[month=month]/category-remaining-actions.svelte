@@ -1,83 +1,52 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
-	import * as Form from '$lib/components/ui/form';
 	import { InputCurrency } from '$lib/components/ui/input-currency';
 	import * as Popover from '$lib/components/ui/popover';
 	import { SelectCommand } from '$lib/components/ui/select-command';
 	import { m } from '$lib/paraglide/messages';
-	import { getBudgetContext } from '$lib/utils/budget-context';
+	import { getBudget, transferBudget } from '$lib/remote-functions/budget.remote';
 	import { formatCurrency } from '$lib/utils/format-currency';
-	import { untrack } from 'svelte';
-	import { type Infer, superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { cn } from 'tailwind-variants';
 	import PhScales from '~icons/ph/scales';
 	import PhStackPlus from '~icons/ph/stack-plus';
 
-	import type { PageData } from './$types';
-	import type { schemaTransferAssignment } from './schema';
-
-	type Category = PageData['categories'][number];
+	type Category = {
+		budgetId: string;
+		id: string;
+		name: string;
+		thisMonthRemaining: number;
+	};
 
 	let {
+		budgetId,
 		category,
 		month,
-		otherCategories,
-		transferForm
+		otherCategories
 	}: {
+		budgetId: string;
 		category: Category;
-		month: PageData['month'];
+		month: string;
 		otherCategories: Category[];
-		transferForm: SuperValidated<Infer<typeof schemaTransferAssignment>>;
 	} = $props();
 
-	const getBudget = getBudgetContext();
-	const currency = $derived(getBudget().currency);
+	const { currency } = $derived(await getBudget({ budgetId }));
 
-	const form = superForm(
-		untrack(() => transferForm),
-		{
-			onUpdated(event) {
-				if (event.form.message?.type === 'success') open = false;
-			},
-			warnings: { duplicateId: false }
-		}
-	);
-
-	const { enhance, form: formData } = form;
+	const scopedForm = $derived(transferBudget.for(category.id));
 
 	let open = $state(false);
 
 	$effect(() => {
 		if (open) {
 			if (category.thisMonthRemaining < 0) {
-				$formData = {
-					amount: Math.abs(category.thisMonthRemaining),
-					fromCategoryId: undefined,
-					toCategoryId: category.id
-				};
+				scopedForm.fields.amount.set(Math.abs(category.thisMonthRemaining));
+				scopedForm.fields.toCategoryId.set(category.id);
+				scopedForm.fields.fromCategoryId.set('');
 			} else {
-				$formData = {
-					amount: category.thisMonthRemaining,
-					fromCategoryId: category.id,
-					toCategoryId: ''
-				};
+				scopedForm.fields.amount.set(category.thisMonthRemaining);
+				scopedForm.fields.fromCategoryId.set(category.id);
+				scopedForm.fields.toCategoryId.set('');
 			}
 		}
 	});
-
-	function getCoverFrom() {
-		return $formData.fromCategoryId ?? 'null';
-	}
-	function setCoverFrom(value: string) {
-		$formData = { ...$formData, fromCategoryId: value === 'null' ? undefined : value };
-	}
-
-	function getMoveTo() {
-		return $formData.toCategoryId || 'null';
-	}
-	function setMoveTo(value: string) {
-		$formData = { ...$formData, toCategoryId: value === 'null' ? '' : value };
-	}
 
 	const coverSourceItems = $derived(
 		otherCategories
@@ -96,6 +65,10 @@
 	);
 
 	const badgeClass = cn('w-fit rounded-full border px-2 font-currency');
+
+	const toCategoryId = $derived(scopedForm.fields.toCategoryId.value() ?? '');
+	const fromCategoryId = $derived(scopedForm.fields.fromCategoryId.value() ?? '');
+	const amount = $derived(scopedForm.fields.amount.value() ?? 0);
 </script>
 
 {#if category.thisMonthRemaining === 0}
@@ -125,21 +98,27 @@
 			{#if category.thisMonthRemaining < 0}
 				<!-- Cover from category (or unassigned money) -->
 				<form
-					action={resolve('/(app)/[budgetId=id]/[month=month]?/transfer', {
-						budgetId: category.budgetId,
-						month
+					{...scopedForm.enhance(async (form) => {
+						if (await form.submit()) open = false;
 					})}
-					method="POST"
 					class="flex flex-col gap-2"
-					use:enhance
 				>
-					<input type="hidden" name="toCategoryId" value={$formData.toCategoryId} />
-					<input type="hidden" name="amount" value={$formData.amount} />
-					<input type="hidden" name="fromCategoryId" value={$formData.fromCategoryId ?? ''} />
+					<input {...scopedForm.fields.budgetId.as('hidden', budgetId)} />
+					<input
+						type="hidden"
+						name={scopedForm.fields.month.as('number').name}
+						value={parseInt(month)}
+					/>
+					<input {...scopedForm.fields.toCategoryId.as('hidden', category.id)} />
+					<input type="hidden" name={scopedForm.fields.amount.as('number').name} value={amount} />
+					<input {...scopedForm.fields.fromCategoryId.as('hidden', fromCategoryId)} />
 
 					<SelectCommand
 						items={coverSourceItems}
-						bind:value={getCoverFrom, setCoverFrom}
+						bind:value={
+							() => fromCategoryId || 'null',
+							(v) => scopedForm.fields.fromCategoryId.set(v === 'null' ? '' : v)
+						}
 						textEmptyTrigger={m.budget_monthly_action_cover_from_unassigned()}
 						textInputPlaceholder={m.budget_monthly_action_select_category()}
 						textListEmpty={m.budget_monthly_action_select_category()}
@@ -156,34 +135,33 @@
 			{:else}
 				<!-- Move amount to category -->
 				<form
-					action={resolve('/(app)/[budgetId=id]/[month=month]?/transfer', {
-						budgetId: category.budgetId,
-						month
+					{...scopedForm.enhance(async (form) => {
+						if (await form.submit()) open = false;
 					})}
-					method="POST"
 					class="flex flex-col gap-2"
-					use:enhance
 				>
-					<input type="hidden" name="fromCategoryId" value={$formData.fromCategoryId} />
-					<input type="hidden" name="toCategoryId" value={$formData.toCategoryId} />
+					<input {...scopedForm.fields.budgetId.as('hidden', budgetId)} />
+					<input
+						type="hidden"
+						name={scopedForm.fields.month.as('number').name}
+						value={parseInt(month)}
+					/>
+					<input {...scopedForm.fields.fromCategoryId.as('hidden', category.id)} />
+					<input {...scopedForm.fields.toCategoryId.as('hidden', toCategoryId)} />
 
-					<Form.Field {form} name="amount">
-						<Form.Control>
-							{#snippet children({ props })}
-								<InputCurrency
-									{...props}
-									{currency}
-									bind:value={$formData.amount}
-									allowNegativeValue={false}
-								/>
-							{/snippet}
-						</Form.Control>
-						<Form.FieldErrors />
-					</Form.Field>
+					<InputCurrency
+						name={scopedForm.fields.amount.as('number').name}
+						bind:value={() => amount, (v) => scopedForm.fields.amount.set(v)}
+						{currency}
+						allowNegativeValue={false}
+					/>
 
 					<SelectCommand
 						items={moveTargetItems}
-						bind:value={getMoveTo, setMoveTo}
+						bind:value={
+							() => toCategoryId || 'null',
+							(v) => scopedForm.fields.toCategoryId.set(v === 'null' ? '' : v)
+						}
 						textEmptyTrigger={m.budget_monthly_action_select_category()}
 						textInputPlaceholder={m.budget_monthly_action_select_category()}
 						textListEmpty={m.budget_monthly_action_select_category()}
@@ -191,7 +169,7 @@
 
 					<button
 						type="submit"
-						disabled={!$formData.toCategoryId || !$formData.amount || $formData.amount <= 0}
+						disabled={!toCategoryId || !amount || amount <= 0}
 						class="flex items-center justify-center gap-2 rounded-sm bg-interactive/10 px-3 py-1.5 text-sm text-interactive hover:bg-interactive/20 disabled:pointer-events-none disabled:opacity-50"
 					>
 						<PhStackPlus />

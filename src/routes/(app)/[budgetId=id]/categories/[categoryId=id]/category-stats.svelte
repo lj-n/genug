@@ -1,19 +1,15 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
-	import { getBudgetContext } from '$lib/utils/budget-context';
+	import { getBudget } from '$lib/remote-functions/budget.remote';
+	import { getCategoryById } from '$lib/remote-functions/category.remote';
 	import { clamp } from '$lib/utils/clamp';
 	import { formatCurrency } from '$lib/utils/format-currency';
 
-	import type { PageData } from './$types';
+	let { categoryId }: { categoryId: string } = $props();
 
-	type CategoryDetailProps = {
-		category: PageData['category'];
-	};
-
-	let { category }: CategoryDetailProps = $props();
-
-	const getBudget = getBudgetContext();
-	const currency = $derived(getBudget().currency);
+	const category = $derived(await getCategoryById({ categoryId }));
+	const budget = $derived(await getBudget({ budgetId: category.budgetId }));
+	const currency = $derived(budget.currency);
 </script>
 
 <section

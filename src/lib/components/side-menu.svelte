@@ -12,11 +12,7 @@
 	import PhArrowBendDownRightBold from '~icons/ph/arrow-bend-down-right-bold';
 	import PhDotsSixVertical from '~icons/ph/dots-six-vertical';
 
-	type BudgetData = Array<
-		ReturnType<App.Actions['budget']['all']>[number] & {
-			accounts: Array<ReturnType<App.Actions['account']['all']>[number]>;
-		}
-	>;
+	type BudgetData = Array<App.Budget & { accounts: App.Account[] }>;
 	let { budgets }: { budgets: BudgetData } = $props();
 
 	function saveOrder(entity: 'account' | 'budget') {

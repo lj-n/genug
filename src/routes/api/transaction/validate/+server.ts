@@ -1,10 +1,13 @@
-import { withPermissions } from '$db/actions';
-import { json } from '@sveltejs/kit';
+import { actions } from '$db';
+import { json, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = withPermissions(async (user, actions, event) => {
+export const POST: RequestHandler = async ({ locals, request }) => {
+	if (!locals.session) redirect(307, '/login');
+	const { user } = locals.session;
+
 	const parsed = z
 		.object({
 			transactionIds: z
@@ -14,7 +17,7 @@ export const POST: RequestHandler = withPermissions(async (user, actions, event)
 				.transform((v) => (typeof v === 'string' ? [v] : v)),
 			validated: z.boolean()
 		})
-		.safeParse(await event.request.json());
+		.safeParse(await request.json());
 
 	if (!parsed.success) {
 		return json({ error: `Invalid request` }, { status: 400 });
@@ -23,14 +26,18 @@ export const POST: RequestHandler = withPermissions(async (user, actions, event)
 	const { transactionIds, validated } = parsed.data;
 
 	const invalidId = transactionIds.some((id) => {
-		return actions.transaction.getById({ id }) === undefined;
+		return actions.transaction.getTransactionById({ id, userId: user.id }) === undefined;
 	});
 
 	if (invalidId) {
 		return json({ error: 'Invalid transaction id' }, { status: 400 });
 	}
 
-	actions.transaction.batchValidate({ ids: transactionIds, validated });
+	actions.transaction.batchValidateTransactions({
+		ids: transactionIds,
+		userId: user.id,
+		validated
+	});
 
 	return json({ success: true });
-});
+};

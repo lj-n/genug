@@ -1,5 +1,5 @@
 <script lang="ts" generics="Item extends { id: string, name: string }">
-	import { Popover } from 'bits-ui';
+	import { Popover, type WithElementRef } from 'bits-ui';
 	import { tick } from 'svelte';
 	import PhCaretUpDown from '~icons/ph/caret-up-down';
 
@@ -8,6 +8,7 @@
 
 	type SelectCommandProps = {
 		items: Item[];
+		name?: string;
 		open?: boolean;
 		textEmptyTrigger?: string;
 		textInputPlaceholder?: string;
@@ -18,28 +19,32 @@
 
 	let {
 		items,
+		name,
 		open = $bindable(false),
+		ref = $bindable(null),
 		textEmptyTrigger,
 		textInputPlaceholder,
 		textListEmpty,
 		triggerProps,
 		value = $bindable(undefined)
-	}: SelectCommandProps = $props();
-
-	let triggerRef = $state<HTMLButtonElement>(null!);
+	}: WithElementRef<SelectCommandProps> = $props();
 
 	const selectedValue = $derived(items.find((f) => f.id === value)?.name);
 
 	function closeAndFocusTrigger() {
 		open = false;
 		tick().then(() => {
-			triggerRef.focus();
+			ref?.focus();
 		});
 	}
 </script>
 
+{#if value}
+	<input type="hidden" {name} {value} />
+{/if}
+
 <Popover.Root bind:open>
-	<Popover.Trigger bind:ref={triggerRef} {...triggerProps}>
+	<Popover.Trigger bind:ref {...triggerProps}>
 		{#snippet child({ props })}
 			<Button
 				{...props}
@@ -69,7 +74,7 @@
 			<Command.List>
 				<Command.Empty>{textListEmpty}</Command.Empty>
 				<Command.Group>
-					<Command.Item value="null" onSelect={closeAndFocusTrigger}>
+					<Command.Item value={undefined} onSelect={closeAndFocusTrigger}>
 						{textEmptyTrigger}
 					</Command.Item>
 

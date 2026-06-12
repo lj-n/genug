@@ -1,17 +1,25 @@
 <script lang="ts">
-	import type { ComponentProps } from 'svelte';
+	import type { Snippet } from 'svelte';
 
 	import { Input } from '$lib/components/ui/input';
 	import { m } from '$lib/paraglide/messages';
 
-	import { type FilterComponent, getTableContext } from '../context.svelte';
+	let {
+		currentNotes,
+		footer,
+		header,
+		onApply,
+		onClose
+	}: {
+		currentNotes: string | undefined;
+		footer: Snippet<[{ setParams: () => void }]>;
+		header: Snippet<[{ description: string; title: string }]>;
+		onApply: (notes: string) => void;
+		onClose: () => void;
+	} = $props();
 
-	let { footer, header }: ComponentProps<FilterComponent> = $props();
-
-	const tableContext = getTableContext();
-	const filter = tableContext.filter();
-
-	let value = $state<string>(filter.notes ?? '');
+	// svelte-ignore state_referenced_locally
+	let value = $state<string>(currentNotes ?? '');
 </script>
 
 {@render header({
@@ -22,8 +30,8 @@
 <form
 	onsubmit={(e) => {
 		e.preventDefault();
-		tableContext.setFilterParams({ notes: value });
-		tableContext.filterDialogOpen = false;
+		onApply(value);
+		onClose();
 	}}
 >
 	<Input bind:value aria-label={m.transaction_filter_notes_title()} />
@@ -32,6 +40,6 @@
 
 {@render footer({
 	setParams: () => {
-		tableContext.setFilterParams({ notes: value });
+		onApply(value);
 	}
 })}
