@@ -8,7 +8,12 @@
 	import PhUserCircleDuotone from '~icons/ph/user-circle-duotone';
 </script>
 
-<form class="mx-auto mt-20 grid w-full max-w-sm space-y-6" {...login}>
+<form
+	class="mx-auto mt-20 grid w-full max-w-sm space-y-6"
+	{...login.enhance(async (f) => {
+		await f.submit();
+	})}
+>
 	<Logo class="mx-auto mt-auto w-52" aria-hidden />
 
 	<div class="grid space-y-2 rounded-lg bg-muted/5 p-3">

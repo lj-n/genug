@@ -29,7 +29,9 @@
 
 <form
 	class="mx-auto mt-20 grid w-full max-w-sm space-y-6 rounded-lg bg-muted/5 p-3 py-6"
-	{...register}
+	{...register.enhance(async (f) => {
+		await f.submit();
+	})}
 >
 	<Logo class="mx-auto mt-auto w-52" aria-hidden />
 
