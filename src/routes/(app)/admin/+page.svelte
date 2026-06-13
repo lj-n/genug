@@ -10,6 +10,7 @@
 		createUser,
 		getUsers,
 		removeUser,
+		resetDatabase,
 		resetUserPassword
 	} from '$lib/remote-functions/admin.remote';
 	import { getUser } from '$lib/remote-functions/user.remote';
@@ -53,6 +54,7 @@
 						<InputGroup.Input
 							{...createUser.fields.username.as('text')}
 							placeholder={m.admin_input_placeholder_username()}
+							aria-label={m.admin_input_placeholder_username()}
 							class="w-full bg-transparent"
 						/>
 
@@ -73,52 +75,68 @@
 
 			<div class="text-lg font-medium tracking-tighter">{m.admin_users_title()}</div>
 
-			{#each await getUsers() as user (user.id)}
-				{@const isCurrentUser = user.id === admin.id}
-				<li transition:slide={{ axis: 'y', duration: 300 }} class="group pb-2 last:pb-0">
-					<div
-						class="flex items-center gap-1.5 rounded-lg border border-muted/20 bg-surface-high p-3 shadow-xs"
-					>
-						<UserCircleIcon class="size-5 text-muted" />
-						<div>
-							{user.username}
+			<ul aria-label="Users">
+				{#each await getUsers() as user (user.id)}
+					{@const isCurrentUser = user.id === admin.id}
+					<li transition:slide={{ axis: 'y', duration: 300 }} class="group pb-2 last:pb-0">
+						<div
+							class="flex items-center gap-1.5 rounded-lg border border-muted/20 bg-surface-high p-3 shadow-xs"
+						>
+							<UserCircleIcon class="size-5 text-muted" />
+							<div>
+								{user.username}
+								{#if isCurrentUser}
+									<span class="text-muted"> {m.admin_user_you_indicator()} </span>
+								{/if}
+							</div>
+
 							{#if isCurrentUser}
-								<span class="text-muted"> {m.admin_user_you_indicator()} </span>
+								<div class="ml-auto rounded-lg bg-info/10 px-3 py-0.5 text-info">
+									{m.admin_role_admin_label()}
+								</div>
+							{:else}
+								{@const form = resetUserPassword.for(user.id)}
+
+								<ButtonGroup.Root class="ml-auto opacity-0 group-hover:opacity-100">
+									<form {...form} class="contents">
+										<input {...form.fields.userId.as('hidden', user.id)} />
+										<Button size="icon-sm" type="submit">
+											<ArrowCounterClockwiseIcon />
+											<span class="sr-only">{m.admin_reset_password_sr()}</span>
+										</Button>
+									</form>
+
+									<Button
+										size="icon-sm"
+										variant="destructive"
+										onclick={() => {
+											removeUser.fields.userId.set(user.id);
+											openAlertDialog = true;
+										}}
+									>
+										<TrashIcon />
+										<span class="sr-only">{m.admin_remove_user_sr()}</span>
+									</Button>
+								</ButtonGroup.Root>
 							{/if}
 						</div>
+					</li>
+				{/each}
+			</ul>
+		</div>
 
-						{#if isCurrentUser}
-							<div class="ml-auto rounded-lg bg-info/10 px-3 py-0.5 text-info">
-								{m.admin_role_admin_label()}
-							</div>
-						{:else}
-							{@const form = resetUserPassword.for(user.id)}
+		<div class="space-y-2">
+			<div class="text-lg font-medium tracking-tighter text-error">Danger Zone</div>
 
-							<ButtonGroup.Root class="ml-auto opacity-0 group-hover:opacity-100">
-								<form {...form} class="contents">
-									<input {...form.fields.userId.as('hidden', user.id)} />
-									<Button size="icon-sm" type="submit">
-										<ArrowCounterClockwiseIcon />
-										<span class="sr-only">{m.admin_reset_password_sr()}</span>
-									</Button>
-								</form>
-
-								<Button
-									size="icon-sm"
-									variant="destructive"
-									onclick={() => {
-										removeUser.fields.userId.set(user.id);
-										openAlertDialog = true;
-									}}
-								>
-									<TrashIcon />
-									<span class="sr-only">{m.admin_remove_user_sr()}</span>
-								</Button>
-							</ButtonGroup.Root>
-						{/if}
-					</div>
-				</li>
-			{/each}
+			<form
+				{...resetDatabase.enhance(async (f) => {
+					if (window.confirm('Are you sure?')) {
+						await f.submit();
+					}
+				})}
+			>
+				<Button variant="destructive" type="submit">Reset Instance</Button>
+			</form>
 		</div>
 	</Page.Content>
 </Page.Root>
@@ -151,7 +169,7 @@
 		</Dialog.Header>
 
 		<div class="flex items-center justify-between gap-4 rounded-lg bg-muted/5 p-2">
-			<div class="p-3 text-lg text-info">{generatedPassword}</div>
+			<div class="p-3 text-lg text-info" aria-label="generated-password">{generatedPassword}</div>
 			<Button size="icon" {@attach copyToClipboard(generatedPassword)}>
 				<CopySimpleIcon />
 			</Button>

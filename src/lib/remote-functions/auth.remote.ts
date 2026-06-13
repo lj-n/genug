@@ -27,7 +27,7 @@ export const register = form(RegisterSchema, async ({ _password, username }) => 
 	if (!isFirst) error(401);
 
 	const passwordHash = await actions.auth.hashPassword({ password: _password });
-	const user = createUser({ passwordHash, username });
+	const user = createUser({ isAdmin: true, passwordHash, username });
 	createAndSetSession({ cookies, userId: user.id });
 
 	if (isFirst) redirect(302, '/');

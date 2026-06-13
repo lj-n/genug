@@ -1,10 +1,11 @@
 import { form, query } from '$app/server';
-import { actions } from '$db';
+import { actions, database } from '$db';
+import { deleteDatabase } from '$db/delete-database';
 import { m } from '$lib/paraglide/messages';
 import { UserIdSchema, UsernameChangeSchema } from '$lib/schemas/user';
 import { createId } from '$server/utils/create-id';
 import { isSqliteUniqueConstraintError } from '$server/utils/is-sqlite-unique-constraint-error';
-import { error, invalid } from '@sveltejs/kit';
+import { error, invalid, redirect } from '@sveltejs/kit';
 
 import { requireAdmin } from './remote.utils';
 
@@ -43,4 +44,13 @@ export const createUser = form(UsernameChangeSchema, async ({ username }, issue)
 	}
 
 	return { password };
+});
+
+export const resetDatabase = form(async () => {
+	const [_admin, event] = requireAdmin();
+
+	actions.auth.deleteSessionCookie(event);
+	deleteDatabase(database);
+
+	redirect(302, '/login');
 });

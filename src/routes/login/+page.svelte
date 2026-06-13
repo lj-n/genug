@@ -16,6 +16,7 @@
 			<InputGroup.Input
 				{...login.fields.username.as('text')}
 				placeholder={m.login_label_username()}
+				aria-label={m.login_label_username()}
 			/>
 
 			<InputGroup.Addon>
@@ -26,6 +27,7 @@
 		<InputPassword
 			{...login.fields._password.as('password')}
 			placeholder={m.login_label_password()}
+			aria-label={m.login_label_password()}
 		/>
 
 		{#each login.fields.allIssues() as issue (issue)}

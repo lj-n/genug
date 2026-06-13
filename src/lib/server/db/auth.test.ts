@@ -10,13 +10,13 @@ import {
 	refreshSession,
 	validateSession
 } from './auth';
-import { DAY_IN_MS, type Session } from './auth.utils';
+import { DAY_IN_MS, InvalidCredentialsError, type Session } from './auth.utils';
 import { createUser } from './user';
 
 async function createSessionForTest(db: Database): Promise<Session> {
 	const passwordHash = await hashPassword({ password: 'password123' });
-	const user = await createUser({ db, passwordHash, username: crypto.randomUUID() });
-	const { session } = await createSession({ db, userId: user.id });
+	const user = createUser({ db, passwordHash, username: crypto.randomUUID() });
+	const { session } = createSession({ db, userId: user.id });
 	const stored = await db.query.sessions.findFirst({
 		columns: { userId: false },
 		where: { id: session.id },
@@ -31,7 +31,7 @@ it('authenticateUser - returns user on valid credentials', async () => {
 	const username = 'testuser';
 	const password = 'password123';
 	const passwordHash = await hashPassword({ password });
-	await createUser({ db, passwordHash, username });
+	createUser({ db, passwordHash, username });
 
 	await expect(authenticateUser({ db, password, username })).resolves.toMatchObject({ username });
 });
@@ -40,10 +40,10 @@ it('authenticateUser - throws on wrong password', async () => {
 	const db = createDatabase(':memory:');
 	const username = 'testuser';
 	const passwordHash = await hashPassword({ password: 'password123' });
-	await createUser({ db, passwordHash, username });
+	createUser({ db, passwordHash, username });
 
 	await expect(authenticateUser({ db, password: 'wrongpassword', username })).rejects.toThrow(
-		'INVALID_CREDENTIALS'
+		InvalidCredentialsError
 	);
 });
 
@@ -52,23 +52,22 @@ it('authenticateUser - throws for nonexistent user', async () => {
 
 	await expect(
 		authenticateUser({ db, password: 'password123', username: 'nonexistent' })
-	).rejects.toThrow('INVALID_CREDENTIALS');
+	).rejects.toThrow(InvalidCredentialsError);
 });
 
-it('createSession - throws when userId does not exist', async () => {
+it('createSession - throws when userId does not exist', () => {
 	const db = createDatabase(':memory:');
 
-	await expect(createSession({ db, userId: 'non-existent-user-id' })).rejects.toThrow();
+	expect(() => createSession({ db, userId: 'non-existent-user-id' })).toThrow();
 });
 
 it('createSession - creates session for valid userId', async () => {
 	const db = createDatabase(':memory:');
 	const passwordHash = await hashPassword({ password: 'password123' });
-	const user = await createUser({ db, passwordHash, username: 'testuser' });
+	const user = createUser({ db, passwordHash, username: 'testuser' });
 
-	await expect(createSession({ db, userId: user.id })).resolves.toMatchObject({
-		session: { userId: user.id }
-	});
+	const result = createSession({ db, userId: user.id });
+	expect(result).toMatchObject({ session: { userId: user.id } });
 });
 
 it('createSessionToken - produces 16-char base64 token', () => {
@@ -80,18 +79,18 @@ it('createSessionToken - produces 16-char base64 token', () => {
 it('deleteSession - removes an existing session', async () => {
 	const db = createDatabase(':memory:');
 	const passwordHash = await hashPassword({ password: 'password123' });
-	const user = await createUser({ db, passwordHash, username: 'testuser' });
-	const { session } = await createSession({ db, userId: user.id });
+	const user = createUser({ db, passwordHash, username: 'testuser' });
+	const { session } = createSession({ db, userId: user.id });
 
-	await deleteSession({ db, sessionId: session.id });
+	deleteSession({ db, sessionId: session.id });
 
 	await expect(db.query.sessions.findFirst({ where: { id: session.id } })).resolves.toBeUndefined();
 });
 
-it('deleteSession - ignores missing session ids', async () => {
+it('deleteSession - ignores missing session ids', () => {
 	const db = createDatabase(':memory:');
 
-	await expect(deleteSession({ db, sessionId: 'missing-session-id' })).resolves.toBeUndefined();
+	expect(deleteSession({ db, sessionId: 'missing-session-id' })).toBeUndefined();
 });
 
 beforeEach(() => {
@@ -109,7 +108,7 @@ it('refreshSession - refreshes at exactly the 10 day boundary', async () => {
 	vi.setSystemTime(new Date(Date.now() + DAY_IN_MS * 10));
 	const expectedExpiresAt = Date.now() + DAY_IN_MS * 15;
 
-	const refreshed = await refreshSession({ db, session });
+	const refreshed = refreshSession({ db, session });
 	const stored = await db.query.sessions.findFirst({ where: { id: session.id } });
 
 	expect(refreshed).not.toBeNull();
@@ -124,7 +123,7 @@ it('refreshSession - does not refresh before the 10 day boundary', async () => {
 
 	vi.setSystemTime(new Date(Date.now() + DAY_IN_MS * 9));
 
-	const refreshed = await refreshSession({ db, session });
+	const refreshed = refreshSession({ db, session });
 	const stored = await db.query.sessions.findFirst({ where: { id: session.id } });
 
 	expect(refreshed).not.toBeNull();
@@ -139,7 +138,7 @@ it('refreshSession - extends sessions inside the refresh window', async () => {
 	vi.setSystemTime(new Date(Date.now() + DAY_IN_MS * 11));
 	const expectedExpiresAt = Date.now() + DAY_IN_MS * 15;
 
-	const refreshed = await refreshSession({ db, session });
+	const refreshed = refreshSession({ db, session });
 	const stored = await db.query.sessions.findFirst({ where: { id: session.id } });
 
 	expect(refreshed).not.toBeNull();
@@ -153,7 +152,7 @@ it('refreshSession - expires at exactly Date.now()', async () => {
 
 	vi.setSystemTime(session.expiresAt);
 
-	await expect(refreshSession({ db, session })).resolves.toBeNull();
+	expect(refreshSession({ db, session })).toBeNull();
 	await expect(db.query.sessions.findFirst({ where: { id: session.id } })).resolves.toBeUndefined();
 });
 
@@ -163,7 +162,7 @@ it('refreshSession - deletes expired sessions', async () => {
 
 	vi.setSystemTime(new Date(Date.now() + DAY_IN_MS * 21));
 
-	await expect(refreshSession({ db, session })).resolves.toBeNull();
+	expect(refreshSession({ db, session })).toBeNull();
 	await expect(db.query.sessions.findFirst({ where: { id: session.id } })).resolves.toBeUndefined();
 });
 
@@ -176,8 +175,8 @@ it('validateSession - invalid token returns null', async () => {
 it('validateSession - valid session returns session data', async () => {
 	const db = createDatabase(':memory:');
 	const passwordHash = await hashPassword({ password: 'password123' });
-	const user = await createUser({ db, passwordHash, username: 'testuser' });
-	const { session, sessionToken } = await createSession({ db, userId: user.id });
+	const user = createUser({ db, passwordHash, username: 'testuser' });
+	const { session, sessionToken } = createSession({ db, userId: user.id });
 
 	await expect(validateSession({ db, sessionToken })).resolves.toMatchObject({
 		id: session.id,
@@ -190,7 +189,7 @@ it('hashPassword - correct password verifies successfully', async () => {
 	const username = 'testuser';
 	const password = 'password123';
 	const passwordHash = await hashPassword({ password });
-	await createUser({ db, passwordHash, username });
+	createUser({ db, passwordHash, username });
 
 	await expect(authenticateUser({ db, password, username })).resolves.toMatchObject({ username });
 });
@@ -199,10 +198,10 @@ it('hashPassword - wrong password is rejected', async () => {
 	const db = createDatabase(':memory:');
 	const username = 'testuser';
 	const passwordHash = await hashPassword({ password: 'password123' });
-	await createUser({ db, passwordHash, username });
+	createUser({ db, passwordHash, username });
 
 	await expect(authenticateUser({ db, password: 'password124', username })).rejects.toThrow(
-		'INVALID_CREDENTIALS'
+		InvalidCredentialsError
 	);
 });
 
@@ -216,7 +215,7 @@ it('hashPassword - multiple hashes for same password all verify', async () => {
 
 	for (const [i, passwordHash] of [firstHash, secondHash].entries()) {
 		const username = `user${i}`;
-		await createUser({ db, passwordHash, username });
+		createUser({ db, passwordHash, username });
 		await expect(authenticateUser({ db, password, username })).resolves.toMatchObject({
 			username
 		});

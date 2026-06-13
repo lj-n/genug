@@ -39,3 +39,6 @@ project.inlang/cache/
 
 # Docs
 docs/
+
+# Playwright
+tests/playwright/results/

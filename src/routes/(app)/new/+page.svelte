@@ -39,7 +39,7 @@
 				<Label>{m.budget_settings_label_currency()}</Label>
 				<Select.Root
 					type="single"
-					{...createBudget.fields.currency.as('select')}
+					name={createBudget.fields.currency.as('select').name}
 					bind:value={
 						() => createBudget.fields.currency.value() ?? CURRENCIES[0],
 						(v) => createBudget.fields.currency.set(v)

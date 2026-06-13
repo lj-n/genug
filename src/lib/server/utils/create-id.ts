@@ -2,7 +2,7 @@ import { generateRandomString, type RandomReader } from '@oslojs/crypto/random';
 
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 const random: RandomReader = {
-	read(bytes) {
+	read(bytes: Uint8Array<ArrayBuffer>): void {
 		crypto.getRandomValues(bytes);
 	}
 };
