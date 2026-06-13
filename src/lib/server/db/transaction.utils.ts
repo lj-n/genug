@@ -1,7 +1,7 @@
 import type { SQLiteColumn, SQLiteSelect } from 'drizzle-orm/sqlite-core';
 
 import { tables } from '$db';
-import { and, asc, desc, eq, gte, inArray, like, lte, type SQL } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, inArray, isNull, like, lte, or, type SQL } from 'drizzle-orm';
 
 export type TransactionFilterParam = {
 	accountId?: string | string[];
@@ -47,11 +47,15 @@ export function withFilter<T extends SQLiteSelect>({
 		);
 	}
 	if (filter.categoryId) {
-		conditions.push(
-			typeof filter.categoryId === 'string'
-				? eq(tables.transactions.categoryId, filter.categoryId)
-				: inArray(tables.transactions.categoryId, filter.categoryId)
-		);
+		const ids = [filter.categoryId].flat();
+		const realIds = ids.filter((id) => id !== 'null');
+		const hasNull = ids.includes('null');
+
+		const categoryConditions: SQL[] = [];
+		if (realIds.length > 0) categoryConditions.push(inArray(tables.transactions.categoryId, realIds));
+		if (hasNull) categoryConditions.push(isNull(tables.transactions.categoryId));
+
+		conditions.push(categoryConditions.length === 1 ? categoryConditions[0] : or(...categoryConditions));
 	}
 	if (filter.notes) {
 		conditions.push(like(tables.transactions.notes, `%${escapeLikePattern(filter.notes)}%`));

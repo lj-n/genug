@@ -10,6 +10,7 @@
 	import { formatCurrency } from '$lib/utils/format-currency';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { parseDate } from '@internationalized/date';
+	import PlusBoldIcon from '~icons/ph/plus-bold';
 	import SealIcon from '~icons/ph/seal';
 	import SealCheckDuotoneIcon from '~icons/ph/seal-check-duotone';
 
@@ -36,12 +37,13 @@
 	let openCreateRow = $state(false);
 </script>
 
-<Button onclick={() => (openCreateRow = true)}>create</Button>
-
-<div class="space-y-3">
-	<div>
-		<TableFilter {budgetId} />
-	</div>
+<div class="space-y-6">
+	<TableFilter {budgetId}>
+		<Button onclick={() => (openCreateRow = true)} class="ml-auto">
+			<PlusBoldIcon />
+			{m.transactions_table_create_transaction()}
+		</Button>
+	</TableFilter>
 
 	<div role="table" class="space-y-3">
 		<TableHeader />
@@ -59,7 +61,13 @@
 
 					<TableRow>
 						<TableCell aria-label={m.transactions_table_edit_category()} onclick={setEditing}>
-							{item.categoryName ?? m.transaction_table_cell_category_empty()}
+							{#if item.categoryName}
+								{item.categoryName}
+							{:else}
+								<span class="text-muted">
+									{m.transaction_table_cell_category_empty()}
+								</span>
+							{/if}
 						</TableCell>
 
 						<TableCell aria-label={m.transactions_table_edit_notes()} onclick={setEditing}>
@@ -108,11 +116,11 @@
 				{/if}
 			{/snippet}
 		</TableBody>
-	</div>
 
-	<TablePagination
-		pageSize={pagination.pageSize}
-		currentPage={pagination.page}
-		total={pagination.totalTransactionCount}
-	/>
+		<TablePagination
+			pageSize={pagination.pageSize}
+			currentPage={pagination.page}
+			total={pagination.totalTransactionCount}
+		/>
+	</div>
 </div>

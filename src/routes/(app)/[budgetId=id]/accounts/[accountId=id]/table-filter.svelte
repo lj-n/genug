@@ -1,68 +1,102 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { buttonVariants } from '$lib/components/ui/button';
-	import * as Collapsible from '$lib/components/ui/collapsible';
-	import * as Select from '$lib/components/ui/select';
+	import { Button } from '$lib/components/ui/button';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { m } from '$lib/paraglide/messages';
-	import { getCategoriesFlat } from '$lib/remote-functions/category.remote';
-	import { type Snippet, untrack } from 'svelte';
-	import { slide } from 'svelte/transition';
-	import { cn } from 'tailwind-variants';
-	import FunnelIcon from '~icons/ph/funnel';
-	import FunnelDuotoneIcon from '~icons/ph/funnel-duotone';
-	import FunnelXDuotoneIcon from '~icons/ph/funnel-x-duotone';
+	import { type Snippet, tick, untrack } from 'svelte';
+	import FunnelBoldIcon from '~icons/ph/funnel-bold';
+	import XIcon from '~icons/ph/x';
 
-	import { colsClass, getTransactionURLParams } from './utils';
+	import { type FilterType, TransactionFilter } from './filter.svelte';
+	import TableFilterCategory from './table-filter-category.svelte';
+	import TableFilterNotes from './table-filter-notes.svelte';
+	import { getTransactionURLParams } from './utils';
 
 	let { budgetId, children }: { budgetId: string; children?: Snippet } = $props();
 
-	const categories = $derived(await getCategoriesFlat({ budgetId }));
 	const params = $derived(getTransactionURLParams(page.url));
+	let filter = $state(new TransactionFilter(untrack(() => params)));
 
-	let selectedCategories = $derived(params.categoryId);
+	const allActive = $derived(filter.allActive);
+	const anyActive = $derived(filter.anyActive);
+	const availableFilters = $derived(filter.available);
+
+	let categoryRef = $state<HTMLButtonElement | null>(null);
+	let notesRef = $state<HTMLInputElement | null>(null);
+
+	function addAndFocus(type: FilterType) {
+		filter.add(type);
+		tick().then(() => {
+			if (type === 'category') categoryRef?.focus();
+			else notesRef?.focus();
+		});
+	}
+
+	function handleCategoryChange(value: string[]) {
+		filter.updateValue('category', value);
+	}
+
+	function handleNotesChange(value: string) {
+		filter.updateValue('notes', value);
+	}
 </script>
 
-<Collapsible.Root>
-	<Collapsible.Trigger class={buttonVariants()}>
-		<FunnelIcon />
-		{m.transaction_filter_title()}
-	</Collapsible.Trigger>
+<div class="flex w-full flex-col gap-2">
+	<div class="flex gap-1.5">
+		<DropdownMenu.Root>
+			<DropdownMenu.Trigger disabled={allActive}>
+				{#snippet child({ props })}
+					<Button {...props}>
+						<FunnelBoldIcon />
+						{m.transaction_filter_title()}
+					</Button>
+				{/snippet}
+			</DropdownMenu.Trigger>
 
-	<Collapsible.Content forceMount>
-		{#snippet child({ open, props })}
-			{#if open}
-				<div
-					transition:slide={{ axis: 'y', duration: 200 }}
-					class={cn(colsClass, 'w-full pt-3')}
-					{...props}
-				>
-					{@render content()}
-				</div>
-			{/if}
-		{/snippet}
-	</Collapsible.Content>
-</Collapsible.Root>
+			<DropdownMenu.Content class="w-fit">
+				{#each availableFilters as f (f.type)}
+					<DropdownMenu.Item onSelect={() => addAndFocus(f.type)}>
+						{filter.getConfig(f.type).label()}
+					</DropdownMenu.Item>
+				{/each}
+			</DropdownMenu.Content>
+		</DropdownMenu.Root>
 
-{#snippet content()}
-	<div class={cn(colsClass, 'grid rounded-lg border border-info/10 bg-info/5 p-1.5')}>
-		<div>
-			<Select.Root type="multiple">
-				<Select.Trigger class="w-fit">
-					{#if selectedCategories.length}
-						{m.transaction_filter_category_selected({ selected: selectedCategories.length })}
-					{:else}
-						{m.transaction_filter_category_empty()}
-					{/if}
-				</Select.Trigger>
+		{#if anyActive}
+			<Button variant="destructive" size="icon" onclick={() => filter.clearAll()}>
+				<XIcon />
+			</Button>
+		{/if}
 
-				<Select.Content class="max-h-75">
-					<Select.Item value="null">{m.transaction_filter_category_without()}</Select.Item>
-
-					{#each categories as category (category.id)}
-						<Select.Item value={category.id}>{category.name}</Select.Item>
-					{/each}
-				</Select.Content>
-			</Select.Root>
-		</div>
+		{@render children?.()}
 	</div>
-{/snippet}
+
+	{#each filter.items as f (f.type)}
+		{#if f.active}
+			<div class="flex items-center gap-1.5 rounded-lg border border-info/30 bg-info/5 p-1.5">
+				<p class="mr-auto pl-1.5 text-sm font-medium text-info">
+					{filter.getConfig(f.type).description()}
+				</p>
+
+				{#if f.type === 'category'}
+					<TableFilterCategory
+						{budgetId}
+						bind:value={f.value}
+						onchange={handleCategoryChange}
+						bind:elementRef={categoryRef}
+					/>
+				{:else}
+					<TableFilterNotes
+						bind:value={f.value}
+						onchange={handleNotesChange}
+						bind:elementRef={notesRef}
+					/>
+				{/if}
+
+				<Button size="icon" variant="ghost" onclick={() => filter.remove(f.type)}>
+					<XIcon />
+				</Button>
+			</div>
+		{/if}
+	{/each}
+</div>
