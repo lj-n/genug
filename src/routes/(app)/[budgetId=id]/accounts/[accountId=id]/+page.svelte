@@ -1,14 +1,10 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { AccountBalances } from '$lib/components/account';
-	import { Button } from '$lib/components/ui/button';
+	import { AccountBalances, AccountSetName } from '$lib/components/account';
 	import * as Page from '$lib/components/ui/page';
 	import { Separator } from '$lib/components/ui/separator';
-	import { m } from '$lib/paraglide/messages';
 	import { getAccountBalanceDetail, getAccountById } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
-	import PhChartLineUp from '~icons/ph/chart-line-up';
 
 	import Table from './table.svelte';
 
@@ -27,21 +23,12 @@
 </script>
 
 <Page.Root>
-	<Page.Header class="flex-row justify-between gap-4">
+	<Page.Header class="flex-row items-center justify-between gap-4">
 		<Page.Title>
 			{account.name}
 		</Page.Title>
 
-		<Button
-			variant="ghost"
-			href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/detail', {
-				accountId,
-				budgetId
-			})}
-		>
-			<PhChartLineUp class="size-6 text-muted" />
-			{m.account_details()}
-		</Button>
+		<AccountSetName {accountId} />
 	</Page.Header>
 
 	<Page.Content>

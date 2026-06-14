@@ -27,7 +27,7 @@
 		bind:this={ref}
 		data-slot={dataSlot}
 		class={cn(
-			'h-9 w-full rounded-md border border-muted/30 bg-surface/70 px-3 py-1 outline-none file:inline-flex file:border-0 file:bg-transparent file:text-foreground placeholder:text-muted/90 focus-visible:ring-2 focus-visible:ring-focus/80 aria-invalid:border-error',
+			'h-9 w-full rounded-lg border border-muted/30 bg-surface/70 px-3 py-1 outline-none file:inline-flex file:border-0 file:bg-transparent file:text-foreground placeholder:text-muted/90 focus-visible:ring-2 focus-visible:ring-focus/80 aria-invalid:border-error',
 			className
 		)}
 		type="file"
@@ -40,7 +40,7 @@
 		bind:this={ref}
 		data-slot={dataSlot}
 		class={cn(
-			'h-9 w-full rounded-md border border-muted/30 bg-surface/70 px-3 py-1 outline-none placeholder:text-muted focus-visible:border-focus focus-visible:bg-surface/80 focus-visible:ring-2 focus-visible:ring-focus/50 aria-invalid:border-error',
+			'h-9 w-full rounded-lg border border-muted/30 bg-surface/70 px-3 py-1 outline-none placeholder:text-muted focus-visible:border-focus focus-visible:bg-surface/80 focus-visible:ring-2 focus-visible:ring-focus/50 aria-invalid:border-error',
 			className
 		)}
 		{type}

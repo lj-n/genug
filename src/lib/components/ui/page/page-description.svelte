@@ -12,6 +12,6 @@
 	}: WithElementRef<HTMLAttributes<HTMLParagraphElement>> = $props();
 </script>
 
-<p bind:this={ref} class={cn('text-muted', className)} {...restProps}>
+<p bind:this={ref} class={cn('leading-tight text-muted', className)} {...restProps}>
 	{@render children?.()}
 </p>

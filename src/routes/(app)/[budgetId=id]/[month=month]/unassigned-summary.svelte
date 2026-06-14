@@ -32,7 +32,7 @@
 		unassigned === 0
 			? 'bg-muted/10 text-muted'
 			: unassigned > 0
-				? 'border border-info/30 bg-info/10 text-info shadow-xs shadow-info/25'
+				? 'border border-info/15 bg-info/10 text-info shadow-xs shadow-info/15'
 				: 'border border-error/60 bg-error/10 text-error'
 	)}
 >

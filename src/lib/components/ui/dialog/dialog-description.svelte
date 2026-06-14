@@ -13,7 +13,7 @@
 	bind:ref
 	data-slot="dialog-description"
 	class={cn(
-		'max-w-5/6 text-sm text-muted *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground',
+		'max-w-5/6 text-sm leading-tight text-muted *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground',
 		className
 	)}
 	{...restProps}

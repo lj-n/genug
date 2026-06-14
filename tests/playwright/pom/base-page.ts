@@ -19,6 +19,14 @@ export class BasePage {
 		this.page = page;
 	}
 
+	async closeMobileNavigation() {
+		const signOutButton = this.page.getByRole('button', { name: 'Sign out' });
+		if (await signOutButton.isVisible()) {
+			await this.page.keyboard.press('Escape');
+			await expect(signOutButton).not.toBeVisible();
+		}
+	}
+
 	async openMobileNavigation() {
 		await this.page.getByRole('button', { name: 'Toggle Navigation' }).click();
 		await expect(this.page.getByRole('button', { name: 'Sign out' })).toBeVisible();

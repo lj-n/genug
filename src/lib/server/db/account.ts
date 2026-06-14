@@ -1,4 +1,5 @@
 import { database, type Database, tables } from '$db';
+import { m } from '$lib/paraglide/messages';
 import { getLocalTimeZone, today } from '@internationalized/date';
 import { and, asc, eq, inArray, isNull, sql } from 'drizzle-orm';
 
@@ -45,6 +46,7 @@ export function createAccount({
 					amount: startingBalance,
 					budgetId: data.budgetId,
 					date: currentDate,
+					notes: m.account_starting_balance_notes(),
 					validated: true
 				})
 				.run();
@@ -89,7 +91,8 @@ export function getAccountById({
 			balance: sql<number>`COALESCE(SUM(${tables.transactions.amount}), 0)`,
 			budgetId: tables.accounts.budgetId,
 			id: tables.accounts.id,
-			name: tables.accounts.name
+			name: tables.accounts.name,
+			notes: tables.accounts.notes
 		})
 		.from(tables.accounts)
 		.leftJoin(tables.transactions, eq(tables.transactions.accountId, tables.accounts.id))
@@ -182,4 +185,21 @@ export function reorderAccounts({
 				.execute();
 		}
 	});
+}
+
+export function setAccountName({
+	accountId,
+	db = database,
+	name
+}: {
+	accountId: string;
+	db?: Database;
+	name: string;
+}) {
+	return db
+		.update(tables.accounts)
+		.set({ name })
+		.where(eq(tables.accounts.id, accountId))
+		.returning()
+		.get();
 }

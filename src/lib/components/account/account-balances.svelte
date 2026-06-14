@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { AccountBalances } from '$lib/components/transaction-table/types';
 	import type { CURRENCIES } from '$lib/utils/currencies';
 
 	import { m } from '$lib/paraglide/messages';
@@ -11,8 +10,17 @@
 	import PhSeal from '~icons/ph/seal';
 	import PhSealCheckDuotone from '~icons/ph/seal-check-duotone';
 
-	let { balances, currency }: { balances: AccountBalances; currency: (typeof CURRENCIES)[number] } =
-		$props();
+	let {
+		balances,
+		currency
+	}: {
+		balances: {
+			balance: number;
+			pending: number;
+			validated: number;
+		};
+		currency: (typeof CURRENCIES)[number];
+	} = $props();
 </script>
 
 <div class="flex w-fit items-center gap-6 rounded-md bg-muted/5 p-3">

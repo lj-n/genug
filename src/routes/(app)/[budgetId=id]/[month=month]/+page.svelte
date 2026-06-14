@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BudgetAccountList } from '$lib/components/budget-account-list';
+	import { AccountDropdown } from '$lib/components/account';
 	import { BudgetSettings } from '$lib/components/budget-settings';
 	import BudgetUserManager from '$lib/components/budget-user-manager/budget-user-manager.svelte';
 	import * as ButtonGroup from '$lib/components/ui/button-group';
@@ -30,7 +30,7 @@
 		<ButtonGroup.Root>
 			<BudgetSettings budgetId={params.budgetId} />
 
-			<BudgetAccountList budgetId={params.budgetId} />
+			<AccountDropdown budgetId={params.budgetId} />
 
 			<BudgetUserManager budgetId={params.budgetId} />
 		</ButtonGroup.Root>

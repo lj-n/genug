@@ -7,13 +7,17 @@
 	import { CurrencyInput } from '@canutin/svelte-currency-input';
 	import { cn } from 'tailwind-variants';
 
-	type Props = Omit<HTMLInputAttributes, 'onchangevalue' | 'oninputvalue' | 'type' | 'value'> & {
+	type Props = Omit<
+		HTMLInputAttributes,
+		'defaultValue' | 'onchangevalue' | 'oninputvalue' | 'type' | 'value'
+	> & {
 		allowDecimals?: boolean;
 		allowNegativeValue?: boolean;
 		currency: (typeof CURRENCIES)[number];
 		decimalScale?: number;
 		decimalSeparator?: string;
 		decimalsLimit?: number;
+		defaultValue?: number | string | undefined; // consumed (not forwarded)
 		disableAbbreviations?: boolean;
 		disableGroupSeparators?: boolean;
 		fixedDecimalLength?: number;
@@ -32,7 +36,8 @@
 		step?: number;
 		suffix?: string;
 		transformRawValue?: (value: string) => string;
-		value?: null | number;
+		type?: string; // consumed (not forwarded)
+		value?: null | number | string;
 	};
 
 	let {
@@ -44,6 +49,7 @@
 		decimalScale,
 		decimalSeparator,
 		decimalsLimit,
+		defaultValue: _defaultValue, // consumed so field.as('number', 0) doesn't push it into restProps
 		disableAbbreviations,
 		disableGroupSeparators,
 		fixedDecimalLength,
@@ -64,33 +70,46 @@
 		step,
 		suffix,
 		transformRawValue,
+		type: _type, // consumed so field.as('number') doesn't push it into restProps
 		value = $bindable(null),
 		...restProps
 	}: Props = $props();
 
-	function centToInternalInputValue(centValue: null | number) {
-		if (centValue === null || centValue === undefined) {
+	function toCents(raw: null | number | string): null | number {
+		if (raw === null || raw === undefined || raw === '') {
+			return null;
+		}
+		if (typeof raw === 'number') {
+			return raw;
+		}
+		// string — treat as cent integer
+		const n = Number(raw);
+		return Number.isNaN(n) ? null : n;
+	}
+
+	function centToInternalInputValue(centValue: null | number | string) {
+		const cents = toCents(centValue);
+		if (cents === null) {
 			return '';
 		}
-
-		return (centValue / 100).toFixed(2);
+		return (cents / 100).toFixed(2);
 	}
 
 	function floatToCentValue(floatValue: null | number) {
 		if (floatValue === null || floatValue === undefined || Number.isNaN(floatValue)) {
 			return null;
 		}
-
 		return Math.round(floatValue * 100);
 	}
 
 	// Internal string value for CurrencyInput (library expects string)
 	let internalValue = $state(centToInternalInputValue(value));
-	let internalCentValue = $state<null | number>(value);
+	let internalCentValue = $state<null | number>(toCents(value));
 
 	// Keep internal value synchronized from canonical external cent state.
 	$effect(() => {
-		if (value === internalCentValue) {
+		const resolved = toCents(value);
+		if (resolved === internalCentValue) {
 			return;
 		}
 
@@ -100,7 +119,7 @@
 			internalValue = expectedInternalValue;
 		}
 
-		internalCentValue = value;
+		internalCentValue = resolved;
 	});
 
 	function handleInputValue(values: CurrencyInputValues) {

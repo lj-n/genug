@@ -76,6 +76,30 @@ describe('InputCurrency cent binding', () => {
 		expect(input.value).toContain('12,34');
 	});
 
+	it('renders 0 cents as formatted "0,00"', () => {
+		render(InputCurrency, {
+			props: {
+				intlConfig: { currency: 'EUR', locale: 'de-DE' },
+				value: 0
+			}
+		});
+
+		const input = screen.getByRole<HTMLInputElement>('textbox');
+		expect(input.value).toContain('0');
+	});
+
+	it('renders string "0" (as from field.as("number", 0)) as formatted value', () => {
+		render(InputCurrency, {
+			props: {
+				intlConfig: { currency: 'EUR', locale: 'de-DE' },
+				value: '0'
+			}
+		});
+
+		const input = screen.getByRole<HTMLInputElement>('textbox');
+		expect(input.value).toContain('0,00');
+	});
+
 	it('submits cent integer value in form data', async () => {
 		const user = userEvent.setup();
 		const form = document.createElement('form');

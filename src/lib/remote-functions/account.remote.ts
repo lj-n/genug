@@ -2,7 +2,7 @@ import { resolve } from '$app/paths';
 import { form, query } from '$app/server';
 import { actions } from '$db';
 import { m } from '$lib/paraglide/messages';
-import { AccountCreateSchema, AccountIdSchema } from '$lib/schemas/account';
+import { AccountCreateSchema, AccountIdSchema, AccountSetNameSchema } from '$lib/schemas/account';
 import { BudgetIdSchema } from '$lib/schemas/budget';
 import { error, redirect } from '@sveltejs/kit';
 
@@ -39,4 +39,9 @@ export const getAccountById = query(AccountIdSchema, async ({ accountId }) => {
 export const getAccountBalanceDetail = query(AccountIdSchema, async ({ accountId }) => {
 	requireUser();
 	return actions.account.getAccountBalanceDetail({ accountId });
+});
+
+export const setAccountName = form(AccountSetNameSchema, async ({ accountId, accountName }) => {
+	requireUser();
+	actions.account.setAccountName({ accountId, name: accountName });
 });

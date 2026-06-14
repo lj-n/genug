@@ -23,7 +23,7 @@ Persistent agent and workflow rules for this repository.
 - `src/routes/` — SvelteKit routes, pages, layouts, and server handlers.
 - `src/lib/components/*.svelte` — UI components.
 - `messages/de.json` and `messages/en.json` — Paraglide i18n messages.
-- `docs/*.md` — architecture, database, auth, forms, and routing documentation.
+- `docs/*.md` — architecture, database, auth, forms, routing, and Playwright testing documentation.
 
 ## Important Conventions
 
@@ -45,3 +45,18 @@ Persistent agent and workflow rules for this repository.
 - `npm run check`
 - `npm run lint` or `npm run lint:fix`
 - Tests: `npm run test:unit` or a single test file via `npx vitest run <path>`
+- E2E: `npx playwright test` (or individual file: `npx playwright test tests/playwright/<file>.spec.ts`)
+
+## Docs
+
+The `docs/` directory contains reference documentation for major subsystems:
+
+| Doc                           | Covers                                                     |
+| ----------------------------- | ---------------------------------------------------------- |
+| `docs/architecture.md`        | Stack overview, data conventions, middleware, global types |
+| `docs/database.md`            | Table schemas, relations, migrations                       |
+| `docs/auth.md`                | Session-based auth flow                                    |
+| `docs/forms.md`               | Valibot schemas + remote function forms                    |
+| `docs/routes.md`              | Route structure, param matchers, protection                |
+| `docs/actions-permissions.md` | Actions class, requireUser, permissions                    |
+| `docs/playwright.md`          | E2E test setup, POMs, conventions                          |
