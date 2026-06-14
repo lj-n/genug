@@ -16,13 +16,12 @@ declare global {
 		interface Locals {
 			logger: import('pino').Logger;
 			session: import('$db/auth.utils').Session | null;
+			user: import('$db/auth.utils').User | null;
 		}
 
 		interface PageData {
 			title?: string;
 		}
-
-		type User = import('$db/auth').User;
 
 		// interface Platform {}
 		// interface Error {}

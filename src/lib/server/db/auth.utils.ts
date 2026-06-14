@@ -24,6 +24,8 @@ export type Session = Omit<typeof tables.sessions.$inferSelect, 'userId'> & {
 	user: Omit<typeof tables.users.$inferSelect, 'passwordHash'>;
 };
 
+export type User = Session['user'];
+
 export class InvalidCredentialsError extends Error {
 	constructor() {
 		super();

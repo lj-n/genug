@@ -58,10 +58,12 @@ export function createAccount({
 
 export function getAccountBalanceDetail({
 	accountId,
-	db = database
+	db = database,
+	userId
 }: {
 	accountId: string;
 	db?: Database;
+	userId: string;
 }) {
 	const detail = db
 		.select({
@@ -69,7 +71,12 @@ export function getAccountBalanceDetail({
 			validated: sql<number>`${accountQueries.validatedAccountBalance({ accountId: tables.accounts.id, database: db })}`
 		})
 		.from(tables.accounts)
-		.where(eq(tables.accounts.id, accountId))
+		.where(
+			and(
+				eq(tables.accounts.id, accountId),
+				userHasRole('MEMBER', tables.accounts.budgetId, userId, db)
+			)
+		)
 		.get();
 
 	if (!detail) throw new Error('Account not found');
@@ -190,16 +197,23 @@ export function reorderAccounts({
 export function setAccountName({
 	accountId,
 	db = database,
-	name
+	name,
+	userId
 }: {
 	accountId: string;
 	db?: Database;
 	name: string;
+	userId: string;
 }) {
 	return db
 		.update(tables.accounts)
 		.set({ name })
-		.where(eq(tables.accounts.id, accountId))
+		.where(
+			and(
+				eq(tables.accounts.id, accountId),
+				userHasRole('MEMBER', tables.accounts.budgetId, userId, db)
+			)
+		)
 		.returning()
 		.get();
 }
