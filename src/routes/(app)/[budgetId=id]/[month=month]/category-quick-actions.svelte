@@ -5,19 +5,20 @@
 	import * as Popover from '$lib/components/ui/popover';
 	import { m } from '$lib/paraglide/messages';
 	import { createCategory, getArchivedCategories } from '$lib/remote-functions/category.remote';
+	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import PhArchive from '~icons/ph/archive';
 	import PhStackPlus from '~icons/ph/stack-plus';
 
-	let { budgetId }: { budgetId: string } = $props();
+	const budgetId = getBudgetId();
 
-	const archivedCategories = $derived(await getArchivedCategories({ budgetId }));
+	const archivedCategories = $derived(await getArchivedCategories({ budgetId: budgetId() }));
 
 	let open = $state(false);
 </script>
 
 <div class="flex gap-0.5">
 	<Popover.Root bind:open>
-		<Button href={resolve('/(app)/[budgetId=id]/categories/new', { budgetId })} class="md:hidden">
+		<Button href={resolve('/(app)/[budgetId=id]/categories/new', { budgetId: budgetId() })} class="md:hidden">
 			<PhStackPlus class="size-6" />
 			{m.category_create_button()}
 		</Button>
@@ -40,7 +41,7 @@
 					}
 				})}
 			>
-				<input {...createCategory.fields.budgetId.as('hidden', budgetId)} />
+				<input {...createCategory.fields.budgetId.as('hidden', budgetId())} />
 				<Input
 					{...createCategory.fields.categoryName.as('text')}
 					placeholder={m.category_placeholder_name()}
@@ -50,7 +51,7 @@
 		</Popover.Content>
 	</Popover.Root>
 
-	<Button variant="ghost" href={resolve('/(app)/[budgetId=id]/categories/archived', { budgetId })}>
+	<Button variant="ghost" href={resolve('/(app)/[budgetId=id]/categories/archived', { budgetId: budgetId() })}>
 		<PhArchive class="size-6" />
 		{m.category_archived_link({ amount: archivedCategories.length })}
 	</Button>

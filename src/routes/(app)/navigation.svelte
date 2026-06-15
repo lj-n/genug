@@ -8,6 +8,7 @@
 	import SideMenu from '$lib/components/side-menu.svelte';
 	import { m } from '$lib/paraglide/messages';
 	import { signout } from '$lib/remote-functions/auth.remote';
+	import { getUser } from '$lib/remote-functions/user.remote';
 	import { isCurrentPage } from '$lib/utils/is-current-page';
 	import { cn } from 'tailwind-variants';
 	import PhGearSix from '~icons/ph/gear-six';
@@ -16,15 +17,9 @@
 	import PhWrench from '~icons/ph/wrench';
 
 	let {
-		accounts,
-		budgets: allBudgets,
-		invitations,
-		user
+		invitations
 	}: {
-		accounts: App.Account[];
-		budgets: App.Budget[];
 		invitations: Snippet;
-		user: App.User;
 	} = $props();
 
 	type NavItemProps = {
@@ -34,9 +29,7 @@
 		label: string;
 	};
 
-	let budgets = $derived(
-		allBudgets.map((b) => ({ ...b, accounts: accounts.filter((f) => f.budgetId === b.id) }))
-	);
+	const user = $derived(await getUser());
 </script>
 
 {#snippet plus(isActive: boolean)}
@@ -74,7 +67,7 @@
 	{@render invitations?.()}
 
 	<div class="my-6">
-		<SideMenu {budgets} />
+		<SideMenu />
 	</div>
 
 	<div class="grid space-y-0.5">

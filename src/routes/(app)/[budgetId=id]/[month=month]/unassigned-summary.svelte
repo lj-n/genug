@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
-	import { getBudget, getBudgetUnassigned } from '$lib/remote-functions/budget.remote';
+	import { getBudget, getUnassigned } from '$lib/remote-functions/budget.remote';
+	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { formatCurrency } from '$lib/utils/format-currency';
 	import { cn } from 'tailwind-variants';
 	import CheckFatDuoToneIcon from '~icons/ph/check-fat-duotone';
 	import WarningOctagonBoldIcon from '~icons/ph/warning-octagon-bold';
 
-	let { budgetId }: { budgetId: string } = $props();
+	const budgetId = getBudgetId();
 
-	const unassignedResult = $derived(await getBudgetUnassigned({ budgetId }));
-	const unassigned = $derived(unassignedResult?.sum ?? 0);
+	const unassigned = $derived(await getUnassigned(budgetId()));
 
-	const { currency } = $derived(await getBudget({ budgetId }));
+	const { currency } = $derived(await getBudget(budgetId()));
 </script>
 
 {#snippet label()}

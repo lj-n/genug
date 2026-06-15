@@ -11,7 +11,7 @@
 
 	let { accountId }: { accountId: string } = $props();
 
-	const account = $derived(await getAccountById({ accountId }));
+	const account = $derived(await getAccountById(accountId));
 
 	let open = $state(false);
 

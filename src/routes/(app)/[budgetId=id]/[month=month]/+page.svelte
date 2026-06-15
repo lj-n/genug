@@ -28,11 +28,11 @@
 		</Page.Title>
 
 		<ButtonGroup.Root>
-			<BudgetSettings budgetId={params.budgetId} />
+			<BudgetSettings />
 
-			<AccountDropdown budgetId={params.budgetId} />
+			<AccountDropdown />
 
-			<BudgetUserManager budgetId={params.budgetId} />
+			<BudgetUserManager />
 		</ButtonGroup.Root>
 	</Page.Header>
 
@@ -40,13 +40,12 @@
 		<div class="flex items-end gap-3">
 			<MonthNavigator paramsDate={createDateFromParams(params.month)} />
 
-			<CategoryQuickActions budgetId={params.budgetId} />
+			<CategoryQuickActions />
 
-			<UnassignedSummary budgetId={params.budgetId} />
+			<UnassignedSummary />
 		</div>
 
 		<CategoryBudgetTable
-			budgetId={params.budgetId}
 			month={params.month}
 			openCategoryDialog={(categoryId) => {
 				selectedCategoryId = categoryId;

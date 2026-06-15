@@ -1,19 +1,19 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import { AccountBalances, AccountSetName } from '$lib/components/account';
 	import * as Page from '$lib/components/ui/page';
 	import { Separator } from '$lib/components/ui/separator';
 	import { getAccountBalanceDetail, getAccountById } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 
+	import type { PageProps } from './$types';
+
 	import Table from './table.svelte';
 
-	const accountId = $derived(page.params.accountId!);
-	const budgetId = $derived(page.params.budgetId!);
+	let { params }: PageProps = $props();
 
-	const account = $derived(await getAccountById({ accountId }));
-	const balanceDetail = $derived(await getAccountBalanceDetail({ accountId }));
-	const budget = $derived(await getBudget({ budgetId }));
+	const account = $derived(await getAccountById(params.accountId));
+	const balanceDetail = $derived(await getAccountBalanceDetail(params.accountId));
+	const budget = $derived(await getBudget(params.budgetId));
 
 	const balances = $derived({
 		balance: account.balance,
@@ -28,7 +28,7 @@
 			{account.name}
 		</Page.Title>
 
-		<AccountSetName {accountId} />
+		<AccountSetName accountId={params.accountId} />
 	</Page.Header>
 
 	<Page.Content>
@@ -36,6 +36,6 @@
 
 		<Separator orientation="horizontal" />
 
-		<Table {accountId} {budgetId} />
+		<Table accountId={params.accountId} budgetId={params.budgetId} />
 	</Page.Content>
 </Page.Root>

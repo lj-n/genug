@@ -8,7 +8,10 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { m } from '$lib/paraglide/messages';
+	import { getAccounts } from '$lib/remote-functions/account.remote';
 	import { signout } from '$lib/remote-functions/auth.remote';
+	import { getBudgets } from '$lib/remote-functions/budget.remote';
+	import { getUser } from '$lib/remote-functions/user.remote';
 	import { isCurrentPage } from '$lib/utils/is-current-page';
 	import { cn } from 'tailwind-variants';
 	import ArrowBendDownRightBoldIcon from '~icons/ph/arrow-bend-down-right-bold';
@@ -18,21 +21,9 @@
 	import SignOutIcon from '~icons/ph/sign-out';
 	import WrenchIcon from '~icons/ph/wrench';
 
-	let {
-		accounts,
-		budgets: allBudgets,
-		invitations,
-		user
-	}: {
-		accounts: App.Account[];
-		budgets: App.Budget[];
-		invitations: Snippet;
-		user: App.User;
-	} = $props();
+	let { invitations }: { invitations: Snippet } = $props();
 
-	let budgets = $derived(
-		allBudgets.map((b) => ({ ...b, accounts: accounts.filter((f) => f.budgetId === b.id) }))
-	);
+	const user = $derived(await getUser());
 
 	let open = $state(false);
 
@@ -76,7 +67,7 @@
 
 		<nav class="mx-auto grid w-full max-w-md gap-6" {@attach closeDrawerAttachment}>
 			<ul class="space-y-6 text-lg">
-				{#each budgets as budget (budget.id)}
+				{#each await getBudgets() as budget (budget.id)}
 					<li class="space-y-1 rounded-lg bg-surface p-1.5 shadow-sm">
 						<a
 							href={resolve('/(app)/[budgetId=id]', { budgetId: budget.id })}
@@ -88,35 +79,33 @@
 							{budget.name}
 						</a>
 
-						{#if budget.accounts}
-							<ul class="space-y-1">
-								{#each budget.accounts as account (account.id)}
-									<li class="flex">
-										<div
-											class={cn(
-												'mx-1 my-auto aspect-square',
-												isCurrentPage(page, account.id) ? 'text-info' : 'text-muted'
-											)}
-										>
-											<ArrowBendDownRightBoldIcon class="size-3" />
-										</div>
+						<ul class="space-y-1">
+							{#each await getAccounts(budget.id) as account (account.id)}
+								<li class="flex">
+									<div
+										class={cn(
+											'mx-1 my-auto aspect-square',
+											isCurrentPage(page, account.id) ? 'text-info' : 'text-muted'
+										)}
+									>
+										<ArrowBendDownRightBoldIcon class="size-3" />
+									</div>
 
-										<a
-											href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', {
-												accountId: account.id,
-												budgetId: budget.id
-											})}
-											class={cn(
-												'group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
-												isCurrentPage(page, account.id) && 'bg-info/10 text-info hover:bg-info/15'
-											)}
-										>
-											{account.name}
-										</a>
-									</li>
-								{/each}
-							</ul>
-						{/if}
+									<a
+										href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', {
+											accountId: account.id,
+											budgetId: budget.id
+										})}
+										class={cn(
+											'group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
+											isCurrentPage(page, account.id) && 'bg-info/10 text-info hover:bg-info/15'
+										)}
+									>
+										{account.name}
+									</a>
+								</li>
+							{/each}
+						</ul>
 					</li>
 				{/each}
 			</ul>

@@ -3,14 +3,14 @@ import * as v from 'valibot';
 
 export const BudgetIdSchema = v.object({ budgetId: v.pipe(v.string(), v.minLength(1)) });
 
-export const BudgetSchema = v.object({
+export const CreateBudgetSchema = v.object({
 	currency: v.picklist(CURRENCIES),
 	name: v.pipe(v.string(), v.minLength(1))
 });
 
-export const SetBudgetSchema = v.object({
+export const EditBudgetSchema = v.object({
 	...BudgetIdSchema.entries,
-	...BudgetSchema.entries
+	...CreateBudgetSchema.entries
 });
 
 export const BudgetAndUserIdSchema = v.object({

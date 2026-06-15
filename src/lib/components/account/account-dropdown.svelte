@@ -5,14 +5,14 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { m } from '$lib/paraglide/messages';
 	import { getAccounts } from '$lib/remote-functions/account.remote';
+	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import PiggyBankIcon from '~icons/ph/piggy-bank';
 	import PlusIcon from '~icons/ph/plus';
 
 	import { AccountCreate } from '../account';
 
-	let { budgetId }: { budgetId: string } = $props();
-
-	const accounts = $derived(await getAccounts({ budgetId }));
+	const budgetId = getBudgetId();
+	const accounts = $derived(await getAccounts(budgetId()));
 
 	let open = $state(false);
 </script>
@@ -39,7 +39,7 @@
 						<a
 							href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', {
 								accountId: account.id,
-								budgetId
+								budgetId: budgetId()
 							})}
 							{...props}
 						>
@@ -74,6 +74,6 @@
 			</Dialog.Description>
 		</Dialog.Header>
 
-		<AccountCreate {budgetId} />
+		<AccountCreate />
 	</Dialog.Content>
 </Dialog.Root>

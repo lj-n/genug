@@ -4,19 +4,22 @@
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import * as Select from '$lib/components/ui/select';
 	import { m } from '$lib/paraglide/messages';
-	import { getBudget, setBudget } from '$lib/remote-functions/budget.remote';
+	import { editBudget, getBudget } from '$lib/remote-functions/budget.remote';
+	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { CURRENCIES } from '$lib/utils/currencies';
 	import PencilIcon from '~icons/ph/pencil';
 
 	import { Label } from '../ui/label';
 
-	let { budgetId }: { budgetId: string } = $props();
+	const budgetId = getBudgetId();
 
-	const budget = $derived(await getBudget({ budgetId }));
+	const budget = $derived(await getBudget(budgetId()));
 
 	let open = $state(false);
 
 	const formId = $props.id();
+
+	const form = $derived(editBudget.for(budgetId()));
 </script>
 
 <Dialog.Root bind:open>
@@ -38,9 +41,9 @@
 		</Dialog.Header>
 
 		<form
-			{...setBudget.enhance(async (form) => {
+			{...form.enhance(async (f) => {
 				try {
-					if (await form.submit()) {
+					if (await f.submit()) {
 						open = false;
 					}
 				} catch (error) {
@@ -50,12 +53,12 @@
 			id={formId}
 			class="mt-6 grid gap-2 rounded-lg bg-muted/5 p-3"
 		>
-			<input {...setBudget.fields.budgetId.as('hidden', budgetId)} />
+			<input {...editBudget.fields.budgetId.as('hidden', budgetId())} />
 
 			<div class="grid gap-2">
 				<Label>{m.budget_label_name()}</Label>
 				<InputGroup.Root>
-					<InputGroup.Input {...setBudget.fields.name.as('text', budget.name)} />
+					<InputGroup.Input {...editBudget.fields.name.as('text', budget.name)} />
 				</InputGroup.Root>
 			</div>
 
@@ -63,14 +66,14 @@
 				<Label>{m.budget_settings_label_currency()}</Label>
 				<Select.Root
 					type="single"
-					{...setBudget.fields.currency.as('select', budget.currency)}
+					{...form.fields.currency.as('select', budget.currency)}
 					bind:value={
-						() => setBudget.fields.currency.value() ?? budget.currency,
-						(v) => setBudget.fields.currency.set(v)
+						() => form.fields.currency.value() ?? budget.currency,
+						(v) => form.fields.currency.set(v)
 					}
 				>
 					<Select.Trigger class="font-semibold">
-						{setBudget.fields.currency.value() ?? budget.currency}
+						{form.fields.currency.value() ?? budget.currency}
 					</Select.Trigger>
 
 					<Select.Content>

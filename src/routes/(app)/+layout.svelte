@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { setUserContext } from '$lib/utils/user-context';
+	import { getInvitations } from '$lib/remote-functions/budget.remote';
 
 	import type { LayoutProps } from './$types';
 
@@ -9,21 +9,21 @@
 
 	let { children, data }: LayoutProps = $props();
 
-	setUserContext(() => data.user);
+	const allInviations = $derived(await getInvitations());
 </script>
 
 <div class="@container/main mx-auto flex w-full max-w-9xl grow gap-2">
-	<NavigationMobile {...data}>
+	<NavigationMobile>
 		{#snippet invitations()}
-			{#each data.invitations as invitation (invitation.budgetId)}
+			{#each allInviations as invitation (invitation.budgetId)}
 				<Invitation {invitation} />
 			{/each}
 		{/snippet}
 	</NavigationMobile>
 
-	<Navigation {...data}>
+	<Navigation>
 		{#snippet invitations()}
-			{#each data.invitations as invitation (invitation.budgetId)}
+			{#each allInviations as invitation (invitation.budgetId)}
 				<Invitation {invitation} />
 			{/each}
 		{/snippet}

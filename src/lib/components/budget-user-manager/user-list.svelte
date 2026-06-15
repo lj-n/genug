@@ -2,7 +2,8 @@
 	import type { BudgetUser } from '$db/budget.utils';
 
 	import { m } from '$lib/paraglide/messages';
-	import { removeBudgetUser } from '$lib/remote-functions/budget.remote';
+	import { removeUser } from '$lib/remote-functions/budget.remote';
+	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { slide } from 'svelte/transition';
 	import EnvelopeDuotoneIcon from '~icons/ph/envelope-duotone';
 	import UserCircleIcon from '~icons/ph/user-circle';
@@ -10,13 +11,14 @@
 	import { Button } from '../ui/button';
 
 	type UserListProps = {
-		budgetId: string;
 		isOwner: boolean;
 		title: string;
 		users: BudgetUser[];
 	};
 
-	let { budgetId, isOwner, title, users }: UserListProps = $props();
+	let { isOwner, title, users }: UserListProps = $props();
+
+	const budgetId = getBudgetId();
 </script>
 
 {#if users.length > 0}
@@ -40,10 +42,10 @@
 					{#if user.role === 'OWNER'}
 						<div class="ml-auto text-info">{m.budget_users_creator_label()}</div>
 					{:else if isOwner}
-						{@const form = removeBudgetUser.for(user.id)}
+						{@const form = removeUser.for(user.id)}
 						<form {...form} class="contents">
 							<input {...form.fields.userId.as('hidden', user.id)} />
-							<input {...form.fields.budgetId.as('hidden', budgetId)} />
+							<input {...form.fields.budgetId.as('hidden', budgetId())} />
 							<Button
 								type="submit"
 								variant="destructive"

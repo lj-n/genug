@@ -1,35 +1,36 @@
 <script lang="ts">
 	import { InputCurrency } from '$lib/components/ui/input-currency';
-	import { assignBudget, getBudget } from '$lib/remote-functions/budget.remote';
+	import { assignment, getBudget } from '$lib/remote-functions/budget.remote';
+	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { formatCurrency } from '$lib/utils/format-currency';
 	import { Popover } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
 
 	type Category = {
+		assigned: number;
 		budgetId: string;
 		id: string;
-		thisMonthAmount: number;
 	};
 
 	let {
-		budgetId,
 		category,
 		month,
 		open = $bindable(false)
 	}: {
-		budgetId: string;
 		category: Category;
 		month: string;
 		open?: boolean;
 	} = $props();
 
-	const { currency } = $derived(await getBudget({ budgetId }));
+	const budgetId = getBudgetId();
 
-	const scopedForm = $derived(assignBudget.for(category.id));
+	const { currency } = $derived(await getBudget(budgetId()));
+
+	const scopedForm = $derived(assignment.for(category.id));
 
 	$effect(() => {
 		if (open) {
-			scopedForm.fields.amount.set(category.thisMonthAmount);
+			scopedForm.fields.amount.set(category.assigned);
 		}
 	});
 </script>
@@ -41,7 +42,7 @@
 			open && 'hidden'
 		)}
 	>
-		{formatCurrency({ centValue: category.thisMonthAmount, currency })}
+		{formatCurrency({ centValue: category.assigned, currency })}
 	</Popover.Trigger>
 
 	<Popover.ContentStatic class="absolute inset-0 outline-2 -outline-offset-2 outline-focus">
@@ -53,7 +54,7 @@
 			})}
 			class="contents"
 		>
-			<input {...scopedForm.fields.budgetId.as('hidden', budgetId)} />
+			<input {...scopedForm.fields.budgetId.as('hidden', budgetId())} />
 			<input {...scopedForm.fields.categoryId.as('hidden', category.id)} />
 			<input
 				type="hidden"
@@ -65,7 +66,7 @@
 				<InputCurrency
 					name={scopedForm.fields.amount.as('number').name}
 					bind:value={
-						() => scopedForm.fields.amount.value() ?? category.thisMonthAmount,
+						() => scopedForm.fields.amount.value() ?? category.assigned,
 						(v) => scopedForm.fields.amount.set(v)
 					}
 					{currency}

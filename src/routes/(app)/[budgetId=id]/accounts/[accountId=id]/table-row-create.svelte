@@ -7,9 +7,9 @@
 	import { InputCurrency } from '$lib/components/ui/input-currency';
 	import { SelectCommand } from '$lib/components/ui/select-command';
 	import { m } from '$lib/paraglide/messages';
+	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategoriesFlat } from '$lib/remote-functions/category.remote';
 	import { createTransaction, listTransactions } from '$lib/remote-functions/transaction.remote';
-	import { getCurrency } from '$lib/utils/currency';
 	import { getLocalTimeZone, parseDate, today } from '@internationalized/date';
 	import { Popover } from 'bits-ui';
 	import { slide } from 'svelte/transition';
@@ -26,7 +26,7 @@
 
 	const form = $derived(createTransaction.for(accountId));
 	const categories = $derived(await getCategoriesFlat({ budgetId }));
-	const currency = getCurrency();
+	const budget = $derived(await getBudget(budgetId));
 
 	let submitAndContinue = $state(false);
 	let formElement: HTMLFormElement | null = $state(null);
@@ -125,7 +125,7 @@
 							<InputCurrency
 								name={form.fields.amount.as('number').name}
 								bind:value={() => form.fields.amount.value() ?? 0, (v) => form.fields.amount.set(v)}
-								currency={currency()}
+								currency={budget.currency}
 								class="px-2 text-right font-currency font-medium"
 							/>
 						</div>

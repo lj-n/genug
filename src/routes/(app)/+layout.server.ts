@@ -9,7 +9,6 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 
 	const budgets = actions.budget.getAllBudgets({ userId: user.id });
 	const accounts = actions.account.getAllAccounts({ userId: user.id });
-	const invitations = actions.budget.getBudgetInvitations({ userId: user.id });
 
-	return { accounts, budgets, invitations, user };
+	return { accounts, budgets, user };
 };

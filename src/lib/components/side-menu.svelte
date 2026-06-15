@@ -5,15 +5,14 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { m } from '$lib/paraglide/messages';
+	import { getAccounts } from '$lib/remote-functions/account.remote';
+	import { getBudgets } from '$lib/remote-functions/budget.remote';
 	import { isCurrentPage } from '$lib/utils/is-current-page';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
 	import { slide } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
 	import PhArrowBendDownRightBold from '~icons/ph/arrow-bend-down-right-bold';
 	import PhDotsSixVertical from '~icons/ph/dots-six-vertical';
-
-	type BudgetData = Array<App.Budget & { accounts: App.Account[] }>;
-	let { budgets }: { budgets: BudgetData } = $props();
 
 	function saveOrder(entity: 'account' | 'budget') {
 		return (orderedIds: string[]) =>
@@ -29,6 +28,16 @@
 			});
 	}
 
+	type NavitemProps = {
+		dragDisabled?: boolean;
+		dragHandleIdentifier: string;
+		href: ResolvedPathname;
+		isActive?: boolean;
+		isSubItem?: boolean;
+		name: string;
+	};
+
+	const budgets = $derived(await getBudgets());
 	const budgetSortable = createSortable(() => budgets, {
 		direction: 'vertical',
 		draggable: '[data-drag-item="budget"]',
@@ -39,15 +48,6 @@
 		},
 		sortedCallback: saveOrder('budget')
 	});
-
-	type NavitemProps = {
-		dragDisabled?: boolean;
-		dragHandleIdentifier: string;
-		href: ResolvedPathname;
-		isActive?: boolean;
-		isSubItem?: boolean;
-		name: string;
-	};
 </script>
 
 {#snippet navitem({
@@ -88,6 +88,8 @@
 
 <ul {@attach budgetSortable.attach} class="grid">
 	{#each budgets as budget (budget.id)}
+		{@const accounts = await getAccounts(budget.id)}
+
 		<li
 			transition:slide={{ axis: 'y' }}
 			class="grid space-y-1 pt-2"
@@ -102,8 +104,8 @@
 				name: budget.name
 			})}
 
-			{#if budget.accounts.length > 0}
-				{@const accountSortable = createSortable(() => budget.accounts, {
+			{#if accounts.length > 0}
+				{@const accountSortable = createSortable(() => accounts, {
 					direction: 'vertical',
 					get draggable() {
 						return `[data-drag-item="${budget.id}"]`;
@@ -115,13 +117,13 @@
 						return `[data-drag-handle="${budget.id}"]`;
 					},
 					get sort() {
-						return budget.accounts.length > 1;
+						return accounts.length > 1;
 					},
 					sortedCallback: saveOrder('account')
 				})}
 
 				<ul {@attach accountSortable.attach} class="space-y-0.5 pl-2">
-					{#each budget.accounts as account (account.id)}
+					{#each accounts as account (account.id)}
 						{@const isActive = isCurrentPage(page, account.id)}
 						<li data-drag-item={budget.id} data-sortable-id={account.id} class="flex">
 							<div class={cn('mx-1 my-auto aspect-square', isActive ? 'text-info' : 'text-muted')}>
@@ -129,7 +131,7 @@
 							</div>
 
 							{@render navitem({
-								dragDisabled: budget.accounts.length <= 1,
+								dragDisabled: accounts.length <= 1,
 								dragHandleIdentifier: budget.id,
 								href: resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', {
 									accountId: account.id,

@@ -1,10 +1,7 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import { AccountCreate } from '$lib/components/account';
 	import * as Page from '$lib/components/ui/page';
 	import { m } from '$lib/paraglide/messages';
-
-	const budgetId = $derived(page.params.budgetId!);
 </script>
 
 <Page.Root class="max-w-lg">
@@ -19,6 +16,6 @@
 	</Page.Header>
 
 	<Page.Content>
-		<AccountCreate {budgetId} />
+		<AccountCreate />
 	</Page.Content>
 </Page.Root>

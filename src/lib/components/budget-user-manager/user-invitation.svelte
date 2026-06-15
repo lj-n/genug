@@ -4,11 +4,12 @@
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import { m } from '$lib/paraglide/messages';
 	import { findEligibleUser, inviteUser } from '$lib/remote-functions/budget.remote';
+	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { ParaglideMessage } from '@inlang/paraglide-js-svelte';
 	import { cn } from 'tailwind-variants';
 	import CaretUpDownIcon from '~icons/ph/caret-up-down';
 
-	let { budgetId }: { budgetId: string } = $props();
+	const budgetId = getBudgetId();
 
 	let debouncedUsername: string | undefined = $state();
 
@@ -19,7 +20,7 @@
 	});
 
 	const findUserResult = $derived(
-		debouncedUsername ? findEligibleUser({ budgetId, inviteeName: debouncedUsername }) : null
+		debouncedUsername ? findEligibleUser({ budgetId: budgetId(), inviteeName: debouncedUsername }) : null
 	);
 </script>
 
@@ -38,7 +39,7 @@
 		class="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down"
 	>
 		<form {...inviteUser} class="grid gap-2">
-			<input {...inviteUser.fields.budgetId.as('hidden', budgetId)} />
+			<input {...inviteUser.fields.budgetId.as('hidden', budgetId())} />
 
 			<div class="rounded-lg bg-info/5 p-3 text-sm text-info">
 				<ParaglideMessage message={m.budget_users_invite_warning} inputs={{}}>

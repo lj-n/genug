@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
-	import { getBudget, getBudgetMonth } from '$lib/remote-functions/budget.remote';
+	import { getBudget, getMonthly } from '$lib/remote-functions/budget.remote';
+	import { getBudgetId } from '$lib/utils/budget-id-context';
+	import { clamp } from '$lib/utils/clamp';
 	import { formatCurrency } from '$lib/utils/format-currency';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
 	import { useDialog } from '$lib/utils/use-dialog';
@@ -11,20 +13,19 @@
 	import BudgetTableCell from './budget-table-cell.svelte';
 	import BudgetTableHeader from './budget-table-header.svelte';
 	import CategoryAssignmentForm from './category-assignment-form.svelte';
-	import CategoryRemainingActions from './category-remaining-actions.svelte';
 
 	let {
-		budgetId,
 		month,
 		openCategoryDialog
 	}: {
-		budgetId: string;
 		month: string;
 		openCategoryDialog: (categoryId: string) => void;
 	} = $props();
 
-	const { currency } = $derived(await getBudget({ budgetId }));
-	const categories = $derived(await getBudgetMonth({ budgetId, month: parseInt(month) }));
+	const budgetId = getBudgetId();
+
+	const { currency } = $derived(await getBudget(budgetId()));
+	const categories = $derived(await getMonthly({ budgetId: budgetId(), month: parseInt(month) }));
 
 	function saveOrder() {
 		return (orderedIds: string[]) =>
@@ -48,6 +49,10 @@
 
 	let activeAssignmentCategoryId = $state<null | string>(null);
 	let isActiveAssignment = $derived((id: string) => activeAssignmentCategoryId === id);
+
+	const getPercentage = (target: number, current: number) => {
+		return clamp((current / target) * 100, 0, 100);
+	};
 </script>
 
 <div role="table">
@@ -90,18 +95,18 @@
 					<a
 						class="flex size-full items-center px-2 -outline-offset-2 hover:bg-interactive/15 hover:outline-2 hover:outline-interactive/40"
 						href={resolve('/(app)/[budgetId=id]/categories/[categoryId=id]', {
-							budgetId: row.budgetId,
+							budgetId: budgetId(),
 							categoryId: row.id
 						})}
 						{@attach useDialog(() => openCategoryDialog(row.id))}
 					>
 						{row.name}
 					</a>
-					{#if row.currentTargetPercentage !== null}
+					{#if row.targetBalance !== null}
 						<div class="absolute bottom-0 flex w-full">
 							<div
 								class="h-1 bg-success/60"
-								style="width: {Math.min(row.currentTargetPercentage, 100)}%"
+								style="width: {getPercentage(row.targetBalance, row.remaining)}%"
 							></div>
 						</div>
 					{/if}
@@ -120,22 +125,25 @@
 							}
 						}
 						category={row}
-						{budgetId}
 						{month}
 					/>
 				</BudgetTableCell>
 
 				<BudgetTableCell class="w-1/5 font-currency">
-					{formatCurrency({ centValue: row.thisMonthActivity, currency })}
+					{formatCurrency({ centValue: row.activity, currency })}
 				</BudgetTableCell>
 
 				<BudgetTableCell class="w-1/5 justify-end">
-					<CategoryRemainingActions
-						category={row}
-						{budgetId}
-						{month}
-						otherCategories={categories.filter((c) => c.id !== row.id)}
-					/>
+					<span
+						class={cn(
+							'w-fit rounded-full border px-2 font-currency',
+							row.remaining < 0
+								? 'border-error/50 bg-error/20 hover:bg-error/30'
+								: 'border-success/80 bg-success/20 hover:bg-success/30'
+						)}
+					>
+						{formatCurrency({ centValue: row.remaining, currency })}
+					</span>
 				</BudgetTableCell>
 
 				<BudgetTableCell class="w-9 border-0 last:p-2">

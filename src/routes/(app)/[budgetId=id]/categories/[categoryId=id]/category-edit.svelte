@@ -14,7 +14,7 @@
 	let { categoryId }: { categoryId: string } = $props();
 
 	const category = $derived(await getCategoryById({ categoryId }));
-	const budget = $derived(await getBudget({ budgetId: category.budgetId }));
+	const budget = $derived(await getBudget(category.budgetId));
 	const currency = $derived(budget.currency);
 
 	let savedToast = createSingletonToast();

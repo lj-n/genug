@@ -7,6 +7,7 @@
 	import { InputCurrency } from '$lib/components/ui/input-currency';
 	import { SelectCommand } from '$lib/components/ui/select-command';
 	import { m } from '$lib/paraglide/messages';
+	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategoriesFlat } from '$lib/remote-functions/category.remote';
 	import {
 		batchDeleteTransactions,
@@ -14,7 +15,6 @@
 		listTransactions
 	} from '$lib/remote-functions/transaction.remote';
 	import { clickOutside } from '$lib/utils/click-outside';
-	import { getCurrency } from '$lib/utils/currency';
 	import { parseDate } from '@internationalized/date';
 	import { onMount } from 'svelte';
 	import { cn } from 'tailwind-variants';
@@ -33,7 +33,7 @@
 	const form = editTransaction.for(id);
 	const deleteFormId = `dform-${id}`;
 
-	const currency = getCurrency();
+	const budget = $derived(await getBudget(budgetId));
 
 	const categories = $derived(await getCategoriesFlat({ budgetId }));
 
@@ -96,7 +96,7 @@
 			bind:value={
 				() => form.fields.amount.value() ?? transaction.amount, (v) => form.fields.amount.set(v)
 			}
-			currency={currency()}
+			currency={budget.currency}
 			class="px-2 text-right font-currency font-normal"
 		/>
 	</div>

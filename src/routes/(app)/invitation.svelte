@@ -4,7 +4,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { m } from '$lib/paraglide/messages';
-	import { getUserContext } from '$lib/utils/user-context';
+	import { getUser } from '$lib/remote-functions/user.remote';
 	import { ParaglideMessage } from '@inlang/paraglide-js-svelte';
 	import EnvelopeDuotoneIcon from '~icons/ph/envelope-duotone';
 
@@ -14,7 +14,7 @@
 
 	let open = $state(false);
 
-	const user = getUserContext();
+	const user = $derived(await getUser());
 </script>
 
 <Dialog.Root bind:open>
@@ -50,7 +50,7 @@
 				class="contents"
 				use:enhance
 			>
-				<Button variant="ghost" type="submit" name="userId" value={user().id}
+				<Button variant="ghost" type="submit" name="userId" value={user.id}
 					>{m.invitation_decline_button()}</Button
 				>
 			</form>
@@ -61,8 +61,7 @@
 				class="contents"
 				use:enhance
 			>
-				<Button type="submit" name="userId" value={user().id}>{m.invitation_accept_button()}</Button
-				>
+				<Button type="submit" name="userId" value={user.id}>{m.invitation_accept_button()}</Button>
 			</form>
 		</Dialog.Footer>
 	</Dialog.Content>

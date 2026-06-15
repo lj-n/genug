@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
 	import { createAccount } from '$lib/remote-functions/account.remote';
-	import { getCurrency } from '$lib/utils/currency';
+	import { getBudget } from '$lib/remote-functions/budget.remote';
+	import { getBudgetId } from '$lib/utils/budget-id-context';
 
 	import { Button } from '../ui/button';
 	import { FormBody } from '../ui/form-body';
@@ -9,14 +10,14 @@
 	import { Input } from '../ui/input';
 	import { InputCurrency } from '../ui/input-currency';
 
-	let { budgetId }: { budgetId: string } = $props();
+	const budgetId = getBudgetId();
 
-	const form = $derived(createAccount.for(budgetId));
-	const currency = getCurrency();
+	const budget = $derived(await getBudget(budgetId()));
+	const form = $derived(createAccount.for(budgetId()));
 </script>
 
 <FormBody {...form}>
-	<input {...form.fields.budgetId.as('hidden', budgetId)} />
+	<input {...form.fields.budgetId.as('hidden', budgetId())} />
 
 	<FormField field={form.fields.accountName} label={m.account_label_name()}>
 		{#snippet input(field)}
@@ -26,7 +27,7 @@
 
 	<FormField field={form.fields.startingBalance} label={m.account_starting_balance_label()}>
 		{#snippet input(field)}
-			<InputCurrency {...field.as('number', 0)} currency={currency()} />
+			<InputCurrency {...field.as('number', 0)} currency={budget.currency} />
 		{/snippet}
 	</FormField>
 

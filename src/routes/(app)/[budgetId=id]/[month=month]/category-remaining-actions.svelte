@@ -4,6 +4,7 @@
 	import { SelectCommand } from '$lib/components/ui/select-command';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget, transferBudget } from '$lib/remote-functions/budget.remote';
+	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { formatCurrency } from '$lib/utils/format-currency';
 	import { cn } from 'tailwind-variants';
 	import PhScales from '~icons/ph/scales';
@@ -17,18 +18,18 @@
 	};
 
 	let {
-		budgetId,
 		category,
 		month,
 		otherCategories
 	}: {
-		budgetId: string;
 		category: Category;
 		month: string;
 		otherCategories: Category[];
 	} = $props();
 
-	const { currency } = $derived(await getBudget({ budgetId }));
+	const budgetId = getBudgetId();
+
+	const { currency } = $derived(await getBudget(budgetId()));
 
 	const scopedForm = $derived(transferBudget.for(category.id));
 
@@ -103,7 +104,7 @@
 					})}
 					class="flex flex-col gap-2"
 				>
-					<input {...scopedForm.fields.budgetId.as('hidden', budgetId)} />
+					<input {...scopedForm.fields.budgetId.as('hidden', budgetId())} />
 					<input
 						type="hidden"
 						name={scopedForm.fields.month.as('number').name}
@@ -140,7 +141,7 @@
 					})}
 					class="flex flex-col gap-2"
 				>
-					<input {...scopedForm.fields.budgetId.as('hidden', budgetId)} />
+					<input {...scopedForm.fields.budgetId.as('hidden', budgetId())} />
 					<input
 						type="hidden"
 						name={scopedForm.fields.month.as('number').name}

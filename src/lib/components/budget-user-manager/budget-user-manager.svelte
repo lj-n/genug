@@ -4,15 +4,16 @@
 	import { m } from '$lib/paraglide/messages';
 	import { getBudgetUsers } from '$lib/remote-functions/budget.remote';
 	import { getUser } from '$lib/remote-functions/user.remote';
+	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import UserCirclePlusIcon from '~icons/ph/user-circle-plus';
 	import UsersThreeIcon from '~icons/ph/users-three';
 
 	import UserInvitation from './user-invitation.svelte';
 	import UserList from './user-list.svelte';
 
-	let { budgetId }: { budgetId: string } = $props();
+	const budgetId = getBudgetId();
 
-	const budgetUsers = $derived(await getBudgetUsers({ budgetId }));
+	const budgetUsers = $derived(await getBudgetUsers(budgetId()));
 	const user = $derived(await getUser());
 	const isOwner = $derived(budgetUsers.some((s) => s.id === user.id && s.role === 'OWNER'));
 	const invited = $derived(budgetUsers.filter((f) => f.role === 'INVITEE'));
@@ -42,11 +43,11 @@
 			</Dialog.Description>
 		</Dialog.Header>
 
-		<UserList {isOwner} {budgetId} title={m.budget_users_with_access_title()} users={members} />
+		<UserList {isOwner} title={m.budget_users_with_access_title()} users={members} />
 
-		<UserList {isOwner} {budgetId} title={m.budget_users_invited_title()} users={invited} />
+		<UserList {isOwner} title={m.budget_users_invited_title()} users={invited} />
 
-		<UserInvitation {budgetId} />
+		<UserInvitation />
 
 		<Dialog.Footer class="mt-6">
 			<Dialog.Close class={buttonVariants({ variant: 'ghost' })}>{m.dialog_close()}</Dialog.Close>

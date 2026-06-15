@@ -5,7 +5,7 @@ import { test } from './fixture';
 test('Create Account', async ({ pages }) => {
 	await pages.auth.createUserAndLogin();
 
-	const budgetName = faker.finance.accountName();
+	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
 	await pages.budget.goto(budgetName);
 
@@ -16,7 +16,7 @@ test('Create Account', async ({ pages }) => {
 test('Edit Account Name', async ({ pages }) => {
 	await pages.auth.createUserAndLogin();
 
-	const budgetName = faker.finance.accountName();
+	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
 	await pages.budget.goto(budgetName);
 

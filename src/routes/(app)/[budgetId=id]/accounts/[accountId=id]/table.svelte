@@ -2,11 +2,11 @@
 	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
 	import { m } from '$lib/paraglide/messages';
+	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import {
 		batchValidateTransactions,
 		listTransactions
 	} from '$lib/remote-functions/transaction.remote';
-	import { getCurrency } from '$lib/utils/currency';
 	import { formatCurrency } from '$lib/utils/format-currency';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { parseDate } from '@internationalized/date';
@@ -26,7 +26,7 @@
 
 	let { accountId, budgetId }: { accountId: string; budgetId: string } = $props();
 
-	const currency = getCurrency();
+	const budget = $derived(await getBudget(budgetId));
 
 	const result = $derived(
 		await listTransactions({ accountId, ...getTransactionURLParams(page.url) })
@@ -87,7 +87,7 @@
 							onclick={setEditing}
 							class="justify-end font-currency font-normal"
 						>
-							{formatCurrency({ centValue: item.amount, currency: currency() })}
+							{formatCurrency({ centValue: item.amount, currency: budget.currency })}
 						</TableCell>
 
 						<TableCell>
