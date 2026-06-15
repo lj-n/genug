@@ -66,11 +66,11 @@ export function withFilter<T extends SQLiteSelect>({
 	if (filter.validated !== undefined) {
 		conditions.push(eq(tables.transactions.validated, filter.validated));
 	}
-	if (filter.maxAmount) {
-		conditions.push(gte(tables.transactions.amount, filter.maxAmount));
-	}
 	if (filter.minAmount) {
-		conditions.push(lte(tables.transactions.amount, filter.minAmount));
+		conditions.push(gte(tables.transactions.amount, filter.minAmount));
+	}
+	if (filter.maxAmount) {
+		conditions.push(lte(tables.transactions.amount, filter.maxAmount));
 	}
 	if (filter.fromDate) {
 		conditions.push(gte(tables.transactions.date, filter.fromDate));

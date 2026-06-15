@@ -54,60 +54,54 @@ export const queries = (userId: string, db: Database = database) => ({
 	},
 
 	stats: (categoryId: string) => {
+		const txAgg = db
+			.select({
+				categoryId: tables.transactions.categoryId,
+				count: sql<number>`count(*)`.as('count'),
+				pendingCount:
+					sql<number>`coalesce(sum(CASE WHEN ${tables.transactions.validated} = false THEN 1 ELSE 0 END), 0)`.as(
+						'pendingCount'
+					),
+				sum: sql<number>`coalesce(sum(${tables.transactions.amount}), 0)`.as('sum'),
+				sumUntilMonth:
+					sql<number>`coalesce(sum(CASE WHEN strftime('%Y%m', ${tables.transactions.date}) <= ${String(month)} THEN ${tables.transactions.amount} ELSE 0 END), 0)`.as(
+						'sumUntilMonth'
+					)
+			})
+			.from(tables.transactions)
+			.groupBy(tables.transactions.categoryId)
+			.as('txAgg');
+
+		const assignmentAgg = db
+			.select({
+				categoryId: tables.budgetAssignments.categoryId,
+				count: sql<number>`count(*)`.as('count'),
+				sum: sql<number>`coalesce(sum(${tables.budgetAssignments.amount}), 0)`.as('sum'),
+				sumUntilMonth:
+					sql<number>`coalesce(sum(CASE WHEN ${tables.budgetAssignments.month} <= ${month} THEN ${tables.budgetAssignments.amount} ELSE 0 END), 0)`.as(
+						'sumUntilMonth'
+					)
+			})
+			.from(tables.budgetAssignments)
+			.groupBy(tables.budgetAssignments.categoryId)
+			.as('assignmentAgg');
+
 		const found = db
 			.select({
 				currentTargetPercentage: sql<null | number>`
 					CASE
 						WHEN ${tables.categories.targetBalance} IS NULL THEN NULL
-						ELSE (
-							COALESCE((
-								SELECT sum(${tables.budgetAssignments.amount})
-								FROM ${tables.budgetAssignments}
-								WHERE ${tables.budgetAssignments.categoryId} = ${tables.categories.id}
-								AND ${tables.budgetAssignments.month} <= ${month}
-							), 0)
-							+
-							COALESCE((
-								SELECT sum(${tables.transactions.amount})
-								FROM ${tables.transactions}
-								WHERE ${tables.transactions.categoryId} = ${tables.categories.id}
-								AND strftime('%Y%m', ${tables.transactions.date}) <= ${String(month)}
-							), 0)
-						) * 100 / ${tables.categories.targetBalance}
+						ELSE (coalesce(${assignmentAgg.sumUntilMonth}, 0) + coalesce(${txAgg.sumUntilMonth}, 0)) * 100 / ${tables.categories.targetBalance}
 					END`,
-				pendingTransactionCount: sql<number>`
-					COALESCE((
-						SELECT count(*)
-						FROM ${tables.transactions}
-						WHERE ${tables.transactions.categoryId} = ${tables.categories.id}
-						AND ${tables.transactions.validated} = false
-					), 0)`,
-				totalAssignedBudgetCount: sql<number>`
-					COALESCE((
-						SELECT count(*)
-						FROM ${tables.budgetAssignments}
-						WHERE ${tables.budgetAssignments.categoryId} = ${tables.categories.id}
-					), 0)`,
-				totalAssignedBudgetSum: sql<number>`
-					COALESCE((
-						SELECT sum(${tables.budgetAssignments.amount})
-						FROM ${tables.budgetAssignments}
-						WHERE ${tables.budgetAssignments.categoryId} = ${tables.categories.id}
-					), 0)`,
-				totalRelatedTransactionCount: sql<number>`
-					COALESCE((
-						SELECT count(*)
-						FROM ${tables.transactions}
-						WHERE ${tables.transactions.categoryId} = ${tables.categories.id}
-					), 0)`,
-				totalRelatedTransactionSum: sql<number>`
-					COALESCE((
-						SELECT sum(${tables.transactions.amount})
-						FROM ${tables.transactions}
-						WHERE ${tables.transactions.categoryId} = ${tables.categories.id}
-					), 0)`
+				pendingTransactionCount: sql<number>`coalesce(${txAgg.pendingCount}, 0)`,
+				totalAssignedBudgetCount: sql<number>`coalesce(${assignmentAgg.count}, 0)`,
+				totalAssignedBudgetSum: sql<number>`coalesce(${assignmentAgg.sum}, 0)`,
+				totalRelatedTransactionCount: sql<number>`coalesce(${txAgg.count}, 0)`,
+				totalRelatedTransactionSum: sql<number>`coalesce(${txAgg.sum}, 0)`
 			})
 			.from(tables.categories)
+			.leftJoin(txAgg, eq(txAgg.categoryId, tables.categories.id))
+			.leftJoin(assignmentAgg, eq(assignmentAgg.categoryId, tables.categories.id))
 			.where(and(hasAccess(tables.categories, userId, db), eq(tables.categories.id, categoryId)))
 			.get();
 

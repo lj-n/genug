@@ -33,21 +33,13 @@ export const queries = (userId: string, db: Database = database) => ({
 	balances: (accountId: string) => {
 		const detail = db
 			.select({
-				pending: sql<number>`(
-					SELECT coalesce(sum(${tables.transactions.amount}), 0)
-					FROM ${tables.transactions}
-					WHERE ${tables.transactions.accountId} = ${tables.accounts.id}
-					AND ${tables.transactions.validated} = false
-				)`,
-				validated: sql<number>`(
-					SELECT coalesce(sum(${tables.transactions.amount}), 0)
-					FROM ${tables.transactions}
-					WHERE ${tables.transactions.accountId} = ${tables.accounts.id}
-					AND ${tables.transactions.validated} = true
-				)`
+				pending: sql<number>`coalesce(sum(CASE WHEN ${tables.transactions.validated} = false THEN ${tables.transactions.amount} ELSE 0 END), 0)`,
+				validated: sql<number>`coalesce(sum(CASE WHEN ${tables.transactions.validated} = true THEN ${tables.transactions.amount} ELSE 0 END), 0)`
 			})
 			.from(tables.accounts)
+			.leftJoin(tables.transactions, eq(tables.transactions.accountId, tables.accounts.id))
 			.where(and(hasAccess(tables.accounts, userId, db), eq(tables.accounts.id, accountId)))
+			.groupBy(tables.accounts.id)
 			.get();
 
 		if (!detail) error(404, { message: m.error_account_not_found() });
