@@ -1,7 +1,9 @@
-import type { TransactionFilterParam, TransactionSortParam } from '$lib/server/db/transaction';
+import type {
+	TransactionFilterParam,
+	TransactionSortParam
+} from '$lib/server/db/user-context/transaction.utils';
 
-import { form, query, requested } from '$app/server';
-import { actions } from '$db';
+import { requested } from '$app/server';
 import {
 	BatchTransactionIdsSchema,
 	BatchValidateSchema,
@@ -9,24 +11,24 @@ import {
 	TransactionCreateSchema,
 	TransactionEditSchema
 } from '$lib/schemas/transaction';
+import { guardedForm, guardedQuery } from '$server/utils/remote-guard';
 
-import { requireUser } from './remote.utils';
-
-export const listTransactions = query(
+export const listTransactions = guardedQuery(
 	ListTransactionsSchema,
-	async ({
-		accountId,
-		categoryId,
-		notes,
-		page,
-		pageSize,
-		sortAccount,
-		sortCategory,
-		sortDate,
-		sortValidated
-	}) => {
-		const [user] = requireUser();
-
+	async (
+		{
+			accountId,
+			categoryId,
+			notes,
+			page,
+			pageSize,
+			sortAccount,
+			sortCategory,
+			sortDate,
+			sortValidated
+		},
+		{ ctx }
+	) => {
 		const filter: TransactionFilterParam = {
 			accountId,
 			...(categoryId?.length ? { categoryId } : {}),
@@ -40,17 +42,8 @@ export const listTransactions = query(
 			...(sortValidated ? { validated: sortValidated } : {})
 		};
 
-		const { transactions } = actions.transaction.listTransactions({
-			filter,
-			pagination: { page: page - 1, pageSize },
-			sort,
-			userId: user.id
-		});
-
-		const { transactions: allTransactions } = actions.transaction.listTransactions({
-			filter,
-			userId: user.id
-		});
+		const transactions = ctx.transaction.list(filter, sort, { page: page - 1, pageSize });
+		const allTransactions = ctx.transaction.list(filter, sort);
 
 		return {
 			pagination: { page, pageSize, totalTransactionCount: allTransactions.length },
@@ -59,10 +52,10 @@ export const listTransactions = query(
 	}
 );
 
-export const createTransaction = form(TransactionCreateSchema, async (data) => {
-	const [user] = requireUser();
-	actions.transaction.createTransaction({
-		data: {
+export const createTransaction = guardedForm(
+	TransactionCreateSchema,
+	async (data, { ctx, user }) => {
+		ctx.transaction.create({
 			accountId: data.accountId,
 			amount: data.amount,
 			budgetId: data.budgetId,
@@ -71,37 +64,36 @@ export const createTransaction = form(TransactionCreateSchema, async (data) => {
 			date: data.date,
 			notes: data.notes || null,
 			validated: data.validated
-		},
-		userId: user.id
-	});
-});
-
-export const editTransaction = form(
-	TransactionEditSchema,
-	async ({ categoryId, notes, transactionId, ...rest }) => {
-		const [user] = requireUser();
-		const update = {
-			...rest,
-			categoryId: categoryId === undefined ? undefined : categoryId || null,
-			notes: notes === undefined ? undefined : notes || null,
-			validated: rest.validated ?? false
-		};
-		actions.transaction.updateTransaction({ id: transactionId, update, userId: user.id });
-
-		await requested(listTransactions, 1).refreshAll();
+		});
 	}
 );
 
-export const batchDeleteTransactions = form(BatchTransactionIdsSchema, async ({ ids }) => {
-	const [user] = requireUser();
-	actions.transaction.batchDeleteTransactions({ ids, userId: user.id });
+export const editTransaction = guardedForm(
+	TransactionEditSchema,
+	async ({ categoryId, notes, transactionId, ...rest }, { ctx }) => {
+		const update = {
+			...rest,
+			categoryId: categoryId === '' ? null : categoryId,
+			notes: notes === undefined ? undefined : notes || null,
+			validated: rest.validated ?? false
+		};
+		ctx.transaction.edit(transactionId, update);
+		void requested(listTransactions, Infinity).refreshAll();
+	}
+);
 
-	await requested(listTransactions, 1).refreshAll();
-});
+export const batchDeleteTransactions = guardedForm(
+	BatchTransactionIdsSchema,
+	async ({ ids }, { ctx }) => {
+		ctx.transaction.delete(ids);
+		void requested(listTransactions, Infinity).refreshAll();
+	}
+);
 
-export const batchValidateTransactions = form(BatchValidateSchema, async ({ ids, validated }) => {
-	const [user] = requireUser();
-	actions.transaction.batchValidateTransactions({ ids, userId: user.id, validated });
-
-	await requested(listTransactions, 1).refreshAll();
-});
+export const batchValidateTransactions = guardedForm(
+	BatchValidateSchema,
+	async ({ ids, validated }, { ctx }) => {
+		ctx.transaction.validate(ids, validated);
+		void requested(listTransactions, Infinity).refreshAll();
+	}
+);

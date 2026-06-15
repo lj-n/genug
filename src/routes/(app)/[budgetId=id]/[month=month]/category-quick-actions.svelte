@@ -18,7 +18,10 @@
 
 <div class="flex gap-0.5">
 	<Popover.Root bind:open>
-		<Button href={resolve('/(app)/[budgetId=id]/categories/new', { budgetId: budgetId() })} class="md:hidden">
+		<Button
+			href={resolve('/(app)/[budgetId=id]/categories/new', { budgetId: budgetId() })}
+			class="md:hidden"
+		>
 			<PhStackPlus class="size-6" />
 			{m.category_create_button()}
 		</Button>
@@ -51,7 +54,10 @@
 		</Popover.Content>
 	</Popover.Root>
 
-	<Button variant="ghost" href={resolve('/(app)/[budgetId=id]/categories/archived', { budgetId: budgetId() })}>
+	<Button
+		variant="ghost"
+		href={resolve('/(app)/[budgetId=id]/categories/archived', { budgetId: budgetId() })}
+	>
 		<PhArchive class="size-6" />
 		{m.category_archived_link({ amount: archivedCategories.length })}
 	</Button>

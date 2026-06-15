@@ -1,3 +1,4 @@
+import { resolve } from '$app/paths';
 import { m } from '$lib/paraglide/messages';
 import {
 	AssignmentSchema,
@@ -7,7 +8,8 @@ import {
 	EditBudgetSchema,
 	FindBudgetUserSchema
 } from '$lib/schemas/budget';
-import { guardedForm, guardedQuery } from '$server/utils/remote-guard';
+import { OrderedIdsSchema } from '$lib/schemas/utils';
+import { guardedCommand, guardedForm, guardedQuery } from '$server/utils/remote-guard';
 import { error, redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
@@ -18,9 +20,9 @@ export const getBudget = guardedQuery(v.string(), async (id, { ctx }) => ctx.bud
 export const getBudgetUsers = guardedQuery(v.string(), async (id, { ctx }) => ctx.budget.users(id));
 
 export const createBudget = guardedForm(CreateBudgetSchema, async (data, { ctx }) => {
-	const id = ctx.budget.create(data);
+	const budgetId = ctx.budget.create(data);
 	void getBudgets().refresh();
-	redirect(302, `/${id}`);
+	redirect(303, resolve('/(app)/[budgetId=id]', { budgetId }));
 });
 
 export const editBudget = guardedForm(EditBudgetSchema, async ({ budgetId, ...data }, { ctx }) => {
@@ -88,3 +90,13 @@ export const assignment = guardedForm(AssignmentSchema, async (data, { ctx }) =>
 });
 
 export const getInvitations = guardedQuery(async ({ ctx }) => ctx.budget.invitations());
+
+export const reorderBudgets = guardedCommand(OrderedIdsSchema, async (orderedIds, { ctx }) => {
+	ctx.budget.reorder(orderedIds);
+});
+
+export const acceptInvite = guardedForm(BudgetAndUserIdSchema, async ({ budgetId }, { ctx }) => {
+	ctx.budget.acceptInvite(budgetId);
+	void getBudgets().refresh();
+	void getBudget(budgetId).refresh();
+});

@@ -1,14 +1,13 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { m } from '$lib/paraglide/messages';
+	import { acceptInvite, getInvitations, removeUser } from '$lib/remote-functions/budget.remote';
 	import { getUser } from '$lib/remote-functions/user.remote';
 	import { ParaglideMessage } from '@inlang/paraglide-js-svelte';
 	import EnvelopeDuotoneIcon from '~icons/ph/envelope-duotone';
 
-	type Invitation = ReturnType<typeof import('$db').actions.budget.getBudgetInvitations>[number];
+	type Invitation = Awaited<ReturnType<typeof getInvitations>>[number];
 
 	let { invitation }: { invitation: Invitation } = $props();
 
@@ -45,22 +44,24 @@
 
 		<Dialog.Footer>
 			<form
-				action={resolve(`/(app)/[budgetId=id]?/removeUser`, { budgetId: invitation.budgetId })}
-				method="post"
 				class="contents"
-				use:enhance
+				{...removeUser.enhance(async (f) => {
+					if (await f.submit()) open = false;
+				})}
 			>
+				<input {...removeUser.fields.budgetId.as('hidden', invitation.budgetId)} />
 				<Button variant="ghost" type="submit" name="userId" value={user.id}
 					>{m.invitation_decline_button()}</Button
 				>
 			</form>
 
 			<form
-				action={resolve(`/(app)/[budgetId=id]?/acceptInvite`, { budgetId: invitation.budgetId })}
-				method="post"
 				class="contents"
-				use:enhance
+				{...acceptInvite.enhance(async (f) => {
+					if (await f.submit()) open = false;
+				})}
 			>
+				<input {...acceptInvite.fields.budgetId.as('hidden', invitation.budgetId)} />
 				<Button type="submit" name="userId" value={user.id}>{m.invitation_accept_button()}</Button>
 			</form>
 		</Dialog.Footer>

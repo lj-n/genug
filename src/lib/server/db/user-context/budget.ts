@@ -206,7 +206,11 @@ export const commands = (userId: string, db: Database = database) => ({
 		db.update(tables.usersToBudgets)
 			.set({ role: 'MEMBER' })
 			.where(
-				and(eq(tables.usersToBudgets.budgetId, budgetId), eq(tables.usersToBudgets.role, 'INVITEE'))
+				and(
+					eq(tables.usersToBudgets.userId, userId),
+					eq(tables.usersToBudgets.budgetId, budgetId),
+					eq(tables.usersToBudgets.role, 'INVITEE')
+				)
 			)
 			.run();
 	},

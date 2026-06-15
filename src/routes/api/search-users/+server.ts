@@ -1,4 +1,4 @@
-import { actions } from '$db';
+import { createUserCtx } from '$db/user-context';
 import { json, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 
@@ -19,7 +19,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 	}
 
 	const { budgetId, q } = parsed.data;
-	const users = actions.budget.getEligibleUsers({ budgetId });
+	const users = createUserCtx(locals.session.user.id).budget.eligibleUsers(budgetId);
 
 	if (!users.find(({ name }) => name === q)) {
 		return json({ error: 'Not Found' }, { status: 404 });

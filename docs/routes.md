@@ -28,6 +28,7 @@ src/routes/
 ## Param matchers
 
 Custom matchers in `src/params/`:
+
 - `[budgetId=id]` — matches the `id` format (used for budget IDs)
 - `[month=month]` — matches `YYYYMM` integer format
 
@@ -50,6 +51,7 @@ export const getBudgets = query(async () => {
 ## Forms & mutations
 
 All form submissions and data mutations use remote functions via `$app/server`:
+
 - `form(Schema, handler)` for mutations
 - `query(Schema, handler)` for reads
 - Defined in `src/lib/remote-functions/*.remote.ts`

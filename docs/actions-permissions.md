@@ -8,11 +8,11 @@
 
 ```typescript
 class Actions {
-	account      // createAccountActions(...)
-	budget       // createBudgetActions(...)
-	category     // createCategoryActions(...)
-	transaction  // createTransactionActions(...)
-	user         // createUserActions(...)
+	account; // createAccountActions(...)
+	budget; // createBudgetActions(...)
+	category; // createCategoryActions(...)
+	transaction; // createTransactionActions(...)
+	user; // createUserActions(...)
 }
 ```
 
@@ -43,7 +43,7 @@ Returns `[user: App.User]` as a tuple, or throws an HTTP 401 error if no valid s
 ## userHasPermission
 
 ```typescript
-userHasPermission({ budgetIdCol, database, userId })
+userHasPermission({ budgetIdCol, database, userId });
 ```
 
 Returns a Drizzle `exists()` subquery that checks whether `userId` has a non-INVITEE role in `usersToBudgets` for the given `budgetIdCol`. Used inside action methods to scope queries to budgets the user actually belongs to.
@@ -51,9 +51,11 @@ Returns a Drizzle `exists()` subquery that checks whether `userId` has a non-INV
 ## Route-level vs function-level protection
 
 Route level:
+
 - `+page.server.ts` uses `actions` directly for lightweight loads (e.g. checking `isFirstUser`).
 - No `withPermissions` wrapper — auth is handled downstream.
 
 Function level:
+
 - Remote functions use `requireUser()` for auth.
 - Domain actions use `userHasPermission()` for budget-scoped authorization.

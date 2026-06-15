@@ -20,7 +20,9 @@
 	});
 
 	const findUserResult = $derived(
-		debouncedUsername ? findEligibleUser({ budgetId: budgetId(), inviteeName: debouncedUsername }) : null
+		debouncedUsername
+			? findEligibleUser({ budgetId: budgetId(), inviteeName: debouncedUsername })
+			: null
 	);
 </script>
 

@@ -2,7 +2,7 @@
 	import { AccountBalances, AccountSetName } from '$lib/components/account';
 	import * as Page from '$lib/components/ui/page';
 	import { Separator } from '$lib/components/ui/separator';
-	import { getAccountBalanceDetail, getAccountById } from '$lib/remote-functions/account.remote';
+	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 
 	import type { PageProps } from './$types';
@@ -11,8 +11,8 @@
 
 	let { params }: PageProps = $props();
 
-	const account = $derived(await getAccountById(params.accountId));
-	const balanceDetail = $derived(await getAccountBalanceDetail(params.accountId));
+	const account = $derived(await getAccount(params.accountId));
+	const balanceDetail = $derived(await getAccountBalances(params.accountId));
 	const budget = $derived(await getBudget(params.budgetId));
 
 	const balances = $derived({

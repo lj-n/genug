@@ -36,16 +36,16 @@ Located in `tests/playwright/pom/`. Each POM class extends `BasePage`.
 ```typescript
 class BasePage {
 	// Viewport detection (readonly computed):
-	get isDesktop()  // viewport >= 1292px
-	get isMobile()   // viewport <= 767px
-	get isTablet()   // between desktop and mobile
+	get isDesktop(); // viewport >= 1292px
+	get isMobile(); // viewport <= 767px
+	get isTablet(); // between desktop and mobile
 
 	// Mobile navigation:
-	async openMobileNavigation()     // opens nav toggle
-	async closeMobileNavigation()    // closes it if visible
+	async openMobileNavigation(); // opens nav toggle
+	async closeMobileNavigation(); // closes it if visible
 
 	// Budget creation (navigates to /new):
-	async createBudget(name: string)
+	async createBudget(name: string);
 }
 ```
 
@@ -54,10 +54,10 @@ class BasePage {
 ```typescript
 class BudgetPage extends BasePage {
 	// Navigate to a budget via sidebar link:
-	async goto(budgetName: string)
+	async goto(budgetName: string);
 
 	// Create an account via AccountDropdown dialog:
-	async createAccount(name: string, startingBalance = '0')
+	async createAccount(name: string, startingBalance = '0');
 }
 ```
 
@@ -66,25 +66,26 @@ class BudgetPage extends BasePage {
 ```typescript
 class AccountPage extends BasePage {
 	// Navigate to an account via sidebar link:
-	async goto(accountName: string)
+	async goto(accountName: string);
 
 	// Change account name via Settings dialog:
-	async editName(name: string)
+	async editName(name: string);
 }
 ```
 
 ## Viewport handling
 
 POM methods automatically handle responsive navigation:
+
 - On **mobile/tablet** viewports: `goto()` opens the mobile navigation before clicking links.
 - On **desktop**: sidebar is always visible, no navigation toggle needed.
 
 Breakpoints:
 | Viewport | Width |
 |----------|-------|
-| Mobile   | ≤ 767px |
-| Tablet   | 768–1291px |
-| Desktop  | ≥ 1292px |
+| Mobile | ≤ 767px |
+| Tablet | 768–1291px |
+| Desktop | ≥ 1292px |
 
 ## Auth flow
 
@@ -103,7 +104,7 @@ No `storageState` is saved — every test handles its own authentication. This k
 export function createPages(page: Page) {
 	return {
 		account: new AccountPage(page),
-		budget: new BudgetPage(page),
+		budget: new BudgetPage(page)
 	};
 }
 ```

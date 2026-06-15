@@ -2,7 +2,7 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { m } from '$lib/paraglide/messages';
-	import { getAccountById, setAccountName } from '$lib/remote-functions/account.remote';
+	import { editAccount, getAccount } from '$lib/remote-functions/account.remote';
 	import PencilIcon from '~icons/ph/pencil';
 
 	import { FormBody } from '../ui/form-body';
@@ -11,7 +11,7 @@
 
 	let { accountId }: { accountId: string } = $props();
 
-	const account = $derived(await getAccountById(accountId));
+	const account = $derived(await getAccount(accountId));
 
 	let open = $state(false);
 
@@ -22,7 +22,7 @@
 	bind:open
 	onOpenChangeComplete={(isOpen) => {
 		if (!isOpen) {
-			setAccountName.fields.accountName.set(account.name);
+			editAccount.fields.accountName.set(account.name);
 		}
 	}}
 >
@@ -44,16 +44,16 @@
 		</Dialog.Header>
 
 		<FormBody
-			{...setAccountName.enhance(async (f) => {
+			{...editAccount.enhance(async (f) => {
 				if (await f.submit()) {
 					open = false;
 				}
 			})}
 			id={formId}
 		>
-			<input {...setAccountName.fields.accountId.as('hidden', accountId)} />
+			<input {...editAccount.fields.accountId.as('hidden', accountId)} />
 
-			<FormField field={setAccountName.fields.accountName} label={m.account_label_name()}>
+			<FormField field={editAccount.fields.accountName} label={m.account_label_name()}>
 				{#snippet input(field)}
 					<Input {...field.as('text', account.name)} class="text-base" />
 				{/snippet}

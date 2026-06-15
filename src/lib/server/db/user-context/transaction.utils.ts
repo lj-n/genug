@@ -52,10 +52,13 @@ export function withFilter<T extends SQLiteSelect>({
 		const hasNull = ids.includes('null');
 
 		const categoryConditions: SQL[] = [];
-		if (realIds.length > 0) categoryConditions.push(inArray(tables.transactions.categoryId, realIds));
+		if (realIds.length > 0)
+			categoryConditions.push(inArray(tables.transactions.categoryId, realIds));
 		if (hasNull) categoryConditions.push(isNull(tables.transactions.categoryId));
 
-		conditions.push(categoryConditions.length === 1 ? categoryConditions[0] : or(...categoryConditions));
+		conditions.push(
+			categoryConditions.length === 1 ? categoryConditions[0] : or(...categoryConditions)
+		);
 	}
 	if (filter.notes) {
 		conditions.push(like(tables.transactions.notes, `%${escapeLikePattern(filter.notes)}%`));

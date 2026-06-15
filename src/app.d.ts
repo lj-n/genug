@@ -1,11 +1,7 @@
 import 'unplugin-icons/types/svelte';
 
-// See https://svelte.dev/docs/kit/types#app.d.ts
-// for information about these interfaces
 declare global {
 	namespace App {
-		type Account = ReturnType<typeof import('$db').actions.account.getAllAccounts>[number];
-		type Budget = import('$db').tables.Budget;
 		type Database = import('$db').Database;
 
 		interface Error {
@@ -24,14 +20,6 @@ declare global {
 		}
 
 		// interface Platform {}
-		// interface Error {}
-
-		namespace Superforms {
-			type Message = {
-				text?: string;
-				type: 'error' | 'success';
-			};
-		}
 	}
 }
 

@@ -29,13 +29,13 @@ Error handler (`handleError`) logs with a `logId` and returns `{ logId, message 
 ## Global types (`src/app.d.ts`)
 
 ```typescript
-App.User       // authenticated user (no passwordHash)
-App.Session    // { id, expiresAt, user: App.User }
-App.Actions    // instance of Actions class
-App.Database   // Drizzle SQLite DB type
-App.Budget     // inferred from budgets table
-App.Locals     // { logger: pino.Logger, session: Session | null }
-App.Superforms.Message  // { type: 'success' | 'error', text?: string }
+App.User; // authenticated user (no passwordHash)
+App.Session; // { id, expiresAt, user: App.User }
+App.Actions; // instance of Actions class
+App.Database; // Drizzle SQLite DB type
+App.Budget; // inferred from budgets table
+App.Locals; // { logger: pino.Logger, session: Session | null }
+App.Superforms.Message; // { type: 'success' | 'error', text?: string }
 ```
 
 ## UI conventions

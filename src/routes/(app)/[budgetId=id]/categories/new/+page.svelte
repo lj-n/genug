@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { Input } from '$lib/components/ui/input';
 	import * as Page from '$lib/components/ui/page';
@@ -26,7 +27,7 @@
 		<form
 			{...createCategory.enhance(async (form) => {
 				if (await form.submit()) {
-					goto(`/${budgetId}`);
+					goto(resolve('/(app)/[budgetId=id]', { budgetId }));
 				}
 			})}
 			id={formId}

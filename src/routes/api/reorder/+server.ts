@@ -29,12 +29,6 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 
 	try {
 		switch (parsed.data.entity) {
-			case 'account':
-				actions.account.reorderAccounts({ orderedIds: parsed.data.orderedIds, userId: user.id });
-				break;
-			case 'budget':
-				actions.budget.reorderBudgets({ orderedIds: parsed.data.orderedIds, userId: user.id });
-				break;
 			case 'category':
 				actions.category.reorderCategories({ orderedIds: parsed.data.orderedIds, userId: user.id });
 				break;

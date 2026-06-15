@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ListTransaction } from '$db/transaction';
+	import type { ListTransaction } from '$lib/server/db/user-context/transaction';
 
 	import { Button } from '$lib/components/ui/button';
 	import { DatePicker } from '$lib/components/ui/date-picker';

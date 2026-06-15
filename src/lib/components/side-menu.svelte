@@ -5,28 +5,14 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { m } from '$lib/paraglide/messages';
-	import { getAccounts } from '$lib/remote-functions/account.remote';
-	import { getBudgets } from '$lib/remote-functions/budget.remote';
+	import { getAccounts, reorderAccounts } from '$lib/remote-functions/account.remote';
+	import { getBudgets, reorderBudgets } from '$lib/remote-functions/budget.remote';
 	import { isCurrentPage } from '$lib/utils/is-current-page';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
 	import { slide } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
 	import PhArrowBendDownRightBold from '~icons/ph/arrow-bend-down-right-bold';
 	import PhDotsSixVertical from '~icons/ph/dots-six-vertical';
-
-	function saveOrder(entity: 'account' | 'budget') {
-		return (orderedIds: string[]) =>
-			fetch('/api/reorder', {
-				body: JSON.stringify({
-					entity,
-					orderedIds
-				}),
-				headers: {
-					'content-type': 'application/json'
-				},
-				method: 'POST'
-			});
-	}
 
 	type NavitemProps = {
 		dragDisabled?: boolean;
@@ -46,7 +32,10 @@
 		get sort() {
 			return budgets.length > 1;
 		},
-		sortedCallback: saveOrder('budget')
+		sortedCallback: async (orderedIds: string[]) => {
+			await reorderBudgets(orderedIds);
+			return new Response(null, { status: 200 });
+		}
 	});
 </script>
 
@@ -119,7 +108,10 @@
 					get sort() {
 						return accounts.length > 1;
 					},
-					sortedCallback: saveOrder('account')
+					sortedCallback: async (orderedIds: string[]) => {
+						await reorderAccounts(orderedIds);
+						return new Response(null, { status: 200 });
+					}
 				})}
 
 				<ul {@attach accountSortable.attach} class="space-y-0.5 pl-2">

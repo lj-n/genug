@@ -1,5 +1,5 @@
 import { resolve } from '$app/paths';
-import { actions } from '$db';
+import { createUserCtx } from '$db/user-context';
 import { createMonthParam } from '$lib/utils/date-utils';
 import { redirect } from '@sveltejs/kit';
 
@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.session) redirect(307, '/login');
 	const { user } = locals.session;
 
-	const [firstBudget] = actions.budget.getAllBudgets({ userId: user.id });
+	const [firstBudget] = createUserCtx(user.id).budget.all();
 
 	if (!firstBudget) {
 		redirect(307, resolve('/(app)/new'));

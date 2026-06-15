@@ -7,7 +7,7 @@
 	import NavigationMobile from './navigation-mobile.svelte';
 	import Navigation from './navigation.svelte';
 
-	let { children, data }: LayoutProps = $props();
+	let { children }: LayoutProps = $props();
 
 	const allInviations = $derived(await getInvitations());
 </script>
