@@ -1,7 +1,7 @@
 import { createDatabase } from '$db';
 import { expect, it } from 'vitest';
 
-import { hashPassword } from './auth';
+import { hashPassword } from './index';
 import { createUser, deleteUser, isFirstUser } from './user';
 
 it('createUser - creates user with correct properties', async () => {

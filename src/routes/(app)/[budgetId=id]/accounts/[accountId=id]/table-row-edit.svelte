@@ -8,7 +8,7 @@
 	import { SelectCommand } from '$lib/components/ui/select-command';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
-	import { getCategoriesFlat } from '$lib/remote-functions/category.remote';
+	import { getCategories } from '$lib/remote-functions/category.remote';
 	import {
 		batchDeleteTransactions,
 		editTransaction,
@@ -35,7 +35,7 @@
 
 	const budget = $derived(await getBudget(budgetId));
 
-	const categories = $derived(await getCategoriesFlat({ budgetId }));
+	const categories = $derived(await getCategories({ budgetId }));
 
 	onMount(() => {
 		form.fields.categoryId.set(transaction.categoryId ?? undefined);

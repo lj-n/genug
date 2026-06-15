@@ -2,7 +2,7 @@ import { database, type Database, tables } from '$db';
 import { m } from '$lib/paraglide/messages';
 import { getLocalTimeZone, today } from '@internationalized/date';
 import { error } from '@sveltejs/kit';
-import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 
 import { accessGuard, hasAccess } from './access';
 import { withOrder } from './utils';
@@ -119,22 +119,6 @@ export const commands = (userId: string, db: Database = database) => ({
 	},
 
 	reorder: (orderedIds: string[]) => {
-		const availableIds = db
-			.select({ id: tables.accounts.id })
-			.from(tables.accounts)
-			.where(
-				and(
-					inArray(tables.accounts.id, orderedIds),
-					isNull(tables.accounts.archivedAt),
-					hasAccess(tables.accounts, userId, db)
-				)
-			)
-			.all();
-
-		if (availableIds.length !== orderedIds.length) {
-			throw new Error('Invalid account ids');
-		}
-
 		db.transaction((tx) => {
 			for (const [position, accountId] of orderedIds.entries()) {
 				tx.insert(tables.userEntityOrder)

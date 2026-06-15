@@ -1,4 +1,4 @@
-import { DAY_IN_MS } from '$db/auth.utils';
+import { DAY_IN_MS } from '$db/auth/utils';
 import { sql } from 'drizzle-orm';
 import { index, primaryKey, sqliteTable, unique, uniqueIndex } from 'drizzle-orm/sqlite-core';
 

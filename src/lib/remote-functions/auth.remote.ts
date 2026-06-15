@@ -1,6 +1,13 @@
 import { form, getRequestEvent, query } from '$app/server';
-import { actions } from '$db';
-import { createUser, isFirstUser } from '$db/user';
+import {
+	authenticateUser,
+	createSession,
+	deleteSession,
+	deleteSessionCookie,
+	hashPassword,
+	setSessionCookie
+} from '$db';
+import { createUser, isFirstUser } from '$db';
 import { m } from '$lib/paraglide/messages';
 import { LoginSchema, RegisterSchema } from '$lib/schemas/auth';
 import { type Cookies, error, invalid, redirect } from '@sveltejs/kit';
@@ -9,7 +16,7 @@ export const login = form(LoginSchema, async ({ _password, username }, issue) =>
 	const { cookies } = getRequestEvent();
 
 	try {
-		const user = await actions.auth.authenticateUser({ password: _password, username });
+		const user = await authenticateUser({ password: _password, username });
 		createAndSetSession({ cookies, userId: user.id });
 	} catch (_error) {
 		invalid(issue(m.login_error_invalid_credentials()));
@@ -26,7 +33,7 @@ export const register = form(RegisterSchema, async ({ _password, username }) => 
 
 	if (!isFirst) error(401);
 
-	const passwordHash = await actions.auth.hashPassword({ password: _password });
+	const passwordHash = await hashPassword({ password: _password });
 	const user = createUser({ isAdmin: true, passwordHash, username });
 	createAndSetSession({ cookies, userId: user.id });
 
@@ -36,14 +43,14 @@ export const register = form(RegisterSchema, async ({ _password, username }) => 
 export const signout = form(async () => {
 	const { cookies, locals } = getRequestEvent();
 	if (!locals.session) error(401);
-	actions.auth.deleteSession({ sessionId: locals.session.id });
-	actions.auth.deleteSessionCookie({ cookies });
+	deleteSession({ sessionId: locals.session.id });
+	deleteSessionCookie({ cookies });
 });
 
 function createAndSetSession({ cookies, userId }: { cookies: Cookies; userId: string }) {
 	const {
 		session: { expiresAt },
 		sessionToken
-	} = actions.auth.createSession({ userId });
-	actions.auth.setSessionCookie({ cookies, expiresAt, sessionToken });
+	} = createSession({ userId });
+	setSessionCookie({ cookies, expiresAt, sessionToken });
 }

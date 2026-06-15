@@ -1,14 +1,14 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { m } from '$lib/paraglide/messages';
-	import { getCategoryById } from '$lib/remote-functions/category.remote';
+	import { getCategoryStats } from '$lib/remote-functions/category.remote';
 	import { ParaglideMessage } from '@inlang/paraglide-js-svelte';
 	import { cn } from 'tailwind-variants';
 	import PhWarningBold from '~icons/ph/warning-bold';
 
 	let { categoryId }: { categoryId: string } = $props();
 
-	const category = $derived(await getCategoryById({ categoryId }));
+	const category = $derived(await getCategoryStats({ categoryId }));
 </script>
 
 <section

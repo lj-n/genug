@@ -1,66 +1,50 @@
-import { form, query } from '$app/server';
-import { actions } from '$db';
 import { BudgetIdSchema } from '$lib/schemas/budget';
 import { CategoryCreateSchema, CategoryEditSchema, CategoryIdSchema } from '$lib/schemas/category';
-import { error } from '@sveltejs/kit';
+import { OrderedIdsSchema } from '$lib/schemas/utils';
+import { guardedCommand, guardedForm, guardedQuery } from '$server/utils/remote-guard';
 
-import { requireUser } from './remote.utils';
+export const getCategories = guardedQuery(BudgetIdSchema, async ({ budgetId }, { ctx }) =>
+	ctx.category.all(budgetId)
+);
 
-export const getCategories = query(BudgetIdSchema, async ({ budgetId }) => {
-	const [user] = requireUser();
-	return actions.category.getAllCategories({ budgetId, userId: user.id });
-});
+export const getArchivedCategories = guardedQuery(BudgetIdSchema, async ({ budgetId }, { ctx }) =>
+	ctx.category.archived(budgetId)
+);
 
-export const getArchivedCategories = query(BudgetIdSchema, async ({ budgetId }) => {
-	const [user] = requireUser();
-	return actions.category.getArchivedCategories({ budgetId, userId: user.id });
-});
+export const getCategoryById = guardedQuery(CategoryIdSchema, async ({ categoryId }, { ctx }) =>
+	ctx.category.byId(categoryId)
+);
 
-export const getCategoryById = query(CategoryIdSchema, async ({ categoryId }) => {
-	const [user] = requireUser();
-	const category = actions.category.getCategoryById({ id: categoryId, userId: user.id });
-	if (!category) error(404);
-	return category;
-});
+export const getCategoryStats = guardedQuery(CategoryIdSchema, async ({ categoryId }, { ctx }) =>
+	ctx.category.stats(categoryId)
+);
 
-export const createCategory = form(CategoryCreateSchema, async ({ budgetId, categoryName }) => {
-	const [user] = requireUser();
-	actions.category.createCategory({ budgetId, name: categoryName, userId: user.id });
-});
+export const createCategory = guardedForm(
+	CategoryCreateSchema,
+	async ({ budgetId, categoryName }, { ctx }) => {
+		ctx.category.create(budgetId, categoryName);
+	}
+);
 
-export const editCategory = form(
+export const editCategory = guardedForm(
 	CategoryEditSchema,
-	async ({ categoryId, categoryName, notes, targetBalance }) => {
-		requireUser();
-		actions.category.updateCategory({
-			data: {
-				name: categoryName,
-				notes: notes === undefined ? undefined : notes || null,
-				targetBalance: targetBalance === undefined ? undefined : targetBalance || null
-			},
-			id: categoryId
+	async ({ categoryId, categoryName, notes, targetBalance }, { ctx }) => {
+		ctx.category.edit(categoryId, {
+			name: categoryName,
+			notes: notes === undefined ? undefined : (notes ?? null),
+			targetBalance: targetBalance === undefined ? undefined : targetBalance || null
 		});
 	}
 );
 
-export const archiveCategory = form(CategoryIdSchema, async ({ categoryId }) => {
-	const [user] = requireUser();
-	const category = actions.category.getCategoryById({ id: categoryId, userId: user.id });
-	if (!category) throw new Error('Category not found');
-	actions.category.updateCategory({ data: { archivedAt: new Date() }, id: categoryId });
+export const archiveCategory = guardedForm(CategoryIdSchema, async ({ categoryId }, { ctx }) => {
+	ctx.category.edit(categoryId, { archivedAt: new Date() });
 });
 
-export const restoreCategory = form(CategoryIdSchema, async ({ categoryId }) => {
-	const [user] = requireUser();
-	const category = actions.category.getCategoryById({ id: categoryId, userId: user.id });
-	if (!category) throw new Error('Category not found');
-	actions.category.updateCategory({ data: { archivedAt: null }, id: categoryId });
+export const restoreCategory = guardedForm(CategoryIdSchema, async ({ categoryId }, { ctx }) => {
+	ctx.category.edit(categoryId, { archivedAt: null });
 });
 
-export const getCategoriesFlat = query(BudgetIdSchema, async ({ budgetId }) => {
-	const [user] = requireUser();
-	return actions.category
-		.getAllCategoriesFlat({ budgetId, userId: user.id })
-		.filter((c) => c.archivedAt === null)
-		.map((c) => ({ id: c.id, name: c.name }));
+export const reorderCategories = guardedCommand(OrderedIdsSchema, async (orderedIds, { ctx }) => {
+	ctx.category.reorder(orderedIds);
 });

@@ -9,9 +9,9 @@ import {
 	hashPassword,
 	refreshSession,
 	validateSession
-} from './auth';
-import { DAY_IN_MS, InvalidCredentialsError, type Session } from './auth.utils';
+} from './index';
 import { createUser } from './user';
+import { DAY_IN_MS, InvalidCredentialsError, type Session } from './utils';
 
 async function createSessionForTest(db: Database): Promise<Session> {
 	const passwordHash = await hashPassword({ password: 'password123' });

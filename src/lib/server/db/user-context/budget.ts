@@ -6,6 +6,12 @@ import { alias } from 'drizzle-orm/sqlite-core';
 import { accessGuard, hasAccess, ownerGuard } from './access';
 import { withOrder } from './utils';
 
+export type BudgetUser = {
+	id: string;
+	name: string;
+	role: typeof tables.usersToBudgets.$inferSelect.role;
+};
+
 export const queries = (userId: string, db: Database = database) => ({
 	all: () => {
 		const qb = db
@@ -236,7 +242,15 @@ export const commands = (userId: string, db: Database = database) => ({
 
 	edit: (budgetId: string, data: Pick<typeof tables.budgets.$inferInsert, 'currency' | 'name'>) => {
 		ownerGuard(budgetId, userId, db);
-		return db.update(tables.budgets).set(data).returning().get();
+		const updated = db
+			.update(tables.budgets)
+			.set(data)
+			.where(eq(tables.budgets.id, budgetId))
+			.returning()
+			.get();
+
+		if (!updated) error(404);
+		return updated;
 	},
 
 	invite: (budgetId: string, inviteeId: string) => {

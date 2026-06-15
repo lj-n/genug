@@ -5,6 +5,7 @@
 	import {
 		archiveCategory,
 		getCategoryById,
+		getCategoryStats,
 		restoreCategory
 	} from '$lib/remote-functions/category.remote';
 	import { formatCurrency } from '$lib/utils/format-currency';
@@ -18,13 +19,14 @@
 	let { categoryId }: { categoryId: string } = $props();
 
 	const category = $derived(await getCategoryById({ categoryId }));
+	const stats = $derived(await getCategoryStats({ categoryId }));
 	const budget = $derived(await getBudget(category.budgetId));
 	const currency = $derived(budget.currency);
 
 	let isArchived = $derived(category.archivedAt !== null);
-	let noRemainingBudget = $derived(hasNoRemainingBudget(category));
-	let noPendingTransactions = $derived(hasNoPendingTransactions(category));
-	let archivable = $derived(isArchivable(category));
+	let noRemainingBudget = $derived(hasNoRemainingBudget(stats));
+	let noPendingTransactions = $derived(hasNoPendingTransactions(stats));
+	let archivable = $derived(isArchivable(stats));
 
 	let { buttonText, description, title } = $derived({
 		buttonText: isArchived ? m.category_restore_button : m.category_archive_button,
@@ -55,7 +57,7 @@
 						{#snippet sum()}
 							<span class="font-semibold tabular-nums">
 								{formatCurrency({
-									centValue: category.totalAssignedBudgetSum + category.totalRelatedTransactionSum,
+									centValue: stats.totalAssignedBudgetSum + stats.totalRelatedTransactionSum,
 									currency
 								})}
 							</span>

@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget, getMonthly } from '$lib/remote-functions/budget.remote';
+	import { reorderCategories } from '$lib/remote-functions/category.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { clamp } from '$lib/utils/clamp';
 	import { formatCurrency } from '$lib/utils/format-currency';
@@ -27,15 +28,6 @@
 	const { currency } = $derived(await getBudget(budgetId()));
 	const categories = $derived(await getMonthly({ budgetId: budgetId(), month: parseInt(month) }));
 
-	function saveOrder() {
-		return (orderedIds: string[]) =>
-			fetch('/api/reorder', {
-				body: JSON.stringify({ entity: 'category', orderedIds }),
-				headers: { 'content-type': 'application/json' },
-				method: 'POST'
-			});
-	}
-
 	const categorySortable = createSortable(() => categories, {
 		direction: 'vertical',
 		draggable: '[data-drag-item="category"]',
@@ -44,7 +36,10 @@
 		get sort() {
 			return categories.length > 1;
 		},
-		sortedCallback: saveOrder()
+		sortedCallback: async (orderedIds: string[]) => {
+			await reorderCategories(orderedIds);
+			return new Response(null, { status: 200 });
+		}
 	});
 
 	let activeAssignmentCategoryId = $state<null | string>(null);

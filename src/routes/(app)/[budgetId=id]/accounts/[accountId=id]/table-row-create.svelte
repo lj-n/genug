@@ -8,7 +8,7 @@
 	import { SelectCommand } from '$lib/components/ui/select-command';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
-	import { getCategoriesFlat } from '$lib/remote-functions/category.remote';
+	import { getCategories } from '$lib/remote-functions/category.remote';
 	import { createTransaction, listTransactions } from '$lib/remote-functions/transaction.remote';
 	import { getLocalTimeZone, parseDate, today } from '@internationalized/date';
 	import { Popover } from 'bits-ui';
@@ -25,7 +25,7 @@
 	}: { accountId: string; budgetId: string; open?: boolean } = $props();
 
 	const form = $derived(createTransaction.for(accountId));
-	const categories = $derived(await getCategoriesFlat({ budgetId }));
+	const categories = $derived(await getCategories({ budgetId }));
 	const budget = $derived(await getBudget(budgetId));
 
 	let submitAndContinue = $state(false);

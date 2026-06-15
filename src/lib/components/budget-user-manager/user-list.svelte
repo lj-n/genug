@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { BudgetUser } from '$db/budget.utils';
+	import type { BudgetUser } from '$lib/server/db/user-context/budget';
 
 	import { m } from '$lib/paraglide/messages';
 	import { removeUser } from '$lib/remote-functions/budget.remote';

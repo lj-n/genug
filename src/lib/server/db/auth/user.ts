@@ -1,7 +1,7 @@
 import { database, type Database, tables } from '$db';
 import { and, desc, eq, getColumns, ne, notExists } from 'drizzle-orm';
 
-import { hashPassword } from './auth';
+import { hashPassword } from './index';
 
 export function createUser({
 	db = database,

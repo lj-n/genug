@@ -15,7 +15,7 @@ import {
 	type Session,
 	SESSION_COOKIE_NAME,
 	shouldRefresh
-} from './auth.utils';
+} from './utils';
 
 export async function authenticateUser({
 	db = database,

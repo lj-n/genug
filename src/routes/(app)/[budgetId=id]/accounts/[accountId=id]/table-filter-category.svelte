@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as Select from '$lib/components/ui/select';
 	import { m } from '$lib/paraglide/messages';
-	import { getCategoriesFlat } from '$lib/remote-functions/category.remote';
+	import { getCategories } from '$lib/remote-functions/category.remote';
 
 	let {
 		budgetId,
@@ -15,7 +15,7 @@
 		value: string[];
 	} = $props();
 
-	const categories = $derived(await getCategoriesFlat({ budgetId }));
+	const categories = $derived(await getCategories({ budgetId }));
 </script>
 
 <Select.Root type="multiple" bind:value onValueChange={onchange}>
