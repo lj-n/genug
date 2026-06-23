@@ -1,7 +1,11 @@
 import { m } from '$lib/paraglide/messages';
 import * as v from 'valibot';
 
-export const CoercedNumber = v.pipe(v.unknown(), v.transform(Number));
+export const CoercedNumber = v.pipe(
+	v.unknown(),
+	v.transform(Number),
+	v.check((v) => !Number.isNaN(v), 'Expected a valid number')
+);
 
 export const NameSchema = v.pipe(
 	v.string(),

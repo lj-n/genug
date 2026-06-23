@@ -122,4 +122,21 @@ describe('InputCurrency cent binding', () => {
 		const formData = new FormData(form);
 		expect(formData.get('targetBalance')).toBe('99955');
 	});
+
+	it('submits empty string when value is NaN', () => {
+		const form = document.createElement('form');
+		document.body.append(form);
+
+		render(InputCurrency, {
+			props: {
+				intlConfig: { currency: 'EUR', locale: 'de-DE' },
+				name: 'amount',
+				value: NaN
+			},
+			target: form
+		});
+
+		const formData = new FormData(form);
+		expect(formData.get('amount')).toBe('');
+	});
 });

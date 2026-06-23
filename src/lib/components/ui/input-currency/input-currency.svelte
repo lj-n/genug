@@ -80,7 +80,7 @@
 			return null;
 		}
 		if (typeof raw === 'number') {
-			return raw;
+			return Number.isNaN(raw) ? null : raw;
 		}
 		// string — treat as cent integer
 		const n = Number(raw);
@@ -182,7 +182,11 @@
 	<input
 		type="hidden"
 		{name}
-		value={value === null || value === undefined ? '' : String(value)}
+		value={value === null ||
+		value === undefined ||
+		(typeof value === 'number' && Number.isNaN(value))
+			? ''
+			: String(value)}
 		disabled={restProps.disabled}
 		form={restProps.form}
 	/>

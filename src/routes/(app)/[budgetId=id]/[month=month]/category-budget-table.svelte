@@ -8,6 +8,7 @@
 	import { formatCurrency } from '$lib/utils/format-currency';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
 	import { useDialog } from '$lib/utils/use-dialog';
+	import { untrack } from 'svelte';
 	import { cn } from 'tailwind-variants';
 	import PhDotsSixVerticalBold from '~icons/ph/dots-six-vertical-bold';
 
@@ -26,7 +27,13 @@
 	const budgetId = getBudgetId();
 
 	const { currency } = $derived(await getBudget(budgetId()));
-	const categories = $derived(await getMonthly({ budgetId: budgetId(), month: parseInt(month) }));
+	const monthNum = parseInt(untrack(() => month));
+	const categories = $derived(
+		await getMonthly({
+			budgetId: budgetId(),
+			month: Number.isNaN(monthNum) ? 0 : monthNum
+		})
+	);
 
 	const categorySortable = createSortable(() => categories, {
 		direction: 'vertical',

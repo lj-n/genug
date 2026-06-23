@@ -59,7 +59,7 @@
 			<input
 				type="hidden"
 				name={scopedForm.fields.month.as('number').name}
-				value={parseInt(month)}
+				value={Number.isNaN(parseInt(month)) ? '' : parseInt(month)}
 			/>
 
 			<div class="h-full w-full">
