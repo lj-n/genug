@@ -6,7 +6,7 @@
 	import { DatePicker } from '$lib/components/ui/date-picker';
 	import { Input } from '$lib/components/ui/input';
 	import { InputCurrency } from '$lib/components/ui/input-currency';
-	import { SelectCommand } from '$lib/components/ui/select-command';
+	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategories } from '$lib/remote-functions/category.remote';
@@ -89,16 +89,14 @@
 			<input {...createTransaction.fields.budgetId.as('hidden', budgetId)} />
 
 			<div role="cell" class="grid items-center bg-interactive/5 p-2">
-				<SelectCommand
+				<SelectCategory
 					name={createTransaction.fields.categoryId.as('select').name}
 					bind:value={
 						() => createTransaction.fields.categoryId.value(),
 						(v) => createTransaction.fields.categoryId.set(v)
 					}
-					items={categories}
-					textEmptyTrigger={m.transaction_table_cell_category_empty()}
-					textInputPlaceholder={m.transaction_table_cell_category_placeholder()}
-					textListEmpty={m.transaction_table_cell_category_empty()}
+					{categories}
+					nullable
 				/>
 			</div>
 

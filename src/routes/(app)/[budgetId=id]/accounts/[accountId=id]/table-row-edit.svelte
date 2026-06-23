@@ -5,7 +5,7 @@
 	import { DatePicker } from '$lib/components/ui/date-picker';
 	import { Input } from '$lib/components/ui/input';
 	import { InputCurrency } from '$lib/components/ui/input-currency';
-	import { SelectCommand } from '$lib/components/ui/select-command';
+	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategories } from '$lib/remote-functions/category.remote';
@@ -65,18 +65,20 @@
 	<input {...form.fields.transactionId.as('hidden', transaction.id)} />
 
 	<div role="cell" class="grid items-center bg-interactive/5 p-2">
-		<SelectCommand
+		<SelectCategory
 			name={form.fields.categoryId.as('select').name}
 			bind:value={() => form.fields.categoryId.value(), (v) => form.fields.categoryId.set(v)}
-			items={categories}
-			textEmptyTrigger={m.transaction_table_cell_category_empty()}
-			textInputPlaceholder={m.transaction_table_cell_category_placeholder()}
-			textListEmpty={m.transaction_table_cell_category_empty()}
+			{categories}
+			nullable
 		/>
 	</div>
 
 	<div role="cell" class="grid items-center bg-interactive/5 p-2">
-		<Input class="px-2" aria-label="Notes" {...form.fields.notes.as('text', transaction.notes ?? '')} />
+		<Input
+			class="px-2"
+			aria-label="Notes"
+			{...form.fields.notes.as('text', transaction.notes ?? '')}
+		/>
 	</div>
 
 	<div role="cell" class="grid items-center bg-interactive/5 p-2">
