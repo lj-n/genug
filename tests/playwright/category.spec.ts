@@ -15,7 +15,7 @@ test('Create Category', async ({ pages }) => {
 	await pages.budget.goto(budgetName);
 
 	const categoryName = faker.commerce.department();
-	await pages.category.create(categoryName);
+	await pages.budget.createCategory(categoryName);
 });
 
 test('Edit Category Name', async ({ pages }) => {
@@ -31,7 +31,7 @@ test('Edit Category Name', async ({ pages }) => {
 	await pages.budget.goto(budgetName);
 
 	const categoryName = faker.commerce.department();
-	await pages.category.create(categoryName);
+	await pages.budget.createCategory(categoryName);
 
 	const newName = faker.commerce.department();
 	await pages.category.editName(categoryName, newName);

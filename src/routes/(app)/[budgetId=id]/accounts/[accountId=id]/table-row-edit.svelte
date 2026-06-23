@@ -76,7 +76,7 @@
 	</div>
 
 	<div role="cell" class="grid items-center bg-interactive/5 p-2">
-		<Input class="px-2" {...form.fields.notes.as('text', transaction.notes ?? '')} />
+		<Input class="px-2" aria-label="Notes" {...form.fields.notes.as('text', transaction.notes ?? '')} />
 	</div>
 
 	<div role="cell" class="grid items-center bg-interactive/5 p-2">
@@ -93,6 +93,7 @@
 	<div role="cell" class="grid items-center bg-interactive/5 p-2">
 		<InputCurrency
 			name={form.fields.amount.as('number').name}
+			aria-label="Amount"
 			bind:value={
 				() => form.fields.amount.value() ?? transaction.amount, (v) => form.fields.amount.set(v)
 			}

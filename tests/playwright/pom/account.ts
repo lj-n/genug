@@ -1,3 +1,4 @@
+import { formatCurrency } from '$lib/utils/format-currency';
 import { expect, type Page } from '@playwright/test';
 
 import { BasePage } from './base-page';
@@ -5,6 +6,21 @@ import { BasePage } from './base-page';
 export class AccountPage extends BasePage {
 	constructor(page: Page) {
 		super(page);
+	}
+
+	async createTransaction(amount: string) {
+		await this.page.getByRole('button', { name: 'New Transaction' }).click();
+
+		const createRow = this.page.getByRole('row', { name: 'New Transaction' });
+		await createRow.getByRole('textbox', { name: 'Amount' }).fill(amount);
+		await createRow.getByRole('button', { exact: true, name: 'Save' }).press('Enter');
+
+		await expect(
+			this.page.getByRole('button', {
+				exact: true,
+				name: 'Edit amount'
+			})
+		).toHaveText(formatCurrency({ centValue: Number(amount) * 100, currency: 'EUR' }));
 	}
 
 	async editName(name: string) {

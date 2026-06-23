@@ -65,6 +65,7 @@ export const createTransaction = guardedForm(
 			notes: data.notes || null,
 			validated: data.validated
 		});
+		await requested(listTransactions, 1).refreshAll();
 	}
 );
 
@@ -78,7 +79,7 @@ export const editTransaction = guardedForm(
 			validated: rest.validated ?? false
 		};
 		ctx.transaction.edit(transactionId, update);
-		void requested(listTransactions, Infinity).refreshAll();
+		await requested(listTransactions, 1).refreshAll();
 	}
 );
 
@@ -86,7 +87,7 @@ export const batchDeleteTransactions = guardedForm(
 	BatchTransactionIdsSchema,
 	async ({ ids }, { ctx }) => {
 		ctx.transaction.delete(ids);
-		void requested(listTransactions, Infinity).refreshAll();
+		await requested(listTransactions, 1).refreshAll();
 	}
 );
 
@@ -94,6 +95,6 @@ export const batchValidateTransactions = guardedForm(
 	BatchValidateSchema,
 	async ({ ids, validated }, { ctx }) => {
 		ctx.transaction.validate(ids, validated);
-		void requested(listTransactions, Infinity).refreshAll();
+		await requested(listTransactions, 1).refreshAll();
 	}
 );

@@ -52,6 +52,16 @@ export class BudgetPage extends BasePage {
 		}
 	}
 
+	async createCategory(name: string) {
+		await this.page.getByRole('button', { name: 'Create Category' }).click();
+
+		const input = this.page.getByRole('textbox', { name: 'Category Name' });
+		await input.fill(name);
+		await input.press('Enter');
+
+		await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
+	}
+
 	async goto(budgetName: string) {
 		if (!this.isDesktop) {
 			await this.openMobileNavigation();
