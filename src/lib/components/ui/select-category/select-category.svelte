@@ -9,6 +9,7 @@
 
 	let {
 		ariaLabel,
+		ariaLabelTrigger,
 		categories,
 		class: className,
 		contentProps,
@@ -22,6 +23,7 @@
 		value = $bindable('')
 	}: {
 		ariaLabel?: string;
+		ariaLabelTrigger?: string;
 		categories: Category[];
 		class?: string;
 		contentProps?: WithoutChildrenOrChild<Combobox.ContentProps>;
@@ -104,7 +106,10 @@
 			{placeholder}
 			oninput={handleInput}
 		/>
-		<Combobox.Trigger class="flex h-full items-center px-2 text-muted hover:text-foreground">
+		<Combobox.Trigger
+			class="flex h-full items-center px-2 text-muted hover:text-foreground"
+			aria-label={ariaLabelTrigger}
+		>
 			<CaretUpDownIcon class="size-4" aria-hidden="true" />
 		</Combobox.Trigger>
 	</div>

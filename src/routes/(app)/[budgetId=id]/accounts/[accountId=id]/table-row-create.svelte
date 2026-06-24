@@ -96,6 +96,8 @@
 					}
 					{categories}
 					nullable
+					ariaLabel={m.transactions_table_header_category()}
+					ariaLabelTrigger={m.select_category_open()}
 				/>
 			</div>
 
@@ -114,6 +116,7 @@
 						(v) => createTransaction.fields.date.set(v.toString())
 					}
 					class="justify-end"
+					label={m.transaction_table_cell_date_select()}
 				/>
 			</div>
 

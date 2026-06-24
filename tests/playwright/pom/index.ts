@@ -5,6 +5,7 @@ import { AdminPage } from './admin';
 import { AuthPage } from './auth';
 import { BudgetPage } from './budget';
 import { CategoryPage } from './category';
+import { SettingsPage } from './settings';
 
 export class Pages {
 	account: AccountPage;
@@ -12,6 +13,7 @@ export class Pages {
 	auth: AuthPage;
 	budget: BudgetPage;
 	category: CategoryPage;
+	settings: SettingsPage;
 
 	constructor(page: Page) {
 		this.account = new AccountPage(page);
@@ -19,5 +21,6 @@ export class Pages {
 		this.auth = new AuthPage(page);
 		this.budget = new BudgetPage(page);
 		this.category = new CategoryPage(page);
+		this.settings = new SettingsPage(page);
 	}
 }

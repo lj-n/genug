@@ -7,6 +7,13 @@ export class BudgetPage extends BasePage {
 		super(page);
 	}
 
+	async assignAmount(categoryName: string, amount: string) {
+		const categoryRow = this.page.getByRole('row').filter({ hasText: categoryName });
+		await categoryRow.getByRole('button', { name: 'Budget' }).click();
+		await this.page.getByRole('textbox', { name: 'Budget' }).fill(amount);
+		await this.page.getByRole('textbox', { name: 'Budget' }).press('Enter');
+	}
+
 	async createAccount(name: string, startingBalance = '0') {
 		await this.page.getByRole('button', { name: 'Show Accounts' }).click();
 		await expect(this.page.getByRole('menuitem', { name: 'Add Account' })).toBeVisible();

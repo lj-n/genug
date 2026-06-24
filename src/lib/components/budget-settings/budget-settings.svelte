@@ -58,7 +58,7 @@
 			<div class="grid gap-2">
 				<Label>{m.budget_label_name()}</Label>
 				<InputGroup.Root>
-					<InputGroup.Input {...editBudget.fields.name.as('text', budget.name)} />
+					<InputGroup.Input {...editBudget.fields.name.as('text', budget.name)} aria-label={m.budget_label_name()} />
 				</InputGroup.Root>
 			</div>
 

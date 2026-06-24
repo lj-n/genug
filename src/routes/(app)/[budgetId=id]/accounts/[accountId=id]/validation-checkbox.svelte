@@ -15,7 +15,7 @@
 
 <Label
 	class={buttonVariants({
-		class: 'rounded-xs hover:bg-transparent',
+		class: 'rounded-xs hover:bg-transparent relative cursor-pointer',
 		size: 'icon-lg',
 		variant: 'ghost'
 	})}
@@ -26,11 +26,11 @@
 		{disabled}
 		{...restProps}
 		aria-label="Validated"
-		class="sr-only cursor-pointer"
+		class="absolute inset-0 opacity-0 z-10 cursor-pointer"
 	/>
 	{#if checked}
-		<SealCheckDuotoneIcon class="size-6 text-success" />
+		<SealCheckDuotoneIcon class="size-6 text-success" aria-hidden="true" />
 	{:else}
-		<SealIcon class="size-6 text-muted" />
+		<SealIcon class="size-6 text-muted" aria-hidden="true" />
 	{/if}
 </Label>
