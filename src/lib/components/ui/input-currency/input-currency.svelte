@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { CURRENCIES } from '$lib/utils/currencies';
-	import type { CurrencyInputValues } from '@canutin/svelte-currency-input';
+	import type { CurrencyInputValues, IntlConfig } from '@canutin/svelte-currency-input';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
 	import { getLocale, type Locale } from '$lib/paraglide/runtime';
@@ -23,7 +23,7 @@
 		fixedDecimalLength?: number;
 		formatValueOnBlur?: boolean;
 		groupSeparator?: string;
-		intlConfig?: Intl.NumberFormatOptions;
+		intlConfig?: IntlConfig;
 		locale?: Locale;
 		max?: number;
 		maxLength?: number;

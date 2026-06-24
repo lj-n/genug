@@ -1,5 +1,3 @@
-import type { ComponentProps } from 'svelte';
-
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { flushSync } from 'svelte';
@@ -7,10 +5,11 @@ import { describe, expect, it } from 'vitest';
 
 import InputCurrency from './input-currency.svelte';
 
-function renderNamedCurrencyInput(props?: Partial<ComponentProps<typeof InputCurrency>>) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function renderNamedCurrencyInput(props?: Record<string, any>) {
 	render(InputCurrency, {
 		props: {
-			intlConfig: { currency: 'EUR' },
+			intlConfig: { currency: 'EUR', locale: 'de-DE' },
 			name: 'targetBalance',
 			...props
 		}
@@ -43,7 +42,7 @@ describe('InputCurrency cent binding', () => {
 	it('keeps full cent precision when entering decimal amounts', async () => {
 		const user = userEvent.setup();
 		const { hidden, input } = renderNamedCurrencyInput({
-			intlConfig: { currency: 'USD' }
+			intlConfig: { currency: 'USD', locale: 'en-US' }
 		});
 
 		await user.clear(input);
@@ -67,7 +66,7 @@ describe('InputCurrency cent binding', () => {
 	it('renders a cent value as a decimal amount for display', () => {
 		render(InputCurrency, {
 			props: {
-				intlConfig: { currency: 'EUR' },
+				intlConfig: { currency: 'EUR', locale: 'de-DE' },
 				value: 1234
 			}
 		});
@@ -79,7 +78,7 @@ describe('InputCurrency cent binding', () => {
 	it('renders 0 cents as formatted "0,00"', () => {
 		render(InputCurrency, {
 			props: {
-				intlConfig: { currency: 'EUR' },
+				intlConfig: { currency: 'EUR', locale: 'de-DE' },
 				value: 0
 			}
 		});
@@ -91,7 +90,7 @@ describe('InputCurrency cent binding', () => {
 	it('renders string "0" (as from field.as("number", 0)) as formatted value', () => {
 		render(InputCurrency, {
 			props: {
-				intlConfig: { currency: 'EUR' },
+				intlConfig: { currency: 'EUR', locale: 'de-DE' },
 				value: '0'
 			}
 		});
@@ -107,7 +106,7 @@ describe('InputCurrency cent binding', () => {
 
 		render(InputCurrency, {
 			props: {
-				intlConfig: { currency: 'EUR' },
+				intlConfig: { currency: 'EUR', locale: 'de-DE' },
 				name: 'targetBalance'
 			},
 			target: form
@@ -129,7 +128,7 @@ describe('InputCurrency cent binding', () => {
 
 		render(InputCurrency, {
 			props: {
-				intlConfig: { currency: 'EUR' },
+				intlConfig: { currency: 'EUR', locale: 'de-DE' },
 				name: 'amount',
 				value: NaN
 			},
