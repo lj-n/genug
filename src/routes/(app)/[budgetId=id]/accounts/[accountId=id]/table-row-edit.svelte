@@ -66,39 +66,39 @@
 
 	<div role="cell" class="grid items-center bg-interactive/5 p-2">
 		<SelectCategory
-				name={form.fields.categoryId.as('select').name}
-				bind:value={() => form.fields.categoryId.value() ?? '', (v) => form.fields.categoryId.set(v)}
-				{categories}
-				nullable
-				ariaLabel={m.transactions_table_header_category()}
-				ariaLabelTrigger={m.select_category_open()}
-			/>
+			name={form.fields.categoryId.as('select').name}
+			bind:value={() => form.fields.categoryId.value() ?? '', (v) => form.fields.categoryId.set(v)}
+			{categories}
+			nullable
+			ariaLabel={m.transactions_table_header_category()}
+			ariaLabelTrigger={m.select_category_open()}
+		/>
 	</div>
 
 	<div role="cell" class="grid items-center bg-interactive/5 p-2">
 		<Input
-				class="px-2"
-				aria-label={m.transactions_table_header_notes()}
-				{...form.fields.notes.as('text', transaction.notes ?? '')}
-			/>
+			class="px-2"
+			aria-label={m.transactions_table_header_notes()}
+			{...form.fields.notes.as('text', transaction.notes ?? '')}
+		/>
 	</div>
 
 	<div role="cell" class="grid items-center bg-interactive/5 p-2">
 		<DatePicker
-				name={form.fields.date.as('date').name}
-				bind:value={
-					() => parseDate(form.fields.date.value() ?? transaction.date),
-					(v) => form.fields.date.set(v.toString())
-				}
-				class="justify-end"
-				label={m.transaction_table_cell_date_select()}
-			/>
+			name={form.fields.date.as('date').name}
+			bind:value={
+				() => parseDate(form.fields.date.value() ?? transaction.date),
+				(v) => form.fields.date.set(v.toString())
+			}
+			class="justify-end"
+			label={m.transaction_table_cell_date_select()}
+		/>
 	</div>
 
 	<div role="cell" class="grid items-center bg-interactive/5 p-2">
 		<InputCurrency
-				name={form.fields.amount.as('number').name}
-				aria-label={m.transactions_table_header_amount()}
+			name={form.fields.amount.as('number').name}
+			aria-label={m.transactions_table_header_amount()}
 			bind:value={
 				() => form.fields.amount.value() ?? transaction.amount, (v) => form.fields.amount.set(v)
 			}

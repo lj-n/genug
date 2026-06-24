@@ -93,9 +93,7 @@ export class AccountPage extends BasePage {
 		}
 
 		if (validated === true) {
-			await expect(
-				this.page.locator('[role="row"] svg.text-success').first()
-			).toBeVisible();
+			await expect(this.page.locator('[role="row"] svg.text-success').first()).toBeVisible();
 		}
 	}
 

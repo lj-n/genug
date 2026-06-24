@@ -58,7 +58,9 @@
 
 	const NULL_VALUE = '__empty__';
 
-	const showNullable = $derived(nullable && textEmpty.toLowerCase().includes(searchValue.toLowerCase()));
+	const showNullable = $derived(
+		nullable && textEmpty.toLowerCase().includes(searchValue.toLowerCase())
+	);
 
 	const displayValue = $derived(
 		value ? (categories.find((c) => c.id === value)?.name ?? '') : nullable ? textEmpty : ''
@@ -85,9 +87,12 @@
 <Combobox.Root
 	type="single"
 	{items}
-	bind:value={() => value || NULL_VALUE, (v) => {
-		value = !v || v === NULL_VALUE ? '' : v;
-	}}
+	bind:value={
+		() => value || NULL_VALUE,
+		(v) => {
+			value = !v || v === NULL_VALUE ? '' : v;
+		}
+	}
 	bind:open
 	onOpenChange={handleOpenChange}
 	inputValue={displayValue}

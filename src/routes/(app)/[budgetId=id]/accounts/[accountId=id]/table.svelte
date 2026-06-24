@@ -96,14 +96,14 @@
 									<input {...validation.fields.validated.as('hidden', !item.validated)} />
 
 									<Button
-											type="submit"
-											name={validation.fields.ids.as('select multiple').name}
-											value={[item.id]}
-											size="icon-lg"
-											variant="ghost"
-											class="rounded-xs hover:bg-transparent"
-											aria-label={m.transactions_table_toggle_validated()}
-										>
+										type="submit"
+										name={validation.fields.ids.as('select multiple').name}
+										value={[item.id]}
+										size="icon-lg"
+										variant="ghost"
+										class="rounded-xs hover:bg-transparent"
+										aria-label={m.transactions_table_toggle_validated()}
+									>
 										{#if item.validated}
 											<SealCheckDuotoneIcon class="size-6 text-success" />
 										{:else}

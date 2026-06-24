@@ -91,8 +91,9 @@
 			<div role="cell" class="grid items-center bg-interactive/5 p-2">
 				<SelectCategory
 					name={createTransaction.fields.categoryId.as('select').name}
-					bind:value={() => createTransaction.fields.categoryId.value() ?? '', (v) =>
-						createTransaction.fields.categoryId.set(v)
+					bind:value={
+						() => createTransaction.fields.categoryId.value() ?? '',
+						(v) => createTransaction.fields.categoryId.set(v)
 					}
 					{categories}
 					nullable

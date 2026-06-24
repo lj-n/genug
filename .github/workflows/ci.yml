@@ -21,6 +21,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npx paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide
       - run: npm run build
 
   check:
@@ -32,6 +33,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npx paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide
       - run: npm run check
 
   lint:
@@ -55,6 +57,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run test:unit
+        env:
+          DATABASE_URL: ':memory:'
 
   e2e-test:
     runs-on: ubuntu-latest
