@@ -39,3 +39,4 @@ project.inlang/cache/
 
 # Playwright
 tests/playwright/results/
+.playwright-mcp
