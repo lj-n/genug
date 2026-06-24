@@ -9,7 +9,8 @@ import InputCurrency from './input-currency.svelte';
 function renderNamedCurrencyInput(props?: Record<string, any>) {
 	render(InputCurrency, {
 		props: {
-			intlConfig: { currency: 'EUR', locale: 'de-DE' },
+			currency: 'EUR',
+			intlConfig: { locale: 'de-DE' },
 			name: 'targetBalance',
 			...props
 		}
@@ -42,7 +43,8 @@ describe('InputCurrency cent binding', () => {
 	it('keeps full cent precision when entering decimal amounts', async () => {
 		const user = userEvent.setup();
 		const { hidden, input } = renderNamedCurrencyInput({
-			intlConfig: { currency: 'USD', locale: 'en-US' }
+			currency: 'USD',
+			intlConfig: { locale: 'en-US' }
 		});
 
 		await user.clear(input);
@@ -66,7 +68,8 @@ describe('InputCurrency cent binding', () => {
 	it('renders a cent value as a decimal amount for display', () => {
 		render(InputCurrency, {
 			props: {
-				intlConfig: { currency: 'EUR', locale: 'de-DE' },
+				currency: 'EUR',
+				intlConfig: { locale: 'de-DE' },
 				value: 1234
 			}
 		});
@@ -78,7 +81,8 @@ describe('InputCurrency cent binding', () => {
 	it('renders 0 cents as formatted "0,00"', () => {
 		render(InputCurrency, {
 			props: {
-				intlConfig: { currency: 'EUR', locale: 'de-DE' },
+				currency: 'EUR',
+				intlConfig: { locale: 'de-DE' },
 				value: 0
 			}
 		});
@@ -90,7 +94,8 @@ describe('InputCurrency cent binding', () => {
 	it('renders string "0" (as from field.as("number", 0)) as formatted value', () => {
 		render(InputCurrency, {
 			props: {
-				intlConfig: { currency: 'EUR', locale: 'de-DE' },
+				currency: 'EUR',
+				intlConfig: { locale: 'de-DE' },
 				value: '0'
 			}
 		});
@@ -106,7 +111,8 @@ describe('InputCurrency cent binding', () => {
 
 		render(InputCurrency, {
 			props: {
-				intlConfig: { currency: 'EUR', locale: 'de-DE' },
+				currency: 'EUR',
+				intlConfig: { locale: 'de-DE' },
 				name: 'targetBalance'
 			},
 			target: form
@@ -128,7 +134,8 @@ describe('InputCurrency cent binding', () => {
 
 		render(InputCurrency, {
 			props: {
-				intlConfig: { currency: 'EUR', locale: 'de-DE' },
+				currency: 'EUR',
+				intlConfig: { locale: 'de-DE' },
 				name: 'amount',
 				value: NaN
 			},
