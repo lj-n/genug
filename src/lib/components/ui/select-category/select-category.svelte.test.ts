@@ -16,12 +16,13 @@ const categories = [
 function renderSelectCategory(props?: Partial<ComponentProps<typeof SelectCategory>>) {
 	render(SelectCategory, {
 		props: {
+			ariaLabel: 'Category',
 			categories,
 			...props
 		}
 	});
 
-	const input = screen.getByRole<HTMLInputElement>('combobox');
+	const input = screen.getByRole<HTMLInputElement>('combobox', { name: 'Category' });
 	return { input };
 }
 

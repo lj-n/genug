@@ -8,6 +8,7 @@
 	type Category = { id: string; name: string };
 
 	let {
+		ariaLabel,
 		categories,
 		class: className,
 		contentProps,
@@ -15,11 +16,12 @@
 		name,
 		nullable = false,
 		open = $bindable(false),
-		placeholder = m.transaction_table_cell_category_placeholder(),
-		textEmpty = m.transaction_table_cell_category_empty(),
-		textNotFound = m.transaction_table_cell_category_not_found(),
+		placeholder = m.select_category_placeholder(),
+		textEmpty = m.select_category_empty(),
+		textNotFound = m.select_category_not_found(),
 		value = $bindable('')
 	}: {
+		ariaLabel?: string;
 		categories: Category[];
 		class?: string;
 		contentProps?: WithoutChildrenOrChild<Combobox.ContentProps>;
@@ -97,6 +99,7 @@
 	>
 		<Combobox.Input
 			{...inputProps}
+			aria-label={ariaLabel}
 			class="h-full flex-1 border-0 bg-transparent px-2 py-1 outline-none placeholder:text-muted"
 			{placeholder}
 			oninput={handleInput}
