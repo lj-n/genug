@@ -23,6 +23,8 @@ jobs:
       - run: npm ci
       - run: npx paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide
       - run: npm run build
+        env:
+          DATABASE_URL: ':memory:'
 
   check:
     runs-on: ubuntu-latest

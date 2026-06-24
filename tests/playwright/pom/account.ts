@@ -97,6 +97,37 @@ export class AccountPage extends BasePage {
 		}
 	}
 
+	async deleteTransaction() {
+		const row = this.page
+			.getByRole('row')
+			.filter({ has: this.page.getByRole('cell', { name: 'Edit category' }) })
+			.first();
+		const rowText = await row.textContent();
+		await row.getByRole('cell', { name: 'Edit category' }).click();
+
+		const editForm = this.page
+			.getByRole('row')
+			.filter({ has: this.page.getByRole('button', { name: 'Save' }) });
+		await editForm.getByRole('button', { name: 'Delete' }).click();
+
+		// Verify row is gone
+		if (rowText) {
+			await expect(this.page.getByText(rowText.substring(0, 20))).not.toBeVisible();
+		}
+	}
+
+	async editName(name: string) {
+		await this.page.getByRole('button', { name: 'Account Settings' }).click();
+		await expect(this.page.getByRole('heading', { name: 'Change Account Name' })).toBeVisible();
+
+		await this.page.getByRole('textbox', { name: 'Account Name' }).clear();
+		await this.page.getByRole('textbox', { name: 'Account Name' }).fill(name);
+
+		await this.page.getByRole('button', { name: 'Save Changes' }).click();
+
+		await expect(this.page.getByRole('heading', { name })).toBeVisible();
+	}
+
 	async editTransaction(params: EditTransactionParams) {
 		// Click first editable row to enter edit mode
 		const row = this.page
@@ -141,23 +172,13 @@ export class AccountPage extends BasePage {
 		await expect(editForm).not.toBeVisible();
 	}
 
-	async deleteTransaction() {
-		const row = this.page
-			.getByRole('row')
-			.filter({ has: this.page.getByRole('cell', { name: 'Edit category' }) })
-			.first();
-		const rowText = await row.textContent();
-		await row.getByRole('cell', { name: 'Edit category' }).click();
-
-		const editForm = this.page
-			.getByRole('row')
-			.filter({ has: this.page.getByRole('button', { name: 'Save' }) });
-		await editForm.getByRole('button', { name: 'Delete' }).click();
-
-		// Verify row is gone
-		if (rowText) {
-			await expect(this.page.getByText(rowText.substring(0, 20))).not.toBeVisible();
+	async goto(accountName: string) {
+		if (!this.isDesktop) {
+			await this.openMobileNavigation();
 		}
+
+		await this.page.getByRole('link', { name: accountName }).click();
+		await expect(this.page.getByRole('heading', { name: accountName })).toBeVisible();
 	}
 
 	async toggleValidated() {
@@ -167,26 +188,5 @@ export class AccountPage extends BasePage {
 			.first();
 		await row.getByRole('button', { name: 'Toggle validated status' }).click();
 		await this.page.waitForLoadState('networkidle');
-	}
-
-	async editName(name: string) {
-		await this.page.getByRole('button', { name: 'Account Settings' }).click();
-		await expect(this.page.getByRole('heading', { name: 'Change Account Name' })).toBeVisible();
-
-		await this.page.getByRole('textbox', { name: 'Account Name' }).clear();
-		await this.page.getByRole('textbox', { name: 'Account Name' }).fill(name);
-
-		await this.page.getByRole('button', { name: 'Save Changes' }).click();
-
-		await expect(this.page.getByRole('heading', { name })).toBeVisible();
-	}
-
-	async goto(accountName: string) {
-		if (!this.isDesktop) {
-			await this.openMobileNavigation();
-		}
-
-		await this.page.getByRole('link', { name: accountName }).click();
-		await expect(this.page.getByRole('heading', { name: accountName })).toBeVisible();
 	}
 }
