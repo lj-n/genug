@@ -18,5 +18,10 @@ test('Create Transaction', async ({ pages }) => {
 
 	await pages.account.goto(accountName);
 
-	await pages.account.createTransaction('42');
+	await pages.account.createTransaction({
+		amount: '42',
+		category: categoryName,
+		notes: faker.lorem.sentence(),
+		validated: true
+	});
 });

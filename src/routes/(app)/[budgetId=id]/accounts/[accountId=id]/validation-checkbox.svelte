@@ -20,7 +20,14 @@
 		variant: 'ghost'
 	})}
 >
-	<input type="checkbox" bind:checked {disabled} {...restProps} class="sr-only cursor-pointer" />
+	<input
+		type="checkbox"
+		bind:checked
+		{disabled}
+		{...restProps}
+		aria-label="Validated"
+		class="sr-only cursor-pointer"
+	/>
 	{#if checked}
 		<SealCheckDuotoneIcon class="size-6 text-success" />
 	{:else}

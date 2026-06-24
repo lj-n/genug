@@ -1,11 +1,12 @@
 import type { SQLiteColumn, SQLiteSelect } from 'drizzle-orm/sqlite-core';
 
 import { tables } from '$db';
+import { NULL_SENTINEL } from '$lib/constants';
 import { and, asc, desc, eq, gte, inArray, isNull, like, lte, or, type SQL } from 'drizzle-orm';
 
 export type TransactionFilterParam = {
 	accountId?: string | string[];
-	categoryId?: string | string[];
+	categoryId?: string[];
 	fromDate?: string;
 	maxAmount?: number;
 	minAmount?: number;
@@ -47,9 +48,9 @@ export function withFilter<T extends SQLiteSelect>({
 		);
 	}
 	if (filter.categoryId) {
-		const ids = [filter.categoryId].flat();
-		const realIds = ids.filter((id) => id !== 'null');
-		const hasNull = ids.includes('null');
+		const ids = filter.categoryId;
+		const realIds = ids.filter((id: string) => id !== NULL_SENTINEL);
+		const hasNull = ids.includes(NULL_SENTINEL);
 
 		const categoryConditions: SQL[] = [];
 		if (realIds.length > 0)

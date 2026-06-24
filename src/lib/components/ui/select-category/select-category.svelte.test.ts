@@ -25,7 +25,7 @@ function renderSelectCategory(props?: Partial<ComponentProps<typeof SelectCatego
 	return { input };
 }
 
-describe('SelectCategory — single select', () => {
+describe('SelectCategory', () => {
 	it('renders a combobox input', () => {
 		const { input } = renderSelectCategory();
 		expect(input).toBeInTheDocument();
@@ -33,7 +33,7 @@ describe('SelectCategory — single select', () => {
 
 	it('shows placeholder text', () => {
 		const { input } = renderSelectCategory();
-		expect(input.placeholder).toBe('No Category');
+		expect(input.placeholder).toBe('Search for category...');
 	});
 
 	it('has a trigger button with caret icon', () => {
@@ -57,7 +57,7 @@ describe('SelectCategory — single select', () => {
 			target: form
 		});
 
-		const input = screen.getByRole('combobox');
+		const input = screen.getByRole<HTMLInputElement>('combobox');
 		await user.click(input);
 		await user.keyboard('Rent{Enter}');
 
@@ -69,32 +69,58 @@ describe('SelectCategory — single select', () => {
 		const user = userEvent.setup();
 		renderSelectCategory();
 
-		const input = screen.getByRole('combobox');
+		const input = screen.getByRole<HTMLInputElement>('combobox');
 		await user.type(input, 'Ren');
 
 		expect(screen.getByText('Rent')).toBeInTheDocument();
 		expect(screen.queryByText('Groceries')).not.toBeInTheDocument();
 	});
 
-	it('shows empty state placeholder when value is undefined', () => {
-		const { input } = renderSelectCategory();
+	it('shows empty input when value is empty string without nullable', () => {
+		const { input } = renderSelectCategory({ value: '' });
 		expect(input.value).toBe('');
-		expect(input.placeholder).toBe('No Category');
 	});
 });
 
 describe('SelectCategory — nullable', () => {
+	it("shows 'No Category' in input when value is empty and nullable", () => {
+		const { input } = renderSelectCategory({ nullable: true, value: '' });
+		expect(input.value).toBe('No Category');
+	});
+
 	it('shows empty option when nullable', async () => {
 		const user = userEvent.setup();
 		renderSelectCategory({ nullable: true, value: 'c1' });
 
-		const input = screen.getByRole('combobox');
+		const input = screen.getByRole<HTMLInputElement>('combobox');
 		await user.click(input);
 		await user.keyboard('{ArrowDown}');
 		expect(screen.getByText('No Category')).toBeInTheDocument();
 	});
 
-	it('clears selection when empty option is chosen', async () => {
+	it('switches display from category to No Category when selected', async () => {
+		const user = userEvent.setup();
+		const form = document.createElement('form');
+		document.body.append(form);
+
+		const { component } = render(SelectCategory, {
+			props: { categories, name: 'categoryId', nullable: true, value: 'c1' },
+			target: form
+		});
+
+		const input = screen.getByRole<HTMLInputElement>('combobox');
+		expect(input.value).toBe('Groceries');
+
+		await user.click(input);
+		await user.keyboard('{ArrowDown}{Enter}');
+		flushSync();
+
+		expect(input.value).toBe('No Category');
+		const formData = new FormData(form);
+		expect(formData.get('categoryId')).toBe('');
+	});
+
+	it('sets value to empty string when empty option is chosen', async () => {
 		const user = userEvent.setup();
 		const form = document.createElement('form');
 		document.body.append(form);
@@ -104,7 +130,7 @@ describe('SelectCategory — nullable', () => {
 			target: form
 		});
 
-		const input = screen.getByRole('combobox');
+		const input = screen.getByRole<HTMLInputElement>('combobox');
 		await user.click(input);
 		await user.keyboard('{ArrowDown}{Enter}');
 		flushSync();
@@ -112,45 +138,72 @@ describe('SelectCategory — nullable', () => {
 		const formData = new FormData(form);
 		expect(formData.get('categoryId')).toBe('');
 	});
+
+	it('does not show empty option when nullable is false', async () => {
+		const user = userEvent.setup();
+		renderSelectCategory({ nullable: false });
+
+		const input = screen.getByRole<HTMLInputElement>('combobox');
+		await user.click(input);
+
+		expect(screen.queryByText('No Category')).not.toBeInTheDocument();
+	});
+
+	it('shows not-found text when search has no matches and not nullable', async () => {
+		const user = userEvent.setup();
+		renderSelectCategory();
+
+		const input = screen.getByRole<HTMLInputElement>('combobox');
+		await user.type(input, 'zzz_nonexistent');
+
+		expect(screen.getByText('No category found.')).toBeInTheDocument();
+	});
 });
 
-describe('SelectCategory — multi select', () => {
-	it('submits selected values in FormData', async () => {
+describe('SelectCategory — deselection', () => {
+	it('keeps selected category when pressing Enter on it again', async () => {
 		const user = userEvent.setup();
 		const form = document.createElement('form');
 		document.body.append(form);
 
 		render(SelectCategory, {
-			props: { categories, multiple: true, name: 'categoryIds' },
+			props: { categories, name: 'categoryId', value: 'c2' },
 			target: form
 		});
 
-		const input = screen.getByRole('combobox');
+		const input = screen.getByRole<HTMLInputElement>('combobox');
+		expect(input.value).toBe('Rent');
+
+		// Open dropdown, press Enter on the already-selected item
 		await user.click(input);
-		await user.keyboard('{ArrowDown}{Enter}{ArrowDown}{Enter}');
+		await user.keyboard('{Enter}');
 		flushSync();
 
+		expect(input.value).toBe('Rent');
 		const formData = new FormData(form);
-		expect(formData.getAll('categoryIds')).toEqual(['c1', 'c2']);
+		expect(formData.get('categoryId')).toBe('c2');
 	});
 
-	it('shows search placeholder when multi and empty', () => {
-		const { input } = renderSelectCategory({ multiple: true });
-		expect(input.placeholder).toBe('Search for category...');
-	});
-
-	it('shows selected count in input', () => {
-		const { input } = renderSelectCategory({ multiple: true, value: ['c1', 'c3'] });
-		expect(input.value).toBe('2 selected');
-	});
-
-	it('shows not-found text when search has no matches', async () => {
+	it('deselects to empty string when clicking category again with nullable', async () => {
 		const user = userEvent.setup();
-		renderSelectCategory();
+		const form = document.createElement('form');
+		document.body.append(form);
 
-		const input = screen.getByRole('combobox');
-		await user.type(input, 'zzz_nonexistent');
+		render(SelectCategory, {
+			props: { categories, name: 'categoryId', nullable: true, value: 'c2' },
+			target: form
+		});
 
-		expect(screen.getByText('No category found.')).toBeInTheDocument();
+		const input = screen.getByRole<HTMLInputElement>('combobox');
+		expect(input.value).toBe('Rent');
+
+		await user.click(input);
+		await user.keyboard('{Enter}');
+		flushSync();
+
+		// Re-clicking same item: stay on Rent, don't jump to No Category
+		expect(input.value).toBe('Rent');
+		const formData = new FormData(form);
+		expect(formData.get('categoryId')).toBe('c2');
 	});
 });

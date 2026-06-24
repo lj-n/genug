@@ -12,7 +12,7 @@ import TableFilterNotes from './table-filter-notes.svelte';
 export type CategoryFilter = {
 	active: boolean;
 	type: 'category';
-	value: TransactionURLParams['categoryId'];
+	value: string[];
 };
 
 export type FilterType = FilterState['type'];
@@ -59,8 +59,12 @@ export class TransactionFilter {
 
 	constructor(params: TransactionURLParams) {
 		this.items = [
-			{ active: params.categoryId.length > 0, type: 'category', value: params.categoryId },
-			{ active: !!params.notes, type: 'notes', value: params.notes ?? '' }
+			{
+				active: params.categoryId.length > 0,
+				type: 'category',
+				value: params.categoryId
+			} as CategoryFilter,
+			{ active: !!params.notes, type: 'notes', value: params.notes ?? '' } as NotesFilter
 		];
 	}
 
@@ -84,14 +88,14 @@ export class TransactionFilter {
 	remove(type: FilterType) {
 		const f = this.items.find((f) => f.type === type)!;
 		f.active = false;
-		if (f.type === 'category') f.value = [];
+		if (f.type === 'category') (f.value as string[]) = [];
 		else f.value = '';
 		this.#setParam(type, undefined);
 	}
 
 	updateValue(type: FilterType, value: string | string[]) {
 		const f = this.items.find((f) => f.type === type)!;
-		f.value = value;
+		(f.value as string | string[]) = value;
 		this.#setParam(type, value);
 	}
 

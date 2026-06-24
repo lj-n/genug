@@ -67,7 +67,7 @@
 	<div role="cell" class="grid items-center bg-interactive/5 p-2">
 		<SelectCategory
 			name={form.fields.categoryId.as('select').name}
-			bind:value={() => form.fields.categoryId.value(), (v) => form.fields.categoryId.set(v)}
+			bind:value={() => form.fields.categoryId.value() ?? '', (v) => form.fields.categoryId.set(v)}
 			{categories}
 			nullable
 		/>

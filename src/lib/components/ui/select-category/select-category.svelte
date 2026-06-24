@@ -2,52 +2,41 @@
 	import { m } from '$lib/paraglide/messages';
 	import { Combobox, type WithoutChildrenOrChild } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
-	import PhCaretUpDown from '~icons/ph/caret-up-down';
-	import PhCheck from '~icons/ph/check';
+	import CaretUpDownIcon from '~icons/ph/caret-up-down';
+	import CheckIcon from '~icons/ph/check';
 
 	type Category = { id: string; name: string };
-
-	const EMPTY_SENTINEL = '__empty__';
 
 	let {
 		categories,
 		class: className,
 		contentProps,
 		inputProps,
-		multiple = false,
 		name,
 		nullable = false,
 		open = $bindable(false),
 		placeholder = m.transaction_table_cell_category_placeholder(),
 		textEmpty = m.transaction_table_cell_category_empty(),
 		textNotFound = m.transaction_table_cell_category_not_found(),
-		value = $bindable(undefined as string | string[] | undefined)
+		value = $bindable('')
 	}: {
 		categories: Category[];
 		class?: string;
 		contentProps?: WithoutChildrenOrChild<Combobox.ContentProps>;
 		inputProps?: WithoutChildrenOrChild<Combobox.InputProps>;
-		multiple?: boolean;
 		name?: string;
 		nullable?: boolean;
 		open?: boolean;
 		placeholder?: string;
 		textEmpty?: string;
 		textNotFound?: string;
-		value?: string | string[] | undefined;
+		value?: string;
 	} = $props();
 
 	let searchValue = $state('');
 	let containerRef = $state<HTMLDivElement | null>(null);
 
-	const items = $derived(
-		nullable
-			? [
-					{ label: textEmpty, value: EMPTY_SENTINEL },
-					...categories.map((c) => ({ label: c.name, value: c.id }))
-				]
-			: categories.map((c) => ({ label: c.name, value: c.id }))
-	);
+	const items = $derived(categories.map((c) => ({ label: c.name, value: c.id })));
 
 	const filteredItems = $derived(
 		searchValue === ''
@@ -63,39 +52,38 @@
 		if (!newOpen) searchValue = '';
 	}
 
-	/**
-	 * Converts bits-ui combobox value to our external value.
-	 * The EMPTY_SENTINEL is internal-only — it never leaks to the parent via `$bindable value`.
-	 */
-	function handleValueChange(v: string | string[] | undefined) {
-		if (multiple) {
-			const arr = Array.isArray(v) ? v.filter((id) => id !== EMPTY_SENTINEL) : [];
-			(value as string[]) = arr;
-		} else {
-			(value as string | undefined) =
-				typeof v === 'string' && v !== '' && v !== EMPTY_SENTINEL ? v : undefined;
-		}
-	}
+	const NULL_VALUE = '__empty__';
+
+	const showNullable = $derived(nullable && textEmpty.toLowerCase().includes(searchValue.toLowerCase()));
 
 	const displayValue = $derived(
-		multiple
-			? Array.isArray(value) && value.length > 0
-				? m.transaction_filter_category_selected({ selected: value.length })
-				: ''
-			: typeof value === 'string' && value !== ''
-				? (categories.find((c) => c.id === value)?.name ?? '')
-				: ''
+		value ? (categories.find((c) => c.id === value)?.name ?? '') : nullable ? textEmpty : ''
 	);
-
-	const placeholderText = $derived(multiple || value !== undefined ? placeholder : textEmpty);
 </script>
 
+{#snippet itemRow(args: { label: string; value: string })}
+	<Combobox.Item
+		value={args.value}
+		label={args.label}
+		class="relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-highlighted:bg-info/5 data-highlighted:text-info data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+	>
+		{#snippet children({ selected })}
+			<span class="absolute inset-e-2 flex size-3.5 items-center justify-center">
+				{#if selected}
+					<CheckIcon aria-hidden="true" />
+				{/if}
+			</span>
+			{args.label}
+		{/snippet}
+	</Combobox.Item>
+{/snippet}
+
 <Combobox.Root
-	type={multiple ? 'multiple' : 'single'}
+	type="single"
 	{items}
-	bind:value={
-		() => (multiple ? value : (value ?? EMPTY_SENTINEL)) as never, handleValueChange as never
-	}
+	bind:value={() => value || NULL_VALUE, (v) => {
+		value = !v || v === NULL_VALUE ? '' : v;
+	}}
 	bind:open
 	onOpenChange={handleOpenChange}
 	inputValue={displayValue}
@@ -110,11 +98,11 @@
 		<Combobox.Input
 			{...inputProps}
 			class="h-full flex-1 border-0 bg-transparent px-2 py-1 outline-none placeholder:text-muted"
-			placeholder={placeholderText}
+			{placeholder}
 			oninput={handleInput}
 		/>
 		<Combobox.Trigger class="flex h-full items-center px-2 text-muted hover:text-foreground">
-			<PhCaretUpDown class="size-4" aria-hidden="true" />
+			<CaretUpDownIcon class="size-4" aria-hidden="true" />
 		</Combobox.Trigger>
 	</div>
 
@@ -127,32 +115,20 @@
 			contentProps?.class
 		)}
 	>
+		{#if showNullable}
+			{@render itemRow({ label: textEmpty, value: NULL_VALUE })}
+		{/if}
+
 		{#each filteredItems as item (item.value)}
-			<Combobox.Item
-				{...item}
-				class="relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-highlighted:bg-info/5 data-highlighted:text-info data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
-			>
-				{#snippet children({ selected })}
-					<span class="absolute inset-e-2 flex size-3.5 items-center justify-center">
-						{#if selected}
-							<PhCheck aria-hidden="true" />
-						{/if}
-					</span>
-					{item.label}
-				{/snippet}
-			</Combobox.Item>
+			{@render itemRow(item)}
 		{:else}
-			<span class="px-2 text-center text-sm text-muted">{textNotFound}</span>
+			{#if !showNullable}
+				<span class="px-2 text-center text-sm text-muted">{textNotFound}</span>
+			{/if}
 		{/each}
 	</Combobox.Content>
 </Combobox.Root>
 
 {#if name}
-	{#if multiple && Array.isArray(value) && value.length > 0}
-		{#each value as id (id)}
-			<input type="hidden" {name} value={id} />
-		{/each}
-	{:else if !multiple}
-		<input type="hidden" {name} value={typeof value === 'string' && value !== '' ? value : ''} />
-	{/if}
+	<input type="hidden" {name} {value} />
 {/if}
