@@ -110,8 +110,9 @@ export class AccountPage extends BasePage {
 			.filter({ has: this.page.getByRole('button', { name: 'Save' }) });
 		await editForm.getByRole('button', { name: 'Delete' }).click();
 
-		// Wait for the edit form to close, then verify one fewer row
-		await expect(editForm).not.toBeVisible();
+		// Delete submits a hidden batch-delete form — the visible edit form stays open.
+		// Wait for the delete to complete, then verify one fewer transaction row.
+		await this.page.waitForLoadState('networkidle');
 		await expect(this.page.getByRole('cell', { name: 'Edit category' })).toHaveCount(cellCount - 1);
 	}
 
@@ -200,7 +201,7 @@ export class AccountPage extends BasePage {
 			await this.openMobileNavigation();
 		}
 
-		await this.page.getByRole('link', { name: accountName }).click();
+		await this.page.getByRole('link', { exact: true, name: accountName }).click();
 		await expect(this.page.getByRole('heading', { name: accountName })).toBeVisible();
 	}
 

@@ -18,7 +18,7 @@ export class CategoryPage extends BasePage {
 	}
 
 	async editName(currentName: string, newName: string) {
-		await this.page.getByRole('link', { name: currentName }).click();
+		await this.page.getByRole('link', { exact: true, name: currentName }).click();
 
 		const dialog = this.page.getByRole('dialog');
 		await expect(dialog).toBeVisible();

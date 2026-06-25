@@ -16,10 +16,15 @@ export class SettingsPage extends BasePage {
 	}
 
 	async changeLanguage(locale: string) {
-		const trigger = this.page.getByRole('button', { name: 'Available Languages' });
-		await trigger.click();
+		await this.page.getByRole('button', { name: 'Available Languages' }).click();
 		await this.page.getByRole('option', { name: locale }).click();
-		await expect(trigger).toHaveText(locale);
+		// Language change may navigate; the trigger's aria-label also changes languages.
+		// Match by regex that covers both English and German labels, check text is locale code.
+		await expect(
+			this.page.getByRole('button', {
+				name: /Available Languages|Verfügbare Sprachen/
+			})
+		).toContainText(locale);
 	}
 
 	async goto() {

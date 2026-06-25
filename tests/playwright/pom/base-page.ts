@@ -21,10 +21,10 @@ export class BasePage {
 
 	async closeMobileNavigation() {
 		const signOutButton = this.page.getByRole('button', { name: 'Sign out' });
-		if (await signOutButton.isVisible()) {
-			await this.page.keyboard.press('Escape');
-			await expect(signOutButton).not.toBeVisible();
-		}
+		if (!(await signOutButton.isVisible())) return; // Already closed
+		// Click the vaul-svelte drawer overlay to close it
+		await this.page.locator('[data-vaul-overlay]').click();
+		await expect(signOutButton).not.toBeVisible();
 	}
 
 	async openMobileNavigation() {

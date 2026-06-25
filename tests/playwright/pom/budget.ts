@@ -36,10 +36,10 @@ export class BudgetPage extends BasePage {
 		await this.page.getByRole('button', { name: 'Create Account' }).click();
 
 		if (this.isDesktop) {
-			await expect(this.page.getByRole('link', { name })).toBeVisible();
+			await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
 		} else {
 			await this.openMobileNavigation();
-			await expect(this.page.getByRole('link', { name })).toBeVisible();
+			await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
 			await this.closeMobileNavigation();
 		}
 	}
@@ -55,10 +55,10 @@ export class BudgetPage extends BasePage {
 		await this.page.getByRole('button', { name: 'Create Budget' }).click();
 
 		if (this.isDesktop) {
-			await expect(this.page.getByRole('link', { name })).toBeVisible();
+			await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
 		} else {
 			await this.openMobileNavigation();
-			await expect(this.page.getByRole('link', { name })).toBeVisible();
+			await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
 			await this.closeMobileNavigation();
 		}
 	}
@@ -78,7 +78,7 @@ export class BudgetPage extends BasePage {
 			await this.openMobileNavigation();
 		}
 
-		await this.page.getByRole('link', { name: budgetName }).click();
+		await this.page.getByRole('link', { exact: true, name: budgetName }).click();
 		await expect(this.page.getByRole('heading', { name: budgetName })).toBeVisible();
 	}
 }
