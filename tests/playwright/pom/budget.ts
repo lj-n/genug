@@ -79,6 +79,9 @@ export class BudgetPage extends BasePage {
 		}
 
 		await this.page.getByRole('link', { exact: true, name: budgetName }).click();
+		// On tablet, clicking a link inside the drawer closes the drawer AND navigates.
+		// Wait for both the drawer close animation and SvelteKit navigation to settle.
+		await this.page.waitForLoadState('networkidle');
 		await expect(this.page.getByRole('heading', { name: budgetName })).toBeVisible();
 	}
 }
