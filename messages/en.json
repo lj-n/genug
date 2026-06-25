@@ -96,6 +96,7 @@
 	"select_category_placeholder": "Search for category...",
 	"select_category_empty": "No Category",
 	"select_category_not_found": "No category found.",
+	"select_category_open": "Open category dropdown",
 	"transaction_table_cell_category_empty": "No Category",
 	"transaction_table_cell_category_placeholder": "Search for category...",
 	"transaction_table_cell_category_not_found": "No category found.",

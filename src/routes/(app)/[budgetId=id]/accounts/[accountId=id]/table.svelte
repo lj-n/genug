@@ -102,6 +102,7 @@
 										size="icon-lg"
 										variant="ghost"
 										class="rounded-xs hover:bg-transparent"
+										aria-label={m.transactions_table_toggle_validated()}
 									>
 										{#if item.validated}
 											<SealCheckDuotoneIcon class="size-6 text-success" />

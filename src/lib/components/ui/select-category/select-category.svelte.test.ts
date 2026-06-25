@@ -104,7 +104,7 @@ describe('SelectCategory — nullable', () => {
 		const form = document.createElement('form');
 		document.body.append(form);
 
-		const { component } = render(SelectCategory, {
+		render(SelectCategory, {
 			props: { categories, name: 'categoryId', nullable: true, value: 'c1' },
 			target: form
 		});

@@ -7,6 +7,17 @@ export class BudgetPage extends BasePage {
 		super(page);
 	}
 
+	async assignAmount(categoryName: string, amount: string) {
+		const categoryRow = this.page.getByRole('row').filter({ hasText: categoryName });
+		await categoryRow.getByRole('button', { name: 'Budget' }).click();
+		await this.page.getByRole('textbox', { name: 'Budget' }).fill(amount);
+		await this.page.getByRole('textbox', { name: 'Budget' }).press('Enter');
+
+		// Wait for form submission to complete and popover to close
+		await expect(this.page.getByRole('textbox', { name: 'Budget' })).not.toBeVisible();
+		await expect(categoryRow.getByRole('button', { name: 'Budget' })).toBeVisible();
+	}
+
 	async createAccount(name: string, startingBalance = '0') {
 		await this.page.getByRole('button', { name: 'Show Accounts' }).click();
 		await expect(this.page.getByRole('menuitem', { name: 'Add Account' })).toBeVisible();
@@ -25,11 +36,10 @@ export class BudgetPage extends BasePage {
 		await this.page.getByRole('button', { name: 'Create Account' }).click();
 
 		if (this.isDesktop) {
-			await expect(this.page.getByRole('link', { name })).toBeVisible();
+			await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
 		} else {
 			await this.openMobileNavigation();
-			await expect(this.page.getByRole('link', { name })).toBeVisible();
-			await this.closeMobileNavigation();
+			await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
 		}
 	}
 
@@ -44,11 +54,10 @@ export class BudgetPage extends BasePage {
 		await this.page.getByRole('button', { name: 'Create Budget' }).click();
 
 		if (this.isDesktop) {
-			await expect(this.page.getByRole('link', { name })).toBeVisible();
+			await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
 		} else {
 			await this.openMobileNavigation();
-			await expect(this.page.getByRole('link', { name })).toBeVisible();
-			await this.closeMobileNavigation();
+			await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
 		}
 	}
 
@@ -67,7 +76,10 @@ export class BudgetPage extends BasePage {
 			await this.openMobileNavigation();
 		}
 
-		await this.page.getByRole('link', { name: budgetName }).click();
+		await this.page.getByRole('link', { exact: true, name: budgetName }).click();
+		// On tablet, clicking a link inside the drawer closes the drawer AND navigates.
+		// Wait for both the drawer close animation and SvelteKit navigation to settle.
+		await this.page.waitForLoadState('networkidle');
 		await expect(this.page.getByRole('heading', { name: budgetName })).toBeVisible();
 	}
 }

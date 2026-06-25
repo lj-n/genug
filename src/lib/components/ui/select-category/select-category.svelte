@@ -9,6 +9,7 @@
 
 	let {
 		ariaLabel,
+		ariaLabelTrigger,
 		categories,
 		class: className,
 		contentProps,
@@ -22,6 +23,7 @@
 		value = $bindable('')
 	}: {
 		ariaLabel?: string;
+		ariaLabelTrigger?: string;
 		categories: Category[];
 		class?: string;
 		contentProps?: WithoutChildrenOrChild<Combobox.ContentProps>;
@@ -56,7 +58,9 @@
 
 	const NULL_VALUE = '__empty__';
 
-	const showNullable = $derived(nullable && textEmpty.toLowerCase().includes(searchValue.toLowerCase()));
+	const showNullable = $derived(
+		nullable && textEmpty.toLowerCase().includes(searchValue.toLowerCase())
+	);
 
 	const displayValue = $derived(
 		value ? (categories.find((c) => c.id === value)?.name ?? '') : nullable ? textEmpty : ''
@@ -83,9 +87,12 @@
 <Combobox.Root
 	type="single"
 	{items}
-	bind:value={() => value || NULL_VALUE, (v) => {
-		value = !v || v === NULL_VALUE ? '' : v;
-	}}
+	bind:value={
+		() => value || NULL_VALUE,
+		(v) => {
+			value = !v || v === NULL_VALUE ? '' : v;
+		}
+	}
 	bind:open
 	onOpenChange={handleOpenChange}
 	inputValue={displayValue}
@@ -104,7 +111,10 @@
 			{placeholder}
 			oninput={handleInput}
 		/>
-		<Combobox.Trigger class="flex h-full items-center px-2 text-muted hover:text-foreground">
+		<Combobox.Trigger
+			class="flex h-full items-center px-2 text-muted hover:text-foreground"
+			aria-label={ariaLabelTrigger}
+		>
 			<CaretUpDownIcon class="size-4" aria-hidden="true" />
 		</Combobox.Trigger>
 	</div>

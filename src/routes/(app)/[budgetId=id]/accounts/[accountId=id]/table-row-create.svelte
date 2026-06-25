@@ -91,11 +91,14 @@
 			<div role="cell" class="grid items-center bg-interactive/5 p-2">
 				<SelectCategory
 					name={createTransaction.fields.categoryId.as('select').name}
-					bind:value={() => createTransaction.fields.categoryId.value() ?? '', (v) =>
-						createTransaction.fields.categoryId.set(v)
+					bind:value={
+						() => createTransaction.fields.categoryId.value() ?? '',
+						(v) => createTransaction.fields.categoryId.set(v)
 					}
 					{categories}
 					nullable
+					ariaLabel={m.transactions_table_header_category()}
+					ariaLabelTrigger={m.select_category_open()}
 				/>
 			</div>
 
@@ -114,6 +117,7 @@
 						(v) => createTransaction.fields.date.set(v.toString())
 					}
 					class="justify-end"
+					label={m.transaction_table_cell_date_select()}
 				/>
 			</div>
 

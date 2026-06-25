@@ -72,7 +72,7 @@
 					setLocale(locale as Locale);
 				}}
 			>
-				<Select.Trigger class="font-semibold">
+				<Select.Trigger class="font-semibold" aria-label={m.settings_available_languages()}>
 					{value}
 				</Select.Trigger>
 				<Select.Content>

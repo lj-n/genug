@@ -19,17 +19,20 @@ export class BasePage {
 		this.page = page;
 	}
 
-	async closeMobileNavigation() {
-		const signOutButton = this.page.getByRole('button', { name: 'Sign out' });
-		if (await signOutButton.isVisible()) {
-			await this.page.keyboard.press('Escape');
-			await expect(signOutButton).not.toBeVisible();
-		}
-	}
-
 	async openMobileNavigation() {
+		const signOutButton = this.page.getByRole('button', { name: 'Sign out' });
+		if (await signOutButton.isVisible()) return; // Already open
 		await this.page.getByRole('button', { name: 'Toggle Navigation' }).click();
-		await expect(this.page.getByRole('button', { name: 'Sign out' })).toBeVisible();
+		await expect(signOutButton).toBeVisible();
+		// vaul-svelte animates the drawer with CSS keyframes that don't respect
+		// prefers-reduced-motion. Wait for the slide-in animation to finish so
+		// that elements inside are stable before we try to click them.
+		await this.page.waitForFunction(() => {
+			const drawer = document.querySelector('[data-vaul-drawer]');
+			return (
+				!drawer || drawer.getAnimations({ subtree: true }).every((a) => a.playState !== 'running')
+			);
+		});
 	}
 
 	#getViewportWidth() {

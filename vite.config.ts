@@ -5,6 +5,10 @@ import tailwindcss from '@tailwindcss/vite';
 import Icons from 'unplugin-icons/vite';
 import { defineConfig } from 'vite';
 
+if (process.env.VITEST) {
+	process.env.DATABASE_URL = ':memory:';
+}
+
 export default defineConfig({
 	define: { 'import.meta.vitest': 'undefined' },
 	plugins: [
@@ -26,6 +30,7 @@ export default defineConfig({
 		environment: 'jsdom',
 		include: ['src/**/*.{test,spec}.{ts,tsx}'],
 		includeSource: ['src/**/*.{js,ts}'],
+		pool: 'forks',
 		setupFiles: ['src/test/setup.ts']
 	}
 });

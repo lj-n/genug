@@ -61,6 +61,17 @@
 					<Logo class="h-10" />
 				</a>
 			</Drawer.Title>
+			<Drawer.Close
+				aria-label={m.dialog_close()}
+				class="absolute top-4 right-4 rounded-md p-1 text-muted hover:bg-muted/10 hover:text-foreground"
+			>
+				<span class="sr-only">{m.dialog_close()}</span>
+				<svg class="size-5" viewBox="0 0 256 256" fill="currentColor">
+					<path
+						d="M205.66 194.34a8 8 0 0 1-11.32 11.32L128 139.31l-66.34 66.35a8 8 0 0 1-11.32-11.32L116.69 128 50.34 61.66a8 8 0 0 1 11.32-11.32L128 116.69l66.34-66.35a8 8 0 0 1 11.32 11.32L139.31 128z"
+					/>
+				</svg>
+			</Drawer.Close>
 		</Drawer.Header>
 
 		{@render invitations?.()}

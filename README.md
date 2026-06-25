@@ -63,19 +63,19 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - "3002:3002"
+      - '3002:3002'
     volumes:
       - ./data:/app/data:rw
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "5"
+        max-size: '10m'
+        max-file: '5'
     environment:
       PORT: 3002
-      DATABASE_URL: "file:/app/data/genug.db"
-      ORIGIN: "https://your.domain"
-      NODE_ENV: "production"
+      DATABASE_URL: 'file:/app/data/genug.db'
+      ORIGIN: 'https://your.domain'
+      NODE_ENV: 'production'
 ```
 
 ### Docker (standalone)

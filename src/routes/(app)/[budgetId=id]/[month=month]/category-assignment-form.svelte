@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { InputCurrency } from '$lib/components/ui/input-currency';
+	import { m } from '$lib/paraglide/messages';
 	import { assignment, getBudget } from '$lib/remote-functions/budget.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { formatCurrency } from '$lib/utils/format-currency';
@@ -41,6 +42,7 @@
 			'h-full w-full cursor-pointer p-2 text-right font-currency -outline-offset-2 hover:bg-interactive/15 hover:outline-2 hover:outline-interactive/40',
 			open && 'hidden'
 		)}
+		aria-label={m.budget_monthly_table_header_amount()}
 	>
 		{formatCurrency({ centValue: category.assigned, currency })}
 	</Popover.Trigger>
@@ -71,6 +73,7 @@
 					}
 					{currency}
 					class="h-full w-full rounded-none px-2 text-right font-currency ring-0 outline-none"
+					aria-label={m.budget_monthly_table_header_amount()}
 					selectOnFocus
 				/>
 			</div>
