@@ -24,6 +24,15 @@ export class BasePage {
 		if (await signOutButton.isVisible()) return; // Already open
 		await this.page.getByRole('button', { name: 'Toggle Navigation' }).click();
 		await expect(signOutButton).toBeVisible();
+		// vaul-svelte animates the drawer with CSS keyframes that don't respect
+		// prefers-reduced-motion. Wait for the slide-in animation to finish so
+		// that elements inside are stable before we try to click them.
+		await this.page.waitForFunction(() => {
+			const drawer = document.querySelector('[data-vaul-drawer]');
+			return (
+				!drawer || drawer.getAnimations({ subtree: true }).every((a) => a.playState !== 'running')
+			);
+		});
 	}
 
 	#getViewportWidth() {
