@@ -9,3 +9,4 @@ bun.lockb
 /static/
 ./src/lib/paraglide
 project.inlang/
+project.inlang/README.md
