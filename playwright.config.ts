@@ -26,7 +26,7 @@ export default defineConfig({
 
 	reporter: process.env.CI ? 'blob' : 'list',
 
-	retries: process.env.CI ? 2 : 0,
+	retries: 0,
 
 	testDir: 'tests/playwright',
 

@@ -22,8 +22,7 @@ export class BasePage {
 	async closeMobileNavigation() {
 		const signOutButton = this.page.getByRole('button', { name: 'Sign out' });
 		if (!(await signOutButton.isVisible())) return; // Already closed
-		// Click the vaul-svelte drawer overlay to close it
-		await this.page.locator('[data-vaul-overlay]').click();
+		await this.page.locator('[data-slot="drawer-close"]').click();
 		await expect(signOutButton).not.toBeVisible();
 	}
 
