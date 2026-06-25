@@ -88,6 +88,14 @@ jobs:
           path: blob-report/
           retention-days: 1
 
+  e2e-success:
+    name: 🎉 E2E Tests Passed
+    needs: [e2e-test]
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All 8 e2e shards passed."
+
   e2e-merge:
     needs: [e2e-test]
     if: always()
