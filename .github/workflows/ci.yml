@@ -47,6 +47,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npx paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide
       - run: npm run lint
 
   unit-test:
@@ -58,6 +59,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npx paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide
       - run: npm run test:unit
         env:
           DATABASE_URL: ':memory:'
@@ -73,6 +75,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps
+      - run: npx paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: always()

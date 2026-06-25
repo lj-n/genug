@@ -12,6 +12,10 @@ export class BudgetPage extends BasePage {
 		await categoryRow.getByRole('button', { name: 'Budget' }).click();
 		await this.page.getByRole('textbox', { name: 'Budget' }).fill(amount);
 		await this.page.getByRole('textbox', { name: 'Budget' }).press('Enter');
+
+		// Wait for form submission to complete and popover to close
+		await expect(this.page.getByRole('textbox', { name: 'Budget' })).not.toBeVisible();
+		await expect(categoryRow.getByRole('button', { name: 'Budget' })).toBeVisible();
 	}
 
 	async createAccount(name: string, startingBalance = '0') {

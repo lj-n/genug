@@ -1,3 +1,5 @@
+import type { ComponentProps } from 'svelte';
+
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { flushSync } from 'svelte';
@@ -5,8 +7,7 @@ import { describe, expect, it } from 'vitest';
 
 import InputCurrency from './input-currency.svelte';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function renderNamedCurrencyInput(props?: Record<string, any>) {
+function renderNamedCurrencyInput(props?: Partial<ComponentProps<typeof InputCurrency>>) {
 	render(InputCurrency, {
 		props: {
 			currency: 'EUR',

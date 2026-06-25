@@ -102,7 +102,7 @@ export class AccountPage extends BasePage {
 			.getByRole('row')
 			.filter({ has: this.page.getByRole('cell', { name: 'Edit category' }) })
 			.first();
-		const rowText = await row.textContent();
+		const cellCount = await this.page.getByRole('cell', { name: 'Edit category' }).count();
 		await row.getByRole('cell', { name: 'Edit category' }).click();
 
 		const editForm = this.page
@@ -110,10 +110,9 @@ export class AccountPage extends BasePage {
 			.filter({ has: this.page.getByRole('button', { name: 'Save' }) });
 		await editForm.getByRole('button', { name: 'Delete' }).click();
 
-		// Verify row is gone
-		if (rowText) {
-			await expect(this.page.getByText(rowText.substring(0, 20))).not.toBeVisible();
-		}
+		// Wait for the edit form to close, then verify one fewer row
+		await expect(editForm).not.toBeVisible();
+		await expect(this.page.getByRole('cell', { name: 'Edit category' })).toHaveCount(cellCount - 1);
 	}
 
 	async editName(name: string) {
@@ -170,6 +169,30 @@ export class AccountPage extends BasePage {
 
 		await editForm.getByRole('button', { name: 'Save' }).click();
 		await expect(editForm).not.toBeVisible();
+
+		// Verify edited values are reflected in the read-only row
+		const readOnlyRow = this.page
+			.getByRole('row')
+			.filter({ has: this.page.getByRole('cell', { name: 'Edit category' }) })
+			.first();
+
+		if (params.notes !== undefined) {
+			await expect(
+				readOnlyRow.getByRole('cell', { name: 'Edit notes' }).filter({ hasText: params.notes })
+			).toBeVisible();
+		}
+
+		if (params.amount !== undefined) {
+			await expect(
+				readOnlyRow.getByRole('cell', { name: 'Edit amount' }).filter({
+					hasText: formatCurrency({ centValue: Number(params.amount) * 100, currency: 'EUR' })
+				})
+			).toBeVisible();
+		}
+
+		if (params.validated === true) {
+			await expect(readOnlyRow.locator('svg.text-success').first()).toBeVisible();
+		}
 	}
 
 	async goto(accountName: string) {
@@ -186,7 +209,20 @@ export class AccountPage extends BasePage {
 			.getByRole('row')
 			.filter({ has: this.page.getByRole('button', { name: 'Toggle validated status' }) })
 			.first();
+
+		// Capture current state before toggling
+		const hadCheckIcon = (await row.locator('svg.text-success').count()) > 0;
+
 		await row.getByRole('button', { name: 'Toggle validated status' }).click();
+
+		// Wait for the form submission (the button wraps a form submit)
 		await this.page.waitForLoadState('networkidle');
+
+		// Assert the validated icon toggled
+		if (hadCheckIcon) {
+			await expect(row.locator('svg.text-success')).toHaveCount(0);
+		} else {
+			await expect(row.locator('svg.text-success').first()).toBeVisible();
+		}
 	}
 }

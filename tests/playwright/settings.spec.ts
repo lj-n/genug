@@ -16,5 +16,5 @@ test('Change Display Name', async ({ page, pages }) => {
 test('Change Language', async ({ pages }) => {
 	await pages.auth.createUserAndLogin();
 	await pages.settings.goto();
-	await pages.settings.changeLanguage('en');
+	await pages.settings.changeLanguage('de');
 });
