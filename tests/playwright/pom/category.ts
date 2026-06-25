@@ -18,7 +18,11 @@ export class CategoryPage extends BasePage {
 	}
 
 	async editName(currentName: string, newName: string) {
-		await this.page.getByRole('link', { exact: true, name: currentName }).click();
+		// Budget nav links share names with categories; disambiguate by href.
+		await this.page
+			.getByRole('link', { exact: true, name: currentName })
+			.and(this.page.locator('[href*="/categories/"]'))
+			.click();
 
 		const dialog = this.page.getByRole('dialog');
 		await expect(dialog).toBeVisible();

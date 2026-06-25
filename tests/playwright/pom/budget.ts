@@ -40,7 +40,6 @@ export class BudgetPage extends BasePage {
 		} else {
 			await this.openMobileNavigation();
 			await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
-			await this.closeMobileNavigation();
 		}
 	}
 
@@ -59,7 +58,6 @@ export class BudgetPage extends BasePage {
 		} else {
 			await this.openMobileNavigation();
 			await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
-			await this.closeMobileNavigation();
 		}
 	}
 

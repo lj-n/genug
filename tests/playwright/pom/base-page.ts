@@ -19,16 +19,11 @@ export class BasePage {
 		this.page = page;
 	}
 
-	async closeMobileNavigation() {
-		const signOutButton = this.page.getByRole('button', { name: 'Sign out' });
-		if (!(await signOutButton.isVisible())) return; // Already closed
-		await this.page.locator('[data-slot="drawer-close"]').click();
-		await expect(signOutButton).not.toBeVisible();
-	}
-
 	async openMobileNavigation() {
+		const signOutButton = this.page.getByRole('button', { name: 'Sign out' });
+		if (await signOutButton.isVisible()) return; // Already open
 		await this.page.getByRole('button', { name: 'Toggle Navigation' }).click();
-		await expect(this.page.getByRole('button', { name: 'Sign out' })).toBeVisible();
+		await expect(signOutButton).toBeVisible();
 	}
 
 	#getViewportWidth() {
