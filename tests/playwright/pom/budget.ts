@@ -9,7 +9,12 @@ export class BudgetPage extends BasePage {
 
 	async assignAmount(categoryName: string, amount: string) {
 		const categoryRow = this.page.getByRole('row').filter({ hasText: categoryName });
-		await categoryRow.getByRole('button', { name: 'Budget' }).click();
+		const budgetButton = categoryRow.getByRole('button', { name: 'Budget' });
+		// Svelte can re-render the table after any category change (e.g. a
+		// second createCategory). toBeVisible retries if the element is
+		// detached during the check — more robust than a bare click().
+		await expect(budgetButton).toBeVisible();
+		await budgetButton.click();
 		await this.page.getByRole('textbox', { name: 'Budget' }).fill(amount);
 		await this.page.getByRole('textbox', { name: 'Budget' }).press('Enter');
 
@@ -83,6 +88,12 @@ export class BudgetPage extends BasePage {
 		}
 
 		await this.page.getByRole('link', { exact: true, name: budgetName }).click();
+		if (!this.isDesktop) {
+			// On tablet, clicking a link inside the drawer closes the drawer
+			// and navigates. The overlay can linger in the DOM briefly after
+			// close, intercepting pointer events for subsequent clicks.
+			await expect(this.page.locator('[data-vaul-overlay]')).not.toBeVisible();
+		}
 		await this.page.waitForLoadState('networkidle');
 		await expect(this.page.getByRole('heading', { name: budgetName })).toBeVisible();
 	}

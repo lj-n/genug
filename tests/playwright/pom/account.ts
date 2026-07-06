@@ -212,6 +212,12 @@ export class AccountPage extends BasePage {
 		}
 
 		await this.page.getByRole('link', { exact: true, name: accountName }).click();
+		if (!this.isDesktop) {
+			// On tablet, clicking a link inside the drawer closes the drawer
+			// and navigates. The overlay can linger in the DOM briefly after
+			// close, intercepting pointer events for subsequent clicks.
+			await expect(this.page.locator('[data-vaul-overlay]')).not.toBeVisible();
+		}
 		await this.page.waitForLoadState('networkidle');
 		await expect(this.page.getByRole('heading', { name: accountName })).toBeVisible();
 	}
