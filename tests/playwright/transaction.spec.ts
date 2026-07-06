@@ -7,11 +7,9 @@ test('Create Transaction', async ({ pages }) => {
 
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
-	await pages.budget.goto(budgetName);
 
 	const accountName = faker.finance.accountName();
 	await pages.budget.createAccount(accountName);
-	await pages.budget.goto(budgetName);
 
 	const categoryName = faker.commerce.department();
 	await pages.budget.createCategory(categoryName);
@@ -31,11 +29,9 @@ test('Edit Transaction', async ({ pages }) => {
 
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
-	await pages.budget.goto(budgetName);
 
 	const accountName = faker.finance.accountName();
 	await pages.budget.createAccount(accountName);
-	await pages.budget.goto(budgetName);
 
 	const categoryName = faker.commerce.department();
 	await pages.budget.createCategory(categoryName);
@@ -62,11 +58,9 @@ test('Delete Transaction', async ({ pages }) => {
 
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
-	await pages.budget.goto(budgetName);
 
 	const accountName = faker.finance.accountName();
 	await pages.budget.createAccount(accountName);
-	await pages.budget.goto(budgetName);
 
 	const categoryName = faker.commerce.department();
 	await pages.budget.createCategory(categoryName);
@@ -86,11 +80,9 @@ test('Toggle Validated', async ({ pages }) => {
 
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
-	await pages.budget.goto(budgetName);
 
 	const accountName = faker.finance.accountName();
 	await pages.budget.createAccount(accountName);
-	await pages.budget.goto(budgetName);
 
 	const categoryName = faker.commerce.department();
 	await pages.budget.createCategory(categoryName);

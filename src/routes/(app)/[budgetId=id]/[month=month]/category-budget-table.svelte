@@ -135,6 +135,7 @@
 				<BudgetTableCell class="w-1/5 p-0">
 					<TransferPopup
 						{month}
+						categoryName={row.name}
 						rowId={row.id}
 						remaining={row.remaining}
 						otherCategories={categories.filter((f) => f.id !== row.id)}

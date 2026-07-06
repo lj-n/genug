@@ -1,12 +1,8 @@
-import { expect, type Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 
 import { BasePage } from './base-page';
 
 export class CategoryPage extends BasePage {
-	constructor(page: Page) {
-		super(page);
-	}
-
 	async create(name: string) {
 		await this.page.getByRole('button', { name: 'Create Category' }).click();
 

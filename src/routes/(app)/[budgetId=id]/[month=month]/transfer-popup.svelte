@@ -18,11 +18,13 @@
 	import ArrowFatLineDownDuotoneIcon from '~icons/ph/arrow-fat-line-down-duotone';
 
 	let {
+		categoryName,
 		month,
 		otherCategories,
 		remaining,
 		rowId
 	}: {
+		categoryName: string;
 		month: string;
 		otherCategories: { id: string; name: string; remaining: number }[];
 		remaining: number;
@@ -51,6 +53,7 @@
 		)}
 		disabled={remaining === 0}
 		aria-disabled={remaining === 0}
+		aria-label={m.transfer_assignment_trigger_label({ name: categoryName })}
 	>
 		<div
 			class={cn(

@@ -210,5 +210,6 @@
 	"transfer_assignment_unassigned": "Unverteilt",
 	"transfer_assignment_category": "Kategorie",
 	"transfer_assignment_select_category": "Kategorie auswählen",
-	"transfer_assignment_cover": "Ausgleichen"
+	"transfer_assignment_cover": "Ausgleichen",
+	"transfer_assignment_trigger_label": "Verbleibendes für {name} anpassen"
 }

@@ -8,11 +8,9 @@ test('Assign Budget to Category', async ({ pages }) => {
 
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
-	await pages.budget.goto(budgetName);
 
 	const accountName = faker.finance.accountName();
 	await pages.budget.createAccount(accountName);
-	await pages.budget.goto(budgetName);
 
 	const categoryName = faker.commerce.department();
 	await pages.budget.createCategory(categoryName);
@@ -20,16 +18,14 @@ test('Assign Budget to Category', async ({ pages }) => {
 	await pages.budget.assignAmount(categoryName, '500');
 });
 
-test('Transfer Assignment — Move between categories', async ({ page, pages }) => {
+test('Transfer Assignment — Move between categories', async ({ pages }) => {
 	await pages.auth.createUserAndLogin();
 
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
-	await pages.budget.goto(budgetName);
 
 	const accountName = faker.finance.accountName();
 	await pages.budget.createAccount(accountName);
-	await pages.budget.goto(budgetName);
 
 	const sourceCategory = faker.commerce.department();
 	await pages.budget.createCategory(sourceCategory);
@@ -43,12 +39,10 @@ test('Transfer Assignment — Move between categories', async ({ page, pages }) 
 	await pages.budget.transferToCategory(sourceCategory, '2', targetCategory);
 
 	// Verify: source remaining = 300, target remaining = 200
-	const sourceRow = page.getByRole('row').filter({ hasText: sourceCategory });
-	const targetRow = page.getByRole('row').filter({ hasText: targetCategory });
-	await expect(sourceRow.getByRole('cell').nth(3)).toContainText(
+	await expect(pages.budget.remainingTrigger(sourceCategory)).toContainText(
 		formatCurrency({ centValue: 300, currency: 'EUR' })
 	);
-	await expect(targetRow.getByRole('cell').nth(3)).toContainText(
+	await expect(pages.budget.remainingTrigger(targetCategory)).toContainText(
 		formatCurrency({ centValue: 200, currency: 'EUR' })
 	);
 });
@@ -58,11 +52,9 @@ test('Transfer Assignment — Move to unassigned', async ({ page, pages }) => {
 
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
-	await pages.budget.goto(budgetName);
 
 	const accountName = faker.finance.accountName();
 	await pages.budget.createAccount(accountName);
-	await pages.budget.goto(budgetName);
 
 	const category = faker.commerce.department();
 	await pages.budget.createCategory(category);
@@ -74,8 +66,7 @@ test('Transfer Assignment — Move to unassigned', async ({ page, pages }) => {
 	await pages.budget.transferToUnassigned(category, '3');
 
 	// Verify remaining = 200
-	const categoryRow = page.getByRole('row').filter({ hasText: category });
-	await expect(categoryRow.getByRole('cell').nth(3)).toContainText(
+	await expect(pages.budget.remainingTrigger(category)).toContainText(
 		formatCurrency({ centValue: 200, currency: 'EUR' })
 	);
 
@@ -83,24 +74,18 @@ test('Transfer Assignment — Move to unassigned', async ({ page, pages }) => {
 	await expect(page.getByText(formatCurrency({ centValue: -200, currency: 'EUR' }))).toBeVisible();
 });
 
-test('Transfer Assignment — Trigger disabled at zero remaining', async ({ page, pages }) => {
+test('Transfer Assignment — Trigger disabled at zero remaining', async ({ pages }) => {
 	await pages.auth.createUserAndLogin();
 
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
-	await pages.budget.goto(budgetName);
 
 	const accountName = faker.finance.accountName();
 	await pages.budget.createAccount(accountName);
-	await pages.budget.goto(budgetName);
 
 	const category = faker.commerce.department();
 	await pages.budget.createCategory(category);
 
 	// No assignment → remaining = 0 → trigger disabled
-	const categoryRow = page.getByRole('row').filter({ hasText: category });
-	const remainingCell = categoryRow.getByRole('cell').nth(3);
-	const trigger = remainingCell.getByRole('button');
-
-	await expect(trigger).toHaveAttribute('aria-disabled', 'true');
+	await expect(pages.budget.remainingTrigger(category)).toHaveAttribute('aria-disabled', 'true');
 });
