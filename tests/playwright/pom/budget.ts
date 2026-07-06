@@ -82,4 +82,40 @@ export class BudgetPage extends BasePage {
 		await this.page.waitForLoadState('networkidle');
 		await expect(this.page.getByRole('heading', { name: budgetName })).toBeVisible();
 	}
+
+	async transferToCategory(sourceCategoryName: string, amount: string, targetCategoryName: string) {
+		const categoryRow = this.page.getByRole('row').filter({ hasText: sourceCategoryName });
+		const remainingCell = categoryRow.getByRole('cell').nth(3);
+		await remainingCell.getByRole('button').click();
+
+		await expect(this.page.getByText('Move')).toBeVisible();
+
+		await this.page.getByRole('textbox', { name: 'Amount' }).fill(amount);
+		await this.page.getByRole('button', { name: 'Select category' }).click();
+		await this.page.getByRole('option', { name: targetCategoryName }).click();
+
+		await this.page.getByRole('button', { name: 'OK' }).click();
+
+		await expect(this.page.getByText('Move')).not.toBeVisible();
+	}
+
+	async transferToUnassigned(categoryName: string, amount: string) {
+		const categoryRow = this.page.getByRole('row').filter({ hasText: categoryName });
+		const remainingCell = categoryRow.getByRole('cell').nth(3);
+		await remainingCell.getByRole('button').click();
+
+		await expect(this.page.getByText('Move')).toBeVisible();
+
+		await this.page.getByRole('textbox', { name: 'Amount' }).fill(amount);
+		await this.page.getByRole('button', { name: 'Select category' }).click();
+		await this.page.getByRole('option', { name: 'Unassigned' }).click();
+
+		// The combobox stays expanded after selecting Unassigned,
+		// and its balance badge intercepts the OK button.
+		// Click the amount input to re-focus and close the dropdown.
+		await this.page.getByRole('textbox', { name: 'Amount' }).click();
+		await this.page.getByRole('button', { name: 'OK' }).click();
+
+		await expect(this.page.getByText('Move')).not.toBeVisible();
+	}
 }
