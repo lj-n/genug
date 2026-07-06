@@ -46,6 +46,10 @@ export class BudgetPage extends BasePage {
 			await this.openMobileNavigation();
 			await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
 		}
+		// SvelteKit invalidateAll() after form submit triggers separate
+		// data fetches for sidebar and page content. networkidle ensures
+		// both settle before the next navigation or interaction.
+		await this.page.waitForLoadState('networkidle');
 	}
 
 	async createBudget(name: string) {
@@ -64,6 +68,10 @@ export class BudgetPage extends BasePage {
 			await this.openMobileNavigation();
 			await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
 		}
+		// Creating a budget navigates to the budget page. networkidle
+		// ensures the SvelteKit navigation and any lazy data fetches
+		// have completed before the next step.
+		await this.page.waitForLoadState('networkidle');
 	}
 
 	async createCategory(name: string) {
@@ -73,13 +81,12 @@ export class BudgetPage extends BasePage {
 		await input.fill(name);
 		await input.press('Enter');
 
+		// The sidebar and the budget table reload from separate data
+		// fetches after SvelteKit invalidateAll(). networkidle ensures
+		// both have settled before the next createCategory/assignAmount
+		// interacts with the newly rendered rows.
 		await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
-		// The budget table reloads from a separate data fetch than the sidebar.
-		// Wait for the new category's Budget button to appear in the table row
-		// — this is what assignAmount needs to interact with next.
-		await expect(
-			this.page.getByRole('row').filter({ hasText: name }).getByRole('button', { name: 'Budget' })
-		).toBeVisible();
+		await this.page.waitForLoadState('networkidle');
 	}
 
 	async goto(budgetName: string) {
