@@ -110,9 +110,10 @@ export class BudgetPage extends BasePage {
 		await this.page.getByRole('button', { name: 'Select category' }).click();
 		await this.page.getByRole('option', { name: 'Unassigned' }).click();
 
-		// The combobox stays expanded after selecting Unassigned,
-		// and its balance badge intercepts the OK button.
-		// Click the amount input to re-focus and close the dropdown.
+		// NOTE: In Playwright (headless), the Combobox fails to close after selecting
+		// "Unassigned" — the balance badge then overlays the OK button. This does NOT
+		// reproduce in real browsers (Chrome, Safari, Firefox). Workaround:
+		// click the amount input to defocus the Combobox and dismiss the dropdown.
 		await this.page.getByRole('textbox', { name: 'Amount' }).click();
 		await this.page.getByRole('button', { name: 'OK' }).click();
 

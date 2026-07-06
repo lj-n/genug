@@ -9,7 +9,6 @@
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
 	import { useDialog } from '$lib/utils/use-dialog';
 	import { untrack } from 'svelte';
-	import { cn } from 'tailwind-variants';
 	import PhDotsSixVerticalBold from '~icons/ph/dots-six-vertical-bold';
 
 	import BudgetTableCell from './budget-table-cell.svelte';
@@ -89,10 +88,7 @@
 				data-drag-item="category"
 				data-sortable-id={row.id}
 				role="row"
-				class={cn(
-					'relative flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/3',
-					''
-				)}
+				class="relative flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/3"
 			>
 				<BudgetTableCell class="relative flex w-2/5 p-0 hover:bg-surface">
 					<a

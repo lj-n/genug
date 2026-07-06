@@ -13,7 +13,6 @@ export class Pages {
 	auth: AuthPage;
 	budget: BudgetPage;
 	category: CategoryPage;
-	page: Page;
 	settings: SettingsPage;
 
 	constructor(page: Page) {
@@ -22,7 +21,6 @@ export class Pages {
 		this.auth = new AuthPage(page);
 		this.budget = new BudgetPage(page);
 		this.category = new CategoryPage(page);
-		this.page = page;
 		this.settings = new SettingsPage(page);
 	}
 }

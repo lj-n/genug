@@ -36,7 +36,7 @@ export const AssignmentSchema = v.object({
 
 export const TransferAssignmentSchema = v.object({
 	...BudgetMonthSchema.entries,
-	amount: v.number(),
+	amount: v.pipe(v.number(), v.notValue(0)),
 	sourceCategoryId: v.string(),
 	targetCategoryId: v.string()
 });

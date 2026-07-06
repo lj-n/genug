@@ -1,6 +1,8 @@
 import { createDatabase, tables } from '$db';
+import { TransferAssignmentSchema } from '$lib/schemas/budget';
 import { NotFoundError } from '$server/utils/not-found-error';
 import { and, eq } from 'drizzle-orm';
+import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
 import { createBudgetWithUser, createMemoryDb, createUser } from '../../../../test/fixtures';
@@ -681,6 +683,77 @@ describe('commands.transferAssignment', () => {
 				month: 202501,
 				sourceCategoryId: cat.id,
 				targetCategoryId: cat.id
+			})
+		).toThrow();
+	});
+
+	it('rejects amount:0 at schema level', () => {
+		const result = v.safeParse(TransferAssignmentSchema, {
+			amount: 0,
+			budgetId: 'any',
+			month: 202501,
+			sourceCategoryId: 'src',
+			targetCategoryId: 'tgt'
+		});
+		expect(result.success).toBe(false);
+	});
+
+	it('throws when sourceCategory belongs to different budget', () => {
+		const db = createMemoryDb();
+		const { budget: budget1, user } = createBudgetWithUser(db);
+		const budget2 = db.insert(tables.budgets).values({ name: 'Budget 2' }).returning().get();
+		db.insert(tables.usersToBudgets)
+			.values({ budgetId: budget2.id, role: 'OWNER', userId: user.id })
+			.run();
+		const sourceInBudget2 = db
+			.insert(tables.categories)
+			.values({ budgetId: budget2.id, name: 'Source' })
+			.returning()
+			.get();
+		const targetInBudget1 = db
+			.insert(tables.categories)
+			.values({ budgetId: budget1.id, name: 'Target' })
+			.returning()
+			.get();
+		const { transferAssignment } = commands(user.id, db);
+
+		expect(() =>
+			transferAssignment({
+				amount: 100,
+				budgetId: budget1.id,
+				month: 202501,
+				sourceCategoryId: sourceInBudget2.id,
+				targetCategoryId: targetInBudget1.id
+			})
+		).toThrow();
+	});
+
+	it('throws when targetCategory belongs to different budget', () => {
+		const db = createMemoryDb();
+		const { budget: budget1, user } = createBudgetWithUser(db);
+		const budget2 = db.insert(tables.budgets).values({ name: 'Budget 2' }).returning().get();
+		db.insert(tables.usersToBudgets)
+			.values({ budgetId: budget2.id, role: 'OWNER', userId: user.id })
+			.run();
+		const sourceInBudget1 = db
+			.insert(tables.categories)
+			.values({ budgetId: budget1.id, name: 'Source' })
+			.returning()
+			.get();
+		const targetInBudget2 = db
+			.insert(tables.categories)
+			.values({ budgetId: budget2.id, name: 'Target' })
+			.returning()
+			.get();
+		const { transferAssignment } = commands(user.id, db);
+
+		expect(() =>
+			transferAssignment({
+				amount: 100,
+				budgetId: budget1.id,
+				month: 202501,
+				sourceCategoryId: sourceInBudget1.id,
+				targetCategoryId: targetInBudget2.id
 			})
 		).toThrow();
 	});
