@@ -206,12 +206,14 @@ export class AccountPage extends BasePage {
 		}
 
 		await this.page.getByRole('link', { exact: true, name: accountName }).click();
-		// On tablet, clicking a link inside the drawer closes the drawer
-		// AND navigates. The drawer's close animation (fade-out) and the
-		// SvelteKit navigation both need time to settle. A fixed pause is
-		// crude but works reliably across CI browser versions — the overlay
-		// otherwise intercepts pointer events for subsequent clicks.
-		await this.page.waitForTimeout(1000);
+		if (!this.isDesktop) {
+			// On tablet, clicking a link inside the drawer closes the drawer
+			// AND navigates. The drawer's close animation (fade-out) and the
+			// SvelteKit navigation both need time to settle. A fixed pause is
+			// crude but works reliably across CI browser versions — the overlay
+			// otherwise intercepts pointer events for subsequent clicks.
+			await this.page.waitForTimeout(1000);
+		}
 		await this.page.waitForLoadState('networkidle');
 		await expect(this.page.getByRole('heading', { name: accountName })).toBeVisible();
 	}

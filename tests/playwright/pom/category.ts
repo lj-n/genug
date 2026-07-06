@@ -43,6 +43,8 @@ export class CategoryPage extends BasePage {
 		await dialog.getByRole('button', { name: 'Close' }).first().click();
 		await expect(dialog).not.toBeVisible();
 
-		await expect(this.page.getByRole('link', { exact: true, name: newName })).toBeVisible();
+		await expect(
+			this.page.getByRole('table').getByRole('link', { exact: true, name: newName })
+		).toBeVisible();
 	}
 }
