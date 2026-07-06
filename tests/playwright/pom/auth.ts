@@ -1,14 +1,10 @@
 import { faker } from '@faker-js/faker';
-import { expect, type Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 
 import { BasePage } from './base-page';
 
 export class AuthPage extends BasePage {
 	readonly admin = ['Admin', '1234admin!$5678'] as const;
-
-	constructor(page: Page) {
-		super(page);
-	}
 
 	async createAdmin(username = this.admin[0], password = this.admin[1]) {
 		await this.page.goto('/login/first');

@@ -7,7 +7,7 @@ export const TransactionCreateSchema = v.object({
 	amount: v.pipe(v.number(), v.integer()),
 	budgetId: v.pipe(v.string(), v.minLength(1)),
 	categoryId: v.optional(v.string()),
-	date: v.pipe(v.string(), v.minLength(1)),
+	date: v.optional(v.pipe(v.string(), v.minLength(1))),
 	notes: v.optional(v.string()),
 	validated: v.optional(v.boolean(), false)
 });

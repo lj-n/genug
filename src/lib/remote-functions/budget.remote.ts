@@ -1,4 +1,6 @@
 import { resolve } from '$app/paths';
+import { requested } from '$app/server';
+import { UNASSIGNED } from '$lib/constants';
 import { m } from '$lib/paraglide/messages';
 import {
 	AssignmentSchema,
@@ -6,7 +8,8 @@ import {
 	BudgetMonthSchema,
 	CreateBudgetSchema,
 	EditBudgetSchema,
-	FindBudgetUserSchema
+	FindBudgetUserSchema,
+	TransferAssignmentSchema
 } from '$lib/schemas/budget';
 import { OrderedIdsSchema } from '$lib/schemas/utils';
 import { guardedCommand, guardedForm, guardedQuery } from '$server/utils/remote-guard';
@@ -84,9 +87,12 @@ export const getUnassigned = guardedQuery(v.string(), async (id, { ctx }) =>
 	ctx.budget.unassigned(id)
 );
 
+const refreshBudgetData = () =>
+	Promise.all([requested(getMonthly, 1).refreshAll(), requested(getUnassigned, 1).refreshAll()]);
+
 export const assignment = guardedForm(AssignmentSchema, async (data, { ctx }) => {
 	ctx.budget.assignment(data);
-	void getMonthly(data).refresh();
+	await refreshBudgetData();
 });
 
 export const getInvitations = guardedQuery(async ({ ctx }) => ctx.budget.invitations());
@@ -99,4 +105,17 @@ export const acceptInvite = guardedForm(BudgetAndUserIdSchema, async ({ budgetId
 	ctx.budget.acceptInvite(budgetId);
 	void getBudgets().refresh();
 	void getBudget(budgetId).refresh();
+});
+
+export const transferAssignment = guardedForm(TransferAssignmentSchema, async (data, { ctx }) => {
+	ctx.budget.transferAssignment({
+		amount: data.amount,
+		budgetId: data.budgetId,
+		month: data.month,
+		sourceCategoryId: data.sourceCategoryId,
+		targetCategoryId:
+			data.targetCategoryId === UNASSIGNED || !data.targetCategoryId ? null : data.targetCategoryId
+	});
+
+	await refreshBudgetData();
 });

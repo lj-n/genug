@@ -9,12 +9,12 @@
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
 	import { useDialog } from '$lib/utils/use-dialog';
 	import { untrack } from 'svelte';
-	import { cn } from 'tailwind-variants';
 	import PhDotsSixVerticalBold from '~icons/ph/dots-six-vertical-bold';
 
 	import BudgetTableCell from './budget-table-cell.svelte';
 	import BudgetTableHeader from './budget-table-header.svelte';
 	import CategoryAssignmentForm from './category-assignment-form.svelte';
+	import TransferPopup from './transfer-popup.svelte';
 
 	let {
 		month,
@@ -48,6 +48,10 @@
 			return new Response(null, { status: 200 });
 		}
 	});
+
+	const otherCategoriesById = $derived(
+		new Map(categories.map((cat) => [cat.id, categories.filter((f) => f.id !== cat.id)]))
+	);
 
 	let activeAssignmentCategoryId = $state<null | string>(null);
 	let isActiveAssignment = $derived((id: string) => activeAssignmentCategoryId === id);
@@ -88,10 +92,7 @@
 				data-drag-item="category"
 				data-sortable-id={row.id}
 				role="row"
-				class={cn(
-					'relative flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/5',
-					''
-				)}
+				class="relative flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/3"
 			>
 				<BudgetTableCell class="relative flex w-2/5 p-0 hover:bg-surface">
 					<a
@@ -135,17 +136,14 @@
 					{formatCurrency({ centValue: row.activity, currency })}
 				</BudgetTableCell>
 
-				<BudgetTableCell class="w-1/5 justify-end">
-					<span
-						class={cn(
-							'w-fit rounded-full border px-2 font-currency',
-							row.remaining < 0
-								? 'border-error/50 bg-error/20 hover:bg-error/30'
-								: 'border-success/80 bg-success/20 hover:bg-success/30'
-						)}
-					>
-						{formatCurrency({ centValue: row.remaining, currency })}
-					</span>
+				<BudgetTableCell class="w-1/5 p-0">
+					<TransferPopup
+						{month}
+						categoryName={row.name}
+						rowId={row.id}
+						remaining={row.remaining}
+						otherCategories={otherCategoriesById.get(row.id)!}
+					/>
 				</BudgetTableCell>
 
 				<BudgetTableCell class="w-9 border-0 last:p-2">

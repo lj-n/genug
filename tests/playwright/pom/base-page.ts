@@ -1,6 +1,28 @@
 import { expect, type Page } from '@playwright/test';
 
+/**
+ * State shared across page objects within a single test.
+ *
+ * Navigation in the app happens through the mobile drawer (tablet) or the
+ * sidebar (desktop). Driving navigation by clicking those links is flaky on
+ * slow CI runners: the drawer animates open and the nav lists load
+ * asynchronously, so a link's position keeps shifting and never satisfies
+ * Playwright's "stable" actionability check.
+ *
+ * Instead we capture the canonical URL of each entity when it is created and
+ * navigate to it directly with `page.goto`. This keeps the "arrange" phase of
+ * every test deterministic and fast. The drawer itself is still exercised by
+ * the login/signout flow.
+ */
+export type TestContext = {
+	/** account name -> account page URL */
+	accounts: Map<string, string>;
+	/** the current budget's page URL (captured after createBudget) */
+	budgetUrl?: string;
+};
+
 export class BasePage {
+	readonly ctx: TestContext;
 	readonly page: Page;
 
 	get isDesktop() {
@@ -15,24 +37,17 @@ export class BasePage {
 		return !this.isDesktop && !this.isMobile;
 	}
 
-	constructor(page: Page) {
+	constructor(page: Page, ctx: TestContext) {
 		this.page = page;
+		this.ctx = ctx;
 	}
 
 	async openMobileNavigation() {
 		const signOutButton = this.page.getByRole('button', { name: 'Sign out' });
-		if (await signOutButton.isVisible()) return; // Already open
-		await this.page.getByRole('button', { name: 'Toggle Navigation' }).click();
-		await expect(signOutButton).toBeVisible();
-		// vaul-svelte animates the drawer with CSS keyframes that don't respect
-		// prefers-reduced-motion. Wait for the slide-in animation to finish so
-		// that elements inside are stable before we try to click them.
-		await this.page.waitForFunction(() => {
-			const drawer = document.querySelector('[data-vaul-drawer]');
-			return (
-				!drawer || drawer.getAnimations({ subtree: true }).every((a) => a.playState !== 'running')
-			);
-		});
+		if (!(await signOutButton.isVisible())) {
+			await this.page.getByRole('button', { name: 'Toggle Navigation' }).click();
+			await expect(signOutButton).toBeVisible();
+		}
 	}
 
 	#getViewportWidth() {

@@ -1,5 +1,5 @@
 import { formatCurrency } from '$lib/utils/format-currency';
-import { expect, type Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 
 import { BasePage } from './base-page';
 
@@ -20,10 +20,6 @@ type EditTransactionParams = {
 };
 
 export class AccountPage extends BasePage {
-	constructor(page: Page) {
-		super(page);
-	}
-
 	async createTransaction(params: CreateTransactionParams | string = {}) {
 		const { amount, category, date, notes, validated } =
 			typeof params === 'string' ? { amount: params } : params;
@@ -110,9 +106,8 @@ export class AccountPage extends BasePage {
 			.filter({ has: this.page.getByRole('button', { name: 'Save' }) });
 		await editForm.getByRole('button', { name: 'Delete' }).click();
 
-		// Delete submits a hidden batch-delete form — the visible edit form stays open.
-		// Wait for the delete to complete, then verify one fewer transaction row.
-		await this.page.waitForLoadState('networkidle');
+		// Delete submits a hidden batch-delete form — the visible edit form stays
+		// open. The assertion retries until one fewer transaction row remains.
 		await expect(this.page.getByRole('cell', { name: 'Edit category' })).toHaveCount(cellCount - 1);
 	}
 
@@ -197,14 +192,11 @@ export class AccountPage extends BasePage {
 	}
 
 	async goto(accountName: string) {
-		if (!this.isDesktop) {
-			await this.openMobileNavigation();
+		const url = this.ctx.accounts.get(accountName);
+		if (!url) {
+			throw new Error(`Account "${accountName}" must be created before goto`);
 		}
-
-		await this.page.getByRole('link', { exact: true, name: accountName }).click();
-		// On tablet, clicking a link inside the drawer closes the drawer AND navigates.
-		// Wait for both the drawer close animation and SvelteKit navigation to settle.
-		await this.page.waitForLoadState('networkidle');
+		await this.page.goto(url);
 		await expect(this.page.getByRole('heading', { name: accountName })).toBeVisible();
 	}
 
@@ -219,10 +211,8 @@ export class AccountPage extends BasePage {
 
 		await row.getByRole('button', { name: 'Toggle validated status' }).click();
 
-		// Wait for the form submission (the button wraps a form submit)
-		await this.page.waitForLoadState('networkidle');
-
-		// Assert the validated icon toggled
+		// The button wraps a form submit; the icon assertion below retries until
+		// the toggle is reflected.
 		if (hadCheckIcon) {
 			await expect(row.locator('svg.text-success')).toHaveCount(0);
 		} else {

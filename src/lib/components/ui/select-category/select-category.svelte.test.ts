@@ -3,7 +3,13 @@ import type { ComponentProps } from 'svelte';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { flushSync } from 'svelte';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+beforeEach(() => vi.useFakeTimers({ shouldAdvanceTime: true }));
+afterEach(() => {
+	vi.runAllTimers();
+	vi.useRealTimers();
+});
 
 import SelectCategory from './select-category.svelte';
 

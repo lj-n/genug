@@ -1,9 +1,11 @@
-import { createDatabase, tables } from '$db';
+import { createDatabase, type Database, tables } from '$db';
+import { TransferAssignmentSchema } from '$lib/schemas/budget';
 import { NotFoundError } from '$server/utils/not-found-error';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
+import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 
-import { createBudgetWithUser, createUser } from '../../../../test/fixtures';
+import { createBudgetWithUser, createMemoryDb, createUser } from '../../../../test/fixtures';
 import { commands, queries } from './budget';
 
 describe('queries.all', () => {
@@ -401,5 +403,289 @@ describe('commands.reorder', () => {
 		expect(order.find((o) => o.entityId === b3)?.position).toBe(0);
 		expect(order.find((o) => o.entityId === b1)?.position).toBe(1);
 		expect(order.find((o) => o.entityId === b2)?.position).toBe(2);
+	});
+});
+
+const getAssignment = (db: Database, categoryId: string, month = 202501) =>
+	db
+		.select()
+		.from(tables.budgetAssignments)
+		.where(
+			and(
+				eq(tables.budgetAssignments.categoryId, categoryId),
+				eq(tables.budgetAssignments.month, month)
+			)
+		)
+		.get();
+
+describe('commands.transferAssignment', () => {
+	it('moves amount from source category to target category', () => {
+		const db = createMemoryDb();
+		const { budget, user } = createBudgetWithUser(db);
+		const source = db
+			.insert(tables.categories)
+			.values({ budgetId: budget.id, name: 'Source' })
+			.returning()
+			.get();
+		const target = db
+			.insert(tables.categories)
+			.values({ budgetId: budget.id, name: 'Target' })
+			.returning()
+			.get();
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 200, budgetId: budget.id, categoryId: source.id, month: 202501 })
+			.run();
+		const { transferAssignment } = commands(user.id, db);
+
+		transferAssignment({
+			amount: 100,
+			budgetId: budget.id,
+			month: 202501,
+			sourceCategoryId: source.id,
+			targetCategoryId: target.id
+		});
+
+		const sourceRow = getAssignment(db, source.id);
+		const targetRow = getAssignment(db, target.id);
+		expect(sourceRow?.amount).toBe(100);
+		expect(targetRow?.amount).toBe(100);
+	});
+
+	it('sets source amount to zero when fully drained', () => {
+		const db = createMemoryDb();
+		const { budget, user } = createBudgetWithUser(db);
+		const source = db
+			.insert(tables.categories)
+			.values({ budgetId: budget.id, name: 'Source' })
+			.returning()
+			.get();
+		const target = db
+			.insert(tables.categories)
+			.values({ budgetId: budget.id, name: 'Target' })
+			.returning()
+			.get();
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 100, budgetId: budget.id, categoryId: source.id, month: 202501 })
+			.run();
+		const { transferAssignment } = commands(user.id, db);
+
+		transferAssignment({
+			amount: 100,
+			budgetId: budget.id,
+			month: 202501,
+			sourceCategoryId: source.id,
+			targetCategoryId: target.id
+		});
+
+		const sourceRow = getAssignment(db, source.id);
+		expect(sourceRow?.amount).toBe(0);
+		const targetRow = getAssignment(db, target.id);
+		expect(targetRow?.amount).toBe(100);
+	});
+
+	it('creates negative source assignment when none existed', () => {
+		const db = createMemoryDb();
+		const { budget, user } = createBudgetWithUser(db);
+		const source = db
+			.insert(tables.categories)
+			.values({ budgetId: budget.id, name: 'Source' })
+			.returning()
+			.get();
+		const target = db
+			.insert(tables.categories)
+			.values({ budgetId: budget.id, name: 'Target' })
+			.returning()
+			.get();
+		const { transferAssignment } = commands(user.id, db);
+
+		transferAssignment({
+			amount: 100,
+			budgetId: budget.id,
+			month: 202501,
+			sourceCategoryId: source.id,
+			targetCategoryId: target.id
+		});
+
+		const sourceRow = getAssignment(db, source.id);
+		expect(sourceRow?.amount).toBe(-100);
+		const targetRow = getAssignment(db, target.id);
+		expect(targetRow?.amount).toBe(100);
+	});
+
+	it('moves amount from source category to unassigned', () => {
+		const db = createMemoryDb();
+		const { budget, user } = createBudgetWithUser(db);
+		const source = db
+			.insert(tables.categories)
+			.values({ budgetId: budget.id, name: 'Source' })
+			.returning()
+			.get();
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 200, budgetId: budget.id, categoryId: source.id, month: 202501 })
+			.run();
+		const { transferAssignment } = commands(user.id, db);
+
+		transferAssignment({
+			amount: 100,
+			budgetId: budget.id,
+			month: 202501,
+			sourceCategoryId: source.id,
+			targetCategoryId: null
+		});
+
+		const sourceRow = getAssignment(db, source.id);
+		expect(sourceRow?.amount).toBe(100);
+	});
+
+	it('handles negative amount (reverse transfer)', () => {
+		const db = createMemoryDb();
+		const { budget, user } = createBudgetWithUser(db);
+		const source = db
+			.insert(tables.categories)
+			.values({ budgetId: budget.id, name: 'Source' })
+			.returning()
+			.get();
+		const target = db
+			.insert(tables.categories)
+			.values({ budgetId: budget.id, name: 'Target' })
+			.returning()
+			.get();
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 50, budgetId: budget.id, categoryId: source.id, month: 202501 })
+			.run();
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 50, budgetId: budget.id, categoryId: target.id, month: 202501 })
+			.run();
+		const { transferAssignment } = commands(user.id, db);
+
+		transferAssignment({
+			amount: -100,
+			budgetId: budget.id,
+			month: 202501,
+			sourceCategoryId: source.id,
+			targetCategoryId: target.id
+		});
+
+		const sourceRow = getAssignment(db, source.id);
+		const targetRow = getAssignment(db, target.id);
+		expect(sourceRow?.amount).toBe(150);
+		expect(targetRow?.amount).toBe(-50);
+	});
+
+	it('throws NotFoundError without budget access', () => {
+		const db = createMemoryDb();
+		const { budget } = createBudgetWithUser(db, 'OWNER', 'owner');
+		const outsider = createUser(db, 'outsider');
+		const target = db
+			.insert(tables.categories)
+			.values({ budgetId: budget.id, name: 'Target' })
+			.returning()
+			.get();
+		const { transferAssignment } = commands(outsider.id, db);
+
+		expect(() =>
+			transferAssignment({
+				amount: 100,
+				budgetId: budget.id,
+				month: 202501,
+				sourceCategoryId: target.id,
+				targetCategoryId: null
+			})
+		).toThrow(NotFoundError);
+	});
+
+	it('throws when source and target are the same category', () => {
+		const db = createMemoryDb();
+		const { budget, user } = createBudgetWithUser(db);
+		const cat = db
+			.insert(tables.categories)
+			.values({ budgetId: budget.id, name: 'Cat' })
+			.returning()
+			.get();
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 200, budgetId: budget.id, categoryId: cat.id, month: 202501 })
+			.run();
+		const { transferAssignment } = commands(user.id, db);
+
+		expect(() =>
+			transferAssignment({
+				amount: 100,
+				budgetId: budget.id,
+				month: 202501,
+				sourceCategoryId: cat.id,
+				targetCategoryId: cat.id
+			})
+		).toThrow();
+	});
+
+	it('rejects amount:0 at schema level', () => {
+		const result = v.safeParse(TransferAssignmentSchema, {
+			amount: 0,
+			budgetId: 'any',
+			month: 202501,
+			sourceCategoryId: 'src',
+			targetCategoryId: 'tgt'
+		});
+		expect(result.success).toBe(false);
+	});
+
+	it('throws when sourceCategory belongs to different budget', () => {
+		const db = createMemoryDb();
+		const { budget: budget1, user } = createBudgetWithUser(db);
+		const budget2 = db.insert(tables.budgets).values({ name: 'Budget 2' }).returning().get();
+		db.insert(tables.usersToBudgets)
+			.values({ budgetId: budget2.id, role: 'OWNER', userId: user.id })
+			.run();
+		const sourceInBudget2 = db
+			.insert(tables.categories)
+			.values({ budgetId: budget2.id, name: 'Source' })
+			.returning()
+			.get();
+		const targetInBudget1 = db
+			.insert(tables.categories)
+			.values({ budgetId: budget1.id, name: 'Target' })
+			.returning()
+			.get();
+		const { transferAssignment } = commands(user.id, db);
+
+		expect(() =>
+			transferAssignment({
+				amount: 100,
+				budgetId: budget1.id,
+				month: 202501,
+				sourceCategoryId: sourceInBudget2.id,
+				targetCategoryId: targetInBudget1.id
+			})
+		).toThrow();
+	});
+
+	it('throws when targetCategory belongs to different budget', () => {
+		const db = createMemoryDb();
+		const { budget: budget1, user } = createBudgetWithUser(db);
+		const budget2 = db.insert(tables.budgets).values({ name: 'Budget 2' }).returning().get();
+		db.insert(tables.usersToBudgets)
+			.values({ budgetId: budget2.id, role: 'OWNER', userId: user.id })
+			.run();
+		const sourceInBudget1 = db
+			.insert(tables.categories)
+			.values({ budgetId: budget1.id, name: 'Source' })
+			.returning()
+			.get();
+		const targetInBudget2 = db
+			.insert(tables.categories)
+			.values({ budgetId: budget2.id, name: 'Target' })
+			.returning()
+			.get();
+		const { transferAssignment } = commands(user.id, db);
+
+		expect(() =>
+			transferAssignment({
+				amount: 100,
+				budgetId: budget1.id,
+				month: 202501,
+				sourceCategoryId: sourceInBudget1.id,
+				targetCategoryId: targetInBudget2.id
+			})
+		).toThrow();
 	});
 });

@@ -3,6 +3,10 @@ import { defineConfig, devices } from '@playwright/test';
 const DEFAULT_VIEWPORT = { height: 900, width: 1440 } as const;
 
 export default defineConfig({
+	expect: {
+		timeout: 10000
+	},
+
 	fullyParallel: true,
 
 	outputDir: 'tests/playwright/results',

@@ -1,6 +1,6 @@
 import { database, type Database, tables } from '$db';
 import { error } from '@sveltejs/kit';
-import { and, eq, getColumns, isNull, sql } from 'drizzle-orm';
+import { and, eq, getColumns, inArray, isNull, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/sqlite-core';
 
 import { accessGuard, hasAccess, ownerGuard } from './access';
@@ -291,6 +291,72 @@ export const commands = (userId: string, db: Database = database) => ({
 					})
 					.run();
 			}
+		});
+	},
+
+	/**
+	 * Moves an assigned amount from one category to another within the same budget/month.
+	 * When `targetCategoryId` is `null`, the amount is returned to unassigned.
+	 * A negative amount reverses direction (from → to means to → from).
+	 */
+	transferAssignment: ({
+		amount,
+		budgetId,
+		month,
+		sourceCategoryId,
+		targetCategoryId
+	}: {
+		amount: number;
+		budgetId: string;
+		month: number;
+		sourceCategoryId: string;
+		targetCategoryId: null | string;
+	}) => {
+		accessGuard(budgetId, userId, db);
+
+		// Validate that both categories belong to this budget
+		{
+			const categoryIds = [sourceCategoryId];
+			if (targetCategoryId !== null) categoryIds.push(targetCategoryId);
+			const owned = db
+				.select({ id: tables.categories.id })
+				.from(tables.categories)
+				.where(
+					and(eq(tables.categories.budgetId, budgetId), inArray(tables.categories.id, categoryIds))
+				)
+				.all();
+			if (owned.length !== categoryIds.length) error(400);
+		}
+
+		if (sourceCategoryId === targetCategoryId) error(400);
+
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- tx and db types don't share a useful supertype
+		const deductSource = (exec: any) => {
+			exec
+				.insert(tables.budgetAssignments)
+				.values({ amount: -amount, budgetId, categoryId: sourceCategoryId, month })
+				.onConflictDoUpdate({
+					set: { amount: sql`${tables.budgetAssignments.amount} - ${amount}` },
+					target: [tables.budgetAssignments.categoryId, tables.budgetAssignments.month]
+				})
+				.run();
+		};
+
+		if (targetCategoryId === null) {
+			deductSource(db);
+			return;
+		}
+
+		db.transaction((tx) => {
+			deductSource(tx);
+
+			tx.insert(tables.budgetAssignments)
+				.values({ amount, budgetId, categoryId: targetCategoryId, month })
+				.onConflictDoUpdate({
+					set: { amount: sql`${tables.budgetAssignments.amount} + ${amount}` },
+					target: [tables.budgetAssignments.categoryId, tables.budgetAssignments.month]
+				})
+				.run();
 		});
 	}
 });

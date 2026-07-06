@@ -28,14 +28,20 @@
 	let open = $state(false);
 
 	const closeDrawerAttachment: Attachment<HTMLElement> = (node) => {
-		function closeDrawer() {
-			open = false;
+		function closeDrawer(e: MouseEvent) {
+			// Use event delegation — the links inside the <nav> are loaded
+			// asynchronously (await getBudgets / getAccounts), so querySelectorAll
+			// at mount time won't find them. Instead, check if the click target
+			// is or is inside an <a> element.
+			const target = e.target as HTMLElement;
+			if (target.closest('a')) {
+				open = false;
+			}
 		}
 
-		const links = node.querySelectorAll('a');
-		links.forEach((e) => e.addEventListener('click', closeDrawer));
+		node.addEventListener('click', closeDrawer);
 		return () => {
-			links.forEach((e) => e.removeEventListener('click', closeDrawer));
+			node.removeEventListener('click', closeDrawer);
 		};
 	};
 </script>

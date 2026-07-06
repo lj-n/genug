@@ -61,7 +61,7 @@ export const createTransaction = guardedForm(
 			budgetId: data.budgetId,
 			categoryId: data.categoryId || null,
 			createdBy: user.id,
-			date: data.date,
+			date: data.date ?? new Date().toISOString().split('T')[0],
 			notes: data.notes || null,
 			validated: data.validated
 		});

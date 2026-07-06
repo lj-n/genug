@@ -7,7 +7,6 @@ test('Create Account', async ({ pages }) => {
 
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
-	await pages.budget.goto(budgetName);
 
 	const accountName = faker.finance.accountName();
 	await pages.budget.createAccount(accountName);
@@ -18,7 +17,6 @@ test('Edit Account Name', async ({ pages }) => {
 
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
-	await pages.budget.goto(budgetName);
 
 	const accountName = faker.finance.accountName();
 	await pages.budget.createAccount(accountName);

@@ -1,12 +1,8 @@
-import { expect, type Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 
 import { BasePage } from './base-page';
 
 export class SettingsPage extends BasePage {
-	constructor(page: Page) {
-		super(page);
-	}
-
 	async changeDisplayName(name: string) {
 		const input = this.page.getByRole('textbox', { name: 'Display Name' });
 		await input.clear();
@@ -17,6 +13,10 @@ export class SettingsPage extends BasePage {
 
 	async changeLanguage(locale: string) {
 		await this.page.getByRole('button', { name: 'Available Languages' }).click();
+		// The Select renders options in a floating portal. Wait for the
+		// listbox to appear before looking for the option — on chromium,
+		// floating-ui can take a frame or two to position the portal.
+		await expect(this.page.getByRole('listbox')).toBeVisible();
 		await this.page.getByRole('option', { name: locale }).click();
 		// Language change may navigate; the trigger's aria-label also changes languages.
 		// Match by regex that covers both English and German labels, check text is locale code.

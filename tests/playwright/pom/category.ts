@@ -1,12 +1,8 @@
-import { expect, type Page } from '@playwright/test';
+import { expect } from '@playwright/test';
 
 import { BasePage } from './base-page';
 
 export class CategoryPage extends BasePage {
-	constructor(page: Page) {
-		super(page);
-	}
-
 	async create(name: string) {
 		await this.page.getByRole('button', { name: 'Create Category' }).click();
 
@@ -18,11 +14,11 @@ export class CategoryPage extends BasePage {
 	}
 
 	async editName(currentName: string, newName: string) {
-		// Budget nav links share names with categories; disambiguate by href.
-		await this.page
-			.getByRole('link', { exact: true, name: currentName })
-			.and(this.page.locator('[href*="/categories/"]'))
-			.click();
+		// Target the category link inside the budget table row, which is
+		// always visible in the page content (unlike the nav drawer link
+		// which shares the same accessible name on tablet).
+		const row = this.page.getByRole('row').filter({ hasText: currentName });
+		await row.getByRole('link', { exact: true, name: currentName }).click();
 
 		const dialog = this.page.getByRole('dialog');
 		await expect(dialog).toBeVisible();
@@ -38,6 +34,8 @@ export class CategoryPage extends BasePage {
 		await dialog.getByRole('button', { name: 'Close' }).first().click();
 		await expect(dialog).not.toBeVisible();
 
-		await expect(this.page.getByRole('link', { exact: true, name: newName })).toBeVisible();
+		await expect(
+			this.page.getByRole('table').getByRole('link', { exact: true, name: newName })
+		).toBeVisible();
 	}
 }

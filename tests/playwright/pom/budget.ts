@@ -1,45 +1,49 @@
-import { expect, type Page } from '@playwright/test';
+import { expect, type Locator } from '@playwright/test';
 
 import { BasePage } from './base-page';
 
 export class BudgetPage extends BasePage {
-	constructor(page: Page) {
-		super(page);
+	async assignAmount(categoryName: string, amount: string) {
+		const budgetButton = this.categoryRow(categoryName).getByRole('button', { name: 'Budget' });
+		// The table can re-render after a category change (SvelteKit invalidateAll
+		// re-fetches the rows). A web-first assertion retries if the button is
+		// briefly detached, which a bare click() would not.
+		await expect(budgetButton).toBeVisible();
+		await budgetButton.click();
+
+		const input = this.page.getByRole('textbox', { name: 'Budget' });
+		await input.fill(amount);
+		await input.press('Enter');
+
+		await expect(input).not.toBeVisible();
+		await expect(budgetButton).toBeVisible();
 	}
 
-	async assignAmount(categoryName: string, amount: string) {
-		const categoryRow = this.page.getByRole('row').filter({ hasText: categoryName });
-		await categoryRow.getByRole('button', { name: 'Budget' }).click();
-		await this.page.getByRole('textbox', { name: 'Budget' }).fill(amount);
-		await this.page.getByRole('textbox', { name: 'Budget' }).press('Enter');
-
-		// Wait for form submission to complete and popover to close
-		await expect(this.page.getByRole('textbox', { name: 'Budget' })).not.toBeVisible();
-		await expect(categoryRow.getByRole('button', { name: 'Budget' })).toBeVisible();
+	/** Locates a category's row in the budget table by its (unique) name. */
+	categoryRow(name: string): Locator {
+		return this.page.getByRole('row').filter({ hasText: name });
 	}
 
 	async createAccount(name: string, startingBalance = '0') {
 		await this.page.getByRole('button', { name: 'Show Accounts' }).click();
-		await expect(this.page.getByRole('menuitem', { name: 'Add Account' })).toBeVisible();
-
 		await this.page.getByRole('menuitem', { name: 'Add Account' }).click();
 		await expect(this.page.getByRole('heading', { name: 'Add New Account' })).toBeVisible();
 
-		await this.page.getByRole('textbox', { name: 'Account Name' }).clear();
 		await this.page.getByRole('textbox', { name: 'Account Name' }).fill(name);
-
-		await this.page.getByRole('textbox', { name: 'What is the current balance?' }).clear();
 		await this.page
 			.getByRole('textbox', { name: 'What is the current balance?' })
 			.fill(startingBalance);
 
 		await this.page.getByRole('button', { name: 'Create Account' }).click();
 
-		if (this.isDesktop) {
-			await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
-		} else {
-			await this.openMobileNavigation();
-			await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
+		// The server redirects to the new account page after creation.
+		// Wait for the heading to confirm the navigation completed, then capture the URL.
+		await expect(this.page.getByRole('heading', { name })).toBeVisible();
+		this.ctx.accounts.set(name, this.page.url());
+
+		// Return to the budget page so subsequent createCategory / assignAmount calls work.
+		if (this.ctx.budgetUrl) {
+			await this.page.goto(this.ctx.budgetUrl);
 		}
 	}
 
@@ -50,15 +54,12 @@ export class BudgetPage extends BasePage {
 		).toBeVisible();
 
 		await this.page.getByRole('textbox', { name: 'Budget Name' }).fill(name);
-
 		await this.page.getByRole('button', { name: 'Create Budget' }).click();
 
-		if (this.isDesktop) {
-			await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
-		} else {
-			await this.openMobileNavigation();
-			await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
-		}
+		// createBudget redirects to /{budgetId}, which redirects again to the
+		// current month page where the budget name is the heading.
+		await expect(this.page.getByRole('heading', { name })).toBeVisible();
+		this.ctx.budgetUrl = this.page.url();
 	}
 
 	async createCategory(name: string) {
@@ -68,18 +69,64 @@ export class BudgetPage extends BasePage {
 		await input.fill(name);
 		await input.press('Enter');
 
-		await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
+		const row = this.categoryRow(name);
+		// The link is rendered directly in the row (no async wait).
+		await expect(row.getByRole('link', { exact: true, name })).toBeVisible();
+		// CategoryAssignmentForm has its own `await getBudget()` — wait for the
+		// Budget button to confirm it has mounted before returning. All rows share
+		// the same getBudget cache, so this also unblocks other rows' buttons.
+		await expect(row.getByRole('button', { name: 'Budget' })).toBeVisible();
 	}
 
 	async goto(budgetName: string) {
-		if (!this.isDesktop) {
-			await this.openMobileNavigation();
+		if (!this.ctx.budgetUrl) {
+			throw new Error('createBudget must be called before goto');
 		}
-
-		await this.page.getByRole('link', { exact: true, name: budgetName }).click();
-		// On tablet, clicking a link inside the drawer closes the drawer AND navigates.
-		// Wait for both the drawer close animation and SvelteKit navigation to settle.
-		await this.page.waitForLoadState('networkidle');
+		await this.page.goto(this.ctx.budgetUrl);
 		await expect(this.page.getByRole('heading', { name: budgetName })).toBeVisible();
+	}
+
+	/** The transfer trigger for a category; its label shows the "remaining" amount. */
+	remainingTrigger(categoryName: string): Locator {
+		return this.categoryRow(categoryName).getByRole('button', {
+			name: `Adjust remaining for ${categoryName}`
+		});
+	}
+
+	async transferToCategory(sourceCategoryName: string, amount: string, targetCategoryName: string) {
+		await this.#openTransfer(sourceCategoryName);
+
+		await this.page.getByRole('textbox', { name: 'Amount' }).fill(amount);
+		await this.#selectTransferTarget(targetCategoryName);
+
+		await this.page.getByRole('button', { exact: true, name: 'OK' }).click();
+		await expect(this.page.getByRole('textbox', { name: 'Amount' })).not.toBeVisible();
+	}
+
+	async transferToUnassigned(categoryName: string, amount: string) {
+		// "Unassigned" is the default pre-selection in the combobox (targetCategoryId = '').
+		// Clicking it again doesn't change the value, so bits-ui keeps the dropdown open.
+		// Skip the combobox and submit directly — the server treats an empty target as Unassigned.
+		await this.#openTransfer(categoryName);
+		await this.page.getByRole('textbox', { name: 'Amount' }).fill(amount);
+		await this.page.getByRole('button', { exact: true, name: 'OK' }).click();
+		await expect(this.page.getByRole('textbox', { name: 'Amount' })).not.toBeVisible();
+	}
+
+	async #openTransfer(categoryName: string) {
+		const trigger = this.remainingTrigger(categoryName);
+		await expect(trigger).toBeVisible();
+		await trigger.click();
+		await expect(this.page.getByRole('textbox', { name: 'Amount' })).toBeVisible();
+	}
+
+	async #selectTransferTarget(targetCategoryName: string) {
+		await this.page.getByRole('button', { name: 'Select category' }).click();
+		// The option label also contains the balance badge, so match by substring.
+		const option = this.page.getByRole('option', { name: targetCategoryName });
+		await option.click();
+		// Selecting an item closes the combobox; wait for it so the OK button
+		// underneath is no longer covered by the option list.
+		await expect(option).not.toBeVisible();
 	}
 }
