@@ -1,4 +1,7 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
+	import { UNASSIGNED } from '$lib/constants';
 	import { m } from '$lib/paraglide/messages';
 	import { Combobox, type WithoutChildrenOrChild } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
@@ -13,6 +16,7 @@
 		categories,
 		class: className,
 		contentProps,
+		customItemRow,
 		inputProps,
 		name,
 		nullable = false,
@@ -27,6 +31,7 @@
 		categories: Category[];
 		class?: string;
 		contentProps?: WithoutChildrenOrChild<Combobox.ContentProps>;
+		customItemRow?: Snippet<[{ label: string; value: string }]>;
 		inputProps?: WithoutChildrenOrChild<Combobox.InputProps>;
 		name?: string;
 		nullable?: boolean;
@@ -55,8 +60,6 @@
 	function handleOpenChange(newOpen: boolean) {
 		if (!newOpen) searchValue = '';
 	}
-
-	const NULL_VALUE = '__empty__';
 
 	const showNullable = $derived(
 		nullable && textEmpty.toLowerCase().includes(searchValue.toLowerCase())
@@ -88,9 +91,9 @@
 	type="single"
 	{items}
 	bind:value={
-		() => value || NULL_VALUE,
+		() => value || UNASSIGNED,
 		(v) => {
-			value = !v || v === NULL_VALUE ? '' : v;
+			value = !v || v === UNASSIGNED ? '' : v;
 		}
 	}
 	bind:open
@@ -129,11 +132,19 @@
 		)}
 	>
 		{#if showNullable}
-			{@render itemRow({ label: textEmpty, value: NULL_VALUE })}
+			{#if customItemRow}
+				{@render customItemRow({ label: textEmpty, value: UNASSIGNED })}
+			{:else}
+				{@render itemRow({ label: textEmpty, value: UNASSIGNED })}
+			{/if}
 		{/if}
 
 		{#each filteredItems as item (item.value)}
-			{@render itemRow(item)}
+			{#if customItemRow}
+				{@render customItemRow(item)}
+			{:else}
+				{@render itemRow(item)}
+			{/if}
 		{:else}
 			{#if !showNullable}
 				<span class="px-2 text-center text-sm text-muted">{textNotFound}</span>

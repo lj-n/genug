@@ -137,7 +137,12 @@
 				</BudgetTableCell>
 
 				<BudgetTableCell class="w-1/5 p-0">
-					<TransferPopup remaining={row.remaining} />
+					<TransferPopup
+						{month}
+						rowId={row.id}
+						remaining={row.remaining}
+						otherCategories={categories.filter((f) => f.id !== row.id)}
+					/>
 				</BudgetTableCell>
 
 				<BudgetTableCell class="w-9 border-0 last:p-2">

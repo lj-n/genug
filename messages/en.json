@@ -66,9 +66,9 @@
 	"settings_title": "Settings",
 	"admin_settings_title": "Admin Settings",
 	"sign_out_button": "Sign out {username}",
-	"unassigned_money_label": "Not yet assigned:",
-	"all_assigned_money_label": "All assigned.",
-	"negative_unassigned_money_label": "Too much assigned:",
+	"unassigned_money_label": "Unallocated:",
+	"all_assigned_money_label": "All done.",
+	"negative_unassigned_money_label": "Overspent:",
 	"budget_go_to_current_month": "Current Month",
 	"budget_select_previous_month": "Select previous month",
 	"budget_select_next_month": "Select next month",
@@ -96,6 +96,7 @@
 	"select_category_placeholder": "Search for category...",
 	"select_category_empty": "No Category",
 	"select_category_not_found": "No category found.",
+	"select_category_unassigned": "To Budget",
 	"select_category_open": "Open category dropdown",
 	"transaction_table_cell_category_empty": "No Category",
 	"transaction_table_cell_category_placeholder": "Search for category...",
@@ -201,9 +202,5 @@
 	"budget_account_list_accounts_label": "Accounts",
 	"budget_account_list_add_account": "Add Account",
 	"budget_account_list_dialog_title": "Account",
-	"budget_account_list_dialog_description": "Add a new account to {budgetName}.",
-	"budget_monthly_action_move_to_category": "Move amount",
-	"budget_monthly_action_cover_from_category": "Cover",
-	"budget_monthly_action_cover_from_unassigned": "From unassigned money",
-	"budget_monthly_action_select_category": "Select category..."
+	"budget_account_list_dialog_description": "Add a new account to {budgetName}."
 }

@@ -3,19 +3,38 @@
 	import { InputCurrency } from '$lib/components/ui/input-currency';
 	import * as Popover from '$lib/components/ui/popover';
 	import { SelectCategory } from '$lib/components/ui/select-category';
-	import { m } from '$lib/paraglide/messages';
-	import { getBudget, transferAssignment } from '$lib/remote-functions/budget.remote';
-	import { getCategories } from '$lib/remote-functions/category.remote';
+	import { UNASSIGNED } from '$lib/constants';
+	import {
+		getBudget,
+		getMonthly,
+		getUnassigned,
+		transferAssignment
+	} from '$lib/remote-functions/budget.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { formatCurrency } from '$lib/utils/format-currency';
+	import { Combobox } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
 	import ArrowFatLineDownDuotoneIcon from '~icons/ph/arrow-fat-line-down-duotone';
 
-	let { remaining }: { remaining: number } = $props();
+	let {
+		month,
+		otherCategories,
+		remaining,
+		rowId
+	}: {
+		month: string;
+		otherCategories: { id: string; name: string; remaining: number }[];
+		remaining: number;
+		rowId: string;
+	} = $props();
 
 	const budgetId = getBudgetId();
 	const budget = $derived(await getBudget(budgetId()));
-	const categories = $derived(await getCategories({ budgetId: budgetId() }));
+	const unassigned = $derived(await getUnassigned(budgetId()));
+	const getOtherRemaining = $derived(
+		(id: string) => otherCategories.find((f) => f.id === id)?.remaining ?? 0
+	);
+
 	const currency = $derived(budget.currency);
 	const id = $props.id();
 	const form = $derived(transferAssignment.for(id));
@@ -44,12 +63,31 @@
 	</Popover.Trigger>
 
 	<Popover.Content align="end" sideOffset={1} class="rounded-xs p-3 shadow-lg">
-		<form {...form} class="flex flex-col gap-3">
+		<form
+			{...form.enhance(async (f) => {
+				if (await f.submit().updates(getMonthly, getUnassigned)) {
+					open = false;
+				}
+			})}
+			class="flex flex-col gap-3"
+		>
+			<input {...form.fields.budgetId.as('hidden', budgetId())} />
+			<input
+				type="hidden"
+				name={form.fields.month.as('number').name}
+				value={Number.isNaN(parseInt(month)) ? '' : parseInt(month)}
+			/>
+
 			{#if remaining > 0}
 				{@render moveform()}
 			{:else}
 				{@render coverform()}
 			{/if}
+
+			<div class="flex justify-end gap-2">
+				<Button variant="ghost" size="sm" onclick={() => (open = false)}>Abbrechen</Button>
+				<Button type="submit" size="sm">OK</Button>
+			</div>
 		</form>
 	</Popover.Content>
 </Popover.Root>
@@ -61,12 +99,15 @@
 			<ArrowFatLineDownDuotoneIcon class="size-5 text-success" />
 		</div>
 
+		<input {...form.fields.sourceCategoryId.as('hidden', rowId)} />
+
 		<InputCurrency
 			name={form.fields.amount.as('number').name}
 			aria-label="Amount"
 			bind:value={() => form.fields.amount.value() ?? 0, (v) => form.fields.amount.set(v)}
 			currency={budget.currency}
 			class="px-2 text-right font-currency font-medium"
+			selectOnFocus
 		/>
 
 		<SelectCategory
@@ -74,16 +115,20 @@
 			bind:value={
 				() => form.fields.targetCategoryId.value() ?? '', (v) => form.fields.targetCategoryId.set(v)
 			}
-			{categories}
+			categories={otherCategories}
 			nullable
-			ariaLabel={m.transactions_table_header_category()}
-			ariaLabelTrigger={m.select_category_open()}
-		/>
-	</div>
-
-	<div class="flex justify-end gap-2">
-		<Button variant="ghost" size="sm">Cancel</Button>
-		<Button size="sm">OK</Button>
+			textEmpty="Unverteilt"
+			ariaLabel="Kategorie"
+			ariaLabelTrigger="Kategorie auswählen"
+		>
+			{#snippet customItemRow({ label, value: id })}
+				{@render customSelectRow({
+					balance: id === UNASSIGNED ? unassigned : getOtherRemaining(id),
+					id,
+					label
+				})}
+			{/snippet}
+		</SelectCategory>
 	</div>
 {/snippet}
 
@@ -93,19 +138,45 @@
 		<ArrowFatLineDownDuotoneIcon class="size-5 rotate-180 text-error" />
 	</div>
 
+	<input {...form.fields.sourceCategoryId.as('hidden', rowId)} />
+	<input {...form.fields.amount.as('hidden', remaining)} />
+
 	<SelectCategory
 		name={form.fields.targetCategoryId.as('select').name}
 		bind:value={
 			() => form.fields.targetCategoryId.value() ?? '', (v) => form.fields.targetCategoryId.set(v)
 		}
-		{categories}
+		categories={otherCategories}
 		nullable
-		ariaLabel={m.transactions_table_header_category()}
-		ariaLabelTrigger={m.select_category_open()}
-	/>
+		textEmpty="Unverteilt"
+		ariaLabel="Kategorie"
+		ariaLabelTrigger="Kategorie auswählen"
+	>
+		{#snippet customItemRow({ label, value: id })}
+			{@render customSelectRow({
+				balance: id === UNASSIGNED ? unassigned : getOtherRemaining(id),
+				id,
+				label
+			})}
+		{/snippet}
+	</SelectCategory>
+{/snippet}
 
-	<div class="flex justify-end gap-2">
-		<Button variant="ghost" size="sm">Cancel</Button>
-		<Button size="sm">OK</Button>
-	</div>
+{#snippet customSelectRow(item: { balance: number; id: string; label: string })}
+	<Combobox.Item
+		value={item.id}
+		label={item.label}
+		class="flex w-full cursor-default items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-highlighted:bg-info/5 data-highlighted:text-info data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+	>
+		<div>{item.label}</div>
+		<div
+			class={cn(
+				'rounded-sm p-0.5 px-2 text-xs font-currency text-foreground',
+				item.balance > 0 && 'bg-success/20',
+				item.balance < 0 && 'bg-error/20 text-error'
+			)}
+		>
+			{formatCurrency({ centValue: item.balance, currency })}
+		</div>
+	</Combobox.Item>
 {/snippet}

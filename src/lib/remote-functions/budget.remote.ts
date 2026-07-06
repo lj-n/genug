@@ -1,5 +1,6 @@
 import { resolve } from '$app/paths';
 import { requested } from '$app/server';
+import { UNASSIGNED } from '$lib/constants';
 import { m } from '$lib/paraglide/messages';
 import {
 	AssignmentSchema,
@@ -110,6 +111,6 @@ export const transferAssignment = guardedForm(TransferAssignmentSchema, async (d
 		budgetId: data.budgetId,
 		month: data.month,
 		sourceCategoryId: data.sourceCategoryId,
-		targetCategoryId: data.targetCategoryId ?? null
+		targetCategoryId: data.targetCategoryId === UNASSIGNED ? null : data.targetCategoryId
 	});
 });

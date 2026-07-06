@@ -38,5 +38,5 @@ export const TransferAssignmentSchema = v.object({
 	...BudgetMonthSchema.entries,
 	amount: v.number(),
 	sourceCategoryId: v.string(),
-	targetCategoryId: v.optional(v.string())
+	targetCategoryId: v.string()
 });

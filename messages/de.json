@@ -72,9 +72,9 @@
 	"settings_title": "Einstellungen",
 	"admin_settings_title": "Admin-Einstellungen",
 	"sign_out_button": "{username} abmelden",
-	"unassigned_money_label": "Noch nicht verteilt:",
+	"unassigned_money_label": "Unverteilt:",
 	"all_assigned_money_label": "Alles verteilt.",
-	"negative_unassigned_money_label": "Zu viel verteilt:",
+	"negative_unassigned_money_label": "Überzogen:",
 	"budget_go_to_current_month": "Aktueller Monat",
 	"budget_select_previous_month": "Vorherigen Monat auswählen",
 	"budget_select_next_month": "Nächsten Monat auswählen",
@@ -99,6 +99,7 @@
 	"select_category_placeholder": "Suche nach Kategorie...",
 	"select_category_empty": "Keine Kategorie",
 	"select_category_not_found": "Keine Kategorie gefunden.",
+	"select_category_unassigned": "Zur Verteilung",
 	"select_category_open": "Kategorie-Dropdown öffnen",
 	"transaction_table_cell_category_empty": "Ohne Kategorie",
 	"transaction_table_cell_category_placeholder": "Suche nach Kategorie...",
@@ -201,9 +202,5 @@
 	"budget_account_list_accounts_label": "Konten",
 	"budget_account_list_add_account": "Konto hinzufügen",
 	"budget_account_list_dialog_title": "Konto",
-	"budget_account_list_dialog_description": "Füge {budgetName} ein neues Konto hinzu.",
-	"budget_monthly_action_move_to_category": "Betrag verschieben",
-	"budget_monthly_action_cover_from_category": "Decken",
-	"budget_monthly_action_cover_from_unassigned": "Von nicht zugewiesenem Geld",
-	"budget_monthly_action_select_category": "Kategorie auswählen..."
+	"budget_account_list_dialog_description": "Füge {budgetName} ein neues Konto hinzu."
 }
