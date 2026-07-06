@@ -202,5 +202,13 @@
 	"budget_account_list_accounts_label": "Accounts",
 	"budget_account_list_add_account": "Add Account",
 	"budget_account_list_dialog_title": "Account",
-	"budget_account_list_dialog_description": "Add a new account to {budgetName}."
+	"budget_account_list_dialog_description": "Add a new account to {budgetName}.",
+	"transfer_assignment_cancel": "Cancel",
+	"transfer_assignment_ok": "OK",
+	"transfer_assignment_move": "Move",
+	"transfer_assignment_amount": "Amount",
+	"transfer_assignment_unassigned": "Unassigned",
+	"transfer_assignment_category": "Category",
+	"transfer_assignment_select_category": "Select category",
+	"transfer_assignment_cover": "Cover"
 }

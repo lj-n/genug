@@ -111,6 +111,10 @@ export const transferAssignment = guardedForm(TransferAssignmentSchema, async (d
 		budgetId: data.budgetId,
 		month: data.month,
 		sourceCategoryId: data.sourceCategoryId,
-		targetCategoryId: data.targetCategoryId === UNASSIGNED ? null : data.targetCategoryId
+		targetCategoryId:
+			data.targetCategoryId === UNASSIGNED || !data.targetCategoryId ? null : data.targetCategoryId
 	});
+
+	await requested(getMonthly, 1).refreshAll();
+	await requested(getUnassigned, 1).refreshAll();
 });

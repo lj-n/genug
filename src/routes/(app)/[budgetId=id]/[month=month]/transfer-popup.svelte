@@ -4,6 +4,7 @@
 	import * as Popover from '$lib/components/ui/popover';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { UNASSIGNED } from '$lib/constants';
+	import * as m from '$lib/paraglide/messages';
 	import {
 		getBudget,
 		getMonthly,
@@ -85,8 +86,10 @@
 			{/if}
 
 			<div class="flex justify-end gap-2">
-				<Button variant="ghost" size="sm" onclick={() => (open = false)}>Abbrechen</Button>
-				<Button type="submit" size="sm">OK</Button>
+				<Button variant="ghost" size="sm" onclick={() => (open = false)}
+					>{m.transfer_assignment_cancel()}</Button
+				>
+				<Button type="submit" size="sm">{m.transfer_assignment_ok()}</Button>
 			</div>
 		</form>
 	</Popover.Content>
@@ -95,7 +98,7 @@
 {#snippet moveform()}
 	<div class="flex flex-col gap-1.5">
 		<div class="flex items-center justify-between gap-4">
-			<span class="font-medium">Verschieben</span>
+			<span class="font-medium">{m.transfer_assignment_move()}</span>
 			<ArrowFatLineDownDuotoneIcon class="size-5 text-success" />
 		</div>
 
@@ -103,7 +106,7 @@
 
 		<InputCurrency
 			name={form.fields.amount.as('number').name}
-			aria-label="Amount"
+			aria-label={m.transfer_assignment_amount()}
 			bind:value={() => form.fields.amount.value() ?? 0, (v) => form.fields.amount.set(v)}
 			currency={budget.currency}
 			class="px-2 text-right font-currency font-medium"
@@ -117,9 +120,9 @@
 			}
 			categories={otherCategories}
 			nullable
-			textEmpty="Unverteilt"
-			ariaLabel="Kategorie"
-			ariaLabelTrigger="Kategorie auswählen"
+			textEmpty={m.transfer_assignment_unassigned()}
+			ariaLabel={m.transfer_assignment_category()}
+			ariaLabelTrigger={m.transfer_assignment_select_category()}
 		>
 			{#snippet customItemRow({ label, value: id })}
 				{@render customSelectRow({
@@ -134,7 +137,7 @@
 
 {#snippet coverform()}
 	<div class="flex items-center justify-between gap-4">
-		<span class="font-medium">Ausgleichen</span>
+		<span class="font-medium">{m.transfer_assignment_cover()}</span>
 		<ArrowFatLineDownDuotoneIcon class="size-5 rotate-180 text-error" />
 	</div>
 
@@ -148,9 +151,9 @@
 		}
 		categories={otherCategories}
 		nullable
-		textEmpty="Unverteilt"
-		ariaLabel="Kategorie"
-		ariaLabelTrigger="Kategorie auswählen"
+		textEmpty={m.transfer_assignment_unassigned()}
+		ariaLabel={m.transfer_assignment_category()}
+		ariaLabelTrigger={m.transfer_assignment_select_category()}
 	>
 		{#snippet customItemRow({ label, value: id })}
 			{@render customSelectRow({

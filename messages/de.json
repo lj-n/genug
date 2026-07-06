@@ -202,5 +202,13 @@
 	"budget_account_list_accounts_label": "Konten",
 	"budget_account_list_add_account": "Konto hinzufügen",
 	"budget_account_list_dialog_title": "Konto",
-	"budget_account_list_dialog_description": "Füge {budgetName} ein neues Konto hinzu."
+	"budget_account_list_dialog_description": "Füge {budgetName} ein neues Konto hinzu.",
+	"transfer_assignment_cancel": "Abbrechen",
+	"transfer_assignment_ok": "OK",
+	"transfer_assignment_move": "Verschieben",
+	"transfer_assignment_amount": "Betrag",
+	"transfer_assignment_unassigned": "Unverteilt",
+	"transfer_assignment_category": "Kategorie",
+	"transfer_assignment_select_category": "Kategorie auswählen",
+	"transfer_assignment_cover": "Ausgleichen"
 }
