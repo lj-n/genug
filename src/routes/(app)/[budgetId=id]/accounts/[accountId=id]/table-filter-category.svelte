@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Select from '$lib/components/ui/select';
-	import { NULL_SENTINEL } from '$lib/constants';
+	import { UNASSIGNED } from '$lib/constants';
 	import { m } from '$lib/paraglide/messages';
 	import { getCategories } from '$lib/remote-functions/category.remote';
 
@@ -29,7 +29,7 @@
 	</Select.Trigger>
 
 	<Select.Content class="max-h-75">
-		<Select.Item value={NULL_SENTINEL}>{m.transaction_filter_category_without()}</Select.Item>
+		<Select.Item value={UNASSIGNED}>{m.transaction_filter_category_without()}</Select.Item>
 
 		{#each categories as category (category.id)}
 			<Select.Item value={category.id}>{category.name}</Select.Item>

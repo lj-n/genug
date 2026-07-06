@@ -1,5 +1,5 @@
 import { createDatabase, type Database, tables } from '$db';
-import { NULL_SENTINEL } from '$lib/constants';
+import { UNASSIGNED } from '$lib/constants';
 import { getColumns } from 'drizzle-orm';
 import { describe, expect, it } from 'vitest';
 
@@ -93,20 +93,20 @@ describe('withFilter', () => {
 		expect(result.map((t) => t.id).sort()).toEqual([tx1.id, tx3.id].sort());
 	});
 
-	it('filters by categoryId including NULL_SENTINEL', () => {
+	it('filters by categoryId including UNASSIGNED', () => {
 		const db = createDatabase(':memory:');
 		const { cat } = setupTransactions(db);
 
-		const dq = withFilter({ dq: baseQuery(db), filter: { categoryId: [cat.id, NULL_SENTINEL] } });
+		const dq = withFilter({ dq: baseQuery(db), filter: { categoryId: [cat.id, UNASSIGNED] } });
 		const result = dq.all();
 		expect(result).toHaveLength(3);
 	});
 
-	it('filters by categoryId NULL_SENTINEL only', () => {
+	it('filters by categoryId UNASSIGNED only', () => {
 		const db = createDatabase(':memory:');
 		const { tx2 } = setupTransactions(db);
 
-		const dq = withFilter({ dq: baseQuery(db), filter: { categoryId: [NULL_SENTINEL] } });
+		const dq = withFilter({ dq: baseQuery(db), filter: { categoryId: [UNASSIGNED] } });
 		const result = dq.all();
 		expect(result).toHaveLength(1);
 		expect(result[0].id).toBe(tx2.id);

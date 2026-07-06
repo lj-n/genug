@@ -292,5 +292,72 @@ export const commands = (userId: string, db: Database = database) => ({
 					.run();
 			}
 		});
+	},
+
+	/**
+	 * Moves an assigned amount from one category to another within the same budget/month.
+	 * When `targetCategoryId` is `null`, the amount is returned to unassigned.
+	 * A negative amount reverses direction (from → to means to → from).
+	 */
+	transferAssignment: ({
+		amount,
+		budgetId,
+		month,
+		sourceCategoryId,
+		targetCategoryId
+	}: {
+		amount: number;
+		budgetId: string;
+		month: number;
+		sourceCategoryId: string;
+		targetCategoryId: null | string;
+	}) => {
+		accessGuard(budgetId, userId, db);
+
+		if (sourceCategoryId === targetCategoryId) error(400);
+
+		if (targetCategoryId === null) {
+			db.insert(tables.budgetAssignments)
+				.values({
+					amount: -amount,
+					budgetId,
+					categoryId: sourceCategoryId,
+					month
+				})
+				.onConflictDoUpdate({
+					set: { amount: sql`${tables.budgetAssignments.amount} - ${amount}` },
+					target: [tables.budgetAssignments.categoryId, tables.budgetAssignments.month]
+				})
+				.run();
+			return;
+		}
+
+		db.transaction((tx) => {
+			tx.insert(tables.budgetAssignments)
+				.values({
+					amount: -amount,
+					budgetId,
+					categoryId: sourceCategoryId,
+					month
+				})
+				.onConflictDoUpdate({
+					set: { amount: sql`${tables.budgetAssignments.amount} - ${amount}` },
+					target: [tables.budgetAssignments.categoryId, tables.budgetAssignments.month]
+				})
+				.run();
+
+			tx.insert(tables.budgetAssignments)
+				.values({
+					amount,
+					budgetId,
+					categoryId: targetCategoryId,
+					month
+				})
+				.onConflictDoUpdate({
+					set: { amount: sql`${tables.budgetAssignments.amount} + ${amount}` },
+					target: [tables.budgetAssignments.categoryId, tables.budgetAssignments.month]
+				})
+				.run();
+		});
 	}
 });

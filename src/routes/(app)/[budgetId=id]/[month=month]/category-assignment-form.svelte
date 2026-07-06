@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { InputCurrency } from '$lib/components/ui/input-currency';
 	import { m } from '$lib/paraglide/messages';
-	import { assignment, getBudget } from '$lib/remote-functions/budget.remote';
+	import {
+		assignment,
+		getBudget,
+		getMonthly,
+		getUnassigned
+	} from '$lib/remote-functions/budget.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { formatCurrency } from '$lib/utils/format-currency';
 	import { Popover } from 'bits-ui';
@@ -50,7 +55,7 @@
 	<Popover.ContentStatic class="absolute inset-0 outline-2 -outline-offset-2 outline-focus">
 		<form
 			{...scopedForm.enhance(async (form) => {
-				if (await form.submit()) {
+				if (await form.submit().updates(getMonthly, getUnassigned)) {
 					open = false;
 				}
 			})}

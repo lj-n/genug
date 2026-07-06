@@ -15,6 +15,7 @@
 	import BudgetTableCell from './budget-table-cell.svelte';
 	import BudgetTableHeader from './budget-table-header.svelte';
 	import CategoryAssignmentForm from './category-assignment-form.svelte';
+	import TransferPopup from './transfer-popup.svelte';
 
 	let {
 		month,
@@ -89,7 +90,7 @@
 				data-sortable-id={row.id}
 				role="row"
 				class={cn(
-					'relative flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/5',
+					'relative flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/3',
 					''
 				)}
 			>
@@ -135,17 +136,8 @@
 					{formatCurrency({ centValue: row.activity, currency })}
 				</BudgetTableCell>
 
-				<BudgetTableCell class="w-1/5 justify-end">
-					<span
-						class={cn(
-							'w-fit rounded-full border px-2 font-currency',
-							row.remaining < 0
-								? 'border-error/50 bg-error/20 hover:bg-error/30'
-								: 'border-success/80 bg-success/20 hover:bg-success/30'
-						)}
-					>
-						{formatCurrency({ centValue: row.remaining, currency })}
-					</span>
+				<BudgetTableCell class="w-1/5 p-0">
+					<TransferPopup remaining={row.remaining} />
 				</BudgetTableCell>
 
 				<BudgetTableCell class="w-9 border-0 last:p-2">
