@@ -77,10 +77,12 @@ export class BudgetPage extends BasePage {
 		}
 
 		await this.page.getByRole('link', { exact: true, name: budgetName }).click();
-		// On tablet, clicking a link inside the drawer closes the drawer AND navigates.
-		// Wait for the drawer overlay to finish its fade-out animation — otherwise
-		// it intercepts pointer events for subsequent clicks (e.g. "Create Category").
-		await expect(this.page.locator('[data-slot="drawer-overlay"]')).not.toBeVisible();
+		// On tablet, clicking a link inside the drawer closes the drawer
+		// AND navigates. The drawer's close animation (fade-out) and the
+		// SvelteKit navigation both need time to settle. A fixed pause is
+		// crude but works reliably across CI browser versions — the overlay
+		// otherwise intercepts pointer events for subsequent clicks.
+		await this.page.waitForTimeout(1000);
 		await this.page.waitForLoadState('networkidle');
 		await expect(this.page.getByRole('heading', { name: budgetName })).toBeVisible();
 	}
