@@ -78,7 +78,9 @@ export class BudgetPage extends BasePage {
 
 		await this.page.getByRole('link', { exact: true, name: budgetName }).click();
 		// On tablet, clicking a link inside the drawer closes the drawer AND navigates.
-		// Wait for both the drawer close animation and SvelteKit navigation to settle.
+		// Wait for the drawer close animation to finish AND the overlay to be removed
+		// from the DOM — otherwise the overlay intercepts subsequent clicks.
+		await expect(this.page.locator('[data-slot="drawer-overlay"]')).not.toBeAttached();
 		await this.page.waitForLoadState('networkidle');
 		await expect(this.page.getByRole('heading', { name: budgetName })).toBeVisible();
 	}

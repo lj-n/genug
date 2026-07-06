@@ -21,16 +21,22 @@ export class BasePage {
 
 	async openMobileNavigation() {
 		const signOutButton = this.page.getByRole('button', { name: 'Sign out' });
-		if (await signOutButton.isVisible()) return; // Already open
-		await this.page.getByRole('button', { name: 'Toggle Navigation' }).click();
-		await expect(signOutButton).toBeVisible();
+		if (!(await signOutButton.isVisible())) {
+			await this.page.getByRole('button', { name: 'Toggle Navigation' }).click();
+			await expect(signOutButton).toBeVisible();
+		}
 		// vaul-svelte animates the drawer with CSS keyframes that don't respect
-		// prefers-reduced-motion. Wait for the slide-in animation to finish so
-		// that elements inside are stable before we try to click them.
+		// prefers-reduced-motion. Always wait for ALL animations to finish — even
+		// when the drawer was already open (the previous action may have just
+		// opened it and the slide-in animation is still running).
+		// The drawer content is teleported to a portal *outside* the drawer root,
+		// so we must check both the root and the content for running animations.
 		await this.page.waitForFunction(() => {
-			const drawer = document.querySelector('[data-vaul-drawer]');
+			const noRunningAnimations = (el: Element | null) =>
+				!el || el.getAnimations({ subtree: true }).every((a) => a.playState !== 'running');
 			return (
-				!drawer || drawer.getAnimations({ subtree: true }).every((a) => a.playState !== 'running')
+				noRunningAnimations(document.querySelector('[data-vaul-drawer]')) &&
+				noRunningAnimations(document.querySelector('[data-slot="drawer-content"]'))
 			);
 		});
 	}
