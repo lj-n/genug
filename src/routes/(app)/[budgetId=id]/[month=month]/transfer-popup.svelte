@@ -98,55 +98,8 @@
 	</Popover.Content>
 </Popover.Root>
 
-{#snippet moveform()}
-	<div class="flex flex-col gap-1.5">
-		<div class="flex items-center justify-between gap-4">
-			<span class="font-medium">{m.transfer_assignment_move()}</span>
-			<ArrowFatLineDownDuotoneIcon class="size-5 text-success" />
-		</div>
-
-		<input {...form.fields.sourceCategoryId.as('hidden', rowId)} />
-
-		<InputCurrency
-			name={form.fields.amount.as('number').name}
-			aria-label={m.transfer_assignment_amount()}
-			bind:value={() => form.fields.amount.value() ?? 0, (v) => form.fields.amount.set(v)}
-			currency={budget.currency}
-			class="px-2 text-right font-currency font-medium"
-			selectOnFocus
-		/>
-
-		<SelectCategory
-			name={form.fields.targetCategoryId.as('select').name}
-			bind:value={
-				() => form.fields.targetCategoryId.value() ?? '', (v) => form.fields.targetCategoryId.set(v)
-			}
-			categories={otherCategories}
-			nullable
-			textEmpty={m.transfer_assignment_unassigned()}
-			ariaLabel={m.transfer_assignment_category()}
-			ariaLabelTrigger={m.transfer_assignment_select_category()}
-		>
-			{#snippet customItemRow({ label, value: id })}
-				{@render customSelectRow({
-					balance: id === UNASSIGNED ? unassigned : getOtherRemaining(id),
-					id,
-					label
-				})}
-			{/snippet}
-		</SelectCategory>
-	</div>
-{/snippet}
-
-{#snippet coverform()}
-	<div class="flex items-center justify-between gap-4">
-		<span class="font-medium">{m.transfer_assignment_cover()}</span>
-		<ArrowFatLineDownDuotoneIcon class="size-5 rotate-180 text-error" />
-	</div>
-
+{#snippet sharedFields()}
 	<input {...form.fields.sourceCategoryId.as('hidden', rowId)} />
-	<input {...form.fields.amount.as('hidden', remaining)} />
-
 	<SelectCategory
 		name={form.fields.targetCategoryId.as('select').name}
 		bind:value={
@@ -166,6 +119,37 @@
 			})}
 		{/snippet}
 	</SelectCategory>
+{/snippet}
+
+{#snippet moveform()}
+	<div class="flex flex-col gap-1.5">
+		<div class="flex items-center justify-between gap-4">
+			<span class="font-medium">{m.transfer_assignment_move()}</span>
+			<ArrowFatLineDownDuotoneIcon class="size-5 text-success" />
+		</div>
+
+		<InputCurrency
+			name={form.fields.amount.as('number').name}
+			aria-label={m.transfer_assignment_amount()}
+			bind:value={() => form.fields.amount.value() ?? 0, (v) => form.fields.amount.set(v)}
+			currency={budget.currency}
+			class="px-2 text-right font-currency font-medium"
+			selectOnFocus
+		/>
+
+		{@render sharedFields()}
+	</div>
+{/snippet}
+
+{#snippet coverform()}
+	<div class="flex items-center justify-between gap-4">
+		<span class="font-medium">{m.transfer_assignment_cover()}</span>
+		<ArrowFatLineDownDuotoneIcon class="size-5 rotate-180 text-error" />
+	</div>
+
+	<input {...form.fields.amount.as('hidden', remaining)} />
+
+	{@render sharedFields()}
 {/snippet}
 
 {#snippet customSelectRow(item: { balance: number; id: string; label: string })}

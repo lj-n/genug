@@ -1,4 +1,4 @@
-import { createDatabase, tables } from '$db';
+import { createDatabase, type Database, tables } from '$db';
 import { TransferAssignmentSchema } from '$lib/schemas/budget';
 import { NotFoundError } from '$server/utils/not-found-error';
 import { and, eq } from 'drizzle-orm';
@@ -406,6 +406,18 @@ describe('commands.reorder', () => {
 	});
 });
 
+const getAssignment = (db: Database, categoryId: string, month = 202501) =>
+	db
+		.select()
+		.from(tables.budgetAssignments)
+		.where(
+			and(
+				eq(tables.budgetAssignments.categoryId, categoryId),
+				eq(tables.budgetAssignments.month, month)
+			)
+		)
+		.get();
+
 describe('commands.transferAssignment', () => {
 	it('moves amount from source category to target category', () => {
 		const db = createMemoryDb();
@@ -433,26 +445,8 @@ describe('commands.transferAssignment', () => {
 			targetCategoryId: target.id
 		});
 
-		const sourceRow = db
-			.select()
-			.from(tables.budgetAssignments)
-			.where(
-				and(
-					eq(tables.budgetAssignments.categoryId, source.id),
-					eq(tables.budgetAssignments.month, 202501)
-				)
-			)
-			.get();
-		const targetRow = db
-			.select()
-			.from(tables.budgetAssignments)
-			.where(
-				and(
-					eq(tables.budgetAssignments.categoryId, target.id),
-					eq(tables.budgetAssignments.month, 202501)
-				)
-			)
-			.get();
+		const sourceRow = getAssignment(db, source.id);
+		const targetRow = getAssignment(db, target.id);
 		expect(sourceRow?.amount).toBe(100);
 		expect(targetRow?.amount).toBe(100);
 	});
@@ -483,27 +477,9 @@ describe('commands.transferAssignment', () => {
 			targetCategoryId: target.id
 		});
 
-		const sourceRow = db
-			.select()
-			.from(tables.budgetAssignments)
-			.where(
-				and(
-					eq(tables.budgetAssignments.categoryId, source.id),
-					eq(tables.budgetAssignments.month, 202501)
-				)
-			)
-			.get();
+		const sourceRow = getAssignment(db, source.id);
 		expect(sourceRow?.amount).toBe(0);
-		const targetRow = db
-			.select()
-			.from(tables.budgetAssignments)
-			.where(
-				and(
-					eq(tables.budgetAssignments.categoryId, target.id),
-					eq(tables.budgetAssignments.month, 202501)
-				)
-			)
-			.get();
+		const targetRow = getAssignment(db, target.id);
 		expect(targetRow?.amount).toBe(100);
 	});
 
@@ -530,27 +506,9 @@ describe('commands.transferAssignment', () => {
 			targetCategoryId: target.id
 		});
 
-		const sourceRow = db
-			.select()
-			.from(tables.budgetAssignments)
-			.where(
-				and(
-					eq(tables.budgetAssignments.categoryId, source.id),
-					eq(tables.budgetAssignments.month, 202501)
-				)
-			)
-			.get();
+		const sourceRow = getAssignment(db, source.id);
 		expect(sourceRow?.amount).toBe(-100);
-		const targetRow = db
-			.select()
-			.from(tables.budgetAssignments)
-			.where(
-				and(
-					eq(tables.budgetAssignments.categoryId, target.id),
-					eq(tables.budgetAssignments.month, 202501)
-				)
-			)
-			.get();
+		const targetRow = getAssignment(db, target.id);
 		expect(targetRow?.amount).toBe(100);
 	});
 
@@ -575,16 +533,7 @@ describe('commands.transferAssignment', () => {
 			targetCategoryId: null
 		});
 
-		const sourceRow = db
-			.select()
-			.from(tables.budgetAssignments)
-			.where(
-				and(
-					eq(tables.budgetAssignments.categoryId, source.id),
-					eq(tables.budgetAssignments.month, 202501)
-				)
-			)
-			.get();
+		const sourceRow = getAssignment(db, source.id);
 		expect(sourceRow?.amount).toBe(100);
 	});
 
@@ -617,26 +566,8 @@ describe('commands.transferAssignment', () => {
 			targetCategoryId: target.id
 		});
 
-		const sourceRow = db
-			.select()
-			.from(tables.budgetAssignments)
-			.where(
-				and(
-					eq(tables.budgetAssignments.categoryId, source.id),
-					eq(tables.budgetAssignments.month, 202501)
-				)
-			)
-			.get();
-		const targetRow = db
-			.select()
-			.from(tables.budgetAssignments)
-			.where(
-				and(
-					eq(tables.budgetAssignments.categoryId, target.id),
-					eq(tables.budgetAssignments.month, 202501)
-				)
-			)
-			.get();
+		const sourceRow = getAssignment(db, source.id);
+		const targetRow = getAssignment(db, target.id);
 		expect(sourceRow?.amount).toBe(150);
 		expect(targetRow?.amount).toBe(-50);
 	});

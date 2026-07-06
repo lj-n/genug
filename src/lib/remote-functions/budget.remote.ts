@@ -87,10 +87,12 @@ export const getUnassigned = guardedQuery(v.string(), async (id, { ctx }) =>
 	ctx.budget.unassigned(id)
 );
 
+const refreshBudgetData = () =>
+	Promise.all([requested(getMonthly, 1).refreshAll(), requested(getUnassigned, 1).refreshAll()]);
+
 export const assignment = guardedForm(AssignmentSchema, async (data, { ctx }) => {
 	ctx.budget.assignment(data);
-	await requested(getMonthly, 1).refreshAll();
-	await requested(getUnassigned, 1).refreshAll();
+	await refreshBudgetData();
 });
 
 export const getInvitations = guardedQuery(async ({ ctx }) => ctx.budget.invitations());
@@ -115,6 +117,5 @@ export const transferAssignment = guardedForm(TransferAssignmentSchema, async (d
 			data.targetCategoryId === UNASSIGNED || !data.targetCategoryId ? null : data.targetCategoryId
 	});
 
-	await requested(getMonthly, 1).refreshAll();
-	await requested(getUnassigned, 1).refreshAll();
+	await refreshBudgetData();
 });

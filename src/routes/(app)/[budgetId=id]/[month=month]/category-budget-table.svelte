@@ -49,6 +49,10 @@
 		}
 	});
 
+	const otherCategoriesById = $derived(
+		new Map(categories.map((cat) => [cat.id, categories.filter((f) => f.id !== cat.id)]))
+	);
+
 	let activeAssignmentCategoryId = $state<null | string>(null);
 	let isActiveAssignment = $derived((id: string) => activeAssignmentCategoryId === id);
 
@@ -138,7 +142,7 @@
 						categoryName={row.name}
 						rowId={row.id}
 						remaining={row.remaining}
-						otherCategories={categories.filter((f) => f.id !== row.id)}
+						otherCategories={otherCategoriesById.get(row.id)!}
 					/>
 				</BudgetTableCell>
 
