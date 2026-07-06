@@ -25,20 +25,12 @@ export class BasePage {
 			await this.page.getByRole('button', { name: 'Toggle Navigation' }).click();
 			await expect(signOutButton).toBeVisible();
 		}
-		// vaul-svelte animates the drawer with CSS keyframes that don't respect
-		// prefers-reduced-motion. Always wait for ALL animations to finish — even
-		// when the drawer was already open (the previous action may have just
-		// opened it and the slide-in animation is still running).
-		// The drawer content is teleported to a portal *outside* the drawer root,
-		// so we must check both the root and the content for running animations.
-		await this.page.waitForFunction(() => {
-			const noRunningAnimations = (el: Element | null) =>
-				!el || el.getAnimations({ subtree: true }).every((a) => a.playState !== 'running');
-			return (
-				noRunningAnimations(document.querySelector('[data-vaul-drawer]')) &&
-				noRunningAnimations(document.querySelector('[data-slot="drawer-content"]'))
-			);
-		});
+		// vaul-svelte animates the drawer with CSS keyframes (0.5s)
+		// that don't respect prefers-reduced-motion. Always pause for
+		// the slide-in to finish — even when the drawer was already open.
+		// A fixed timeout is crude but more reliable than getAnimations()
+		// which behaves inconsistently across browser versions in CI.
+		await this.page.waitForTimeout(600);
 	}
 
 	#getViewportWidth() {

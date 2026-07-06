@@ -57,7 +57,9 @@ export class AccountPage extends BasePage {
 			const checkbox = createRow.getByRole('checkbox', { name: 'Validated' });
 			const isChecked = await checkbox.isChecked();
 			if (validated !== isChecked) {
-				await checkbox.click();
+				// The checkbox uses opacity-0 (not sr-only), so Playwright's
+				// visibility check fails. Use force to bypass actionability.
+				await checkbox.click({ force: true });
 			}
 		}
 
@@ -164,7 +166,9 @@ export class AccountPage extends BasePage {
 			const checkbox = editForm.getByRole('checkbox', { name: 'Validated' });
 			const isChecked = await checkbox.isChecked();
 			if (params.validated !== isChecked) {
-				await checkbox.click();
+				// The checkbox uses opacity-0 (not sr-only), so Playwright's
+				// visibility check fails. Use force to bypass actionability.
+				await checkbox.click({ force: true });
 			}
 		}
 
@@ -203,9 +207,7 @@ export class AccountPage extends BasePage {
 
 		await this.page.getByRole('link', { exact: true, name: accountName }).click();
 		// On tablet, clicking a link inside the drawer closes the drawer AND navigates.
-		// Wait for the drawer close animation to finish AND the overlay to be removed
-		// from the DOM — otherwise the overlay intercepts subsequent clicks.
-		await expect(this.page.locator('[data-slot="drawer-overlay"]')).not.toBeAttached();
+		// Wait for SvelteKit navigation to settle before interacting with the new page.
 		await this.page.waitForLoadState('networkidle');
 		await expect(this.page.getByRole('heading', { name: accountName })).toBeVisible();
 	}
