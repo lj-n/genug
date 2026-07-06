@@ -35,11 +35,6 @@ export class CategoryPage extends BasePage {
 
 		await expect(dialog.getByText('Saved')).toBeVisible();
 
-		// The "Saved" toast uses a Svelte fly transition (200ms) that
-		// does not respect prefers-reduced-motion. Pause briefly so the
-		// toast settles before we try to click the close button.
-		await this.page.waitForTimeout(300);
-
 		await dialog.getByRole('button', { name: 'Close' }).first().click();
 		await expect(dialog).not.toBeVisible();
 

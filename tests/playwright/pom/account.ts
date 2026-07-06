@@ -57,8 +57,11 @@ export class AccountPage extends BasePage {
 			const checkbox = createRow.getByRole('checkbox', { name: 'Validated' });
 			const isChecked = await checkbox.isChecked();
 			if (validated !== isChecked) {
-				// The checkbox uses opacity-0 (not sr-only), so Playwright's
-				// visibility check fails. Use force to bypass actionability.
+				// The validation-checkbox component wraps the input in a <Label>
+				// with padding. Playwright resolves the <input> (sr-only is in
+				// the accessibility tree) but the parent <Label> intercepts clicks.
+				// force:true clicks the input directly — the label still associates
+				// and toggles the checkbox.
 				await checkbox.click({ force: true });
 			}
 		}
@@ -166,8 +169,11 @@ export class AccountPage extends BasePage {
 			const checkbox = editForm.getByRole('checkbox', { name: 'Validated' });
 			const isChecked = await checkbox.isChecked();
 			if (params.validated !== isChecked) {
-				// The checkbox uses opacity-0 (not sr-only), so Playwright's
-				// visibility check fails. Use force to bypass actionability.
+				// The validation-checkbox component wraps the input in a <Label>
+				// with padding. Playwright resolves the <input> (sr-only is in
+				// the accessibility tree) but the parent <Label> intercepts clicks.
+				// force:true clicks the input directly — the label still associates
+				// and toggles the checkbox.
 				await checkbox.click({ force: true });
 			}
 		}
@@ -206,14 +212,6 @@ export class AccountPage extends BasePage {
 		}
 
 		await this.page.getByRole('link', { exact: true, name: accountName }).click();
-		if (!this.isDesktop) {
-			// On tablet, clicking a link inside the drawer closes the drawer
-			// AND navigates. The drawer's close animation (fade-out) and the
-			// SvelteKit navigation both need time to settle. A fixed pause is
-			// crude but works reliably across CI browser versions — the overlay
-			// otherwise intercepts pointer events for subsequent clicks.
-			await this.page.waitForTimeout(1000);
-		}
 		await this.page.waitForLoadState('networkidle');
 		await expect(this.page.getByRole('heading', { name: accountName })).toBeVisible();
 	}

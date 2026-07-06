@@ -69,6 +69,12 @@ export class BudgetPage extends BasePage {
 		await input.press('Enter');
 
 		await expect(this.page.getByRole('link', { exact: true, name })).toBeVisible();
+		// The budget table reloads from a separate data fetch than the sidebar.
+		// Wait for the new category's Budget button to appear in the table row
+		// — this is what assignAmount needs to interact with next.
+		await expect(
+			this.page.getByRole('row').filter({ hasText: name }).getByRole('button', { name: 'Budget' })
+		).toBeVisible();
 	}
 
 	async goto(budgetName: string) {
@@ -77,14 +83,6 @@ export class BudgetPage extends BasePage {
 		}
 
 		await this.page.getByRole('link', { exact: true, name: budgetName }).click();
-		if (!this.isDesktop) {
-			// On tablet, clicking a link inside the drawer closes the drawer
-			// AND navigates. The drawer's close animation (fade-out) and the
-			// SvelteKit navigation both need time to settle. A fixed pause is
-			// crude but works reliably across CI browser versions — the overlay
-			// otherwise intercepts pointer events for subsequent clicks.
-			await this.page.waitForTimeout(1000);
-		}
 		await this.page.waitForLoadState('networkidle');
 		await expect(this.page.getByRole('heading', { name: budgetName })).toBeVisible();
 	}
@@ -116,10 +114,11 @@ export class BudgetPage extends BasePage {
 		await this.page.getByRole('button', { name: 'Select category' }).click();
 		await this.page.getByRole('option', { name: 'Unassigned' }).click();
 
-		// NOTE: In Playwright (headless), the Combobox fails to close after selecting
-		// "Unassigned" — the balance badge then overlays the OK button. This does NOT
-		// reproduce in real browsers (Chrome, Safari, Firefox). Workaround:
-		// click the amount input to defocus the Combobox and dismiss the dropdown.
+		// Workaround: after selecting "Unassigned" in the Combobox, headless
+		// Chromium does not close the dropdown consistently. The balance badge
+		// (which appears in the popover after assigning to the source category)
+		// then overlays the OK button. Clicking the amount input steals focus,
+		// which dismisses the Combobox dropdown and reflows the layout.
 		await this.page.getByRole('textbox', { name: 'Amount' }).click();
 		await this.page.getByRole('button', { name: 'OK' }).click();
 

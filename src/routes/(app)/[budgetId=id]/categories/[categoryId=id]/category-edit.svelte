@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { Input } from '$lib/components/ui/input';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import { Textarea } from '$lib/components/ui/textarea';
@@ -34,7 +35,7 @@
 	{#if savedToast.show}
 		<div
 			class="absolute -top-10 right-2 flex items-center gap-1 rounded-md border border-success/50 bg-surface-high px-3 py-1 font-medium text-success shadow-lg"
-			transition:fly={{ duration: 200, x: -20 }}
+			transition:fly={{ duration: browser ? 200 : 0, x: -20 }}
 		>
 			<PhFloppyDiskDuotone />
 			<span>{m.saved()}</span>

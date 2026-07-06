@@ -26,7 +26,7 @@
 		{disabled}
 		{...restProps}
 		aria-label="Validated"
-		class="absolute inset-0 z-10 cursor-pointer opacity-0"
+		class="sr-only absolute inset-0 z-10 cursor-pointer"
 	/>
 	{#if checked}
 		<SealCheckDuotoneIcon class="size-6 text-success" aria-hidden="true" />

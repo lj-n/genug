@@ -25,12 +25,6 @@ export class BasePage {
 			await this.page.getByRole('button', { name: 'Toggle Navigation' }).click();
 			await expect(signOutButton).toBeVisible();
 		}
-		// vaul-svelte animates the drawer with CSS keyframes (0.5s)
-		// that don't respect prefers-reduced-motion. Always pause for
-		// the slide-in to finish — even when the drawer was already open.
-		// A fixed timeout is crude but more reliable than getAnimations()
-		// which behaves inconsistently across browser versions in CI.
-		await this.page.waitForTimeout(600);
 	}
 
 	#getViewportWidth() {
