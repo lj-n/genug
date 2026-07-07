@@ -10,6 +10,7 @@ export const getTransactionURLParams = ({ searchParams }: URL) =>
 		page: searchParams.get('page'),
 		pageSize: searchParams.get('pageSize'),
 		sortAccount: searchParams.get('sortAccount'),
+		sortAmount: searchParams.get('sortAmount'),
 		sortCategory: searchParams.get('sortCategory'),
 		sortDate: searchParams.get('sortDate'),
 		sortValidated: searchParams.get('sortValidated')
