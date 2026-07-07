@@ -7,6 +7,7 @@
 - Follow the existing export shape for primitives, including `index.ts` re-exports of `Root` and named parts where that pattern already exists.
 - Reuse existing Tailwind Variants patterns (`tv(...)`, `cn(...)`) for shared UI primitives.
 - Preserve accessibility wiring: roles, aria attributes, focus handling, keyboard affordances, sr-only labels.
+- Form controls accept `aria-invalid` and render the shared error border; composite controls forward it to their focusable element.
 - No hardcoded feature copy in shared UI primitives. Pass labels from callers, localize with Paraglide.
 - Match existing Svelte 5 runes and snippet-based composition patterns in touched components.
 - Prefer `<Name>Icon` imports in touched feature code.

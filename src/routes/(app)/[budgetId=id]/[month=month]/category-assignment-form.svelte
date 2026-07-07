@@ -68,6 +68,7 @@
 						(v) => scopedForm.fields.amount.set(v)
 					}
 					{currency}
+					aria-invalid={scopedForm.fields.amount.issues()?.length ? true : undefined}
 					class="h-full w-full rounded-none px-2 text-right font-currency ring-0 outline-none"
 					aria-label={m.budget_monthly_table_header_amount()}
 					selectOnFocus

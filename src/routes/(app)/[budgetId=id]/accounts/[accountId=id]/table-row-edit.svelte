@@ -70,6 +70,7 @@
 			bind:value={() => form.fields.categoryId.value() ?? '', (v) => form.fields.categoryId.set(v)}
 			{categories}
 			nullable
+			ariaInvalid={form.fields.categoryId.issues()?.length ? true : undefined}
 			ariaLabel={m.transactions_table_header_category()}
 			ariaLabelTrigger={m.select_category_open()}
 		/>
@@ -90,6 +91,7 @@
 				() => parseDate(form.fields.date.value() ?? transaction.date),
 				(v) => form.fields.date.set(v.toString())
 			}
+			ariaInvalid={form.fields.date.issues()?.length ? true : undefined}
 			class="justify-end"
 			label={m.transaction_table_cell_date_select()}
 		/>

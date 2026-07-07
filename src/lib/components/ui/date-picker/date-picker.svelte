@@ -10,6 +10,7 @@
 	import { Calendar } from '../calendar';
 
 	type DatePickerProps = {
+		ariaInvalid?: boolean;
 		class?: string;
 		disabled?: boolean;
 		formatDisplay?: (date: CalendarDate) => string;
@@ -25,6 +26,7 @@
 	};
 
 	let {
+		ariaInvalid,
 		class: className,
 		disabled = false,
 		formatDisplay,
@@ -79,6 +81,7 @@
 				)}
 				role="combobox"
 				aria-expanded={open}
+				aria-invalid={ariaInvalid}
 				aria-label={value ? displayFormatter(value) : label}
 			>
 				{displayValue}

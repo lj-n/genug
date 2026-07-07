@@ -12,6 +12,7 @@
 	type Category = { id: string; name: string };
 
 	let {
+		ariaInvalid,
 		ariaLabel,
 		ariaLabelTrigger,
 		categories,
@@ -27,6 +28,7 @@
 		textNotFound = m.select_category_not_found(),
 		value = $bindable('')
 	}: {
+		ariaInvalid?: boolean;
 		ariaLabel?: string;
 		ariaLabelTrigger?: string;
 		categories: Category[];
@@ -101,9 +103,14 @@
 	onOpenChange={handleOpenChange}
 	inputValue={displayValue}
 >
-	<div bind:this={containerRef} class={cn(inputVariants({ variant: 'container' }), className)}>
+	<div
+		bind:this={containerRef}
+		class={cn(inputVariants({ variant: 'container' }), className)}
+		aria-invalid={ariaInvalid}
+	>
 		<Combobox.Input
 			{...inputProps}
+			aria-invalid={ariaInvalid}
 			aria-label={ariaLabel}
 			class="h-full flex-1 border-0 bg-transparent px-2 py-1 outline-none placeholder:text-muted"
 			{placeholder}

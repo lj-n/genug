@@ -81,6 +81,7 @@
 				(v) => editCategory.fields.targetBalance.set(v)
 			}
 			{currency}
+			aria-invalid={editCategory.fields.targetBalance.issues()?.length ? true : undefined}
 			class="h-12 text-center text-xl font-semibold placeholder:text-base placeholder:font-normal"
 			placeholder={formatMoney({ currency, money: asMoney(0) })}
 			aria-label={m.category_label_targetbalance()}

@@ -214,3 +214,23 @@ describe('SelectCategory — deselection', () => {
 		expect(formData.get('categoryId')).toBe('c2');
 	});
 });
+
+describe('SelectCategory — aria-invalid contract', () => {
+	it('sets aria-invalid on the combobox input when ariaInvalid is true', () => {
+		renderSelectCategory({ ariaInvalid: true });
+		const input = screen.getByRole<HTMLInputElement>('combobox', { name: 'Category' });
+		expect(input).toHaveAttribute('aria-invalid', 'true');
+	});
+
+	it('sets aria-invalid to false on the combobox input when ariaInvalid is false', () => {
+		renderSelectCategory({ ariaInvalid: false });
+		const input = screen.getByRole<HTMLInputElement>('combobox', { name: 'Category' });
+		expect(input).toHaveAttribute('aria-invalid', 'false');
+	});
+
+	it('does not set aria-invalid on the combobox input when ariaInvalid is not passed', () => {
+		renderSelectCategory();
+		const input = screen.getByRole<HTMLInputElement>('combobox', { name: 'Category' });
+		expect(input).not.toHaveAttribute('aria-invalid');
+	});
+});
