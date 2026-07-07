@@ -166,6 +166,39 @@ describe('queries.list', () => {
 	});
 });
 
+describe('queries.count', () => {
+	it('returns total transaction count', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const a = createAccount(db, budget.id, 'A');
+		createTransaction(db, budget.id, a.id);
+		createTransaction(db, budget.id, a.id);
+		const { count } = queries(user.id, db);
+
+		expect(count()).toBe(2);
+	});
+
+	it('returns 0 when no transactions', () => {
+		const db = createDatabase(':memory:');
+		const { user } = createBudgetWithUser(db);
+		const { count } = queries(user.id, db);
+
+		expect(count()).toBe(0);
+	});
+
+	it('respects filters', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const a = createAccount(db, budget.id, 'A');
+		createTransaction(db, budget.id, a.id, { validated: true });
+		createTransaction(db, budget.id, a.id, { validated: false });
+		const { count } = queries(user.id, db);
+
+		expect(count({ validated: true })).toBe(1);
+		expect(count({ validated: false })).toBe(1);
+	});
+});
+
 describe('commands.create', () => {
 	it('creates transaction', () => {
 		const db = createDatabase(':memory:');
@@ -177,6 +210,18 @@ describe('commands.create', () => {
 
 		expect(tx).toMatchObject({ accountId: a.id, amount: -42, date: '2025-03-15' });
 		expect(tx.id).toBeDefined();
+	});
+
+	it('defaults date to today when omitted', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const a = createAccount(db, budget.id, 'A');
+		const { create } = commands(user.id, db);
+
+		const tx = create({ accountId: a.id, amount: -42, budgetId: budget.id });
+
+		expect(tx.date).toBeDefined();
+		expect(tx.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
 	});
 
 	it('throws NotFoundError without budget access', () => {
@@ -232,6 +277,18 @@ describe('commands.edit', () => {
 		const updated = edit(tx.id, { amount: 200, notes: 'new' });
 
 		expect(updated).toMatchObject({ amount: 200, id: tx.id, notes: 'new' });
+	});
+
+	it('defaults validated to false when omitted', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const a = createAccount(db, budget.id, 'A');
+		const tx = createTransaction(db, budget.id, a.id, { validated: true });
+		const { edit } = commands(user.id, db);
+
+		const updated = edit(tx.id, { amount: 300 });
+
+		expect(updated.validated).toBe(false);
 	});
 
 	it('throws for non-existent transaction', () => {

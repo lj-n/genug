@@ -2,12 +2,71 @@ import type { Month } from '$lib/utils/month';
 
 import { database, type Database, tables } from '$db';
 import { dateIsInMonth, dateIsOnOrBefore } from '$db/month-sql';
+import { m } from '$lib/paraglide/messages';
 import { error } from '@sveltejs/kit';
 import { and, eq, getColumns, inArray, isNull, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/sqlite-core';
 
 import { accessGuard, hasAccess, ownerGuard } from './access';
 import { withOrder } from './utils';
+
+const findEligibleUser = (
+	userId: string,
+	db: Database,
+	budgetId: string,
+	inviteeName: string
+): { userId: string } => {
+	const currentUser = db
+		.select({ username: tables.users.username })
+		.from(tables.users)
+		.where(eq(tables.users.id, userId))
+		.get();
+
+	if (currentUser?.username === inviteeName) {
+		error(400, m.budget_users_error_its_you());
+	}
+
+	const existing = db
+		.select({ role: tables.usersToBudgets.role })
+		.from(tables.usersToBudgets)
+		.innerJoin(tables.users, eq(tables.users.id, tables.usersToBudgets.userId))
+		.where(
+			and(
+				eq(tables.usersToBudgets.budgetId, budgetId),
+				eq(tables.users.username, inviteeName),
+				hasAccess(tables.usersToBudgets, userId, db)
+			)
+		)
+		.get();
+
+	if (existing) {
+		error(
+			400,
+			existing.role === 'INVITEE'
+				? m.budget_users_error_already_invited({ value: inviteeName })
+				: m.budget_users_error_already_access({ value: inviteeName })
+		);
+	}
+
+	const eligible = db
+		.select({ id: tables.users.id })
+		.from(tables.users)
+		.leftJoin(
+			tables.usersToBudgets,
+			and(
+				eq(tables.usersToBudgets.userId, tables.users.id),
+				eq(tables.usersToBudgets.budgetId, budgetId)
+			)
+		)
+		.where(and(eq(tables.users.username, inviteeName), isNull(tables.usersToBudgets.userId)))
+		.get();
+
+	if (!eligible) {
+		error(400, m.budget_users_error_not_found({ value: inviteeName }));
+	}
+
+	return { userId: eligible.id };
+};
 
 export type BudgetUser = {
 	id: string;
@@ -52,6 +111,9 @@ export const queries = (userId: string, db: Database = database) => ({
 			.where(isNull(tables.usersToBudgets.userId))
 			.all();
 	},
+
+	findEligibleUser: (budgetId: string, inviteeName: string) =>
+		findEligibleUser(userId, db, budgetId, inviteeName),
 
 	invitations: () => {
 		const inviterAlias = alias(tables.usersToBudgets, 'inviter_utb');
@@ -256,8 +318,9 @@ export const commands = (userId: string, db: Database = database) => ({
 		return updated;
 	},
 
-	invite: (budgetId: string, inviteeId: string) => {
+	invite: (budgetId: string, inviteeName: string) => {
 		ownerGuard(budgetId, userId, db);
+		const { userId: inviteeId } = findEligibleUser(userId, db, budgetId, inviteeName);
 		db.insert(tables.usersToBudgets).values({ budgetId, role: 'INVITEE', userId: inviteeId }).run();
 	},
 

@@ -44,13 +44,12 @@ export const listTransactions = guardedQuery(
 			...(sortValidated ? { validated: sortValidated } : {})
 		};
 
-		const transactions = ctx.transaction.list(filter, sort, { page: page - 1, pageSize });
-		const allTransactions = ctx.transaction.list(filter, sort);
+		const [transactions, totalTransactionCount] = await Promise.all([
+			ctx.transaction.list(filter, sort, { page: page - 1, pageSize }),
+			ctx.transaction.count(filter)
+		]);
 
-		return {
-			pagination: { page, pageSize, totalTransactionCount: allTransactions.length },
-			transactions
-		};
+		return { pagination: { page, pageSize, totalTransactionCount }, transactions };
 	}
 );
 
@@ -63,7 +62,7 @@ export const createTransaction = guardedForm(
 			budgetId: data.budgetId,
 			categoryId: data.categoryId || null,
 			createdBy: user.id,
-			date: data.date ?? new Date().toISOString().split('T')[0],
+			date: data.date,
 			notes: data.notes || null,
 			validated: data.validated
 		});
@@ -78,7 +77,7 @@ export const editTransaction = guardedForm(
 			...rest,
 			categoryId: categoryId === '' ? null : categoryId,
 			notes: notes === undefined ? undefined : notes || null,
-			validated: rest.validated ?? false
+			validated: rest.validated
 		};
 		ctx.transaction.edit(transactionId, update);
 		await requested(listTransactions, 1).refreshAll();
