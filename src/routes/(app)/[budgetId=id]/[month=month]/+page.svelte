@@ -20,8 +20,10 @@
 
 	const budget = $derived(await getBudget(params.budgetId));
 
-	// Non-null: the param is validated by the matcher in `src/params/month.ts`.
-	const month = $derived(parseMonth(params.month)!);
+	// The matcher guarantees a valid param on this route, but during client-side
+	// navigation away, `params` briefly reflects the target route (no month) while
+	// this page is still mounted — month-dependent content must not query then.
+	const month = $derived(parseMonth(params.month));
 
 	let openCategoryDetail = $state(false);
 	let selectedCategoryId = $state<null | string>(null);
@@ -43,21 +45,23 @@
 	</Page.Header>
 
 	<Page.Content>
-		<div class="flex items-end gap-3">
-			<MonthNavigator {month} />
+		{#if month !== null}
+			<div class="flex items-end gap-3">
+				<MonthNavigator {month} />
 
-			<CategoryQuickActions />
+				<CategoryQuickActions />
 
-			<UnassignedSummary />
-		</div>
+				<UnassignedSummary />
+			</div>
 
-		<CategoryBudgetTable
-			{month}
-			openCategoryDialog={(categoryId) => {
-				selectedCategoryId = categoryId;
-				openCategoryDetail = true;
-			}}
-		/>
+			<CategoryBudgetTable
+				{month}
+				openCategoryDialog={(categoryId) => {
+					selectedCategoryId = categoryId;
+					openCategoryDetail = true;
+				}}
+			/>
+		{/if}
 	</Page.Content>
 </Page.Root>
 
