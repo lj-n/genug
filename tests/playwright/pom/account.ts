@@ -1,4 +1,4 @@
-import { formatCurrency } from '$lib/utils/format-currency';
+import { formatMoney, parseMoney } from '$lib/utils/money';
 import { expect } from '@playwright/test';
 
 import { BasePage } from './base-page';
@@ -83,7 +83,10 @@ export class AccountPage extends BasePage {
 		if (amount !== undefined) {
 			await expect(
 				this.page.getByRole('button', { name: 'Edit amount' }).filter({
-					hasText: formatCurrency({ centValue: Number(amount) * 100, currency: 'EUR' })
+					hasText: formatMoney({
+						currency: 'EUR',
+						money: parseMoney(Math.round(Number(amount) * 100))!
+					})
 				})
 			).toBeVisible();
 		}
@@ -181,7 +184,10 @@ export class AccountPage extends BasePage {
 		if (params.amount !== undefined) {
 			await expect(
 				readOnlyRow.getByRole('cell', { name: 'Edit amount' }).filter({
-					hasText: formatCurrency({ centValue: Number(params.amount) * 100, currency: 'EUR' })
+					hasText: formatMoney({
+						currency: 'EUR',
+						money: parseMoney(Math.round(Number(params.amount) * 100))!
+					})
 				})
 			).toBeVisible();
 		}

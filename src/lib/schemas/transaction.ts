@@ -1,10 +1,11 @@
+import { MoneySchema } from '$lib/utils/money';
 import * as v from 'valibot';
 
 import { CoercedNumber } from './utils';
 
 export const TransactionCreateSchema = v.object({
 	accountId: v.pipe(v.string(), v.minLength(1)),
-	amount: v.pipe(v.number(), v.integer()),
+	amount: MoneySchema,
 	budgetId: v.pipe(v.string(), v.minLength(1)),
 	categoryId: v.optional(v.string()),
 	date: v.optional(v.pipe(v.string(), v.minLength(1))),
@@ -14,7 +15,7 @@ export const TransactionCreateSchema = v.object({
 
 export const TransactionEditSchema = v.object({
 	accountId: v.optional(v.string()),
-	amount: v.optional(v.pipe(v.number(), v.integer())),
+	amount: v.optional(MoneySchema),
 	categoryId: v.optional(v.string()),
 	date: v.optional(v.string()),
 	notes: v.optional(v.string()),

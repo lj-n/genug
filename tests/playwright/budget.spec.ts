@@ -1,4 +1,4 @@
-import { formatCurrency } from '$lib/utils/format-currency';
+import { formatMoney, parseMoney } from '$lib/utils/money';
 import { faker } from '@faker-js/faker';
 
 import { expect, test } from './fixture';
@@ -41,10 +41,10 @@ test('Transfer Assignment — Move between categories', async ({ pages }) => {
 
 	// Verify: source remaining = 300, target remaining = 200
 	await expect(pages.budget.remainingTrigger(sourceCategory)).toContainText(
-		formatCurrency({ centValue: 300, currency: 'EUR' })
+		formatMoney({ currency: 'EUR', money: parseMoney(300)! })
 	);
 	await expect(pages.budget.remainingTrigger(targetCategory)).toContainText(
-		formatCurrency({ centValue: 200, currency: 'EUR' })
+		formatMoney({ currency: 'EUR', money: parseMoney(200)! })
 	);
 });
 
@@ -68,11 +68,13 @@ test('Transfer Assignment — Move to unassigned', async ({ page, pages }) => {
 
 	// Verify remaining = 200
 	await expect(pages.budget.remainingTrigger(category)).toContainText(
-		formatCurrency({ centValue: 200, currency: 'EUR' })
+		formatMoney({ currency: 'EUR', money: parseMoney(200)! })
 	);
 
 	// Unassigned: -200 (only 200 assigned total, 0 income)
-	await expect(page.getByText(formatCurrency({ centValue: -200, currency: 'EUR' }))).toBeVisible();
+	await expect(
+		page.getByText(formatMoney({ currency: 'EUR', money: parseMoney(-200)! }))
+	).toBeVisible();
 });
 
 test('Transfer Assignment — Trigger disabled at zero remaining', async ({ pages }) => {

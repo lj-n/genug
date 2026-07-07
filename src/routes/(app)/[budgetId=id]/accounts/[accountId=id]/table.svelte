@@ -7,8 +7,8 @@
 		batchValidateTransactions,
 		listTransactions
 	} from '$lib/remote-functions/transaction.remote';
-	import { formatCurrency } from '$lib/utils/format-currency';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
+	import { formatMoney, parseMoney } from '$lib/utils/money';
 	import { parseDate } from '@internationalized/date';
 	import PlusBoldIcon from '~icons/ph/plus-bold';
 	import SealIcon from '~icons/ph/seal';
@@ -87,7 +87,7 @@
 							onclick={setEditing}
 							class="justify-end font-currency font-normal"
 						>
-							{formatCurrency({ centValue: item.amount, currency: budget.currency })}
+							{formatMoney({ currency: budget.currency, money: parseMoney(item.amount)! })}
 						</TableCell>
 
 						<TableCell>

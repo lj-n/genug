@@ -1,3 +1,4 @@
+import { MoneySchema } from '$lib/utils/money';
 import * as v from 'valibot';
 
 import { BudgetIdSchema } from './budget';
@@ -8,7 +9,7 @@ export const AccountIdSchema = v.object({ accountId: v.pipe(v.string(), v.minLen
 export const AccountCreateSchema = v.object({
 	...BudgetIdSchema.entries,
 	accountName: NameSchema,
-	startingBalance: v.optional(v.number(), 0)
+	startingBalance: v.optional(MoneySchema, 0)
 });
 
 export const AccountSetNameSchema = v.object({

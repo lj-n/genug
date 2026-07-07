@@ -1,4 +1,5 @@
 import { CURRENCIES } from '$lib/utils/currencies';
+import { MoneySchema } from '$lib/utils/money';
 import { MonthSchema } from '$lib/utils/month';
 import * as v from 'valibot';
 
@@ -31,13 +32,16 @@ export const BudgetMonthSchema = v.object({
 
 export const AssignmentSchema = v.object({
 	...BudgetMonthSchema.entries,
-	amount: v.number(),
+	amount: MoneySchema,
 	categoryId: v.pipe(v.string(), v.minLength(1))
 });
 
 export const TransferAssignmentSchema = v.object({
 	...BudgetMonthSchema.entries,
-	amount: v.pipe(v.number(), v.notValue(0)),
+	amount: v.pipe(
+		MoneySchema,
+		v.check((value) => value !== 0, 'Amount must not be zero')
+	),
 	sourceCategoryId: v.string(),
 	targetCategoryId: v.string()
 });

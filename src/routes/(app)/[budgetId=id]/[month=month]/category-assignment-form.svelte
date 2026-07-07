@@ -10,7 +10,7 @@
 		getUnassigned
 	} from '$lib/remote-functions/budget.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
-	import { formatCurrency } from '$lib/utils/format-currency';
+	import { formatMoney, parseMoney } from '$lib/utils/money';
 	import { Popover } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
 
@@ -51,7 +51,7 @@
 		)}
 		aria-label={m.budget_monthly_table_header_amount()}
 	>
-		{formatCurrency({ centValue: category.assigned, currency })}
+		{formatMoney({ currency, money: parseMoney(category.assigned)! })}
 	</Popover.Trigger>
 
 	<Popover.ContentStatic class="absolute inset-0 outline-2 -outline-offset-2 outline-focus">
