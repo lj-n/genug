@@ -95,7 +95,7 @@
 					role="row"
 					class="relative flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/3"
 				>
-					<BudgetTableCell class="relative flex w-2/5 p-0 hover:bg-surface">
+					<BudgetTableCell class="relative flex w-2/5 p-0">
 						<a
 							class="flex size-full items-center px-2 -outline-offset-2 hover:bg-interactive/15 hover:outline-2 hover:outline-interactive/40"
 							href={resolve('/(app)/[budgetId=id]/categories/[categoryId=id]', {
@@ -116,7 +116,7 @@
 						{/if}
 					</BudgetTableCell>
 
-					<BudgetTableCell class="relative w-1/5 justify-start p-0 hover:bg-surface">
+					<BudgetTableCell class="relative w-1/5 justify-start p-0">
 						<CategoryAssignmentForm
 							bind:open={
 								() => isActiveAssignment(row.id),
