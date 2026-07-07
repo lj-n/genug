@@ -47,10 +47,10 @@
 			{m.transactions_table_header_amount()}
 		</div>
 		<div role="columnheader" class="flex items-center gap-1 px-2 text-sm font-semibold">
-			<ValidationCheckbox checked={true} disabled={true} />
 			<button onclick={() => sort.toggle('validated')}>
 				{@render sortIcon('validated')}
 			</button>
+			<ValidationCheckbox checked={true} disabled={true} />
 		</div>
 	</div>
 </div>
