@@ -16,7 +16,7 @@
 	bind:ref
 	data-slot="input-group-control"
 	variant="ghost"
-	class={cn('flex-1', className)}
+	class={cn('flex-1 focus-visible:ring-0', className)}
 	bind:value
 	{...props}
 />
