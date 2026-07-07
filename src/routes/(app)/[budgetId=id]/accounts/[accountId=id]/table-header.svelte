@@ -27,7 +27,10 @@
 	<div role="row" class={cn(colsClass, 'grid items-center rounded-lg bg-muted/5')}>
 		<div role="columnheader" class="flex items-center gap-1 px-4 text-sm font-semibold">
 			{m.transactions_table_header_category()}
-			<button onclick={() => sort.toggle('category')}>
+			<button
+				onclick={() => sort.toggle('category')}
+				aria-label={m.transactions_table_sort_category()}
+			>
 				{@render sortIcon('category')}
 			</button>
 		</div>
@@ -35,19 +38,22 @@
 			{m.transactions_table_header_notes()}
 		</div>
 		<div role="columnheader" class="flex items-center justify-end gap-1 px-4 text-sm font-semibold">
-			<button onclick={() => sort.toggle('date')}>
+			<button onclick={() => sort.toggle('date')} aria-label={m.transactions_table_sort_date()}>
 				{@render sortIcon('date')}
 			</button>
 			{m.transactions_table_header_date()}
 		</div>
 		<div role="columnheader" class="flex items-center justify-end gap-1 px-4 text-sm font-semibold">
-			<button onclick={() => sort.toggle('amount')}>
+			<button onclick={() => sort.toggle('amount')} aria-label={m.transactions_table_sort_amount()}>
 				{@render sortIcon('amount')}
 			</button>
 			{m.transactions_table_header_amount()}
 		</div>
 		<div role="columnheader" class="flex items-center gap-1 px-2 text-sm font-semibold">
-			<button onclick={() => sort.toggle('validated')}>
+			<button
+				onclick={() => sort.toggle('validated')}
+				aria-label={m.transactions_table_sort_validated()}
+			>
 				{@render sortIcon('validated')}
 			</button>
 			<ValidationCheckbox checked={true} disabled={true} />
