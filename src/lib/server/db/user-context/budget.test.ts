@@ -79,6 +79,59 @@ describe('queries.eligibleUsers', () => {
 	});
 });
 
+describe('queries.findEligibleUser', () => {
+	it('returns userId for eligible user', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db, 'OWNER', 'owner');
+		const other = createUser(db, 'other');
+		const { findEligibleUser } = queries(user.id, db);
+
+		const result = findEligibleUser(budget.id, 'other');
+
+		expect(result).toEqual({ userId: other.id });
+	});
+
+	it('throws for self-invite', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db, 'OWNER', 'owner');
+		const { findEligibleUser } = queries(user.id, db);
+
+		expect(() => findEligibleUser(budget.id, 'owner')).toThrow();
+	});
+
+	it('throws for already invited user', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db, 'OWNER', 'owner');
+		const invitee = createUser(db, 'invitee');
+		db.insert(tables.usersToBudgets)
+			.values({ budgetId: budget.id, role: 'INVITEE', userId: invitee.id })
+			.run();
+		const { findEligibleUser } = queries(user.id, db);
+
+		expect(() => findEligibleUser(budget.id, 'invitee')).toThrow();
+	});
+
+	it('throws for already a member', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db, 'OWNER', 'owner');
+		const member = createUser(db, 'member');
+		db.insert(tables.usersToBudgets)
+			.values({ budgetId: budget.id, role: 'MEMBER', userId: member.id })
+			.run();
+		const { findEligibleUser } = queries(user.id, db);
+
+		expect(() => findEligibleUser(budget.id, 'member')).toThrow();
+	});
+
+	it('throws for non-existent user', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db, 'OWNER', 'owner');
+		const { findEligibleUser } = queries(user.id, db);
+
+		expect(() => findEligibleUser(budget.id, 'nonexistent')).toThrow();
+	});
+});
+
 describe('queries.invitations', () => {
 	it('returns pending invites with budget and inviter name', () => {
 		const db = createDatabase(':memory:');
@@ -328,7 +381,7 @@ describe('commands.invite', () => {
 		const invitee = createUser(db, 'invitee');
 		const { invite } = commands(owner.id, db);
 
-		invite(budget.id, invitee.id);
+		invite(budget.id, invitee.username);
 
 		const membership = db
 			.select()
@@ -344,7 +397,7 @@ describe('commands.invite', () => {
 		const outsider = createUser(db, 'outsider');
 		const { invite } = commands(user.id, db);
 
-		expect(() => invite(budget.id, outsider.id)).toThrow(NotFoundError);
+		expect(() => invite(budget.id, outsider.username)).toThrow(NotFoundError);
 	});
 });
 

@@ -1,7 +1,6 @@
 import { resolve } from '$app/paths';
 import { requested } from '$app/server';
 import { UNASSIGNED } from '$lib/constants';
-import { m } from '$lib/paraglide/messages';
 import {
 	AssignmentSchema,
 	BudgetAndUserIdSchema,
@@ -13,7 +12,7 @@ import {
 } from '$lib/schemas/budget';
 import { OrderedIdsSchema } from '$lib/schemas/utils';
 import { guardedCommand, guardedForm, guardedQuery } from '$server/utils/remote-guard';
-import { error, redirect } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
 export const getBudgets = guardedQuery(async ({ ctx }) => ctx.budget.all());
@@ -43,39 +42,14 @@ export const removeUser = guardedForm(
 
 export const findEligibleUser = guardedQuery(
 	FindBudgetUserSchema,
-	async ({ budgetId, inviteeName }, { ctx, user }) => {
-		if (user.username === inviteeName) {
-			return { error: m.budget_users_error_its_you() };
-		}
-
-		const budgetUsers = ctx.budget.users(budgetId);
-		const existingMember = budgetUsers.find((u) => u.name === inviteeName);
-
-		if (existingMember) {
-			return {
-				error:
-					existingMember.role === 'INVITEE'
-						? m.budget_users_error_already_invited({ value: inviteeName })
-						: m.budget_users_error_already_access({ value: inviteeName })
-			};
-		}
-
-		const eligibleUser = ctx.budget.eligibleUsers(budgetId).find((u) => u.name === inviteeName);
-
-		if (!eligibleUser) {
-			return { error: m.budget_users_error_not_found({ value: inviteeName }) };
-		}
-
-		return { eligible: true, userId: eligibleUser.id };
-	}
+	async ({ budgetId, inviteeName }, { ctx }) => ctx.budget.findEligibleUser(budgetId, inviteeName)
 );
 
 export const inviteUser = guardedForm(
 	FindBudgetUserSchema,
 	async ({ budgetId, inviteeName }, { ctx }) => {
-		const eligibleUser = ctx.budget.eligibleUsers(budgetId).find((f) => f.name === inviteeName);
-		if (!eligibleUser) error(400);
-		ctx.budget.invite(budgetId, eligibleUser.id);
+		ctx.budget.invite(budgetId, inviteeName);
+		void getBudgetUsers(budgetId).refresh();
 	}
 );
 

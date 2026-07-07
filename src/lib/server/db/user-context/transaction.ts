@@ -1,6 +1,7 @@
 import { database, type Database, tables } from '$db';
+import { getLocalTimeZone, today } from '@internationalized/date';
 import { error } from '@sveltejs/kit';
-import { and, eq, getColumns, inArray } from 'drizzle-orm';
+import { and, count, eq, getColumns, inArray } from 'drizzle-orm';
 
 import { accessGuard, hasAccess } from './access';
 import {
@@ -21,6 +22,20 @@ export const queries = (userId: string, db: Database = database) => ({
 
 		if (!found) error(404);
 		return found;
+	},
+
+	count: (filter: TransactionFilterParam = {}) => {
+		let dq = db
+			.select({ total: count() })
+			.from(tables.transactions)
+			.leftJoin(tables.categories, eq(tables.transactions.categoryId, tables.categories.id))
+			.leftJoin(tables.users, eq(tables.transactions.createdBy, tables.users.id))
+			.where(hasAccess(tables.transactions, userId, db))
+			.$dynamic();
+
+		dq = withFilter({ dq, filter });
+
+		return dq.get()?.total ?? 0;
 	},
 
 	list: (
@@ -54,11 +69,15 @@ export const queries = (userId: string, db: Database = database) => ({
 export type ListTransaction = Awaited<ReturnType<ReturnType<typeof queries>['list']>>[number];
 
 export const commands = (userId: string, db: Database = database) => ({
-	create: (data: typeof tables.transactions.$inferInsert) => {
+	create: (data: Omit<typeof tables.transactions.$inferInsert, 'date'> & { date?: string }) => {
 		accessGuard(data.budgetId, userId, db);
 
 		return db.transaction((tx) => {
-			return tx.insert(tables.transactions).values(data).returning().get();
+			return tx
+				.insert(tables.transactions)
+				.values({ ...data, date: data.date ?? today(getLocalTimeZone()).toString() })
+				.returning()
+				.get();
 		});
 	},
 
@@ -71,9 +90,10 @@ export const commands = (userId: string, db: Database = database) => ({
 	},
 
 	edit: (id: string, update: Partial<typeof tables.transactions.$inferInsert>) => {
+		const data = { ...update, validated: update.validated ?? false };
 		const updated = db
 			.update(tables.transactions)
-			.set(update)
+			.set(data)
 			.where(and(hasAccess(tables.transactions, userId, db), eq(tables.transactions.id, id)))
 			.returning()
 			.get();
