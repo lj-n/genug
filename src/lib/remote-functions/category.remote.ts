@@ -34,11 +34,7 @@ export const createCategory = guardedForm(
 export const editCategory = guardedForm(
 	CategoryEditSchema,
 	async ({ categoryId, categoryName, notes, targetBalance }, { ctx }) => {
-		ctx.category.edit(categoryId, {
-			name: categoryName,
-			notes: notes === undefined ? undefined : (notes ?? null),
-			targetBalance: targetBalance === undefined ? undefined : targetBalance || null
-		});
+		ctx.category.edit(categoryId, { name: categoryName, notes, targetBalance });
 	}
 );
 

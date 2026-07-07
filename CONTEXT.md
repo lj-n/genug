@@ -11,3 +11,7 @@ _Avoid_: date, period, month param
 **Archivable**:
 A category is archivable when its remaining balance (all-time assignments plus transactions) is zero and it has no pending (unvalidated) transactions. The rule is enforced by `category.archive` in user-context (see ADR-0001) and projected to the UI via `category.archivability`; nothing else may write `archivedAt`.
 _Avoid_: deletable, closable
+
+**Adapter**:
+A mechanical entry point (remote function or server load) that connects SvelteKit to user-context: it guards auth, validates input, translates form semantics, redirects, and refreshes caches — but produces no values and holds no business rules (see ADR-0002).
+_Avoid_: endpoint, controller, service layer
