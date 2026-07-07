@@ -61,11 +61,7 @@
 						/>
 
 						<InputGroup.Addon align="block-end" class="text-xs font-normal">
-							{#if findUserResult?.current?.error}
-								<div class="flex items-center gap-1 text-error">
-									{findUserResult.current.error}
-								</div>
-							{:else if findUserResult?.current?.userId}
+							{#if findUserResult?.current?.userId}
 								<div class="flex items-center gap-1 text-success">
 									{m.budget_users_invite_success()}
 								</div>
@@ -78,7 +74,7 @@
 							<Button
 								type="submit"
 								class="ms-auto"
-								aria-disabled={!findUserResult?.current?.eligible}
+								aria-disabled={!findUserResult?.current?.userId}
 							>
 								{m.budget_users_invite_button()}
 							</Button>
