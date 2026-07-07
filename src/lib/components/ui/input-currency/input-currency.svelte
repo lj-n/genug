@@ -3,6 +3,7 @@
 	import type { CurrencyInputValues, IntlConfig } from '@canutin/svelte-currency-input';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
+	import { inputVariants } from '$lib/components/ui/input';
 	import { getLocale, type Locale } from '$lib/paraglide/runtime';
 	import { parseMoney, unwrapMoney } from '$lib/utils/money';
 	import { CurrencyInput } from '@canutin/svelte-currency-input';
@@ -141,10 +142,7 @@
 	bind:ref
 	value={internalValue}
 	data-slot={dataSlot}
-	class={cn(
-		'h-9 w-full rounded-md border border-muted/30 bg-surface/70 px-3 py-1 outline-none placeholder:text-muted focus-visible:border-focus focus-visible:bg-surface/80 focus-visible:ring-2 focus-visible:ring-focus/50 aria-invalid:border-error',
-		className
-	)}
+	class={cn(inputVariants(), className)}
 	intlConfig={{ currency, locale, ...intlConfig }}
 	{prefix}
 	{suffix}

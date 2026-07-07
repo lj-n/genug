@@ -16,6 +16,10 @@ _Avoid_: amount, cent value, float, display value
 A category is archivable when its remaining balance (all-time assignments plus transactions) is zero and it has no pending (unvalidated) transactions. The rule is enforced by `category.archive` in user-context (see ADR-0001) and projected to the UI via `category.archivability`; nothing else may write `archivedAt`.
 _Avoid_: deletable, closable
 
+**Focus treatment**:
+The canonical focus indicator — `border-focus` plus `ring-2 ring-focus/50` — owned by `src/lib/components/ui/focus-ring` in two flavors: `focusRing` (`focus-visible:`) for direct controls and `focusRingWithin` (`focus-within:`) for containers wrapping a focusable child. Focusable elements compose one of these instead of styling their own ring or falling back to the browser outline; input chrome gets it via `inputVariants` in `src/lib/components/ui/input`.
+_Avoid_: custom outline, per-component ring values
+
 **Adapter**:
 A mechanical entry point (remote function or server load) that connects SvelteKit to user-context: it guards auth, validates input, translates form semantics, redirects, and refreshes caches — but produces no values and holds no business rules (see ADR-0002).
 _Avoid_: endpoint, controller, service layer

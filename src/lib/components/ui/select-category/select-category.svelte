@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
+	import { inputVariants } from '$lib/components/ui/input';
 	import { UNASSIGNED } from '$lib/constants';
 	import { m } from '$lib/paraglide/messages';
 	import { Combobox, type WithoutChildrenOrChild } from 'bits-ui';
@@ -100,13 +101,7 @@
 	onOpenChange={handleOpenChange}
 	inputValue={displayValue}
 >
-	<div
-		bind:this={containerRef}
-		class={cn(
-			'flex h-9 w-full items-center rounded-md border border-muted/30 bg-surface/70 focus-within:border-focus focus-within:ring-2 focus-within:ring-focus/50',
-			className
-		)}
-	>
+	<div bind:this={containerRef} class={cn(inputVariants({ variant: 'container' }), className)}>
 		<Combobox.Input
 			{...inputProps}
 			aria-label={ariaLabel}
