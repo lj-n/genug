@@ -31,11 +31,7 @@ const findEligibleUser = (
 		.from(tables.usersToBudgets)
 		.innerJoin(tables.users, eq(tables.users.id, tables.usersToBudgets.userId))
 		.where(
-			and(
-				eq(tables.usersToBudgets.budgetId, budgetId),
-				eq(tables.users.username, inviteeName),
-				hasAccess(tables.usersToBudgets, userId, db)
-			)
+			and(eq(tables.usersToBudgets.budgetId, budgetId), eq(tables.users.username, inviteeName))
 		)
 		.get();
 
