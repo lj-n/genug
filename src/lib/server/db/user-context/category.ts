@@ -198,9 +198,14 @@ export const commands = (userId: string, db: Database = database) => ({
 		id: string,
 		data: Partial<Pick<typeof tables.categories.$inferInsert, 'name' | 'notes' | 'targetBalance'>>
 	) => {
+		// a target balance of 0 means "no target" and is stored as null
 		const updated = db
 			.update(tables.categories)
-			.set({ name: data.name, notes: data.notes, targetBalance: data.targetBalance })
+			.set({
+				name: data.name,
+				notes: data.notes,
+				targetBalance: data.targetBalance === undefined ? undefined : data.targetBalance || null
+			})
 			.where(and(hasAccess(tables.categories, userId, db), eq(tables.categories.id, id)))
 			.returning()
 			.get();

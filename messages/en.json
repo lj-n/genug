@@ -136,7 +136,6 @@
 	"account_set_name_title": "Change Account Name",
 	"account_set_name_description": "Set the account name here.",
 	"account_dropdown_label": "Show Accounts",
-	"account_create_starting_balance": "Account Balance",
 	"account_starting_balance_notes": "Starting Balance",
 	"account_settings_title": "Account Settings",
 	"account_settings_description": "Here you can change the name of this account.",

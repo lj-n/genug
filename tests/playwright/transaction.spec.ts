@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 
 import { expect, test } from './fixture';
+import { uniqueName } from './unique-name';
 
 test('Create Transaction', async ({ pages }) => {
 	await pages.auth.createUserAndLogin();
@@ -8,10 +9,10 @@ test('Create Transaction', async ({ pages }) => {
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
 
-	const accountName = faker.finance.accountName();
+	const accountName = uniqueName(faker.finance.accountName());
 	await pages.budget.createAccount(accountName);
 
-	const categoryName = faker.commerce.department();
+	const categoryName = uniqueName(faker.commerce.department());
 	await pages.budget.createCategory(categoryName);
 
 	await pages.account.goto(accountName);
@@ -30,10 +31,10 @@ test('Edit Transaction', async ({ pages }) => {
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
 
-	const accountName = faker.finance.accountName();
+	const accountName = uniqueName(faker.finance.accountName());
 	await pages.budget.createAccount(accountName);
 
-	const categoryName = faker.commerce.department();
+	const categoryName = uniqueName(faker.commerce.department());
 	await pages.budget.createCategory(categoryName);
 
 	await pages.account.goto(accountName);
@@ -59,10 +60,10 @@ test('Delete Transaction', async ({ pages }) => {
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
 
-	const accountName = faker.finance.accountName();
+	const accountName = uniqueName(faker.finance.accountName());
 	await pages.budget.createAccount(accountName);
 
-	const categoryName = faker.commerce.department();
+	const categoryName = uniqueName(faker.commerce.department());
 	await pages.budget.createCategory(categoryName);
 
 	await pages.account.goto(accountName);
@@ -81,10 +82,10 @@ test('Toggle Validated', async ({ pages }) => {
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
 
-	const accountName = faker.finance.accountName();
+	const accountName = uniqueName(faker.finance.accountName());
 	await pages.budget.createAccount(accountName);
 
-	const categoryName = faker.commerce.department();
+	const categoryName = uniqueName(faker.commerce.department());
 	await pages.budget.createCategory(categoryName);
 
 	await pages.account.goto(accountName);
@@ -104,7 +105,7 @@ test('Sort Transactions', async ({ page, pages }) => {
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
 
-	const accountName = faker.finance.accountName();
+	const accountName = uniqueName(faker.finance.accountName());
 	await pages.budget.createAccount(accountName);
 
 	const cat1 = 'AAA-' + faker.string.uuid();

@@ -403,6 +403,32 @@ describe('commands.edit', () => {
 		});
 	});
 
+	it('normalizes a target balance of 0 to null', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create, edit } = commands(user.id, db);
+
+		const cat = create(budget.id, 'Targeted');
+		edit(cat.id, { name: 'Targeted', targetBalance: 1000 });
+
+		const updated = edit(cat.id, { name: 'Targeted', targetBalance: 0 });
+
+		expect(updated.targetBalance).toBeNull();
+	});
+
+	it('leaves targetBalance untouched when it is not part of the update', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create, edit } = commands(user.id, db);
+
+		const cat = create(budget.id, 'Targeted');
+		edit(cat.id, { name: 'Targeted', targetBalance: 1000 });
+
+		const updated = edit(cat.id, { name: 'Renamed' });
+
+		expect(updated.targetBalance).toBe(1000);
+	});
+
 	it('does not write archivedAt', () => {
 		const db = createDatabase(':memory:');
 		const { budget, user } = createBudgetWithUser(db);

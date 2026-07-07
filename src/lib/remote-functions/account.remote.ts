@@ -1,5 +1,4 @@
 import { resolve } from '$app/paths';
-import { m } from '$lib/paraglide/messages';
 import { AccountCreateSchema, AccountSetNameSchema } from '$lib/schemas/account';
 import { OrderedIdsSchema } from '$lib/schemas/utils';
 import { guardedCommand, guardedForm, guardedQuery } from '$server/utils/remote-guard';
@@ -13,10 +12,7 @@ export const getAccounts = guardedQuery(v.string(), async (budgetId, { ctx }) =>
 export const createAccount = guardedForm(
 	AccountCreateSchema,
 	async ({ accountName, budgetId, startingBalance }, { ctx }) => {
-		const account = ctx.account.create(
-			{ budgetId, name: accountName, notes: m.account_create_starting_balance() },
-			startingBalance
-		);
+		const account = ctx.account.create({ budgetId, name: accountName }, startingBalance);
 		redirect(
 			303,
 			resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', { accountId: account.id, budgetId })
