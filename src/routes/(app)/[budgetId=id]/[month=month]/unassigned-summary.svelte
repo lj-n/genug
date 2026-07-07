@@ -2,7 +2,7 @@
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget, getUnassigned } from '$lib/remote-functions/budget.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
-	import { formatMoney, parseMoney } from '$lib/utils/money';
+	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { cn } from 'tailwind-variants';
 	import CheckFatDuoToneIcon from '~icons/ph/check-fat-duotone';
 	import WarningOctagonBoldIcon from '~icons/ph/warning-octagon-bold';
@@ -40,7 +40,7 @@
 
 	{#if unassigned !== 0}
 		<div class="font-semibold text-foreground tabular-nums">
-			{formatMoney({ currency, money: parseMoney(unassigned)! })}
+			{formatMoney({ currency, money: asMoney(unassigned) })}
 		</div>
 	{/if}
 </div>

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
 	addMoney,
+	asMoney,
 	formatMoney,
 	MoneySchema,
 	parseMoney,
@@ -53,6 +54,20 @@ describe('parseMoney', () => {
 
 	it('rejects non-numeric string', () => {
 		expect(parseMoney('abc')).toBeNull();
+	});
+});
+
+describe('asMoney', () => {
+	it('brands a valid cent integer', () => {
+		expect(unwrapMoney(asMoney(1234))).toBe(1234);
+	});
+
+	it('brands zero', () => {
+		expect(unwrapMoney(asMoney(0))).toBe(0);
+	});
+
+	it('brands negative values', () => {
+		expect(unwrapMoney(asMoney(-5000))).toBe(-5000);
 	});
 });
 

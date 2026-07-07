@@ -17,6 +17,18 @@ export function addMoney(money: Money, delta: number): Money {
 	return (unwrapMoney(money) + delta) as Money;
 }
 
+/**
+ * Brand a known-valid cent integer as Money. Prefer `parseMoney`
+ * for unknown input; use this only when the value is already trusted
+ * (DB column, literal, or the output of another Money function).
+ */
+export function asMoney(cents: number): Money {
+	if (!isValidMoney(cents)) {
+		throw new Error(`asMoney: ${cents} is not a valid cent integer`);
+	}
+	return cents as Money;
+}
+
 export function formatMoney({
 	currency,
 	locale = getLocale(),

@@ -8,7 +8,7 @@
 		getCategoryById,
 		restoreCategory
 	} from '$lib/remote-functions/category.remote';
-	import { formatMoney, parseMoney } from '$lib/utils/money';
+	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { ParaglideMessage } from '@inlang/paraglide-js-svelte';
 	import { cn } from 'tailwind-variants';
 	import PhArchiveTrayBold from '~icons/ph/archive-tray-bold';
@@ -56,14 +56,14 @@
 							<span class="font-semibold tabular-nums">
 								{formatMoney({
 									currency,
-									money: parseMoney(archivability.remainingBalance)!
+									money: asMoney(archivability.remainingBalance)
 								})}
 							</span>
 						{/snippet}
 
 						{#snippet required()}
 							<span class="font-semibold tabular-nums">
-								{formatMoney({ currency, money: parseMoney(0)! })}
+								{formatMoney({ currency, money: asMoney(0) })}
 							</span>
 						{/snippet}
 					</ParaglideMessage>

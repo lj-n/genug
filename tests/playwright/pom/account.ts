@@ -1,4 +1,4 @@
-import { formatMoney, parseMoney } from '$lib/utils/money';
+import { asMoney, formatMoney } from '$lib/utils/money';
 import { expect } from '@playwright/test';
 
 import { BasePage } from './base-page';
@@ -85,7 +85,7 @@ export class AccountPage extends BasePage {
 				this.page.getByRole('button', { name: 'Edit amount' }).filter({
 					hasText: formatMoney({
 						currency: 'EUR',
-						money: parseMoney(Math.round(Number(amount) * 100))!
+						money: asMoney(Math.round(Number(amount) * 100))
 					})
 				})
 			).toBeVisible();
@@ -186,7 +186,7 @@ export class AccountPage extends BasePage {
 				readOnlyRow.getByRole('cell', { name: 'Edit amount' }).filter({
 					hasText: formatMoney({
 						currency: 'EUR',
-						money: parseMoney(Math.round(Number(params.amount) * 100))!
+						money: asMoney(Math.round(Number(params.amount) * 100))
 					})
 				})
 			).toBeVisible();
