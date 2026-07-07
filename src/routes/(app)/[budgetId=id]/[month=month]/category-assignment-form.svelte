@@ -3,13 +3,8 @@
 
 	import { InputCurrency } from '$lib/components/ui/input-currency';
 	import { m } from '$lib/paraglide/messages';
-	import {
-		assignment,
-		getBudget,
-		getMonthly,
-		getUnassigned
-	} from '$lib/remote-functions/budget.remote';
-	import { getBudgetId } from '$lib/utils/budget-id-context';
+	import { assignment, getMonthly, getUnassigned } from '$lib/remote-functions/budget.remote';
+	import { CURRENCIES } from '$lib/utils/currencies';
 	import { formatCurrency } from '$lib/utils/format-currency';
 	import { Popover } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
@@ -22,17 +17,15 @@
 
 	let {
 		category,
+		currency,
 		month,
 		open = $bindable(false)
 	}: {
 		category: Category;
+		currency: (typeof CURRENCIES)[number];
 		month: Month;
 		open?: boolean;
 	} = $props();
-
-	const budgetId = getBudgetId();
-
-	const { currency } = $derived(await getBudget(budgetId()));
 
 	const scopedForm = $derived(assignment.for(category.id));
 
@@ -63,7 +56,7 @@
 			})}
 			class="contents"
 		>
-			<input {...scopedForm.fields.budgetId.as('hidden', budgetId())} />
+			<input {...scopedForm.fields.budgetId.as('hidden', category.budgetId)} />
 			<input {...scopedForm.fields.categoryId.as('hidden', category.id)} />
 			<input type="hidden" name={scopedForm.fields.month.as('number').name} value={month} />
 

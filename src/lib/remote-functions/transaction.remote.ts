@@ -23,6 +23,7 @@ export const listTransactions = guardedQuery(
 			page,
 			pageSize,
 			sortAccount,
+			sortAmount,
 			sortCategory,
 			sortDate,
 			sortValidated
@@ -39,6 +40,7 @@ export const listTransactions = guardedQuery(
 			...(sortCategory ? { category: sortCategory } : {}),
 			...(sortAccount ? { account: sortAccount } : {}),
 			...(sortDate ? { date: sortDate } : {}),
+			...(sortAmount ? { amount: sortAmount } : {}),
 			...(sortValidated ? { validated: sortValidated } : {})
 		};
 

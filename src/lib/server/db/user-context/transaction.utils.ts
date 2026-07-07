@@ -119,6 +119,10 @@ export function withSorted<T extends SQLiteSelect>({
 		sql.push(sortDirection(sort.category, tables.transactions.categoryId));
 	}
 
+	if (sort?.amount) {
+		sql.push(sortDirection(sort.amount, tables.transactions.amount));
+	}
+
 	sql.push(desc(tables.transactions.createdAt));
 
 	return dq.orderBy(...sql);

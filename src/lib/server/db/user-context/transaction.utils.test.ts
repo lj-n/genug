@@ -217,13 +217,13 @@ describe('withSorted', () => {
 		expect(result.map((t) => t.id)).toEqual([tx3.id, tx2.id, tx1.id]);
 	});
 
-	it('sorts by amount returns results', () => {
+	it('sorts by amount asc', () => {
 		const db = createDatabase(':memory:');
-		setupTransactions(db);
+		const { tx1, tx2, tx3 } = setupTransactions(db);
 
 		const dq = withSorted({ dq: baseQuery(db), sort: { amount: 'asc' } });
 		const result = dq.all();
-		expect(result).toHaveLength(3);
+		expect(result.map((t) => t.id)).toEqual([tx2.id, tx1.id, tx3.id]);
 	});
 
 	it('sorts by validated asc', () => {
