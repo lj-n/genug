@@ -41,6 +41,10 @@
 				aria-label={m.category_label_name()}
 			/>
 
+			{#each createCategory.fields.categoryName.issues() as issue (issue)}
+				<p class="mt-1 pl-1.5 text-sm text-error">{issue.message}</p>
+			{/each}
+
 			<button type="submit" class="mt-2 ml-auto rounded px-3 py-1.5 text-sm font-medium">
 				{m.category_create_button()}
 			</button>

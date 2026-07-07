@@ -219,6 +219,37 @@ describe('commands.create', () => {
 
 		expect(() => create({ budgetId: budget.id, name: 'Nope', notes: null })).toThrow(NotFoundError);
 	});
+
+	it('throws 400 for duplicate name in the same budget', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+
+		create({ budgetId: budget.id, name: 'Checking', notes: null });
+
+		let thrown;
+		try {
+			create({ budgetId: budget.id, name: 'Checking', notes: null });
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 400 });
+	});
+
+	it('allows the same name in a different budget', () => {
+		const db = createDatabase(':memory:');
+		const { budget: b1, user } = createBudgetWithUser(db, 'OWNER', 'user1');
+		const b2 = db.insert(tables.budgets).values({ name: 'Budget 2' }).returning().get();
+		db.insert(tables.usersToBudgets)
+			.values({ budgetId: b2.id, role: 'OWNER', userId: user.id })
+			.run();
+		const { create } = commands(user.id, db);
+
+		create({ budgetId: b1.id, name: 'Checking', notes: null });
+		const account = create({ budgetId: b2.id, name: 'Checking', notes: null });
+
+		expect(account).toMatchObject({ budgetId: b2.id, name: 'Checking' });
+	});
 });
 
 describe('commands.edit', () => {
@@ -240,6 +271,34 @@ describe('commands.edit', () => {
 		const { edit } = commands(user.id, db);
 
 		expect(() => edit('nonexistent', 'Name')).toThrow();
+	});
+
+	it('throws 400 when renaming to an existing name in the same budget', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create, edit } = commands(user.id, db);
+
+		create({ budgetId: budget.id, name: 'Checking', notes: null });
+		const a = create({ budgetId: budget.id, name: 'Savings', notes: null });
+
+		let thrown;
+		try {
+			edit(a.id, 'Checking');
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 400 });
+	});
+
+	it('allows saving with its own unchanged name', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create, edit } = commands(user.id, db);
+
+		const a = create({ budgetId: budget.id, name: 'Checking', notes: null });
+
+		const updated = edit(a.id, 'Checking');
+		expect(updated.name).toBe('Checking');
 	});
 });
 

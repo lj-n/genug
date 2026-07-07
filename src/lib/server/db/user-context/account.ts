@@ -2,7 +2,8 @@ import { database, type Database, tables } from '$db';
 import { m } from '$lib/paraglide/messages';
 import { getLocalTimeZone, today } from '@internationalized/date';
 import { error } from '@sveltejs/kit';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, ne, sql } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/sqlite-core';
 
 import { accessGuard, hasAccess } from './access';
 import { withOrder } from './utils';
@@ -74,6 +75,13 @@ export const commands = (userId: string, db: Database = database) => ({
 		const currentDate = today(getLocalTimeZone()).toString();
 		accessGuard(data.budgetId, userId, db);
 
+		const duplicate = db
+			.select({ id: tables.accounts.id })
+			.from(tables.accounts)
+			.where(and(eq(tables.accounts.name, data.name), eq(tables.accounts.budgetId, data.budgetId)))
+			.get();
+		if (duplicate) error(400, m.account_error_duplicate_name({ value: data.name }));
+
 		return db.transaction((tx) => {
 			const account = tx.insert(tables.accounts).values(data).returning().get();
 
@@ -99,6 +107,22 @@ export const commands = (userId: string, db: Database = database) => ({
 	},
 
 	edit: (accountId: string, name: string) => {
+		const self = alias(tables.accounts, 'self');
+		const duplicate = db
+			.select({ id: tables.accounts.id })
+			.from(tables.accounts)
+			.innerJoin(self, eq(self.budgetId, tables.accounts.budgetId))
+			.where(
+				and(
+					hasAccess(tables.accounts, userId, db),
+					eq(self.id, accountId),
+					eq(tables.accounts.name, name),
+					ne(tables.accounts.id, accountId)
+				)
+			)
+			.get();
+		if (duplicate) error(400, m.account_error_duplicate_name({ value: name }));
+
 		const updated = db
 			.update(tables.accounts)
 			.set({ name })
