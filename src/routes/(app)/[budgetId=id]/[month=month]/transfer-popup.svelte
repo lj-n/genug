@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { Month } from '$lib/utils/month';
+
 	import { Button } from '$lib/components/ui/button';
 	import { InputCurrency } from '$lib/components/ui/input-currency';
 	import * as Popover from '$lib/components/ui/popover';
@@ -25,7 +27,7 @@
 		rowId
 	}: {
 		categoryName: string;
-		month: string;
+		month: Month;
 		otherCategories: { id: string; name: string; remaining: number }[];
 		remaining: number;
 		rowId: string;
@@ -76,11 +78,7 @@
 			class="flex flex-col gap-3"
 		>
 			<input {...form.fields.budgetId.as('hidden', budgetId())} />
-			<input
-				type="hidden"
-				name={form.fields.month.as('number').name}
-				value={Number.isNaN(parseInt(month)) ? '' : parseInt(month)}
-			/>
+			<input type="hidden" name={form.fields.month.as('number').name} value={month} />
 
 			{#if remaining > 0}
 				{@render moveform()}

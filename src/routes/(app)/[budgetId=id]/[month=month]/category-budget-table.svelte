@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { Month } from '$lib/utils/month';
+
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget, getMonthly } from '$lib/remote-functions/budget.remote';
@@ -8,7 +10,6 @@
 	import { formatCurrency } from '$lib/utils/format-currency';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
 	import { useDialog } from '$lib/utils/use-dialog';
-	import { untrack } from 'svelte';
 	import PhDotsSixVerticalBold from '~icons/ph/dots-six-vertical-bold';
 
 	import BudgetTableCell from './budget-table-cell.svelte';
@@ -20,19 +21,17 @@
 		month,
 		openCategoryDialog
 	}: {
-		month: string;
+		month: Month | null;
 		openCategoryDialog: (categoryId: string) => void;
 	} = $props();
 
 	const budgetId = getBudgetId();
 
 	const { currency } = $derived(await getBudget(budgetId()));
-	const monthNum = parseInt(untrack(() => month));
+	// `month` can transiently be null while navigating away from this route —
+	// never send that to the server (see +page.svelte).
 	const categories = $derived(
-		await getMonthly({
-			budgetId: budgetId(),
-			month: Number.isNaN(monthNum) ? 0 : monthNum
-		})
+		await (month === null ? Promise.resolve([]) : getMonthly({ budgetId: budgetId(), month }))
 	);
 
 	const categorySortable = createSortable(() => categories, {
@@ -87,75 +86,78 @@
 		class="grid overflow-hidden rounded-xs border border-muted/20"
 		{@attach categorySortable.attach}
 	>
-		{#each categories as row (row.id)}
-			<div
-				data-drag-item="category"
-				data-sortable-id={row.id}
-				role="row"
-				class="relative flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/3"
-			>
-				<BudgetTableCell class="relative flex w-2/5 p-0 hover:bg-surface">
-					<a
-						class="flex size-full items-center px-2 -outline-offset-2 hover:bg-interactive/15 hover:outline-2 hover:outline-interactive/40"
-						href={resolve('/(app)/[budgetId=id]/categories/[categoryId=id]', {
-							budgetId: budgetId(),
-							categoryId: row.id
-						})}
-						{@attach useDialog(() => openCategoryDialog(row.id))}
-					>
-						{row.name}
-					</a>
-					{#if row.targetBalance !== null}
-						<div class="absolute bottom-0 flex w-full">
-							<div
-								class="h-1 bg-success/60"
-								style="width: {getPercentage(row.targetBalance, row.remaining)}%"
-							></div>
-						</div>
-					{/if}
-				</BudgetTableCell>
+		<!-- The if narrows `month` for the row children; `categories` is empty when `month` is null. -->
+		{#if month !== null}
+			{#each categories as row (row.id)}
+				<div
+					data-drag-item="category"
+					data-sortable-id={row.id}
+					role="row"
+					class="relative flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/3"
+				>
+					<BudgetTableCell class="relative flex w-2/5 p-0 hover:bg-surface">
+						<a
+							class="flex size-full items-center px-2 -outline-offset-2 hover:bg-interactive/15 hover:outline-2 hover:outline-interactive/40"
+							href={resolve('/(app)/[budgetId=id]/categories/[categoryId=id]', {
+								budgetId: budgetId(),
+								categoryId: row.id
+							})}
+							{@attach useDialog(() => openCategoryDialog(row.id))}
+						>
+							{row.name}
+						</a>
+						{#if row.targetBalance !== null}
+							<div class="absolute bottom-0 flex w-full">
+								<div
+									class="h-1 bg-success/60"
+									style="width: {getPercentage(row.targetBalance, row.remaining)}%"
+								></div>
+							</div>
+						{/if}
+					</BudgetTableCell>
 
-				<BudgetTableCell class="relative w-1/5 justify-start p-0 hover:bg-surface">
-					<CategoryAssignmentForm
-						bind:open={
-							() => isActiveAssignment(row.id),
-							(newOpen) => {
-								if (newOpen) {
-									activeAssignmentCategoryId = row.id;
-								} else {
-									activeAssignmentCategoryId = null;
+					<BudgetTableCell class="relative w-1/5 justify-start p-0 hover:bg-surface">
+						<CategoryAssignmentForm
+							bind:open={
+								() => isActiveAssignment(row.id),
+								(newOpen) => {
+									if (newOpen) {
+										activeAssignmentCategoryId = row.id;
+									} else {
+										activeAssignmentCategoryId = null;
+									}
 								}
 							}
-						}
-						category={row}
-						{month}
-					/>
-				</BudgetTableCell>
+							category={row}
+							{month}
+						/>
+					</BudgetTableCell>
 
-				<BudgetTableCell class="w-1/5 font-currency">
-					{formatCurrency({ centValue: row.activity, currency })}
-				</BudgetTableCell>
+					<BudgetTableCell class="w-1/5 font-currency">
+						{formatCurrency({ centValue: row.activity, currency })}
+					</BudgetTableCell>
 
-				<BudgetTableCell class="w-1/5 p-0">
-					<TransferPopup
-						{month}
-						categoryName={row.name}
-						rowId={row.id}
-						remaining={row.remaining}
-						otherCategories={otherCategoriesById.get(row.id)!}
-					/>
-				</BudgetTableCell>
+					<BudgetTableCell class="w-1/5 p-0">
+						<TransferPopup
+							{month}
+							categoryName={row.name}
+							rowId={row.id}
+							remaining={row.remaining}
+							otherCategories={otherCategoriesById.get(row.id)!}
+						/>
+					</BudgetTableCell>
 
-				<BudgetTableCell class="w-9 border-0 last:p-2">
-					<button
-						class="flex size-9 cursor-grab items-center justify-center text-muted hover:text-interactive"
-						data-drag-handle="category"
-						aria-label={m.drag_handle_label()}
-					>
-						<PhDotsSixVerticalBold />
-					</button>
-				</BudgetTableCell>
-			</div>
-		{/each}
+					<BudgetTableCell class="w-9 border-0 last:p-2">
+						<button
+							class="flex size-9 cursor-grab items-center justify-center text-muted hover:text-interactive"
+							data-drag-handle="category"
+							aria-label={m.drag_handle_label()}
+						>
+							<PhDotsSixVerticalBold />
+						</button>
+					</BudgetTableCell>
+				</div>
+			{/each}
+		{/if}
 	</div>
 </div>

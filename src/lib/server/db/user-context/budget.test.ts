@@ -1,5 +1,6 @@
 import { createDatabase, type Database, tables } from '$db';
 import { TransferAssignmentSchema } from '$lib/schemas/budget';
+import { parseMonth } from '$lib/utils/month';
 import { NotFoundError } from '$server/utils/not-found-error';
 import { and, eq } from 'drizzle-orm';
 import * as v from 'valibot';
@@ -7,6 +8,8 @@ import { describe, expect, it } from 'vitest';
 
 import { createBudgetWithUser, createMemoryDb, createUser } from '../../../../test/fixtures';
 import { commands, queries } from './budget';
+
+const month202501 = parseMonth(202501)!;
 
 describe('queries.all', () => {
 	it('returns budgets where user is OWNER or MEMBER', () => {
@@ -132,7 +135,7 @@ describe('queries.monthly', () => {
 			.run();
 		const { monthly } = queries(user.id, db);
 
-		const result = monthly(budget.id, 202501);
+		const result = monthly(budget.id, month202501);
 		expect(result).toHaveLength(1);
 		expect(result[0]).toMatchObject({
 			activity: -50,
@@ -148,7 +151,7 @@ describe('queries.monthly', () => {
 		const { budget, user } = createBudgetWithUser(db, 'INVITEE');
 		const { monthly } = queries(user.id, db);
 
-		expect(monthly(budget.id, 202501)).toHaveLength(0);
+		expect(monthly(budget.id, month202501)).toHaveLength(0);
 	});
 });
 
@@ -440,7 +443,7 @@ describe('commands.transferAssignment', () => {
 		transferAssignment({
 			amount: 100,
 			budgetId: budget.id,
-			month: 202501,
+			month: month202501,
 			sourceCategoryId: source.id,
 			targetCategoryId: target.id
 		});
@@ -472,7 +475,7 @@ describe('commands.transferAssignment', () => {
 		transferAssignment({
 			amount: 100,
 			budgetId: budget.id,
-			month: 202501,
+			month: month202501,
 			sourceCategoryId: source.id,
 			targetCategoryId: target.id
 		});
@@ -501,7 +504,7 @@ describe('commands.transferAssignment', () => {
 		transferAssignment({
 			amount: 100,
 			budgetId: budget.id,
-			month: 202501,
+			month: month202501,
 			sourceCategoryId: source.id,
 			targetCategoryId: target.id
 		});
@@ -528,7 +531,7 @@ describe('commands.transferAssignment', () => {
 		transferAssignment({
 			amount: 100,
 			budgetId: budget.id,
-			month: 202501,
+			month: month202501,
 			sourceCategoryId: source.id,
 			targetCategoryId: null
 		});
@@ -561,7 +564,7 @@ describe('commands.transferAssignment', () => {
 		transferAssignment({
 			amount: -100,
 			budgetId: budget.id,
-			month: 202501,
+			month: month202501,
 			sourceCategoryId: source.id,
 			targetCategoryId: target.id
 		});
@@ -587,7 +590,7 @@ describe('commands.transferAssignment', () => {
 			transferAssignment({
 				amount: 100,
 				budgetId: budget.id,
-				month: 202501,
+				month: month202501,
 				sourceCategoryId: target.id,
 				targetCategoryId: null
 			})
@@ -611,7 +614,7 @@ describe('commands.transferAssignment', () => {
 			transferAssignment({
 				amount: 100,
 				budgetId: budget.id,
-				month: 202501,
+				month: month202501,
 				sourceCategoryId: cat.id,
 				targetCategoryId: cat.id
 			})
@@ -652,7 +655,7 @@ describe('commands.transferAssignment', () => {
 			transferAssignment({
 				amount: 100,
 				budgetId: budget1.id,
-				month: 202501,
+				month: month202501,
 				sourceCategoryId: sourceInBudget2.id,
 				targetCategoryId: targetInBudget1.id
 			})
@@ -682,7 +685,7 @@ describe('commands.transferAssignment', () => {
 			transferAssignment({
 				amount: 100,
 				budgetId: budget1.id,
-				month: 202501,
+				month: month202501,
 				sourceCategoryId: sourceInBudget1.id,
 				targetCategoryId: targetInBudget2.id
 			})

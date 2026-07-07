@@ -1,4 +1,5 @@
 import { CURRENCIES } from '$lib/utils/currencies';
+import { MonthSchema } from '$lib/utils/month';
 import * as v from 'valibot';
 
 export const BudgetIdSchema = v.object({ budgetId: v.pipe(v.string(), v.minLength(1)) });
@@ -25,7 +26,7 @@ export const FindBudgetUserSchema = v.object({
 
 export const BudgetMonthSchema = v.object({
 	...BudgetIdSchema.entries,
-	month: v.pipe(v.number(), v.integer())
+	month: MonthSchema
 });
 
 export const AssignmentSchema = v.object({

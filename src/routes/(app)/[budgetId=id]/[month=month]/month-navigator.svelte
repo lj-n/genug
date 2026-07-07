@@ -9,43 +9,39 @@
 	import * as Popover from '$lib/components/ui/popover';
 	import { Separator } from '$lib/components/ui/separator';
 	import { m } from '$lib/paraglide/messages';
-	import { createMonthParam } from '$lib/utils/date-utils';
-	import { formatDate } from '$lib/utils/format-date';
-	import { CalendarDate, getLocalTimeZone, isSameMonth, today } from '@internationalized/date';
+	import {
+		addMonths,
+		addYears,
+		currentMonth,
+		formatMonth,
+		type Month,
+		monthsOfYear,
+		toParam
+	} from '$lib/utils/month';
 	import PhArrowFatLeftDuoTone from '~icons/ph/arrow-fat-left-duotone';
 	import PhArrowFatRightDuoTone from '~icons/ph/arrow-fat-right-duotone';
 	import PhCaretLeft from '~icons/ph/caret-left';
 	import PhCaretRight from '~icons/ph/caret-right';
 
-	let { paramsDate }: { paramsDate: CalendarDate } = $props();
+	let { month }: { month: Month } = $props();
 
-	const currentDate = today(getLocalTimeZone());
+	const thisMonth = currentMonth();
 
-	let selectedMonth = $derived(paramsDate);
+	let selectedMonth = $derived(month);
 
-	let monthsInSelectedYear = $derived.by(() =>
-		Array.from({ length: 12 }, (_, i) => selectedMonth.set({ month: i + 1 }))
-	);
+	let monthsInSelectedYear = $derived(monthsOfYear(selectedMonth));
 
-	let isCurrentMonth = $derived.by(() => isSameMonth(selectedMonth, currentDate));
+	let isCurrentMonth = $derived(selectedMonth === thisMonth);
 
-	function getMonthParam(date: CalendarDate) {
-		return createMonthParam(date.toDate(getLocalTimeZone())).toString();
-	}
-
-	function navigateToMonth(date: CalendarDate) {
-		selectedMonth = date;
+	function navigateToMonth(target: Month) {
+		selectedMonth = target;
 		goto(
 			resolve('/(app)/[budgetId=id]/[month=month]', {
 				budgetId: page.params.budgetId!,
-				month: getMonthParam(date)
+				month: toParam(target)
 			}),
 			{ keepFocus: true }
 		);
-	}
-
-	function shiftMonth(delta: { months?: number; years?: number }) {
-		navigateToMonth(selectedMonth.add(delta));
 	}
 </script>
 
@@ -80,14 +76,14 @@
 
 	<ButtonGroup.Root>
 		{@render monthStepButton(m.budget_select_previous_month(), previousMonthIcon, () =>
-			shiftMonth({ months: -1 })
+			navigateToMonth(addMonths(selectedMonth, -1))
 		)}
 
 		<Popover.Root>
 			<Popover.Trigger>
 				{#snippet child({ props })}
 					<Button {...props} class="min-w-26 font-bold text-foreground">
-						{formatDate({ date: selectedMonth, options: { month: 'short', year: '2-digit' } })}
+						{formatMonth({ month: selectedMonth, options: { month: 'short', year: '2-digit' } })}
 					</Button>
 				{/snippet}
 			</Popover.Trigger>
@@ -95,28 +91,28 @@
 			<Popover.Content align="center" class="w-50 gap-1 rounded-xl p-0 text-sm">
 				<ButtonGroup.Root class="w-full px-1 pt-1">
 					{@render yearStepButton(m.budget_select_previous_year(), previousYearIcon, () =>
-						shiftMonth({ years: -1 })
+						navigateToMonth(addYears(selectedMonth, -1))
 					)}
 
 					<ButtonGroup.Text
-						>{formatDate({ date: selectedMonth, options: { year: 'numeric' } })}</ButtonGroup.Text
+						>{formatMonth({ month: selectedMonth, options: { year: 'numeric' } })}</ButtonGroup.Text
 					>
 
 					{@render yearStepButton(m.budget_select_next_year(), nextYearIcon, () =>
-						shiftMonth({ years: 1 })
+						navigateToMonth(addYears(selectedMonth, 1))
 					)}
 				</ButtonGroup.Root>
 
 				<Separator />
 
 				<div class="grid grid-cols-3 gap-1 px-1 pb-1">
-					{#each monthsInSelectedYear as month (month.toString())}
+					{#each monthsInSelectedYear as yearMonth (yearMonth)}
 						<Button
-							class={isSameMonth(month, selectedMonth) ? 'bg-info/5 text-info' : undefined}
+							class={yearMonth === selectedMonth ? 'bg-info/5 text-info' : undefined}
 							variant="ghost"
-							onclick={() => navigateToMonth(month)}
+							onclick={() => navigateToMonth(yearMonth)}
 						>
-							{formatDate({ date: month, options: { month: 'short' } })}
+							{formatMonth({ month: yearMonth, options: { month: 'short' } })}
 						</Button>
 					{/each}
 
@@ -124,7 +120,7 @@
 						<Button
 							variant="ghost"
 							class="col-span-3 w-full"
-							onclick={() => navigateToMonth(currentDate)}
+							onclick={() => navigateToMonth(thisMonth)}
 						>
 							{m.budget_go_to_current_month()}
 						</Button>
@@ -134,7 +130,7 @@
 		</Popover.Root>
 
 		{@render monthStepButton(m.budget_select_next_month(), nextMonthIcon, () =>
-			shiftMonth({ months: 1 })
+			navigateToMonth(addMonths(selectedMonth, 1))
 		)}
 	</ButtonGroup.Root>
 </div>

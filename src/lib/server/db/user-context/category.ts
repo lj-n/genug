@@ -1,12 +1,11 @@
 import { database, type Database, tables } from '$db';
-import { createMonthParam } from '$lib/utils/date-utils';
+import { dateIsOnOrBefore } from '$db/month-sql';
+import { currentMonth } from '$lib/utils/month';
 import { error } from '@sveltejs/kit';
 import { and, eq, getColumns, isNotNull, isNull, sql } from 'drizzle-orm';
 
 import { accessGuard, hasAccess } from './access';
 import { withOrder } from './utils';
-
-const month = createMonthParam();
 
 export const queries = (userId: string, db: Database = database) => ({
 	all: (budgetId: string) => {
@@ -54,6 +53,8 @@ export const queries = (userId: string, db: Database = database) => ({
 	},
 
 	stats: (categoryId: string) => {
+		const month = currentMonth();
+
 		const txAgg = db
 			.select({
 				categoryId: tables.transactions.categoryId,
@@ -64,7 +65,7 @@ export const queries = (userId: string, db: Database = database) => ({
 					),
 				sum: sql<number>`coalesce(sum(${tables.transactions.amount}), 0)`.as('sum'),
 				sumUntilMonth:
-					sql<number>`coalesce(sum(CASE WHEN strftime('%Y%m', ${tables.transactions.date}) <= ${String(month)} THEN ${tables.transactions.amount} ELSE 0 END), 0)`.as(
+					sql<number>`coalesce(sum(CASE WHEN ${dateIsOnOrBefore(tables.transactions.date, month)} THEN ${tables.transactions.amount} ELSE 0 END), 0)`.as(
 						'sumUntilMonth'
 					)
 			})

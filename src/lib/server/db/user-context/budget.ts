@@ -1,4 +1,7 @@
+import type { Month } from '$lib/utils/month';
+
 import { database, type Database, tables } from '$db';
+import { dateIsInMonth, dateIsOnOrBefore } from '$db/month-sql';
 import { error } from '@sveltejs/kit';
 import { and, eq, getColumns, inArray, isNull, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/sqlite-core';
@@ -76,24 +79,24 @@ export const queries = (userId: string, db: Database = database) => ({
 			.all();
 	},
 
-	monthly: (budgetId: string, month: number) => {
+	monthly: (budgetId: string, month: Month) => {
 		const transactionAgg = db
 			.select({
 				activity: sql<number>`
 				    coalesce(sum(
-                        CASE WHEN 
-                            strftime('%Y%m', ${tables.transactions.date}) = ${String(month)}
-					    THEN ${tables.transactions.amount} 
-                        ELSE 0 
+                        CASE WHEN
+                            ${dateIsInMonth(tables.transactions.date, month)}
+					    THEN ${tables.transactions.amount}
+                        ELSE 0
                         END
                     ), 0)`.as('activity'),
 				categoryId: tables.transactions.categoryId,
 				sum: sql<number>`
 				    coalesce(sum(
-                        CASE WHEN 
-                            strftime('%Y%m', ${tables.transactions.date}) <= ${String(month)}
-                        THEN ${tables.transactions.amount} 
-                        ELSE 0 
+                        CASE WHEN
+                            ${dateIsOnOrBefore(tables.transactions.date, month)}
+                        THEN ${tables.transactions.amount}
+                        ELSE 0
                         END
                     ), 0)`.as('sum')
 			})
@@ -308,7 +311,7 @@ export const commands = (userId: string, db: Database = database) => ({
 	}: {
 		amount: number;
 		budgetId: string;
-		month: number;
+		month: Month;
 		sourceCategoryId: string;
 		targetCategoryId: null | string;
 	}) => {
