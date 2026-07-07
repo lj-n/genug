@@ -14,7 +14,7 @@
 		transferAssignment
 	} from '$lib/remote-functions/budget.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
-	import { formatCurrency } from '$lib/utils/format-currency';
+	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { Combobox } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
 	import ArrowFatLineDownDuotoneIcon from '~icons/ph/arrow-fat-line-down-duotone';
@@ -64,7 +64,7 @@
 				remaining < 0 && 'bg-error/10 text-error'
 			)}
 		>
-			{formatCurrency({ centValue: remaining, currency })}
+			{formatMoney({ currency, money: asMoney(remaining) })}
 		</div>
 	</Popover.Trigger>
 
@@ -164,7 +164,7 @@
 				item.balance < 0 && 'bg-error/20 text-error'
 			)}
 		>
-			{formatCurrency({ centValue: item.balance, currency })}
+			{formatMoney({ currency, money: asMoney(item.balance) })}
 		</div>
 	</Combobox.Item>
 {/snippet}

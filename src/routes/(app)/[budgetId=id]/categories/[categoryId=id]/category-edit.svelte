@@ -6,7 +6,7 @@
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { editCategory, getCategoryById } from '$lib/remote-functions/category.remote';
-	import { formatCurrency } from '$lib/utils/format-currency';
+	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { createSingletonToast } from '$lib/utils/singleton-toast.svelte';
 	import { fly } from 'svelte/transition';
 	import PhFloppyDiskDuotone from '~icons/ph/floppy-disk-duotone';
@@ -78,7 +78,7 @@
 			}
 			{currency}
 			class="h-12 text-center text-xl font-semibold placeholder:text-base placeholder:font-normal"
-			placeholder={formatCurrency({ centValue: 0, currency })}
+			placeholder={formatMoney({ currency, money: asMoney(0) })}
 			aria-label={m.category_label_targetbalance()}
 			onblur={() =>
 				formId && (document.getElementById(formId) as HTMLFormElement | null)?.requestSubmit()}

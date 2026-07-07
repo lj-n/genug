@@ -7,7 +7,7 @@
 	import { reorderCategories } from '$lib/remote-functions/category.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { clamp } from '$lib/utils/clamp';
-	import { formatCurrency } from '$lib/utils/format-currency';
+	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
 	import { useDialog } from '$lib/utils/use-dialog';
 	import PhDotsSixVerticalBold from '~icons/ph/dots-six-vertical-bold';
@@ -135,7 +135,7 @@
 					</BudgetTableCell>
 
 					<BudgetTableCell class="w-1/5 font-currency">
-						{formatCurrency({ centValue: row.activity, currency })}
+						{formatMoney({ currency, money: asMoney(row.activity) })}
 					</BudgetTableCell>
 
 					<BudgetTableCell class="w-1/5 p-0">

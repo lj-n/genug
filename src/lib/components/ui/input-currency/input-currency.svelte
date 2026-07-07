@@ -4,6 +4,7 @@
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
 	import { getLocale, type Locale } from '$lib/paraglide/runtime';
+	import { parseMoney, unwrapMoney } from '$lib/utils/money';
 	import { CurrencyInput } from '@canutin/svelte-currency-input';
 	import { cn } from 'tailwind-variants';
 
@@ -79,12 +80,8 @@
 		if (raw === null || raw === undefined || raw === '') {
 			return null;
 		}
-		if (typeof raw === 'number') {
-			return Number.isNaN(raw) ? null : raw;
-		}
-		// string — treat as cent integer
-		const n = Number(raw);
-		return Number.isNaN(n) ? null : n;
+		const money = parseMoney(raw);
+		return money === null ? null : unwrapMoney(money);
 	}
 
 	function centToInternalInputValue(centValue: null | number | string) {
@@ -99,7 +96,8 @@
 		if (floatValue === null || floatValue === undefined || Number.isNaN(floatValue)) {
 			return null;
 		}
-		return Math.round(floatValue * 100);
+		const money = parseMoney(Math.round(floatValue * 100));
+		return money === null ? null : unwrapMoney(money);
 	}
 
 	// Internal string value for CurrencyInput (library expects string)

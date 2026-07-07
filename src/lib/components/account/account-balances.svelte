@@ -2,7 +2,7 @@
 	import type { CURRENCIES } from '$lib/utils/currencies';
 
 	import { m } from '$lib/paraglide/messages';
-	import { formatCurrency } from '$lib/utils/format-currency';
+	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { cn } from 'tailwind-variants';
 	import PhEquals from '~icons/ph/equals';
 	import PhPiggyBankDuoTone from '~icons/ph/piggy-bank-duotone';
@@ -26,7 +26,7 @@
 <div class="flex w-fit items-center gap-6 rounded-md bg-muted/5 p-3">
 	<div class="flex flex-col items-start justify-center">
 		<div class="text-lg font-currency">
-			{formatCurrency({ centValue: balances.validated, currency })}
+			{formatMoney({ currency, money: asMoney(balances.validated) })}
 		</div>
 		<div class="flex items-center gap-0.5 text-sm text-muted">
 			<PhSealCheckDuotone class="text-success" />
@@ -40,7 +40,7 @@
 
 	<div class="flex flex-col items-start justify-center">
 		<div class="text-lg font-currency">
-			{formatCurrency({ centValue: balances.pending, currency })}
+			{formatMoney({ currency, money: asMoney(balances.pending) })}
 		</div>
 		<div class="flex items-center gap-0.5 text-sm text-muted">
 			<PhSeal />
@@ -54,7 +54,7 @@
 
 	<div class="flex flex-col items-start justify-center">
 		<div class={cn('text-lg font-currency', balances.balance < 0 && 'text-error')}>
-			{formatCurrency({ centValue: balances.balance, currency })}
+			{formatMoney({ currency, money: asMoney(balances.balance) })}
 		</div>
 		<div
 			class={cn(

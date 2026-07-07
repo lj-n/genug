@@ -3,7 +3,7 @@
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategoryById, getCategoryStats } from '$lib/remote-functions/category.remote';
 	import { clamp } from '$lib/utils/clamp';
-	import { formatCurrency } from '$lib/utils/format-currency';
+	import { asMoney, formatMoney } from '$lib/utils/money';
 
 	let { categoryId }: { categoryId: string } = $props();
 
@@ -19,7 +19,7 @@
 >
 	<div class="rounded-md border border-info/20 bg-info/10 p-2 text-center">
 		<div class="text-xl font-bold tabular-nums">
-			{formatCurrency({ centValue: stats.totalRelatedTransactionSum, currency })}
+			{formatMoney({ currency, money: asMoney(stats.totalRelatedTransactionSum) })}
 		</div>
 		<div class="text-sm">{m.category_stats_spent()}</div>
 	</div>

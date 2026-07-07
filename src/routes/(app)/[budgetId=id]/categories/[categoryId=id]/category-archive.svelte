@@ -8,7 +8,7 @@
 		getCategoryById,
 		restoreCategory
 	} from '$lib/remote-functions/category.remote';
-	import { formatCurrency } from '$lib/utils/format-currency';
+	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { ParaglideMessage } from '@inlang/paraglide-js-svelte';
 	import { cn } from 'tailwind-variants';
 	import PhArchiveTrayBold from '~icons/ph/archive-tray-bold';
@@ -54,16 +54,16 @@
 					<ParaglideMessage message={m.category_not_archivable_balance} inputs={{}}>
 						{#snippet sum()}
 							<span class="font-semibold tabular-nums">
-								{formatCurrency({
-									centValue: archivability.remainingBalance,
-									currency
+								{formatMoney({
+									currency,
+									money: asMoney(archivability.remainingBalance)
 								})}
 							</span>
 						{/snippet}
 
 						{#snippet required()}
 							<span class="font-semibold tabular-nums">
-								{formatCurrency({ centValue: 0, currency })}
+								{formatMoney({ currency, money: asMoney(0) })}
 							</span>
 						{/snippet}
 					</ParaglideMessage>

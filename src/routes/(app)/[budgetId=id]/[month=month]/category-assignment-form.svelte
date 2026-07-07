@@ -5,7 +5,7 @@
 	import { m } from '$lib/paraglide/messages';
 	import { assignment, getMonthly, getUnassigned } from '$lib/remote-functions/budget.remote';
 	import { CURRENCIES } from '$lib/utils/currencies';
-	import { formatCurrency } from '$lib/utils/format-currency';
+	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { Popover } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
 
@@ -44,7 +44,7 @@
 		)}
 		aria-label={m.budget_monthly_table_header_amount()}
 	>
-		{formatCurrency({ centValue: category.assigned, currency })}
+		{formatMoney({ currency, money: asMoney(category.assigned) })}
 	</Popover.Trigger>
 
 	<Popover.ContentStatic class="absolute inset-0 outline-2 -outline-offset-2 outline-focus">
