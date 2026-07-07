@@ -4,6 +4,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import * as Popover from '$lib/components/ui/popover';
 	import { m } from '$lib/paraglide/messages';
+	import { getMonthly } from '$lib/remote-functions/budget.remote';
 	import { createCategory, getArchivedCategories } from '$lib/remote-functions/category.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import PhArchive from '~icons/ph/archive';
@@ -38,7 +39,7 @@
 		<Popover.Content align="end" class="w-fit p-4">
 			<form
 				{...createCategory.enhance(async (form) => {
-					if (await form.submit()) {
+					if (await form.submit().updates(getMonthly)) {
 						open = false;
 						form.element.reset();
 					}
