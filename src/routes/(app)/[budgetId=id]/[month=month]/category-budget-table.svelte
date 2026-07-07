@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { Month } from '$lib/utils/month';
+
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget, getMonthly } from '$lib/remote-functions/budget.remote';
@@ -8,7 +10,6 @@
 	import { formatCurrency } from '$lib/utils/format-currency';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
 	import { useDialog } from '$lib/utils/use-dialog';
-	import { untrack } from 'svelte';
 	import PhDotsSixVerticalBold from '~icons/ph/dots-six-vertical-bold';
 
 	import BudgetTableCell from './budget-table-cell.svelte';
@@ -20,20 +21,14 @@
 		month,
 		openCategoryDialog
 	}: {
-		month: string;
+		month: Month;
 		openCategoryDialog: (categoryId: string) => void;
 	} = $props();
 
 	const budgetId = getBudgetId();
 
 	const { currency } = $derived(await getBudget(budgetId()));
-	const monthNum = parseInt(untrack(() => month));
-	const categories = $derived(
-		await getMonthly({
-			budgetId: budgetId(),
-			month: Number.isNaN(monthNum) ? 0 : monthNum
-		})
-	);
+	const categories = $derived(await getMonthly({ budgetId: budgetId(), month }));
 
 	const categorySortable = createSortable(() => categories, {
 		direction: 'vertical',

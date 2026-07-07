@@ -1,6 +1,6 @@
 import { resolve } from '$app/paths';
 import { createUserCtx } from '$db/user-context';
-import { createMonthParam } from '$lib/utils/date-utils';
+import { currentMonth, toParam } from '$lib/utils/month';
 import { redirect } from '@sveltejs/kit';
 
 import type { PageServerLoad } from './$types';
@@ -19,7 +19,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		307,
 		resolve('/(app)/[budgetId=id]/[month=month]', {
 			budgetId: firstBudget.id,
-			month: createMonthParam().toString()
+			month: toParam(currentMonth())
 		})
 	);
 };

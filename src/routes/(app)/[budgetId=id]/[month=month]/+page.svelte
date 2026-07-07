@@ -6,7 +6,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Page from '$lib/components/ui/page';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
-	import { createDateFromParams } from '$lib/utils/create-date-from-params';
+	import { parseMonth } from '$lib/utils/month';
 
 	import type { PageProps } from './$types';
 
@@ -19,6 +19,9 @@
 	let { params }: PageProps = $props();
 
 	const budget = $derived(await getBudget(params.budgetId));
+
+	// Non-null: the param is validated by the matcher in `src/params/month.ts`.
+	const month = $derived(parseMonth(params.month)!);
 
 	let openCategoryDetail = $state(false);
 	let selectedCategoryId = $state<null | string>(null);
@@ -41,7 +44,7 @@
 
 	<Page.Content>
 		<div class="flex items-end gap-3">
-			<MonthNavigator paramsDate={createDateFromParams(params.month)} />
+			<MonthNavigator {month} />
 
 			<CategoryQuickActions />
 
@@ -49,7 +52,7 @@
 		</div>
 
 		<CategoryBudgetTable
-			month={params.month}
+			{month}
 			openCategoryDialog={(categoryId) => {
 				selectedCategoryId = categoryId;
 				openCategoryDetail = true;

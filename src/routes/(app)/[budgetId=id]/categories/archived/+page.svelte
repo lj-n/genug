@@ -6,8 +6,8 @@
 	import * as Page from '$lib/components/ui/page';
 	import { m } from '$lib/paraglide/messages';
 	import { getArchivedCategories, restoreCategory } from '$lib/remote-functions/category.remote';
-	import { createMonthParam } from '$lib/utils/date-utils';
 	import { formatDate } from '$lib/utils/format-date';
+	import { currentMonth, toParam } from '$lib/utils/month';
 	import { flip } from 'svelte/animate';
 	import PhArchive from '~icons/ph/archive';
 	import PhHandWithdraw from '~icons/ph/hand-withdraw';
@@ -61,7 +61,7 @@
 										goto(
 											resolve('/(app)/[budgetId=id]/[month=month]', {
 												budgetId: category.budgetId,
-												month: createMonthParam().toString()
+												month: toParam(currentMonth())
 											})
 										);
 									}

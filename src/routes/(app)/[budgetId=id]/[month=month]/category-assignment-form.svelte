@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { Month } from '$lib/utils/month';
+
 	import { InputCurrency } from '$lib/components/ui/input-currency';
 	import { m } from '$lib/paraglide/messages';
 	import {
@@ -24,7 +26,7 @@
 		open = $bindable(false)
 	}: {
 		category: Category;
-		month: string;
+		month: Month;
 		open?: boolean;
 	} = $props();
 
@@ -63,11 +65,7 @@
 		>
 			<input {...scopedForm.fields.budgetId.as('hidden', budgetId())} />
 			<input {...scopedForm.fields.categoryId.as('hidden', category.id)} />
-			<input
-				type="hidden"
-				name={scopedForm.fields.month.as('number').name}
-				value={Number.isNaN(parseInt(month)) ? '' : parseInt(month)}
-			/>
+			<input type="hidden" name={scopedForm.fields.month.as('number').name} value={month} />
 
 			<div class="h-full w-full">
 				<InputCurrency
