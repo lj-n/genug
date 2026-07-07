@@ -1,7 +1,10 @@
+import { requested } from '$app/server';
 import { BudgetIdSchema } from '$lib/schemas/budget';
 import { CategoryCreateSchema, CategoryEditSchema, CategoryIdSchema } from '$lib/schemas/category';
 import { OrderedIdsSchema } from '$lib/schemas/utils';
 import { guardedCommand, guardedForm, guardedQuery } from '$server/utils/remote-guard';
+
+import { getMonthly } from './budget.remote';
 
 export const getCategories = guardedQuery(BudgetIdSchema, async ({ budgetId }, { ctx }) =>
 	ctx.category.all(budgetId)
@@ -28,6 +31,10 @@ export const createCategory = guardedForm(
 	CategoryCreateSchema,
 	async ({ budgetId, categoryName }, { ctx }) => {
 		ctx.category.create(budgetId, categoryName);
+		await Promise.all([
+			requested(getCategories, 1).refreshAll(),
+			requested(getMonthly, 1).refreshAll()
+		]);
 	}
 );
 

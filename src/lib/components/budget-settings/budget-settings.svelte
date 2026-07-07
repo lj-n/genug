@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
+	import { DialogForm } from '$lib/components/ui/dialog-form';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import * as Select from '$lib/components/ui/select';
 	import { m } from '$lib/paraglide/messages';
@@ -15,44 +16,26 @@
 
 	const budget = $derived(await getBudget(budgetId()));
 
-	let open = $state(false);
-
-	const formId = $props.id();
-
 	const form = $derived(editBudget.for(budgetId()));
 </script>
 
-<Dialog.Root bind:open>
-	<Dialog.Trigger>
-		{#snippet child({ props })}
-			<Button {...props} variant="ghost" size="icon-lg" class="bg-muted/10 hover:bg-muted/20">
-				<PencilIcon class="size-5" />
-				<span class="sr-only">{m.budget_settings_title()}</span>
-			</Button>
-		{/snippet}
-	</Dialog.Trigger>
+<DialogForm enhance={form.enhance} contentClass="gap-0" interactOutsideBehavior="ignore">
+	{#snippet trigger(props)}
+		<Button {...props} variant="ghost" size="icon-lg" class="bg-muted/10 hover:bg-muted/20">
+			<PencilIcon class="size-5" />
+			<span class="sr-only">{m.budget_settings_title()}</span>
+		</Button>
+	{/snippet}
 
-	<Dialog.Content class="max-w-lg gap-0" interactOutsideBehavior="ignore">
-		<Dialog.Header>
-			<Dialog.Title>{m.budget_settings_title()}</Dialog.Title>
-			<Dialog.Description class="grid gap-4">
-				<p>{m.budget_settings_description()}</p>
-			</Dialog.Description>
-		</Dialog.Header>
+	{#snippet header()}
+		<Dialog.Title>{m.budget_settings_title()}</Dialog.Title>
+		<Dialog.Description class="grid gap-4">
+			<p>{m.budget_settings_description()}</p>
+		</Dialog.Description>
+	{/snippet}
 
-		<form
-			{...form.enhance(async (f) => {
-				try {
-					if (await f.submit()) {
-						open = false;
-					}
-				} catch (error) {
-					console.error(error);
-				}
-			})}
-			id={formId}
-			class="mt-6 grid gap-2 rounded-lg bg-muted/5 p-3"
-		>
+	{#snippet fields()}
+		<div class="mt-6 grid gap-2 rounded-lg bg-muted/5 p-3">
 			<input {...editBudget.fields.budgetId.as('hidden', budgetId())} />
 
 			<div class="grid gap-2">
@@ -91,11 +74,11 @@
 					</Select.Content>
 				</Select.Root>
 			</div>
-		</form>
+		</div>
+	{/snippet}
 
-		<Dialog.Footer class="mt-6">
-			<Dialog.Close class={buttonVariants({ variant: 'ghost' })}>{m.dialog_close()}</Dialog.Close>
-			<Button type="submit" form={formId}>{m.save()}</Button>
-		</Dialog.Footer>
-	</Dialog.Content>
-</Dialog.Root>
+	{#snippet footer({ formId })}
+		<Dialog.Close class={buttonVariants({ variant: 'ghost' })}>{m.dialog_close()}</Dialog.Close>
+		<Button type="submit" form={formId}>{m.save()}</Button>
+	{/snippet}
+</DialogForm>

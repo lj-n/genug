@@ -40,6 +40,7 @@ export const TransactionsURLParamsSchema = v.object({
 	page: v.nullish(v.pipe(CoercedNumber, v.integer()), 1),
 	pageSize: v.nullish(v.pipe(CoercedNumber, v.integer()), '15'),
 	sortAccount: SortParam,
+	sortAmount: SortParam,
 	sortCategory: SortParam,
 	sortDate: SortParam,
 	sortValidated: SortParam

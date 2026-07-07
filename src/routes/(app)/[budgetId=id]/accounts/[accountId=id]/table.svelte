@@ -10,10 +10,12 @@
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { formatMoney, parseMoney } from '$lib/utils/money';
 	import { parseDate } from '@internationalized/date';
+	import { untrack } from 'svelte';
 	import PlusBoldIcon from '~icons/ph/plus-bold';
 	import SealIcon from '~icons/ph/seal';
 	import SealCheckDuotoneIcon from '~icons/ph/seal-check-duotone';
 
+	import { TransactionSort } from './sort.svelte';
 	import TableBody from './table-body.svelte';
 	import TableCell from './table-cell.svelte';
 	import TableFilter from './table-filter.svelte';
@@ -28,9 +30,10 @@
 
 	const budget = $derived(await getBudget(budgetId));
 
-	const result = $derived(
-		await listTransactions({ accountId, ...getTransactionURLParams(page.url) })
-	);
+	const params = $derived(getTransactionURLParams(page.url));
+	let sort = $state(new TransactionSort(untrack(() => params)));
+
+	const result = $derived(await listTransactions({ accountId, ...params }));
 	const transactions = $derived(result.transactions);
 	const pagination = $derived(result.pagination);
 
@@ -46,7 +49,7 @@
 	</TableFilter>
 
 	<div role="table" class="space-y-3">
-		<TableHeader />
+		<TableHeader {sort} />
 
 		<TableBody data={transactions}>
 			{#snippet createrow()}
