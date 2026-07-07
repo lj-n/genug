@@ -129,6 +129,7 @@
 								}
 							}
 							category={row}
+							{currency}
 							{month}
 						/>
 					</BudgetTableCell>
