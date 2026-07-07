@@ -1,11 +1,58 @@
 import { database, type Database, tables } from '$db';
 import { dateIsOnOrBefore } from '$db/month-sql';
+import { m } from '$lib/paraglide/messages';
 import { currentMonth } from '$lib/utils/month';
 import { error } from '@sveltejs/kit';
 import { and, eq, getColumns, isNotNull, isNull, sql } from 'drizzle-orm';
 
 import { accessGuard, hasAccess } from './access';
 import { withOrder } from './utils';
+
+/**
+ * A category may be archived only when its remaining balance
+ * (all-time assignments + transactions) is zero and it has no
+ * pending (unvalidated) transactions.
+ */
+const readArchivability = (userId: string, db: Database, categoryId: string) => {
+	const txAgg = db
+		.select({
+			categoryId: tables.transactions.categoryId,
+			pendingCount:
+				sql<number>`coalesce(sum(CASE WHEN ${tables.transactions.validated} = false THEN 1 ELSE 0 END), 0)`.as(
+					'pendingCount'
+				),
+			sum: sql<number>`coalesce(sum(${tables.transactions.amount}), 0)`.as('sum')
+		})
+		.from(tables.transactions)
+		.groupBy(tables.transactions.categoryId)
+		.as('txAgg');
+
+	const assignmentAgg = db
+		.select({
+			categoryId: tables.budgetAssignments.categoryId,
+			sum: sql<number>`coalesce(sum(${tables.budgetAssignments.amount}), 0)`.as('sum')
+		})
+		.from(tables.budgetAssignments)
+		.groupBy(tables.budgetAssignments.categoryId)
+		.as('assignmentAgg');
+
+	const found = db
+		.select({
+			pendingTransactionCount: sql<number>`coalesce(${txAgg.pendingCount}, 0)`,
+			remainingBalance: sql<number>`coalesce(${assignmentAgg.sum}, 0) + coalesce(${txAgg.sum}, 0)`
+		})
+		.from(tables.categories)
+		.leftJoin(txAgg, eq(txAgg.categoryId, tables.categories.id))
+		.leftJoin(assignmentAgg, eq(assignmentAgg.categoryId, tables.categories.id))
+		.where(and(hasAccess(tables.categories, userId, db), eq(tables.categories.id, categoryId)))
+		.get();
+
+	if (!found) error(404, m.error_category_not_found());
+	return {
+		archivable: found.pendingTransactionCount === 0 && found.remainingBalance === 0,
+		...found
+	};
+};
 
 export const queries = (userId: string, db: Database = database) => ({
 	all: (budgetId: string) => {
@@ -24,6 +71,8 @@ export const queries = (userId: string, db: Database = database) => ({
 
 		return withOrder(qb, tables.categories, 'category', userId).all();
 	},
+
+	archivability: (categoryId: string) => readArchivability(userId, db, categoryId),
 
 	archived: (budgetId: string) => {
 		return db
@@ -112,6 +161,25 @@ export const queries = (userId: string, db: Database = database) => ({
 });
 
 export const commands = (userId: string, db: Database = database) => ({
+	archive: (id: string) =>
+		db.transaction((tx) => {
+			// better-sqlite3 serializes on a single connection, so reads
+			// on `db` inside the transaction callback see the same
+			// uncommitted state as `tx`.
+			const state = readArchivability(userId, db, id);
+			if (!state.archivable) error(400, m.error_category_not_archivable());
+
+			const updated = tx
+				.update(tables.categories)
+				.set({ archivedAt: new Date() })
+				.where(and(hasAccess(tables.categories, userId, db), eq(tables.categories.id, id)))
+				.returning()
+				.get();
+
+			if (!updated) error(404, m.error_category_not_found());
+			return updated;
+		}),
+
 	create: (budgetId: string, name: string) => {
 		accessGuard(budgetId, userId, db);
 
@@ -128,13 +196,11 @@ export const commands = (userId: string, db: Database = database) => ({
 
 	edit: (
 		id: string,
-		data: Partial<
-			Pick<typeof tables.categories.$inferInsert, 'archivedAt' | 'name' | 'notes' | 'targetBalance'>
-		>
+		data: Partial<Pick<typeof tables.categories.$inferInsert, 'name' | 'notes' | 'targetBalance'>>
 	) => {
 		const updated = db
 			.update(tables.categories)
-			.set(data)
+			.set({ name: data.name, notes: data.notes, targetBalance: data.targetBalance })
 			.where(and(hasAccess(tables.categories, userId, db), eq(tables.categories.id, id)))
 			.returning()
 			.get();
@@ -159,5 +225,17 @@ export const commands = (userId: string, db: Database = database) => ({
 					.run();
 			}
 		});
+	},
+
+	restore: (id: string) => {
+		const updated = db
+			.update(tables.categories)
+			.set({ archivedAt: null })
+			.where(and(hasAccess(tables.categories, userId, db), eq(tables.categories.id, id)))
+			.returning()
+			.get();
+
+		if (!updated) error(404, m.error_category_not_found());
+		return updated;
 	}
 });

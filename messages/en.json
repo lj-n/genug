@@ -198,6 +198,7 @@
 	"error_invalid_request_body": "Invalid request.",
 	"error_unable_to_save_order": "Unable to save order.",
 	"error_account_not_found": "Account not found.",
+	"error_category_not_archivable": "This category cannot be archived: the remaining balance must be zero and all transactions must be validated.",
 	"error_category_not_found": "Category not found.",
 	"budget_account_list_accounts_label": "Accounts",
 	"budget_account_list_add_account": "Add Account",

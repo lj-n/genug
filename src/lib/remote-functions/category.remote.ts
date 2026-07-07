@@ -19,6 +19,11 @@ export const getCategoryStats = guardedQuery(CategoryIdSchema, async ({ category
 	ctx.category.stats(categoryId)
 );
 
+export const getCategoryArchivability = guardedQuery(
+	CategoryIdSchema,
+	async ({ categoryId }, { ctx }) => ctx.category.archivability(categoryId)
+);
+
 export const createCategory = guardedForm(
 	CategoryCreateSchema,
 	async ({ budgetId, categoryName }, { ctx }) => {
@@ -38,11 +43,11 @@ export const editCategory = guardedForm(
 );
 
 export const archiveCategory = guardedForm(CategoryIdSchema, async ({ categoryId }, { ctx }) => {
-	ctx.category.edit(categoryId, { archivedAt: new Date() });
+	ctx.category.archive(categoryId);
 });
 
 export const restoreCategory = guardedForm(CategoryIdSchema, async ({ categoryId }, { ctx }) => {
-	ctx.category.edit(categoryId, { archivedAt: null });
+	ctx.category.restore(categoryId);
 });
 
 export const reorderCategories = guardedCommand(OrderedIdsSchema, async (orderedIds, { ctx }) => {

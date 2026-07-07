@@ -4,8 +4,8 @@
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import {
 		archiveCategory,
+		getCategoryArchivability,
 		getCategoryById,
-		getCategoryStats,
 		restoreCategory
 	} from '$lib/remote-functions/category.remote';
 	import { formatCurrency } from '$lib/utils/format-currency';
@@ -14,19 +14,17 @@
 	import PhArchiveTrayBold from '~icons/ph/archive-tray-bold';
 	import PhTrayArrowUpBold from '~icons/ph/tray-arrow-up-bold';
 
-	import { hasNoPendingTransactions, hasNoRemainingBudget, isArchivable } from './category-utils';
-
 	let { categoryId }: { categoryId: string } = $props();
 
 	const category = $derived(await getCategoryById({ categoryId }));
-	const stats = $derived(await getCategoryStats({ categoryId }));
+	const archivability = $derived(await getCategoryArchivability({ categoryId }));
 	const budget = $derived(await getBudget(category.budgetId));
 	const currency = $derived(budget.currency);
 
 	let isArchived = $derived(category.archivedAt !== null);
-	let noRemainingBudget = $derived(hasNoRemainingBudget(stats));
-	let noPendingTransactions = $derived(hasNoPendingTransactions(stats));
-	let archivable = $derived(isArchivable(stats));
+	let noRemainingBudget = $derived(archivability.remainingBalance === 0);
+	let noPendingTransactions = $derived(archivability.pendingTransactionCount === 0);
+	let archivable = $derived(archivability.archivable);
 
 	let { buttonText, description, title } = $derived({
 		buttonText: isArchived ? m.category_restore_button : m.category_archive_button,
@@ -57,7 +55,7 @@
 						{#snippet sum()}
 							<span class="font-semibold tabular-nums">
 								{formatCurrency({
-									centValue: stats.totalAssignedBudgetSum + stats.totalRelatedTransactionSum,
+									centValue: archivability.remainingBalance,
 									currency
 								})}
 							</span>
