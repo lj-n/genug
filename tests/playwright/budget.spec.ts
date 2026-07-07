@@ -2,6 +2,7 @@ import { formatCurrency } from '$lib/utils/format-currency';
 import { faker } from '@faker-js/faker';
 
 import { expect, test } from './fixture';
+import { uniqueName } from './unique-name';
 
 test('Assign Budget to Category', async ({ pages }) => {
 	await pages.auth.createUserAndLogin();
@@ -9,10 +10,10 @@ test('Assign Budget to Category', async ({ pages }) => {
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
 
-	const accountName = faker.finance.accountName();
+	const accountName = uniqueName(faker.finance.accountName());
 	await pages.budget.createAccount(accountName);
 
-	const categoryName = faker.commerce.department();
+	const categoryName = uniqueName(faker.commerce.department());
 	await pages.budget.createCategory(categoryName);
 
 	await pages.budget.assignAmount(categoryName, '500');
@@ -24,12 +25,12 @@ test('Transfer Assignment — Move between categories', async ({ pages }) => {
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
 
-	const accountName = faker.finance.accountName();
+	const accountName = uniqueName(faker.finance.accountName());
 	await pages.budget.createAccount(accountName);
 
-	const sourceCategory = faker.commerce.department();
+	const sourceCategory = uniqueName(faker.commerce.department());
 	await pages.budget.createCategory(sourceCategory);
-	const targetCategory = faker.commerce.department();
+	const targetCategory = uniqueName(faker.commerce.department());
 	await pages.budget.createCategory(targetCategory);
 
 	// Assign 500 (cents) to source
@@ -53,10 +54,10 @@ test('Transfer Assignment — Move to unassigned', async ({ page, pages }) => {
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
 
-	const accountName = faker.finance.accountName();
+	const accountName = uniqueName(faker.finance.accountName());
 	await pages.budget.createAccount(accountName);
 
-	const category = faker.commerce.department();
+	const category = uniqueName(faker.commerce.department());
 	await pages.budget.createCategory(category);
 
 	// Assign 500
@@ -80,10 +81,10 @@ test('Transfer Assignment — Trigger disabled at zero remaining', async ({ page
 	const budgetName = faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
 
-	const accountName = faker.finance.accountName();
+	const accountName = uniqueName(faker.finance.accountName());
 	await pages.budget.createAccount(accountName);
 
-	const category = faker.commerce.department();
+	const category = uniqueName(faker.commerce.department());
 	await pages.budget.createCategory(category);
 
 	// No assignment → remaining = 0 → trigger disabled
