@@ -105,6 +105,7 @@
 		}
 		categories={otherCategories}
 		nullable
+		ariaInvalid={form.fields.targetCategoryId.issues()?.length ? true : undefined}
 		textEmpty={m.transfer_assignment_unassigned()}
 		ariaLabel={m.transfer_assignment_category()}
 		ariaLabelTrigger={m.transfer_assignment_select_category()}

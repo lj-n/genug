@@ -97,6 +97,7 @@
 					}
 					{categories}
 					nullable
+					ariaInvalid={createTransaction.fields.categoryId.issues()?.length ? true : undefined}
 					ariaLabel={m.transactions_table_header_category()}
 					ariaLabelTrigger={m.select_category_open()}
 				/>
@@ -116,6 +117,7 @@
 						},
 						(v) => createTransaction.fields.date.set(v.toString())
 					}
+					ariaInvalid={createTransaction.fields.date.issues()?.length ? true : undefined}
 					class="justify-end"
 					label={m.transaction_table_cell_date_select()}
 				/>
