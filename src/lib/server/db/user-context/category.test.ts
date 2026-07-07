@@ -149,6 +149,211 @@ describe('queries.stats', () => {
 	});
 });
 
+describe('queries.archivability', () => {
+	it('is archivable with zero balance and no pending transactions', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { archivability } = queries(user.id, db);
+
+		const cat = create(budget.id, 'Empty');
+
+		expect(archivability(cat.id)).toEqual({
+			archivable: true,
+			pendingTransactionCount: 0,
+			remainingBalance: 0
+		});
+	});
+
+	it('is archivable when assignments and transactions cancel out', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { archivability } = queries(user.id, db);
+
+		const cat = create(budget.id, 'Balanced');
+		const a = createAccount(db, budget.id, 'A');
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 50, budgetId: budget.id, categoryId: cat.id, month: 202501 })
+			.run();
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: -50,
+				budgetId: budget.id,
+				categoryId: cat.id,
+				date: '2025-01-15',
+				validated: true
+			})
+			.run();
+
+		expect(archivability(cat.id)).toEqual({
+			archivable: true,
+			pendingTransactionCount: 0,
+			remainingBalance: 0
+		});
+	});
+
+	it('is not archivable with remaining balance', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { archivability } = queries(user.id, db);
+
+		const cat = create(budget.id, 'Funded');
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 200, budgetId: budget.id, categoryId: cat.id, month: 202501 })
+			.run();
+
+		expect(archivability(cat.id)).toEqual({
+			archivable: false,
+			pendingTransactionCount: 0,
+			remainingBalance: 200
+		});
+	});
+
+	it('is not archivable with pending transactions', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { archivability } = queries(user.id, db);
+
+		const cat = create(budget.id, 'Pending');
+		const a = createAccount(db, budget.id, 'A');
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 30, budgetId: budget.id, categoryId: cat.id, month: 202501 })
+			.run();
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: -30,
+				budgetId: budget.id,
+				categoryId: cat.id,
+				date: '2025-01-15',
+				validated: false
+			})
+			.run();
+
+		expect(archivability(cat.id)).toEqual({
+			archivable: false,
+			pendingTransactionCount: 1,
+			remainingBalance: 0
+		});
+	});
+
+	it('throws for category without access', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user: owner } = createBudgetWithUser(db, 'OWNER', 'owner');
+		const { create } = commands(owner.id, db);
+		const cat = create(budget.id, 'Hidden');
+
+		const outsider = createUser(db, 'outsider');
+		const { archivability } = queries(outsider.id, db);
+
+		expect(() => archivability(cat.id)).toThrow();
+	});
+});
+
+describe('commands.archive', () => {
+	it('sets archivedAt when archivable', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { archive, create } = commands(user.id, db);
+
+		const cat = create(budget.id, 'Done');
+
+		const archived = archive(cat.id);
+		expect(archived.archivedAt).toBeInstanceOf(Date);
+	});
+
+	it('throws 400 and leaves category untouched when balance remains', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { archive, create } = commands(user.id, db);
+		const { byId } = queries(user.id, db);
+
+		const cat = create(budget.id, 'Funded');
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 100, budgetId: budget.id, categoryId: cat.id, month: 202501 })
+			.run();
+
+		let thrown;
+		try {
+			archive(cat.id);
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 400 });
+		expect(byId(cat.id).archivedAt).toBeNull();
+	});
+
+	it('throws 400 when pending transactions exist', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { archive, create } = commands(user.id, db);
+		const { byId } = queries(user.id, db);
+
+		const cat = create(budget.id, 'Pending');
+		const a = createAccount(db, budget.id, 'A');
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 30, budgetId: budget.id, categoryId: cat.id, month: 202501 })
+			.run();
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: -30,
+				budgetId: budget.id,
+				categoryId: cat.id,
+				date: '2025-01-15',
+				validated: false
+			})
+			.run();
+
+		let thrown;
+		try {
+			archive(cat.id);
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 400 });
+		expect(byId(cat.id).archivedAt).toBeNull();
+	});
+
+	it('throws for category without access', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user: owner } = createBudgetWithUser(db, 'OWNER', 'owner');
+		const { create } = commands(owner.id, db);
+		const cat = create(budget.id, 'Hidden');
+
+		const outsider = createUser(db, 'outsider');
+		const { archive } = commands(outsider.id, db);
+
+		expect(() => archive(cat.id)).toThrow();
+	});
+});
+
+describe('commands.restore', () => {
+	it('clears archivedAt', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { archive, create, restore } = commands(user.id, db);
+
+		const cat = create(budget.id, 'Back');
+		archive(cat.id);
+
+		const restored = restore(cat.id);
+		expect(restored.archivedAt).toBeNull();
+	});
+
+	it('throws for non-existent category', () => {
+		const db = createDatabase(':memory:');
+		const { user } = createBudgetWithUser(db);
+		const { restore } = commands(user.id, db);
+
+		expect(() => restore('nonexistent')).toThrow();
+	});
+});
+
 describe('commands.create', () => {
 	it('creates category and userEntityOrder', () => {
 		const db = createDatabase(':memory:');
@@ -185,7 +390,6 @@ describe('commands.edit', () => {
 		const cat = create(budget.id, 'Old');
 
 		const updated = edit(cat.id, {
-			archivedAt: new Date('2025-06-01'),
 			name: 'New',
 			notes: 'Some notes',
 			targetBalance: 1000
@@ -197,7 +401,20 @@ describe('commands.edit', () => {
 			notes: 'Some notes',
 			targetBalance: 1000
 		});
-		expect(updated.archivedAt).toBeInstanceOf(Date);
+	});
+
+	it('does not write archivedAt', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create, edit } = commands(user.id, db);
+
+		const cat = create(budget.id, 'Guarded');
+
+		// @ts-expect-error -- archivedAt is not part of the edit interface
+		const updated = edit(cat.id, { archivedAt: new Date(), name: 'Still here' });
+
+		expect(updated.name).toBe('Still here');
+		expect(updated.archivedAt).toBeNull();
 	});
 
 	it('throws for non-existent category', () => {

@@ -198,6 +198,7 @@
 	"error_invalid_request_body": "Ungültige Anfrage.",
 	"error_unable_to_save_order": "Reihenfolge konnte nicht gespeichert werden.",
 	"error_account_not_found": "Konto nicht gefunden.",
+	"error_category_not_archivable": "Diese Kategorie kann nicht archiviert werden: Der verbleibende Betrag muss null sein und alle Transaktionen müssen validiert sein.",
 	"error_category_not_found": "Kategorie nicht gefunden.",
 	"budget_account_list_accounts_label": "Konten",
 	"budget_account_list_add_account": "Konto hinzufügen",
