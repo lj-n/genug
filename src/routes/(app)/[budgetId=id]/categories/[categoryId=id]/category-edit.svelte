@@ -60,6 +60,10 @@
 			formId && (document.getElementById(formId) as HTMLFormElement | null)?.requestSubmit()}
 	/>
 
+	{#each editCategory.fields.categoryName.issues() as issue (issue)}
+		<p class="pl-1.5 text-sm text-error">{issue.message}</p>
+	{/each}
+
 	<Textarea
 		{...editCategory.fields.notes.as('text', category.notes ?? '')}
 		class="min-h-30 resize-none py-2 text-base"

@@ -2,7 +2,7 @@ import { resolve } from '$app/paths';
 import { AccountCreateSchema, AccountSetNameSchema } from '$lib/schemas/account';
 import { OrderedIdsSchema } from '$lib/schemas/utils';
 import { guardedCommand, guardedForm, guardedQuery } from '$server/utils/remote-guard';
-import { redirect } from '@sveltejs/kit';
+import { invalid, isHttpError, redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
 export const getAccounts = guardedQuery(v.string(), async (budgetId, { ctx }) =>
@@ -11,8 +11,14 @@ export const getAccounts = guardedQuery(v.string(), async (budgetId, { ctx }) =>
 
 export const createAccount = guardedForm(
 	AccountCreateSchema,
-	async ({ accountName, budgetId, startingBalance }, { ctx }) => {
-		const account = ctx.account.create({ budgetId, name: accountName }, startingBalance);
+	async ({ accountName, budgetId, startingBalance }, { ctx, invalid: issue }) => {
+		let account;
+		try {
+			account = ctx.account.create({ budgetId, name: accountName }, startingBalance);
+		} catch (error) {
+			if (isHttpError(error, 400)) invalid(issue.accountName(error.body.message));
+			throw error;
+		}
 		redirect(
 			303,
 			resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', { accountId: account.id, budgetId })
@@ -28,8 +34,13 @@ export const getAccountBalances = guardedQuery(v.string(), async (accountId, { c
 
 export const editAccount = guardedForm(
 	AccountSetNameSchema,
-	async ({ accountId, accountName }, { ctx }) => {
-		ctx.account.edit(accountId, accountName);
+	async ({ accountId, accountName }, { ctx, invalid: issue }) => {
+		try {
+			ctx.account.edit(accountId, accountName);
+		} catch (error) {
+			if (isHttpError(error, 400)) invalid(issue.accountName(error.body.message));
+			throw error;
+		}
 	}
 );
 

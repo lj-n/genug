@@ -23,10 +23,18 @@ programmatically. All existing guards (`accessGuard`, not-found checks,
 User-context commands signal domain-rule violations by throwing SvelteKit
 `error(400, m.<localized_message>())`. Result unions are not used.
 
+When a violation concerns a single form field (e.g. a duplicate name), the
+remote function may catch the `error(400)` around the specific command call
+and re-signal it as a field-level issue via
+`invalid(issue.<field>(error.body.message))`. The rule check stays in
+user-context; the remote function only maps the thrown error onto the field
+it knows the call belongs to. Non-400 errors are re-thrown unchanged.
+
 ## Consequences
 
 - One error-signaling convention across user-context; remote functions stay
-  mechanical and need no translation layer.
+  mechanical and need no translation layer beyond the optional per-call
+  field mapping.
 - Callers that want to _predict_ a rule outcome must use a dedicated query
   (e.g. `category.archivability`) rather than attempting the command.
 - If a future UI needs to branch on distinct failure reasons of one command,

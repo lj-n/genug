@@ -3,6 +3,7 @@ import { BudgetIdSchema } from '$lib/schemas/budget';
 import { CategoryCreateSchema, CategoryEditSchema, CategoryIdSchema } from '$lib/schemas/category';
 import { OrderedIdsSchema } from '$lib/schemas/utils';
 import { guardedCommand, guardedForm, guardedQuery } from '$server/utils/remote-guard';
+import { invalid, isHttpError } from '@sveltejs/kit';
 
 import { getMonthly } from './budget.remote';
 
@@ -29,8 +30,13 @@ export const getCategoryArchivability = guardedQuery(
 
 export const createCategory = guardedForm(
 	CategoryCreateSchema,
-	async ({ budgetId, categoryName }, { ctx }) => {
-		ctx.category.create(budgetId, categoryName);
+	async ({ budgetId, categoryName }, { ctx, invalid: issue }) => {
+		try {
+			ctx.category.create(budgetId, categoryName);
+		} catch (error) {
+			if (isHttpError(error, 400)) invalid(issue.categoryName(error.body.message));
+			throw error;
+		}
 		await Promise.all([
 			requested(getCategories, 1).refreshAll(),
 			requested(getMonthly, 1).refreshAll()
@@ -40,8 +46,13 @@ export const createCategory = guardedForm(
 
 export const editCategory = guardedForm(
 	CategoryEditSchema,
-	async ({ categoryId, categoryName, notes, targetBalance }, { ctx }) => {
-		ctx.category.edit(categoryId, { name: categoryName, notes, targetBalance });
+	async ({ categoryId, categoryName, notes, targetBalance }, { ctx, invalid: issue }) => {
+		try {
+			ctx.category.edit(categoryId, { name: categoryName, notes, targetBalance });
+		} catch (error) {
+			if (isHttpError(error, 400)) invalid(issue.categoryName(error.body.message));
+			throw error;
+		}
 	}
 );
 

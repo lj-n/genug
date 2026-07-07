@@ -3,7 +3,8 @@ import { dateIsOnOrBefore } from '$db/month-sql';
 import { m } from '$lib/paraglide/messages';
 import { currentMonth } from '$lib/utils/month';
 import { error } from '@sveltejs/kit';
-import { and, eq, getColumns, isNotNull, isNull, sql } from 'drizzle-orm';
+import { and, eq, getColumns, isNotNull, isNull, ne, sql } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/sqlite-core';
 
 import { accessGuard, hasAccess } from './access';
 import { withOrder } from './utils';
@@ -183,6 +184,13 @@ export const commands = (userId: string, db: Database = database) => ({
 	create: (budgetId: string, name: string) => {
 		accessGuard(budgetId, userId, db);
 
+		const duplicate = db
+			.select({ id: tables.categories.id })
+			.from(tables.categories)
+			.where(and(eq(tables.categories.name, name), eq(tables.categories.budgetId, budgetId)))
+			.get();
+		if (duplicate) error(400, m.category_error_duplicate_name({ value: name }));
+
 		return db.transaction((tx) => {
 			const category = tx.insert(tables.categories).values({ budgetId, name }).returning().get();
 
@@ -198,6 +206,24 @@ export const commands = (userId: string, db: Database = database) => ({
 		id: string,
 		data: Partial<Pick<typeof tables.categories.$inferInsert, 'name' | 'notes' | 'targetBalance'>>
 	) => {
+		if (data.name !== undefined) {
+			const self = alias(tables.categories, 'self');
+			const duplicate = db
+				.select({ id: tables.categories.id })
+				.from(tables.categories)
+				.innerJoin(self, eq(self.budgetId, tables.categories.budgetId))
+				.where(
+					and(
+						hasAccess(tables.categories, userId, db),
+						eq(self.id, id),
+						eq(tables.categories.name, data.name),
+						ne(tables.categories.id, id)
+					)
+				)
+				.get();
+			if (duplicate) error(400, m.category_error_duplicate_name({ value: data.name }));
+		}
+
 		// a target balance of 0 means "no target" and is stored as null
 		const updated = db
 			.update(tables.categories)
