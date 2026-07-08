@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ListTransaction } from '$lib/server/db/user-context/transaction';
 
+	import { ValidationCheckbox } from '$lib/components/features/transaction';
 	import { Button } from '$lib/components/ui/button';
 	import { DatePicker } from '$lib/components/ui/date-picker';
 	import { Input } from '$lib/components/ui/input';
@@ -21,7 +22,6 @@
 	import TrashIcon from '~icons/ph/trash';
 
 	import { colsClass } from './utils';
-	import ValidationCheckbox from './validation-checkbox.svelte';
 
 	let {
 		budgetId,

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { TableRowCreate } from '$lib/components/features/transaction';
 	import { Button } from '$lib/components/ui/button';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
@@ -21,10 +22,9 @@
 	import TableFilter from './table-filter.svelte';
 	import TableHeader from './table-header.svelte';
 	import TablePagination from './table-pagination.svelte';
-	import TableRowCreate from './table-row-create.svelte';
 	import TableRowEdit from './table-row-edit.svelte';
 	import TableRow from './table-row.svelte';
-	import { getTransactionURLParams } from './utils';
+	import { colsClass, getTransactionURLParams } from './utils';
 
 	let { accountId, budgetId }: { accountId: string; budgetId: string } = $props();
 
@@ -53,7 +53,13 @@
 
 		<TableBody data={transactions}>
 			{#snippet createrow()}
-				<TableRowCreate bind:open={openCreateRow} {accountId} {budgetId} />
+				<TableRowCreate
+					bind:open={openCreateRow}
+					{accountId}
+					{budgetId}
+					class={colsClass}
+					urlParams={params}
+				/>
 			{/snippet}
 
 			{#snippet row({ cancelEditing, isEditing, item, setEditing })}

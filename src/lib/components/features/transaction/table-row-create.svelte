@@ -1,7 +1,7 @@
 <script lang="ts">
+	import type { TransactionsURLParams } from '$lib/schemas/transaction';
 	import type { Attachment } from 'svelte/attachments';
 
-	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
 	import { DatePicker } from '$lib/components/ui/date-picker';
 	import { Input } from '$lib/components/ui/input';
@@ -15,14 +15,21 @@
 	import { Popover } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
 
-	import { colsClass, getTransactionURLParams } from './utils';
 	import ValidationCheckbox from './validation-checkbox.svelte';
 
 	let {
 		accountId,
 		budgetId,
-		open = $bindable(false)
-	}: { accountId: string; budgetId: string; open?: boolean } = $props();
+		class: className,
+		open = $bindable(false),
+		urlParams
+	}: {
+		accountId: string;
+		budgetId: string;
+		class?: string;
+		open?: boolean;
+		urlParams: TransactionsURLParams;
+	} = $props();
 
 	const categories = $derived(await getCategories({ budgetId }));
 	const budget = $derived(await getBudget(budgetId));
@@ -65,18 +72,14 @@
 	<Popover.ContentStatic>
 		<form
 			class={cn(
-				colsClass,
+				className,
 				'grid rounded-sm border border-interactive/30 bg-surface shadow shadow-interactive/15'
 			)}
 			role="row"
 			aria-label={m.transactions_table_create_transaction()}
 			bind:this={formElement}
 			{...createTransaction.enhance(async (f) => {
-				if (
-					await f
-						.submit()
-						.updates(listTransactions({ accountId, ...getTransactionURLParams(page.url) }))
-				) {
+				if (await f.submit().updates(listTransactions({ accountId, ...urlParams }))) {
 					if (!submitAndContinue) {
 						f.element.reset();
 						open = false;
