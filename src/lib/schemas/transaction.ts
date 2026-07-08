@@ -46,6 +46,8 @@ export const TransactionsURLParamsSchema = v.object({
 	sortValidated: SortParam
 });
 
+export type TransactionsURLParams = v.InferOutput<typeof TransactionsURLParamsSchema>;
+
 export const ListTransactionsSchema = v.object({
 	accountId: v.pipe(v.string(), v.minLength(1)),
 	...TransactionsURLParamsSchema.entries

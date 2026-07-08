@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ValidationCheckbox } from '$lib/components/features/transaction';
 	import { m } from '$lib/paraglide/messages';
 	import { cn } from 'tailwind-variants';
 	import CaretDownIcon from '~icons/ph/caret-down';
@@ -8,7 +9,6 @@
 	import type { SortColumn, TransactionSort } from './sort.svelte';
 
 	import { colsClass } from './utils';
-	import ValidationCheckbox from './validation-checkbox.svelte';
 
 	let { sort }: { sort: TransactionSort } = $props();
 </script>
