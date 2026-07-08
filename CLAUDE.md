@@ -4,7 +4,6 @@ Persistent agent and workflow rules for this repository.
 
 ## Ground Rules
 
-- No automatic staging, committing, or pushing. Commits only on explicit instruction.
 - Match existing code conventions. No drive-by refactors, renames, or reformatting.
 - Verify with real tool output — never fabricate file contents, API responses, or test results.
 - Keep codebase files in English.
