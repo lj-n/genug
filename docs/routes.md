@@ -4,7 +4,7 @@
 - Prefer redirects over duplicated routing logic. The app root already redirects logged-in users into the correct budget and month route.
 - Respect matcher-based params such as `[budgetId=id]` and `[month=month]` when adding routes, links, or helpers.
 - Keep page-specific UI near the route. Large table rows, filters, navigators, and detail widgets used only by one route stay under that route folder.
-- Move a component into `src/lib/components` only when reuse is real across multiple features.
+- When touching a route-local module, apply the extraction rule in `docs/components.md` ("Route-local module extraction") to decide whether it graduates to `src/lib/components/features/<domain>/` or stays in the route.
 - Keep server-only logic out of `.svelte` files. Database writes, auth checks, and permission checks go through remote functions or server modules.
 - Match existing Svelte 5 runes patterns: `$props()`, `$derived(...)`, `$state(...)`, `$effect(...)`.
 - Prefer async-derived remote data in components: `const foo = $derived(await getFoo(...))`.

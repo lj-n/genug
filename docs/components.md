@@ -13,3 +13,18 @@
 - No hardcoded feature copy in shared UI primitives. Pass labels from callers, localize with Paraglide.
 - Match existing Svelte 5 runes and snippet-based composition patterns in touched components.
 - Prefer `<Name>Icon` imports in touched feature code.
+
+## Route-local module extraction
+
+Route-local Svelte modules (components living under `src/routes/**`) follow an explicit lifecycle:
+
+- A route-local module graduates to `features/<domain>/` when at least one of these holds:
+  - it carries complex state logic (keyboard handling, form orchestration, multi-field sync),
+  - it is testable in isolation through its props/callbacks interface,
+  - it is reused across routes.
+- A module stays in the route when it is tightly coupled to page data, has a single call-site, and carries no independent state logic. Trivial state like a single `let open = $state(false)` toggle does not trigger extraction.
+- Extraction is reactive: apply the rule when you next touch a route-local module for other work. There is no one-time audit of existing route-local modules.
+- Promoted modules keep their filename and land in `features/<domain>/<name>.svelte`, where `<domain>` reflects the feature domain, not the route they came from (e.g. `table-row-create.svelte` from the accounts route lives in `features/transaction/`).
+- Companion files (local `utils.ts`, sibling components) move with the promoted module only when they are used exclusively by it; otherwise they stay in the route or are extracted separately.
+- Tests follow the extracted module: `features/<domain>/<name>.test.ts`, exercising state logic through the public interface (props in, events/callbacks out) — no implementation details, no DOM mocking.
+- This rule is a documented convention, not a gate: there is no ESLint or build enforcement.
