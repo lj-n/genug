@@ -70,8 +70,8 @@ export class BudgetPage extends BasePage {
 		await input.press('Enter');
 
 		const row = this.categoryRow(name);
-		// The link is rendered directly in the row (no async wait).
-		await expect(row.getByRole('link', { exact: true, name })).toBeVisible();
+		// The row button is rendered directly in the row (no async wait).
+		await expect(row.getByRole('button', { exact: true, name })).toBeVisible();
 		// CategoryAssignmentForm has its own `await getBudget()` — wait for the
 		// Budget button to confirm it has mounted before returning. All rows share
 		// the same getBudget cache, so this also unblocks other rows' buttons.

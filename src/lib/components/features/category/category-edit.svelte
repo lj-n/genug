@@ -1,26 +1,28 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
+	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { m } from '$lib/paraglide/messages';
-	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { editCategory, getCategoryById } from '$lib/remote-functions/category.remote';
+	import { type CURRENCIES } from '$lib/utils/currencies';
 	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { createSingletonToast } from '$lib/utils/singleton-toast.svelte';
 	import { fly } from 'svelte/transition';
-	import PhFloppyDiskDuotone from '~icons/ph/floppy-disk-duotone';
-	import PhTarget from '~icons/ph/target';
+	import FloppyDiskDuotoneIcon from '~icons/ph/floppy-disk-duotone';
+	import TargetIcon from '~icons/ph/target';
 
-	let { categoryId }: { categoryId: string } = $props();
+	let {
+		category,
+		currency
+	}: {
+		category: Awaited<ReturnType<typeof getCategoryById>>;
+		currency: (typeof CURRENCIES)[number];
+	} = $props();
 
-	const category = $derived(await getCategoryById({ categoryId }));
-	const budget = $derived(await getBudget(category.budgetId));
-	const currency = $derived(budget.currency);
+	let savedIndicator = createSingletonToast();
 
-	let savedToast = createSingletonToast();
-
-	const formId = $props.id();
 	const flyDuration = browser
 		? window.matchMedia('(prefers-reduced-motion: reduce)').matches
 			? 0
@@ -31,33 +33,18 @@
 <form
 	{...editCategory.enhance(async (form) => {
 		if (await form.submit()) {
-			savedToast.trigger();
+			savedIndicator.trigger();
 		}
 	})}
-	id={formId}
-	class="relative flex flex-col gap-2"
+	class="flex flex-col gap-2 rounded-md border border-muted/20 bg-background p-3 shadow-xs"
 >
-	{#if savedToast.show}
-		<div
-			class="absolute -top-10 right-2 flex items-center gap-1 rounded-md border border-success/50 bg-surface-high px-3 py-1 font-medium text-success shadow-lg"
-			transition:fly={{ duration: flyDuration, x: -20 }}
-		>
-			<PhFloppyDiskDuotone />
-			<span>{m.saved()}</span>
-		</div>
-	{/if}
-
 	<input {...editCategory.fields.categoryId.as('hidden', category.id)} />
-
-	<input type="submit" hidden />
 
 	<Input
 		{...editCategory.fields.categoryName.as('text', category.name)}
 		class="h-12 text-xl font-semibold"
 		placeholder={m.category_label_name()}
 		aria-label={m.category_label_name()}
-		onblur={() =>
-			formId && (document.getElementById(formId) as HTMLFormElement | null)?.requestSubmit()}
 	/>
 
 	{#each editCategory.fields.categoryName.issues() as issue (issue)}
@@ -69,8 +56,6 @@
 		class="min-h-30 resize-none py-2 text-base"
 		placeholder={m.category_placeholder_notes()}
 		aria-label={m.category_label_notes()}
-		onblur={() =>
-			formId && (document.getElementById(formId) as HTMLFormElement | null)?.requestSubmit()}
 	/>
 
 	<InputGroup.Root>
@@ -85,15 +70,29 @@
 			class="h-12 text-center text-xl font-semibold placeholder:text-base placeholder:font-normal"
 			placeholder={formatMoney({ currency, money: asMoney(0) })}
 			aria-label={m.category_label_targetbalance()}
-			onblur={() =>
-				formId && (document.getElementById(formId) as HTMLFormElement | null)?.requestSubmit()}
 		/>
 
 		<InputGroup.Addon align="block-end">
 			<InputGroup.Text class="mx-auto">
-				<PhTarget class="size-6" />
+				<TargetIcon class="size-6" />
 				<span>{m.category_label_targetbalance()}</span>
 			</InputGroup.Text>
 		</InputGroup.Addon>
 	</InputGroup.Root>
+
+	<div class="mt-auto flex items-center justify-end gap-3">
+		{#if savedIndicator.show}
+			<div
+				class="flex items-center gap-1 font-medium text-success"
+				transition:fly={{ duration: flyDuration, x: -20 }}
+			>
+				<FloppyDiskDuotoneIcon />
+				<span>{m.saved()}</span>
+			</div>
+		{/if}
+
+		<Button type="submit" disabled={editCategory.pending > 0}>
+			{m.save()}
+		</Button>
+	</div>
 </form>

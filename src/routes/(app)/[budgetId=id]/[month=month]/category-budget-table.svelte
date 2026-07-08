@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Month } from '$lib/utils/month';
 
-	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget, getMonthly } from '$lib/remote-functions/budget.remote';
 	import { reorderCategories } from '$lib/remote-functions/category.remote';
@@ -9,7 +8,6 @@
 	import { clamp } from '$lib/utils/clamp';
 	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
-	import { useDialog } from '$lib/utils/use-dialog';
 	import PhDotsSixVerticalBold from '~icons/ph/dots-six-vertical-bold';
 
 	import BudgetTableCell from './budget-table-cell.svelte';
@@ -96,16 +94,13 @@
 					class="relative flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/3"
 				>
 					<BudgetTableCell class="relative flex w-2/5 p-0">
-						<a
-							class="flex size-full items-center px-2 -outline-offset-2 hover:bg-surface hover:outline-2 hover:outline-interactive/60"
-							href={resolve('/(app)/[budgetId=id]/categories/[categoryId=id]', {
-								budgetId: budgetId(),
-								categoryId: row.id
-							})}
-							{@attach useDialog(() => openCategoryDialog(row.id))}
+						<button
+							type="button"
+							class="flex size-full cursor-pointer items-center px-2 text-left -outline-offset-2 hover:bg-surface hover:outline-2 hover:outline-interactive/60"
+							onclick={() => openCategoryDialog(row.id)}
 						>
 							{row.name}
-						</a>
+						</button>
 						{#if row.targetBalance !== null}
 							<div class="absolute bottom-0 flex w-full">
 								<div

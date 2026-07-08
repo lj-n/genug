@@ -1,20 +1,23 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
-	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategoryById, getCategoryStats } from '$lib/remote-functions/category.remote';
 	import { clamp } from '$lib/utils/clamp';
+	import { type CURRENCIES } from '$lib/utils/currencies';
 	import { asMoney, formatMoney } from '$lib/utils/money';
 
-	let { categoryId }: { categoryId: string } = $props();
+	let {
+		category,
+		currency
+	}: {
+		category: Awaited<ReturnType<typeof getCategoryById>>;
+		currency: (typeof CURRENCIES)[number];
+	} = $props();
 
-	const cat = $derived(await getCategoryById({ categoryId }));
-	const stats = $derived(await getCategoryStats({ categoryId }));
-	const budget = $derived(await getBudget(cat.budgetId));
-	const currency = $derived(budget.currency);
+	const stats = $derived(await getCategoryStats({ categoryId: category.id }));
 </script>
 
 <section
-	class="grid h-fit grid-cols-2 gap-2 text-foreground/80"
+	class="grid h-fit grid-cols-2 gap-2 rounded-md border border-muted/20 bg-background p-3 text-foreground/80 shadow-xs"
 	aria-label={m.category_section_title_stats()}
 >
 	<div class="rounded-md border border-info/20 bg-info/10 p-2 text-center">
