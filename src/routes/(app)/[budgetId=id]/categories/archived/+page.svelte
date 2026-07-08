@@ -36,9 +36,9 @@
 					<div class="group flex rounded-md border border-muted/20 bg-surface p-2 shadow-xs">
 						<div class="flex flex-col gap-1">
 							<a
-								href={resolve('/(app)/[budgetId=id]/categories/[categoryId=id]', {
+								href={resolve('/(app)/[budgetId=id]/[month=month]', {
 									budgetId: category.budgetId,
-									categoryId: category.id
+									month: toParam(currentMonth())
 								})}
 								class="hover:underline"
 							>

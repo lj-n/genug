@@ -2,15 +2,14 @@
 	import { AccountDropdown } from '$lib/components/features/account';
 	import { BudgetSettings } from '$lib/components/features/budget-settings';
 	import { BudgetUserManager } from '$lib/components/features/budget-user-manager';
+	import { CategoryDetailDialog } from '$lib/components/features/category';
 	import * as ButtonGroup from '$lib/components/ui/button-group';
-	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Page from '$lib/components/ui/page';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { parseMonth } from '$lib/utils/month';
 
 	import type { PageProps } from './$types';
 
-	import CategoryDetail from '../categories/[categoryId=id]/category-detail.svelte';
 	import CategoryBudgetTable from './category-budget-table.svelte';
 	import CategoryQuickActions from './category-quick-actions.svelte';
 	import MonthNavigator from './month-navigator.svelte';
@@ -25,7 +24,6 @@
 	// this page is still mounted — month-dependent content must not query then.
 	const month = $derived(parseMonth(params.month));
 
-	let openCategoryDetail = $state(false);
 	let selectedCategoryId = $state<null | string>(null);
 </script>
 
@@ -58,20 +56,10 @@
 				{month}
 				openCategoryDialog={(categoryId) => {
 					selectedCategoryId = categoryId;
-					openCategoryDetail = true;
 				}}
 			/>
 		{/if}
 	</Page.Content>
 </Page.Root>
 
-<Dialog.Root
-	bind:open={openCategoryDetail}
-	onOpenChangeComplete={(isOpen) => !isOpen && (selectedCategoryId = null)}
->
-	<Dialog.Content class="max-w-4xl">
-		{#if selectedCategoryId}
-			<CategoryDetail categoryId={selectedCategoryId} />
-		{/if}
-	</Dialog.Content>
-</Dialog.Root>
+<CategoryDetailDialog bind:categoryId={selectedCategoryId} />
