@@ -39,7 +39,7 @@
 <Popover.Root bind:open>
 	<Popover.Trigger
 		class={cn(
-			'h-full w-full cursor-pointer p-2 text-right font-currency -outline-offset-2 hover:bg-interactive/15 hover:outline-2 hover:outline-interactive/40',
+			'h-full w-full cursor-pointer p-2 text-right font-currency -outline-offset-2 hover:bg-surface hover:outline-2 hover:outline-interactive/60',
 			open && 'hidden'
 		)}
 		aria-label={m.budget_monthly_table_header_amount()}

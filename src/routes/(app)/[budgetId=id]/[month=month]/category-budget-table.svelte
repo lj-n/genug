@@ -97,7 +97,7 @@
 				>
 					<BudgetTableCell class="relative flex w-2/5 p-0">
 						<a
-							class="flex size-full items-center px-2 -outline-offset-2 hover:bg-interactive/15 hover:outline-2 hover:outline-interactive/40"
+							class="flex size-full items-center px-2 -outline-offset-2 hover:bg-surface hover:outline-2 hover:outline-interactive/60"
 							href={resolve('/(app)/[budgetId=id]/categories/[categoryId=id]', {
 								budgetId: budgetId(),
 								categoryId: row.id

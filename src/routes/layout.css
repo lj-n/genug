@@ -192,7 +192,7 @@
 
 @layer base {
 	*:focus-visible {
-		@apply border-focus ring-2 ring-focus/50 outline-none;
+		@apply ring-2 ring-focus outline-none;
 	}
 	html {
 		@apply font-sans;

@@ -6,9 +6,12 @@
  */
 
 /** `focus-visible:` flavor — for elements that receive focus directly. */
-export const focusRing =
-	'focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-focus/50';
+export const focusRing = 'focus-visible:ring-2 focus-visible:ring-focus';
 
-/** `focus-within:` flavor — for containers that wrap a focusable child. */
+/**
+ * Container flavor — rings only while the wrapped form control (input,
+ * select, textarea) is focus-visible. Other focusables inside the container
+ * (e.g. combobox trigger buttons) draw their own ring via the global rule.
+ */
 export const focusRingWithin =
-	'focus-within:border-focus focus-within:ring-2 focus-within:ring-focus/50';
+	'has-[:is(input,select,textarea):focus-visible]:ring-2 has-[:is(input,select,textarea):focus-visible]:ring-focus';
