@@ -5,7 +5,6 @@
 
 	import { inputVariants } from '$lib/components/ui/input';
 	import { getLocale, type Locale } from '$lib/paraglide/runtime';
-	import { parseMoney, unwrapMoney } from '$lib/utils/money';
 	import { CurrencyInput } from '@canutin/svelte-currency-input';
 	import { cn } from 'tailwind-variants';
 
@@ -19,7 +18,6 @@
 		decimalScale?: number;
 		decimalSeparator?: string;
 		decimalsLimit?: number;
-		defaultValue?: number | string | undefined; // consumed (not forwarded)
 		disableAbbreviations?: boolean;
 		disableGroupSeparators?: boolean;
 		fixedDecimalLength?: number;
@@ -38,8 +36,7 @@
 		step?: number;
 		suffix?: string;
 		transformRawValue?: (value: string) => string;
-		type?: string; // consumed (not forwarded)
-		value?: null | number | string;
+		value?: null | number;
 	};
 
 	let {
@@ -51,7 +48,6 @@
 		decimalScale,
 		decimalSeparator,
 		decimalsLimit,
-		defaultValue: _defaultValue, // consumed so field.as('number', 0) doesn't push it into restProps
 		disableAbbreviations,
 		disableGroupSeparators,
 		fixedDecimalLength,
@@ -72,47 +68,38 @@
 		step,
 		suffix,
 		transformRawValue,
-		type: _type, // consumed so field.as('number') doesn't push it into restProps
 		value = $bindable(null),
 		...restProps
 	}: Props = $props();
 
-	function toCents(raw: null | number | string): null | number {
-		if (raw === null || raw === undefined || raw === '') {
-			return null;
-		}
-		const money = parseMoney(raw);
-		return money === null ? null : unwrapMoney(money);
+	function normalizeCents(cents: null | number | undefined): null | number {
+		return cents === null || cents === undefined || Number.isNaN(cents) ? null : cents;
 	}
 
-	function centToInternalInputValue(centValue: null | number | string) {
-		const cents = toCents(centValue);
-		if (cents === null) {
-			return '';
-		}
-		return (cents / 100).toFixed(2);
+	function centsToInputValue(cents: null | number | undefined): string {
+		const normalized = normalizeCents(cents);
+		return normalized === null ? '' : (normalized / 100).toFixed(2);
 	}
 
-	function floatToCentValue(floatValue: null | number) {
+	function floatToCents(floatValue: null | number): null | number {
 		if (floatValue === null || floatValue === undefined || Number.isNaN(floatValue)) {
 			return null;
 		}
-		const money = parseMoney(Math.round(floatValue * 100));
-		return money === null ? null : unwrapMoney(money);
+		return Math.round(floatValue * 100);
 	}
 
 	// Internal string value for CurrencyInput (library expects string)
-	let internalValue = $state(centToInternalInputValue(value));
-	let internalCentValue = $state<null | number>(toCents(value));
+	let internalValue = $state(centsToInputValue(value));
+	let internalCentValue = $state<null | number>(normalizeCents(value));
 
 	// Keep internal value synchronized from canonical external cent state.
 	$effect(() => {
-		const resolved = toCents(value);
+		const resolved = normalizeCents(value);
 		if (resolved === internalCentValue) {
 			return;
 		}
 
-		const expectedInternalValue = centToInternalInputValue(value);
+		const expectedInternalValue = centsToInputValue(value);
 
 		if (internalValue !== expectedInternalValue) {
 			internalValue = expectedInternalValue;
@@ -123,7 +110,7 @@
 
 	function handleInputValue(values: CurrencyInputValues) {
 		internalValue = values.value;
-		const nextCentValue = floatToCentValue(values.float);
+		const nextCentValue = floatToCents(values.float);
 		internalCentValue = nextCentValue;
 		value = nextCentValue;
 		oninputvalue?.(values);
@@ -131,7 +118,7 @@
 
 	function handleChangeValue(values: CurrencyInputValues) {
 		internalValue = values.value;
-		const nextCentValue = floatToCentValue(values.float);
+		const nextCentValue = floatToCents(values.float);
 		internalCentValue = nextCentValue;
 		value = nextCentValue;
 		onchangevalue?.(values);
@@ -178,11 +165,7 @@
 	<input
 		type="hidden"
 		{name}
-		value={value === null ||
-		value === undefined ||
-		(typeof value === 'number' && Number.isNaN(value))
-			? ''
-			: String(value)}
+		value={normalizeCents(value) === null ? '' : String(value)}
 		disabled={restProps.disabled}
 		form={restProps.form}
 	/>

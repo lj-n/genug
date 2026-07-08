@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { AccountBalances, AccountSetName } from '$lib/components/account';
+	import { AccountBalances, AccountSetName } from '$lib/components/features/account';
 	import * as Page from '$lib/components/ui/page';
 	import { Separator } from '$lib/components/ui/separator';
 	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';

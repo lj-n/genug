@@ -4,11 +4,11 @@
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 
-	import { Button } from '../ui/button';
-	import { FormBody } from '../ui/form-body';
-	import { FormField } from '../ui/form-field';
-	import { Input } from '../ui/input';
-	import { InputCurrency } from '../ui/input-currency';
+	import { Button } from '../../ui/button';
+	import { FormBody } from '../../ui/form-body';
+	import { FormField } from '../../ui/form-field';
+	import { Input } from '../../ui/input';
+	import { InputCurrency } from '../../ui/input-currency';
 
 	const budgetId = getBudgetId();
 
@@ -27,7 +27,12 @@
 
 	<FormField field={form.fields.startingBalance} label={m.account_starting_balance_label()}>
 		{#snippet input(field)}
-			<InputCurrency {...field.as('number', 0)} currency={budget.currency} />
+			<InputCurrency
+				name={field.as('number').name}
+				bind:value={() => field.value() ?? 0, (v) => field.set(v)}
+				currency={budget.currency}
+				aria-invalid={field.issues()?.length ? true : undefined}
+			/>
 		{/snippet}
 	</FormField>
 
