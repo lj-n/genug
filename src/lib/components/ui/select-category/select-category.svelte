@@ -112,7 +112,7 @@
 			{...inputProps}
 			aria-invalid={ariaInvalid}
 			aria-label={ariaLabel}
-			class="h-full flex-1 border-0 bg-transparent px-2 py-1 outline-none placeholder:text-muted"
+			class="h-full flex-1 border-0 bg-transparent px-2 py-1 outline-none placeholder:text-muted focus-visible:ring-0"
 			{placeholder}
 			oninput={handleInput}
 		/>

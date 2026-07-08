@@ -2,6 +2,7 @@
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
 	import { buttonVariants } from '$lib/components/ui/button';
+	import { focusRingWithin } from '$lib/components/ui/focus-ring';
 	import { Label } from '$lib/components/ui/label';
 	import SealIcon from '~icons/ph/seal';
 	import SealCheckDuotoneIcon from '~icons/ph/seal-check-duotone';
@@ -15,7 +16,7 @@
 
 <Label
 	class={buttonVariants({
-		class: 'relative cursor-pointer rounded-xs hover:bg-transparent',
+		class: `relative cursor-pointer rounded-xs hover:bg-transparent ${focusRingWithin}`,
 		size: 'icon-lg',
 		variant: 'ghost'
 	})}

@@ -65,7 +65,7 @@
 			aria-disabled={dragDisabled}
 			class={cn(
 				'ml-auto cursor-grab rounded-sm opacity-0',
-				'group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-info/50 focus-visible:outline-none',
+				'group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none',
 				dragDisabled && 'hidden'
 			)}
 			data-drag-handle={dragHandleIdentifier}

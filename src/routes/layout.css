@@ -191,6 +191,9 @@
 }
 
 @layer base {
+	*:focus-visible {
+		@apply ring-2 ring-focus outline-none;
+	}
 	html {
 		@apply font-sans;
 		scrollbar-gutter: stable;

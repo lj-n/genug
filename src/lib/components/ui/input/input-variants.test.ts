@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { focusRing, focusRingWithin } from '../focus-ring';
+import { focusRingWithin } from '../focus-ring';
 import { inputVariants } from './input-variants';
 
 function classList(result: string): string[] {
@@ -40,12 +40,13 @@ describe('inputVariants', () => {
 		expect(classList(inputVariants())).toContain('placeholder:text-muted');
 	});
 
-	it('default variant composes the focus-visible focus ring', () => {
+	it('default variant does not include the focus ring classes (provided globally via layout.css)', () => {
 		const result = classList(inputVariants());
 
-		for (const cls of classList(focusRing)) {
-			expect(result).toContain(cls);
-		}
+		// The bg-surface/80 transition is part of the variant chrome, not the focus ring.
+		expect(result).not.toContain('focus-visible:ring-2');
+		expect(result).not.toContain('focus-visible:ring-focus/50');
+		expect(result).not.toContain('focus-visible:border-focus');
 	});
 
 	it('container variant composes the focus-within flavor instead of focus-visible', () => {

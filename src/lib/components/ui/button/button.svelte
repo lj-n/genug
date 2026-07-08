@@ -6,7 +6,7 @@
 	import { cn, tv, type VariantProps } from 'tailwind-variants';
 
 	export const variants = tv({
-		base: "focus-visible:border-focus hover:cursor-pointer focus-visible:ring-focus/50 aria-invalid:ring-error/20 aria-invalid:border-error rounded-md border border-transparent bg-clip-padding focus-visible:ring-2 active:not-aria-[haspopup]:translate-y-px aria-invalid:ring-2 [&_svg:not([class*='size-'])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+		base: "hover:cursor-pointer aria-invalid:ring-error/20 aria-invalid:border-error rounded-md border border-transparent bg-clip-padding active:not-aria-[haspopup]:translate-y-px aria-invalid:ring-2 [&_svg:not([class*='size-'])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
 		defaultVariants: {
 			size: 'default',
 			variant: 'default'

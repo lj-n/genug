@@ -5,6 +5,8 @@
 	import { cn } from 'tailwind-variants';
 	import PhCaretDown from '~icons/ph/caret-down';
 
+	import { focusRingWithin } from '../focus-ring';
+
 	let {
 		class: className,
 		ref = $bindable(null),
@@ -15,7 +17,7 @@
 
 <span
 	class={cn(
-		'relative flex rounded-md border border-muted/20 shadow-xs has-focus:border-focus has-focus:ring-[3px] has-focus:ring-focus/50',
+		`relative flex rounded-md border border-muted/20 shadow-xs ${focusRingWithin}`,
 		className
 	)}
 >

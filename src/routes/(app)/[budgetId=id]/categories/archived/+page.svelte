@@ -31,6 +31,7 @@
 	<Page.Content>
 		<ul class="space-y-2">
 			{#each categories as category (category.id)}
+				{@const restoreForm = restoreCategory.for(category.id)}
 				<li animate:flip={{ duration: 300 }}>
 					<div class="group flex rounded-md border border-muted/20 bg-surface p-2 shadow-xs">
 						<div class="flex flex-col gap-1">
@@ -55,7 +56,7 @@
 							class="ml-auto opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100"
 						>
 							<form
-								{...restoreCategory.enhance(async (form) => {
+								{...restoreForm.enhance(async (form) => {
 									if (await form.submit()) {
 										await new Promise((r) => setTimeout(r, 300));
 										goto(
@@ -67,7 +68,7 @@
 									}
 								})}
 							>
-								<input {...restoreCategory.fields.categoryId.as('hidden', category.id)} />
+								<input {...restoreForm.fields.categoryId.as('hidden', category.id)} />
 								<Button type="submit">
 									<PhHandWithdraw class="size-4" />
 									{m.category_archive_restore_button()}
