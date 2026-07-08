@@ -1,7 +1,9 @@
 # Component Conventions
 
-- Feature components grouped by domain under `src/lib/components`.
-- Shared primitives in `src/lib/components/ui` — reusable, feature-agnostic.
+- Two tiers under `src/lib/components`, separated by directory:
+  - `src/lib/components/ui` — feature-agnostic primitives. No business logic, no domain imports (type-only allowed), no remote functions, no form orchestration.
+  - `src/lib/components/features` — feature modules (see `CONTEXT.md`): domain-coupled components that import remote functions, orchestrate forms, and own interaction state. One directory per capability, each with an `index.ts` barrel.
+- No root barrel. Consumers import from explicit paths (`$lib/components/features/account`, `$lib/components/ui/logo`) so the import path itself states the coupling.
 - Prefer composition over one-off wrappers unless a wrapper adds clear feature meaning.
 - Keep data loading shallow in reusable components. No substantial business logic inside presentational UI.
 - Follow the existing export shape for primitives, including `index.ts` re-exports of `Root` and named parts where that pattern already exists.

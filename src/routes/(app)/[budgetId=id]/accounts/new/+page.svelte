@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { AccountCreate } from '$lib/components/account';
+	import { AccountCreate } from '$lib/components/features/account';
 	import * as Page from '$lib/components/ui/page';
 	import { m } from '$lib/paraglide/messages';
 </script>

@@ -6,8 +6,8 @@
 	import { editAccount, getAccount } from '$lib/remote-functions/account.remote';
 	import PencilIcon from '~icons/ph/pencil';
 
-	import { FormField } from '../ui/form-field';
-	import { Input } from '../ui/input';
+	import { FormField } from '../../ui/form-field';
+	import { Input } from '../../ui/input';
 
 	let { accountId }: { accountId: string } = $props();
 

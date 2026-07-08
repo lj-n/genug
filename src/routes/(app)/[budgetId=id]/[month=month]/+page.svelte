@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { AccountDropdown } from '$lib/components/account';
-	import { BudgetSettings } from '$lib/components/budget-settings';
-	import BudgetUserManager from '$lib/components/budget-user-manager/budget-user-manager.svelte';
+	import { AccountDropdown } from '$lib/components/features/account';
+	import { BudgetSettings } from '$lib/components/features/budget-settings';
+	import { BudgetUserManager } from '$lib/components/features/budget-user-manager';
 	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Page from '$lib/components/ui/page';

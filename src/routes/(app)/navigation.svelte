@@ -4,8 +4,8 @@
 
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import Logo from '$lib/components/logo.svelte';
-	import SideMenu from '$lib/components/side-menu.svelte';
+	import { SideMenu } from '$lib/components/features/side-menu';
+	import { Logo } from '$lib/components/ui/logo';
 	import { m } from '$lib/paraglide/messages';
 	import { signout } from '$lib/remote-functions/auth.remote';
 	import { getUser } from '$lib/remote-functions/user.remote';

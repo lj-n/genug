@@ -4,9 +4,9 @@
 
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import Logo from '$lib/components/logo.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as Drawer from '$lib/components/ui/drawer';
+	import { Logo } from '$lib/components/ui/logo';
 	import { m } from '$lib/paraglide/messages';
 	import { getAccounts } from '$lib/remote-functions/account.remote';
 	import { signout } from '$lib/remote-functions/auth.remote';

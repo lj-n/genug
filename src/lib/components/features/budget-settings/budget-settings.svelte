@@ -10,7 +10,7 @@
 	import { CURRENCIES } from '$lib/utils/currencies';
 	import PencilIcon from '~icons/ph/pencil';
 
-	import { Label } from '../ui/label';
+	import { Label } from '../../ui/label';
 
 	const budgetId = getBudgetId();
 

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import Logo from '$lib/components/logo.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import { InputPassword } from '$lib/components/ui/input-password';
+	import { Logo } from '$lib/components/ui/logo';
 	import { m } from '$lib/paraglide/messages';
 	import { login } from '$lib/remote-functions/auth.remote';
 	import PhUserCircleDuotone from '~icons/ph/user-circle-duotone';

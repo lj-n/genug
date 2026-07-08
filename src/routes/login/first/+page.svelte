@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Logo from '$lib/components/logo.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as InputGroup from '$lib/components/ui/input-group';
+	import { Logo } from '$lib/components/ui/logo';
 	import { m } from '$lib/paraglide/messages';
 	import { register } from '$lib/remote-functions/auth.remote';
 	import PhEye from '~icons/ph/eye';

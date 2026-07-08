@@ -8,7 +8,7 @@
 	import EnvelopeDuotoneIcon from '~icons/ph/envelope-duotone';
 	import UserCircleIcon from '~icons/ph/user-circle';
 
-	import { Button } from '../ui/button';
+	import { Button } from '../../ui/button';
 
 	type UserListProps = {
 		isOwner: boolean;
