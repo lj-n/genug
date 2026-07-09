@@ -2,7 +2,12 @@ import { requested } from '$app/server';
 import { BudgetIdSchema } from '$lib/schemas/budget';
 import { CategoryCreateSchema, CategoryEditSchema, CategoryIdSchema } from '$lib/schemas/category';
 import { OrderedIdsSchema } from '$lib/schemas/utils';
-import { guardedCommand, guardedForm, guardedQuery } from '$server/utils/remote-guard';
+import {
+	guardedBatchQuery,
+	guardedCommand,
+	guardedForm,
+	guardedQuery
+} from '$server/utils/remote-guard';
 import { invalid, isHttpError } from '@sveltejs/kit';
 
 import { getMonthly } from './budget.remote';
@@ -15,17 +20,24 @@ export const getArchivedCategories = guardedQuery(BudgetIdSchema, async ({ budge
 	ctx.category.archived(budgetId)
 );
 
-export const getCategoryById = guardedQuery(CategoryIdSchema, async ({ categoryId }, { ctx }) =>
-	ctx.category.byId(categoryId)
-);
+export const getCategoryById = guardedBatchQuery(CategoryIdSchema, async (args, { ctx }) => {
+	const results = await Promise.all(args.map(({ categoryId }) => ctx.category.byId(categoryId)));
+	return (_arg, idx) => results[idx];
+});
 
-export const getCategoryStats = guardedQuery(CategoryIdSchema, async ({ categoryId }, { ctx }) =>
-	ctx.category.stats(categoryId)
-);
+export const getCategoryStats = guardedBatchQuery(CategoryIdSchema, async (args, { ctx }) => {
+	const results = await Promise.all(args.map(({ categoryId }) => ctx.category.stats(categoryId)));
+	return (_arg, idx) => results[idx];
+});
 
-export const getCategoryArchivability = guardedQuery(
+export const getCategoryArchivability = guardedBatchQuery(
 	CategoryIdSchema,
-	async ({ categoryId }, { ctx }) => ctx.category.archivability(categoryId)
+	async (args, { ctx }) => {
+		const results = await Promise.all(
+			args.map(({ categoryId }) => ctx.category.archivability(categoryId))
+		);
+		return (_arg, idx) => results[idx];
+	}
 );
 
 export const createCategory = guardedForm(

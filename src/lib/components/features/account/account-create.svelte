@@ -12,7 +12,7 @@
 
 	const budgetId = getBudgetId();
 
-	const budget = $derived(await getBudget(budgetId()));
+	const budgetQuery = $derived(getBudget(budgetId()));
 	const form = $derived(createAccount.for(budgetId()));
 </script>
 
@@ -30,7 +30,7 @@
 			<InputCurrency
 				name={field.as('number').name}
 				bind:value={() => field.value() ?? 0, (v) => field.set(v)}
-				currency={budget.currency}
+				currency={(await budgetQuery).currency}
 				aria-invalid={field.issues()?.length ? true : undefined}
 			/>
 		{/snippet}

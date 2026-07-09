@@ -24,6 +24,14 @@ _Avoid_: custom outline, per-component ring values
 A mechanical entry point (remote function or server load) that connects SvelteKit to user-context: it guards auth, validates input, translates form semantics, redirects, and refreshes caches — but produces no values and holds no business rules (see ADR-0002).
 _Avoid_: endpoint, controller, service layer
 
+**Read site**:
+The place in markup where a remote query's value is actually consumed. Queries are awaited at their read site, not at component top level, unless the value is read unconditionally in always-rendered markup (see ADR-0003).
+_Avoid_: usage point, consumer location
+
+**Hot path**:
+An interaction whose server round-trip is felt because the user repeats it rapidly (e.g. assigning money to categories). Only hot paths may use optimistic query overrides; everything else refreshes single-flight.
+_Avoid_: critical path, fast path
+
 **Feature module**:
 A component directory coupled to a specific application capability — imports remote functions, orchestrates forms, owns interaction state. Lives under `src/lib/components/features/`, one directory per capability with an `index.ts` barrel; consumers import from the explicit path (e.g. `$lib/components/features/account`). Primitives in `src/lib/components/ui` stay feature-agnostic: no remote functions, no domain logic, at most type-only domain imports.
 _Avoid_: shared component, domain component, widget

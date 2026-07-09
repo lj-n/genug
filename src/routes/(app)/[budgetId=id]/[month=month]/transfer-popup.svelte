@@ -35,7 +35,7 @@
 
 	const budgetId = getBudgetId();
 	const budget = $derived(await getBudget(budgetId()));
-	const unassigned = $derived(await getUnassigned(budgetId()));
+	const unassignedQuery = $derived(getUnassigned(budgetId()));
 	const getOtherRemaining = $derived(
 		(id: string) => otherCategories.find((f) => f.id === id)?.remaining ?? 0
 	);
@@ -112,7 +112,7 @@
 	>
 		{#snippet customItemRow({ label, value: id })}
 			{@render customSelectRow({
-				balance: id === UNASSIGNED ? unassigned : getOtherRemaining(id),
+				balance: id === UNASSIGNED ? await unassignedQuery : getOtherRemaining(id),
 				id,
 				label
 			})}

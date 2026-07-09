@@ -9,9 +9,10 @@
 
 	const budgetId = getBudgetId();
 
-	const unassigned = $derived(await getUnassigned(budgetId()));
+	const unassignedQuery = $derived(getUnassigned(budgetId()));
+	const budgetQuery = $derived(getBudget(budgetId()));
 
-	const { currency } = $derived(await getBudget(budgetId()));
+	const unassigned = $derived(await unassignedQuery);
 </script>
 
 {#snippet label()}
@@ -40,7 +41,7 @@
 
 	{#if unassigned !== 0}
 		<div class="font-semibold text-foreground tabular-nums">
-			{formatMoney({ currency, money: asMoney(unassigned) })}
+			{formatMoney({ currency: (await budgetQuery).currency, money: asMoney(unassigned) })}
 		</div>
 	{/if}
 </div>

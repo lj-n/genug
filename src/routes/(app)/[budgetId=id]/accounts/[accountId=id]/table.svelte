@@ -3,11 +3,11 @@
 	import { TableRowCreate } from '$lib/components/features/transaction';
 	import { Button } from '$lib/components/ui/button';
 	import { m } from '$lib/paraglide/messages';
-	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import {
 		batchValidateTransactions,
 		listTransactions
 	} from '$lib/remote-functions/transaction.remote';
+	import { CURRENCIES } from '$lib/utils/currencies';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { parseDate } from '@internationalized/date';
@@ -26,9 +26,15 @@
 	import TableRow from './table-row.svelte';
 	import { colsClass, getTransactionURLParams } from './utils';
 
-	let { accountId, budgetId }: { accountId: string; budgetId: string } = $props();
-
-	const budget = $derived(await getBudget(budgetId));
+	let {
+		accountId,
+		budgetId,
+		currency
+	}: {
+		accountId: string;
+		budgetId: string;
+		currency: (typeof CURRENCIES)[number];
+	} = $props();
 
 	const params = $derived(getTransactionURLParams(page.url));
 	let sort = $state(new TransactionSort(untrack(() => params)));
@@ -96,7 +102,7 @@
 							onclick={setEditing}
 							class="justify-end font-currency font-normal"
 						>
-							{formatMoney({ currency: budget.currency, money: asMoney(item.amount) })}
+							{formatMoney({ currency, money: asMoney(item.amount) })}
 						</TableCell>
 
 						<TableCell>

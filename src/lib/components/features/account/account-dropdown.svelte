@@ -12,7 +12,7 @@
 	import { AccountCreate } from '../account';
 
 	const budgetId = getBudgetId();
-	const accounts = $derived(await getAccounts(budgetId()));
+	const accountsQuery = $derived(getAccounts(budgetId()));
 
 	let open = $state(false);
 </script>
@@ -33,7 +33,7 @@
 				{m.budget_account_list_accounts_label()}
 			</DropdownMenu.Label>
 
-			{#each accounts as account (account.id)}
+			{#each await accountsQuery as account (account.id)}
 				<DropdownMenu.Item>
 					{#snippet child({ props })}
 						<a

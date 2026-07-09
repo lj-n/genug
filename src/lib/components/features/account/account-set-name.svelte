@@ -11,7 +11,7 @@
 
 	let { accountId }: { accountId: string } = $props();
 
-	const account = $derived(await getAccount(accountId));
+	const accountQuery = $derived(getAccount(accountId));
 </script>
 
 <DialogForm enhance={editAccount.enhance}>
@@ -30,6 +30,7 @@
 	{/snippet}
 
 	{#snippet fields()}
+		{@const account = await accountQuery}
 		<div class="grid space-y-3 rounded-xl bg-muted/5 p-3">
 			<input {...editAccount.fields.accountId.as('hidden', accountId)} />
 
