@@ -44,5 +44,7 @@ path. Tests target user-context.
 - Loads that use `createUserCtx()` directly must check `locals.session`
   themselves — the guard helpers do not cover them.
 - Existing violations in `budget.remote.ts` (`findEligibleUser`, `inviteUser`)
-  and `transaction.remote.ts` (date/validated defaults, double list query) are
-  tracked as follow-up issues rather than fixed alongside this decision.
+  and `transaction.remote.ts` (date/validated defaults) are tracked as
+  follow-up issues rather than fixed alongside this decision. The double list
+  query in `transaction.remote.ts` was resolved by consolidating transaction
+  listing into one `page()` user-context operation (#50).
