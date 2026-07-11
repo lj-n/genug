@@ -17,7 +17,6 @@ import { and, eq, isNotNull, isNull, sql } from 'drizzle-orm';
  */
 
 export function categoryBalances(db: Database, month: Month) {
-	// ── transaction aggregate ──────────────────────────────────────────
 	const txAgg = db
 		.select({
 			activity:
@@ -43,7 +42,6 @@ export function categoryBalances(db: Database, month: Month) {
 		.groupBy(tables.transactions.categoryId)
 		.as('txAgg');
 
-	// ── assignment aggregate ───────────────────────────────────────────
 	const assignmentAgg = db
 		.select({
 			allTimeAssignmentSum: sql<number>`coalesce(sum(${tables.budgetAssignments.amount}), 0)`.as(
@@ -64,7 +62,6 @@ export function categoryBalances(db: Database, month: Month) {
 		.groupBy(tables.budgetAssignments.categoryId)
 		.as('assignmentAgg');
 
-	// ── every category id that appears in either source ────────────────
 	const allCategoryIds = db
 		.select({ categoryId: tables.transactions.categoryId })
 		.from(tables.transactions)

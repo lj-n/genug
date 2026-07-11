@@ -42,8 +42,6 @@ function seedTransaction(
 		.run();
 }
 
-// ── categoryBalances ────────────────────────────────────────────────────────
-
 describe('categoryBalances', () => {
 	const month = parseMonth(202501)!;
 	const prevMonth = parseMonth(202412)!;
@@ -204,8 +202,6 @@ describe('categoryBalances', () => {
 		expect(row.allTimeRemaining).toBe(10000 + 15000 + 20000 + -4000 + -6000 + -5000); // 30000
 	});
 });
-
-// ── unassigned ──────────────────────────────────────────────────────────────
 
 describe('unassigned', () => {
 	it('returns income minus all assignments, budget-lifetime', () => {
