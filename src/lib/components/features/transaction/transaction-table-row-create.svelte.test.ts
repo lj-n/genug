@@ -93,7 +93,7 @@ vi.mock('$lib/remote-functions/transaction.remote', () => ({
 vi.mock('$lib/remote-functions/budget.remote', () => ({ getBudget: remote.getBudget }));
 vi.mock('$lib/remote-functions/category.remote', () => ({ getCategories: remote.getCategories }));
 
-import TableRowCreate from './table-row-create.svelte';
+import TableRowCreate from './transaction-table-row-create.svelte';
 
 const urlParams = parse(TransactionsURLParamsSchema, {});
 

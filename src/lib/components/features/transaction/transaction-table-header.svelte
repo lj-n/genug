@@ -1,16 +1,17 @@
 <script lang="ts">
-	import { ValidationCheckbox } from '$lib/components/features/transaction';
 	import { m } from '$lib/paraglide/messages';
 	import { cn } from 'tailwind-variants';
 	import CaretDownIcon from '~icons/ph/caret-down';
 	import CaretUpIcon from '~icons/ph/caret-up';
 	import CaretUpDownIcon from '~icons/ph/caret-up-down';
 
-	import type { SortColumn, TransactionSort } from './sort.svelte';
+	import type { SortColumn, TransactionSort } from './transaction-sort.svelte';
 
-	import { colsClass } from './utils';
+	import { colsClass } from './transaction-table-cols';
+	import ValidationCheckbox from './transaction-validation-checkbox.svelte';
 
-	let { sort }: { sort: TransactionSort } = $props();
+	let { onToggle, sort }: { onToggle: (column: SortColumn) => void; sort: TransactionSort } =
+		$props();
 </script>
 
 {#snippet sortIcon(column: SortColumn)}
@@ -28,7 +29,7 @@
 		<div role="columnheader" class="flex items-center gap-1 px-4 text-sm font-semibold">
 			{m.transactions_table_header_category()}
 			<button
-				onclick={() => sort.toggle('category')}
+				onclick={() => onToggle('category')}
 				aria-label={m.transactions_table_sort_category()}
 			>
 				{@render sortIcon('category')}
@@ -38,20 +39,20 @@
 			{m.transactions_table_header_notes()}
 		</div>
 		<div role="columnheader" class="flex items-center justify-end gap-1 px-4 text-sm font-semibold">
-			<button onclick={() => sort.toggle('date')} aria-label={m.transactions_table_sort_date()}>
+			<button onclick={() => onToggle('date')} aria-label={m.transactions_table_sort_date()}>
 				{@render sortIcon('date')}
 			</button>
 			{m.transactions_table_header_date()}
 		</div>
 		<div role="columnheader" class="flex items-center justify-end gap-1 px-4 text-sm font-semibold">
-			<button onclick={() => sort.toggle('amount')} aria-label={m.transactions_table_sort_amount()}>
+			<button onclick={() => onToggle('amount')} aria-label={m.transactions_table_sort_amount()}>
 				{@render sortIcon('amount')}
 			</button>
 			{m.transactions_table_header_amount()}
 		</div>
 		<div role="columnheader" class="flex items-center gap-1 px-2 text-sm font-semibold">
 			<button
-				onclick={() => sort.toggle('validated')}
+				onclick={() => onToggle('validated')}
 				aria-label={m.transactions_table_sort_validated()}
 			>
 				{@render sortIcon('validated')}

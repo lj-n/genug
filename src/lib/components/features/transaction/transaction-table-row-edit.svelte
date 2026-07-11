@@ -1,14 +1,13 @@
 <script lang="ts">
 	import type { ListTransaction } from '$lib/server/db/user-context/transaction';
+	import type { CURRENCIES } from '$lib/utils/currencies';
 
-	import { ValidationCheckbox } from '$lib/components/features/transaction';
 	import { Button } from '$lib/components/ui/button';
 	import { DatePicker } from '$lib/components/ui/date-picker';
 	import { Input } from '$lib/components/ui/input';
 	import { InputCurrency } from '$lib/components/ui/input-currency';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { m } from '$lib/paraglide/messages';
-	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategories } from '$lib/remote-functions/category.remote';
 	import {
 		batchDeleteTransactions,
@@ -21,19 +20,24 @@
 	import { cn } from 'tailwind-variants';
 	import TrashIcon from '~icons/ph/trash';
 
-	import { colsClass } from './utils';
+	import { colsClass } from './transaction-table-cols';
+	import ValidationCheckbox from './transaction-validation-checkbox.svelte';
 
 	let {
 		budgetId,
 		cancelEditing,
+		currency,
 		transaction
-	}: { budgetId: string; cancelEditing: () => void; transaction: ListTransaction } = $props();
+	}: {
+		budgetId: string;
+		cancelEditing: () => void;
+		currency: (typeof CURRENCIES)[number];
+		transaction: ListTransaction;
+	} = $props();
 
 	const id = $props.id();
 	const form = editTransaction.for(id);
 	const deleteFormId = `dform-${id}`;
-
-	const budget = $derived(await getBudget(budgetId));
 
 	const categories = $derived(await getCategories({ budgetId }));
 
@@ -104,7 +108,7 @@
 			bind:value={
 				() => form.fields.amount.value() ?? transaction.amount, (v) => form.fields.amount.set(v)
 			}
-			currency={budget.currency}
+			{currency}
 			class="px-2 text-right font-currency font-normal"
 		/>
 	</div>
