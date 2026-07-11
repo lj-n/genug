@@ -20,7 +20,7 @@ new code are defects, not taste.
 - Prefer attachments (`{@attach ...}` / `Attachment`) over `onMount` for
   element-scoped behavior.
 - Remote query consumption follows `docs/remote-functions.md` (ADR-0003):
-  await where you read.
+  `const x = $derived(await getX(...))` at script top level, never in markup.
 
 ## TypeScript idioms
 

@@ -11,37 +11,31 @@
 
 	let { params }: PageProps = $props();
 
-	const accountQuery = $derived(getAccount(params.accountId));
-	const balancesQuery = $derived(getAccountBalances(params.accountId));
-	const budgetQuery = $derived(getBudget(params.budgetId));
+	const account = $derived(await getAccount(params.accountId));
+	const balanceDetail = $derived(await getAccountBalances(params.accountId));
+	const budget = $derived(await getBudget(params.budgetId));
+
+	const balances = $derived({
+		balance: account.balance,
+		pending: balanceDetail.pending,
+		validated: balanceDetail.validated
+	});
 </script>
 
 <Page.Root>
 	<Page.Header class="flex-row items-center justify-between gap-4">
 		<Page.Title>
-			{(await accountQuery).name}
+			{account.name}
 		</Page.Title>
 
 		<AccountSetName accountId={params.accountId} />
 	</Page.Header>
 
 	<Page.Content>
-		{@const balanceDetail = await balancesQuery}
-		<AccountBalances
-			balances={{
-				balance: (await accountQuery).balance,
-				pending: balanceDetail.pending,
-				validated: balanceDetail.validated
-			}}
-			currency={(await budgetQuery).currency}
-		/>
+		<AccountBalances {balances} currency={budget.currency} />
 
 		<Separator orientation="horizontal" />
 
-		<Table
-			accountId={params.accountId}
-			budgetId={params.budgetId}
-			currency={(await budgetQuery).currency}
-		/>
+		<Table accountId={params.accountId} budgetId={params.budgetId} />
 	</Page.Content>
 </Page.Root>

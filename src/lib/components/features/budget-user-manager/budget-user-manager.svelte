@@ -13,9 +13,9 @@
 
 	const budgetId = getBudgetId();
 
-	const userQuery = getUser();
-
 	const budgetUsers = $derived(await getBudgetUsers(budgetId()));
+	const user = $derived(await getUser());
+	const isOwner = $derived(budgetUsers.some((s) => s.id === user.id && s.role === 'OWNER'));
 	const invited = $derived(budgetUsers.filter((f) => f.role === 'INVITEE'));
 	const members = $derived(budgetUsers.filter((f) => f.role !== 'INVITEE'));
 </script>
@@ -34,8 +34,6 @@
 	</Dialog.Trigger>
 
 	<Dialog.Content class="max-w-lg gap-0" interactOutsideBehavior="ignore">
-		{@const user = await userQuery}
-		{@const isOwner = budgetUsers.some((s) => s.id === user.id && s.role === 'OWNER')}
 		<Dialog.Header>
 			<Dialog.Title>{m.budget_users_dialog_title()}</Dialog.Title>
 			<Dialog.Description class="grid gap-4">

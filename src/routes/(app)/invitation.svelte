@@ -13,7 +13,7 @@
 
 	let open = $state(false);
 
-	const userQuery = getUser();
+	const user = $derived(await getUser());
 </script>
 
 <Dialog.Root bind:open>
@@ -50,7 +50,7 @@
 				})}
 			>
 				<input {...removeUser.fields.budgetId.as('hidden', invitation.budgetId)} />
-				<Button variant="ghost" type="submit" name="userId" value={(await userQuery).id}
+				<Button variant="ghost" type="submit" name="userId" value={user.id}
 					>{m.invitation_decline_button()}</Button
 				>
 			</form>
@@ -62,9 +62,7 @@
 				})}
 			>
 				<input {...acceptInvite.fields.budgetId.as('hidden', invitation.budgetId)} />
-				<Button type="submit" name="userId" value={(await userQuery).id}
-					>{m.invitation_accept_button()}</Button
-				>
+				<Button type="submit" name="userId" value={user.id}>{m.invitation_accept_button()}</Button>
 			</form>
 		</Dialog.Footer>
 	</Dialog.Content>

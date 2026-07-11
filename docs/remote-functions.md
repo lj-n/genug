@@ -27,30 +27,26 @@
 
 ## Client side (consuming queries)
 
-The canonical rule is **await where you read** (ADR-0003):
+The canonical rule is **one pattern, awaited at component top level**
+(ADR-0003):
 
-- Create query objects at script top level: `const q = getX()` for static
-  args, `const q = $derived(getX(arg))` for reactive args. Creating a query
-  does not fetch; the first `await`/read does.
-- `await` the query at its read site:
-  - `const x = $derived(await q)` at top level when the value is read
-    unconditionally in always-rendered markup.
-  - Values that only feed conditionally rendered UI (dialog, popover,
-    drawer content, `{#if}` branches) are awaited inside that markup —
-    template expressions or `{@const x = await q}` at the top of the
-    content snippet. Deferred UI then fetches on open, deduped by the cache.
-  - **Never `await` inside markup that re-renders on query refreshes**,
-    e.g. per-row cells of a list that a form refreshes via `.updates(...)`.
-    The pending async fork breaks the single-flight submit round-trip
-    (verified: it left edit rows stuck open). Such reads are unconditional
-    anyway — keep them on a top-level awaited derived.
+- `const x = $derived(await getX(...))` at script top level — always. No
+  `await` in markup, no `{@const x = await q}` in snippets. Uniformity beats
+  the dev-mode warning count.
+- The `await_waterfall` dev warnings this produces are accepted, not chased:
+  the heuristic largely flags reads in closed UI, queries are local sqlite
+  reads, and eager fetches are almost always cache hits on data the visible
+  page already holds. A warning on this pattern is not a defect.
+- Where an eager fetch is genuinely wasteful, fix it structurally: move the
+  fetch into a component that only mounts when the UI is shown (e.g. dialog
+  content). Criterion: **sole consumer** — extract only when the
+  conditionally mounted UI is the only consumer of that query on the page.
+  If always-visible UI also reads the query (trigger icons, summaries), the
+  eager await is legitimate; do not extract.
 - Never combine independent queries with `Promise.all` — it can detach the
   derived from per-query refresh tracking and couples unrelated refreshes.
-- Dependent chains (`const a = await q1` feeding `q2`) stay sequential; a
-  remaining dev warning on a genuinely dependent chain is acceptable.
-- Do not destructure awaited queries at top level
-  (`const { currency } = $derived(await q)`) — destructuring reads the whole
-  value eagerly and hides the real read site.
+- Dependent chains (`const a = await q1` feeding `q2`) stay sequential; that
+  order is semantic, and its dev warning is acceptable too.
 
 ### Pending and error UI
 

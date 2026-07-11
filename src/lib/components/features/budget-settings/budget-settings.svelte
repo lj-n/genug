@@ -14,7 +14,7 @@
 
 	const budgetId = getBudgetId();
 
-	const budgetQuery = $derived(getBudget(budgetId()));
+	const budget = $derived(await getBudget(budgetId()));
 
 	const form = $derived(editBudget.for(budgetId()));
 </script>
@@ -35,7 +35,6 @@
 	{/snippet}
 
 	{#snippet fields()}
-		{@const budget = await budgetQuery}
 		<div class="mt-6 grid gap-2 rounded-lg bg-muted/5 p-3">
 			<input {...editBudget.fields.budgetId.as('hidden', budgetId())} />
 

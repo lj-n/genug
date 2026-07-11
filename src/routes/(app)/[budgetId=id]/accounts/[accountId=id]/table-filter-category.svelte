@@ -16,7 +16,7 @@
 		value: string[];
 	} = $props();
 
-	const categoriesQuery = $derived(getCategories({ budgetId }));
+	const categories = $derived(await getCategories({ budgetId }));
 </script>
 
 <Select.Root type="multiple" bind:value onValueChange={onchange}>
@@ -31,7 +31,7 @@
 	<Select.Content class="max-h-75">
 		<Select.Item value={UNASSIGNED}>{m.transaction_filter_category_without()}</Select.Item>
 
-		{#each await categoriesQuery as category (category.id)}
+		{#each categories as category (category.id)}
 			<Select.Item value={category.id}>{category.name}</Select.Item>
 		{/each}
 	</Select.Content>

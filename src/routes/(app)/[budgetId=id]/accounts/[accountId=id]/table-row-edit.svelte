@@ -33,11 +33,9 @@
 	const form = editTransaction.for(id);
 	const deleteFormId = `dform-${id}`;
 
-	const budgetQuery = $derived(getBudget(budgetId));
-	const categoriesQuery = $derived(getCategories({ budgetId }));
+	const budget = $derived(await getBudget(budgetId));
 
-	const budget = $derived(await budgetQuery);
-	const categories = $derived(await categoriesQuery);
+	const categories = $derived(await getCategories({ budgetId }));
 
 	onMount(() => {
 		form.fields.categoryId.set(transaction.categoryId ?? undefined);

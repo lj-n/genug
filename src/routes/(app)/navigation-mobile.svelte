@@ -23,7 +23,7 @@
 
 	let { invitations }: { invitations: Snippet } = $props();
 
-	const userQuery = getUser();
+	const user = $derived(await getUser());
 
 	let open = $state(false);
 
@@ -158,7 +158,7 @@
 					</a>
 				</li>
 
-				{#if (await userQuery).isAdmin}
+				{#if user.isAdmin}
 					<li class="flex">
 						<a
 							href={resolve('/(app)/admin')}
@@ -184,7 +184,7 @@
 							<div aria-hidden="true">
 								<SignOutIcon class="size-6 text-muted" />
 							</div>
-							{m.sign_out_button({ username: (await userQuery).username })}
+							{m.sign_out_button({ username: user.username })}
 						</button>
 					</form>
 				</li>

@@ -31,8 +31,8 @@
 		urlParams: TransactionsURLParams;
 	} = $props();
 
-	const categoriesQuery = $derived(getCategories({ budgetId }));
-	const budgetQuery = $derived(getBudget(budgetId));
+	const categories = $derived(await getCategories({ budgetId }));
+	const budget = $derived(await getBudget(budgetId));
 
 	let submitAndContinue = $state(false);
 	let formElement: HTMLFormElement | null = $state(null);
@@ -98,7 +98,7 @@
 						() => createTransaction.fields.categoryId.value() ?? '',
 						(v) => createTransaction.fields.categoryId.set(v)
 					}
-					categories={await categoriesQuery}
+					{categories}
 					nullable
 					ariaInvalid={createTransaction.fields.categoryId.issues()?.length ? true : undefined}
 					ariaLabel={m.transactions_table_header_category()}
@@ -134,7 +134,7 @@
 						() => createTransaction.fields.amount.value() ?? 0,
 						(v) => createTransaction.fields.amount.set(v)
 					}
-					currency={(await budgetQuery).currency}
+					currency={budget.currency}
 					class="px-2 text-right font-currency font-medium"
 				/>
 			</div>

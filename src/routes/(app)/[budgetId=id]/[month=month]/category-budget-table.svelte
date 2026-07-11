@@ -25,7 +25,7 @@
 
 	const budgetId = getBudgetId();
 
-	const budgetQuery = $derived(getBudget(budgetId()));
+	const { currency } = $derived(await getBudget(budgetId()));
 	// `month` can transiently be null while navigating away from this route —
 	// never send that to the server (see +page.svelte).
 	const categories = $derived(
@@ -86,7 +86,6 @@
 	>
 		<!-- The if narrows `month` for the row children; `categories` is empty when `month` is null. -->
 		{#if month !== null}
-			{@const currency = (await budgetQuery).currency}
 			{#each categories as row (row.id)}
 				<div
 					data-drag-item="category"
