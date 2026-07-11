@@ -1,7 +1,7 @@
 import type {
 	TransactionFilterParam,
 	TransactionSortParam
-} from '$lib/server/db/user-context/transaction.utils';
+} from '$lib/server/db/user-context/transaction';
 
 import { requested } from '$app/server';
 import {
@@ -44,12 +44,12 @@ export const listTransactions = guardedQuery(
 			...(sortValidated ? { validated: sortValidated } : {})
 		};
 
-		const [transactions, totalTransactionCount] = await Promise.all([
-			ctx.transaction.list(filter, sort, { page: page - 1, pageSize }),
-			ctx.transaction.count(filter)
-		]);
+		const { rows, total } = ctx.transaction.page(filter, sort, { page: page - 1, pageSize });
 
-		return { pagination: { page, pageSize, totalTransactionCount }, transactions };
+		return {
+			pagination: { page, pageSize, totalTransactionCount: total },
+			transactions: rows
+		};
 	}
 );
 

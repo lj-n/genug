@@ -1,16 +1,40 @@
+import type { SQLiteColumn } from 'drizzle-orm/sqlite-core';
+
 import { database, type Database, tables } from '$db';
+import { UNASSIGNED } from '$lib/constants';
 import { getLocalTimeZone, today } from '@internationalized/date';
 import { error } from '@sveltejs/kit';
-import { and, count, eq, getColumns, inArray } from 'drizzle-orm';
+import {
+	and,
+	asc,
+	count,
+	desc,
+	eq,
+	getColumns,
+	inArray,
+	isNull,
+	or,
+	type SQL,
+	sql
+} from 'drizzle-orm';
 
 import { accessGuard, hasAccess } from './access';
-import {
-	type TransactionFilterParam,
-	type TransactionSortParam,
-	withFilter,
-	withPagination,
-	withSorted
-} from './transaction.utils';
+
+export type TransactionFilterParam = {
+	accountId?: string;
+	categoryId?: string[];
+	notes?: string;
+};
+
+export type TransactionSortParam = {
+	account?: SortParam;
+	amount?: SortParam;
+	category?: SortParam;
+	date?: SortParam;
+	validated?: SortParam;
+};
+
+type SortParam = 'asc' | 'desc';
 
 export const queries = (userId: string, db: Database = database) => ({
 	byId: (id: string) => {
@@ -24,26 +48,14 @@ export const queries = (userId: string, db: Database = database) => ({
 		return found;
 	},
 
-	count: (filter: TransactionFilterParam = {}) => {
-		let dq = db
-			.select({ total: count() })
-			.from(tables.transactions)
-			.leftJoin(tables.categories, eq(tables.transactions.categoryId, tables.categories.id))
-			.leftJoin(tables.users, eq(tables.transactions.createdBy, tables.users.id))
-			.where(hasAccess(tables.transactions, userId, db))
-			.$dynamic();
-
-		dq = withFilter({ dq, filter });
-
-		return dq.get()?.total ?? 0;
-	},
-
-	list: (
-		filter: TransactionFilterParam = {},
-		sort: TransactionSortParam = {},
-		pagination?: { page: number; pageSize: number }
+	page: (
+		filter: TransactionFilterParam,
+		sort: TransactionSortParam,
+		pagination: { page: number; pageSize: number }
 	) => {
-		let dq = db
+		const where = and(hasAccess(tables.transactions, userId, db), ...filterConditions(filter));
+
+		const rows = db
 			.select({
 				...getColumns(tables.transactions),
 				categoryName: tables.categories.name,
@@ -52,21 +64,20 @@ export const queries = (userId: string, db: Database = database) => ({
 			.from(tables.transactions)
 			.leftJoin(tables.categories, eq(tables.transactions.categoryId, tables.categories.id))
 			.leftJoin(tables.users, eq(tables.transactions.createdBy, tables.users.id))
-			.where(hasAccess(tables.transactions, userId, db))
-			.$dynamic();
+			.where(where)
+			.orderBy(...sortOrder(sort))
+			.limit(pagination.pageSize)
+			.offset(pagination.page * pagination.pageSize)
+			.all();
 
-		dq = withFilter({ dq, filter });
-		dq = withSorted({ dq, sort });
+		const total =
+			db.select({ total: count() }).from(tables.transactions).where(where).get()?.total ?? 0;
 
-		if (pagination) {
-			dq = withPagination({ dq, ...pagination });
-		}
-
-		return dq.all();
+		return { rows, total };
 	}
 });
 
-export type ListTransaction = Awaited<ReturnType<ReturnType<typeof queries>['list']>>[number];
+export type ListTransaction = ReturnType<ReturnType<typeof queries>['page']>['rows'][number];
 
 export const commands = (userId: string, db: Database = database) => ({
 	create: (data: Omit<typeof tables.transactions.$inferInsert, 'date'> & { date?: string }) => {
@@ -111,3 +122,64 @@ export const commands = (userId: string, db: Database = database) => ({
 			.all();
 	}
 });
+
+function escapeLikePattern(term: string) {
+	return term.replace(/[\\%_]/g, '\\$&');
+}
+
+function filterConditions(filter: TransactionFilterParam) {
+	const conditions: (SQL | undefined)[] = [];
+
+	if (filter.accountId) {
+		conditions.push(eq(tables.transactions.accountId, filter.accountId));
+	}
+	if (filter.categoryId) {
+		const ids = filter.categoryId;
+		const realIds = ids.filter((id: string) => id !== UNASSIGNED);
+		const hasNull = ids.includes(UNASSIGNED);
+
+		const categoryConditions: SQL[] = [];
+		if (realIds.length > 0)
+			categoryConditions.push(inArray(tables.transactions.categoryId, realIds));
+		if (hasNull) categoryConditions.push(isNull(tables.transactions.categoryId));
+
+		conditions.push(
+			categoryConditions.length === 1 ? categoryConditions[0] : or(...categoryConditions)
+		);
+	}
+	if (filter.notes) {
+		// SQLite's LIKE has no default escape character; ESCAPE makes \-escaped % and _ literal.
+		const pattern = `%${escapeLikePattern(filter.notes)}%`;
+		conditions.push(sql`${tables.transactions.notes} LIKE ${pattern} ESCAPE '\\'`);
+	}
+
+	return conditions;
+}
+
+function sortDirection(direction: SortParam, column: SQLiteColumn) {
+	return direction === 'asc' ? asc(column) : desc(column);
+}
+
+function sortOrder(sort: TransactionSortParam) {
+	const order: SQL[] = [];
+
+	if (sort.date) {
+		order.push(sortDirection(sort.date, tables.transactions.date));
+	}
+	if (sort.validated) {
+		order.push(sortDirection(sort.validated, tables.transactions.validated));
+	}
+	if (sort.account) {
+		order.push(sortDirection(sort.account, tables.transactions.accountId));
+	}
+	if (sort.category) {
+		order.push(sortDirection(sort.category, tables.transactions.categoryId));
+	}
+	if (sort.amount) {
+		order.push(sortDirection(sort.amount, tables.transactions.amount));
+	}
+
+	order.push(desc(tables.transactions.createdAt));
+
+	return order;
+}
