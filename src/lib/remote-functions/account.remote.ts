@@ -1,7 +1,12 @@
 import { resolve } from '$app/paths';
 import { AccountCreateSchema, AccountSetNameSchema } from '$lib/schemas/account';
 import { OrderedIdsSchema } from '$lib/schemas/utils';
-import { guardedCommand, guardedForm, guardedQuery } from '$server/utils/remote-guard';
+import {
+	guardedBatchQuery,
+	guardedCommand,
+	guardedForm,
+	guardedQuery
+} from '$server/utils/remote-guard';
 import { invalid, isHttpError, redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
@@ -28,9 +33,10 @@ export const createAccount = guardedForm(
 
 export const getAccount = guardedQuery(v.string(), async (id, { ctx }) => ctx.account.byId(id));
 
-export const getAccountBalances = guardedQuery(v.string(), async (accountId, { ctx }) =>
-	ctx.account.balances(accountId)
-);
+export const getAccountBalances = guardedBatchQuery(v.string(), async (accountIds, { ctx }) => {
+	const results = await Promise.all(accountIds.map((accountId) => ctx.account.balances(accountId)));
+	return (_arg, idx) => results[idx];
+});
 
 export const editAccount = guardedForm(
 	AccountSetNameSchema,

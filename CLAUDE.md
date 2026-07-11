@@ -66,6 +66,7 @@ npm run test:e2e:ui
 
 Detailed conventions per domain live in `docs/`:
 
+- `docs/code-style.md` — code-level style rules (runes, TypeScript, naming, errors/comments)
 - `docs/routes.md` — `src/routes/**`
 - `docs/remote-functions.md` — `src/lib/remote-functions/**`
 - `docs/database.md` — `src/lib/server/db/**` and server helpers

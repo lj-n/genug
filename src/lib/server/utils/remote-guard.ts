@@ -21,6 +21,25 @@ type GuardedAuth = {
 	user: NonNullable<App.Locals['user']>;
 };
 
+export function guardedBatchQuery<Schema extends StandardSchemaV1, Output>(
+	schema: Schema,
+	fn: (
+		args: StandardSchemaV1.InferOutput<Schema>[],
+		auth: GuardedAuth
+	) => Promise<(arg: StandardSchemaV1.InferOutput<Schema>, idx: number) => Output>
+): RemoteQueryFunction<
+	StandardSchemaV1.InferInput<Schema>,
+	Output,
+	StandardSchemaV1.InferOutput<Schema>
+> {
+	return query.batch(schema, async (args) => {
+		const event = getRequestEvent();
+		if (!event.locals.user) redirect(302, LOGINPAGE);
+		const user = event.locals.user;
+		const ctx = createUserCtx(user.id, database);
+		return fn(args, { ctx, event, user });
+	});
+}
 export function guardedCommand<Schema extends StandardSchemaV1, Output>(
 	schema: Schema,
 	fn: (output: StandardSchemaV1.InferOutput<Schema>, auth: GuardedAuth) => Promise<Output>
