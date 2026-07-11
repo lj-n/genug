@@ -65,5 +65,7 @@ new code are defects, not taste.
   is needed, why a retry exists. No narration of the next line, no
   change-log-style comments. JSDoc sparingly, for non-obvious helper
   semantics (`/** Locates a category's row ... */`).
+- No ASCII-art divider comments (`// ── section ──`). Sections are
+  communicated by function boundaries, `describe` blocks, and blank lines.
 - User-facing text always goes through Paraglide `m.*` messages — no
   hardcoded copy, including error messages.

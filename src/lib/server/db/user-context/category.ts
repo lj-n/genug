@@ -1,5 +1,4 @@
 import { database, type Database, tables } from '$db';
-import { dateIsOnOrBefore } from '$db/month-sql';
 import { m } from '$lib/paraglide/messages';
 import { currentMonth } from '$lib/utils/month';
 import { error } from '@sveltejs/kit';
@@ -7,44 +6,23 @@ import { and, eq, getColumns, isNotNull, isNull, ne, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/sqlite-core';
 
 import { accessGuard, hasAccess } from './access';
+import { categoryBalances } from './envelope';
 import { withOrder } from './utils';
 
 /**
- * A category may be archived only when its remaining balance
- * (all-time assignments + transactions) is zero and it has no
- * pending (unvalidated) transactions.
+ * A category may be archived only when its all-time Remaining
+ * is zero and it has no pending (unvalidated) transactions.
  */
 const readArchivability = (userId: string, db: Database, categoryId: string) => {
-	const txAgg = db
-		.select({
-			categoryId: tables.transactions.categoryId,
-			pendingCount:
-				sql<number>`coalesce(sum(CASE WHEN ${tables.transactions.validated} = false THEN 1 ELSE 0 END), 0)`.as(
-					'pendingCount'
-				),
-			sum: sql<number>`coalesce(sum(${tables.transactions.amount}), 0)`.as('sum')
-		})
-		.from(tables.transactions)
-		.groupBy(tables.transactions.categoryId)
-		.as('txAgg');
-
-	const assignmentAgg = db
-		.select({
-			categoryId: tables.budgetAssignments.categoryId,
-			sum: sql<number>`coalesce(sum(${tables.budgetAssignments.amount}), 0)`.as('sum')
-		})
-		.from(tables.budgetAssignments)
-		.groupBy(tables.budgetAssignments.categoryId)
-		.as('assignmentAgg');
+	const bal = categoryBalances(db, currentMonth());
 
 	const found = db
 		.select({
-			pendingTransactionCount: sql<number>`coalesce(${txAgg.pendingCount}, 0)`,
-			remainingBalance: sql<number>`coalesce(${assignmentAgg.sum}, 0) + coalesce(${txAgg.sum}, 0)`
+			pendingTransactionCount: sql<number>`coalesce(${bal.pendingCount}, 0)`,
+			remainingBalance: sql<number>`coalesce(${bal.allTimeRemaining}, 0)`
 		})
 		.from(tables.categories)
-		.leftJoin(txAgg, eq(txAgg.categoryId, tables.categories.id))
-		.leftJoin(assignmentAgg, eq(assignmentAgg.categoryId, tables.categories.id))
+		.leftJoin(bal, eq(bal.categoryId, tables.categories.id))
 		.where(and(hasAccess(tables.categories, userId, db), eq(tables.categories.id, categoryId)))
 		.get();
 
@@ -104,55 +82,23 @@ export const queries = (userId: string, db: Database = database) => ({
 
 	stats: (categoryId: string) => {
 		const month = currentMonth();
-
-		const txAgg = db
-			.select({
-				categoryId: tables.transactions.categoryId,
-				count: sql<number>`count(*)`.as('count'),
-				pendingCount:
-					sql<number>`coalesce(sum(CASE WHEN ${tables.transactions.validated} = false THEN 1 ELSE 0 END), 0)`.as(
-						'pendingCount'
-					),
-				sum: sql<number>`coalesce(sum(${tables.transactions.amount}), 0)`.as('sum'),
-				sumUntilMonth:
-					sql<number>`coalesce(sum(CASE WHEN ${dateIsOnOrBefore(tables.transactions.date, month)} THEN ${tables.transactions.amount} ELSE 0 END), 0)`.as(
-						'sumUntilMonth'
-					)
-			})
-			.from(tables.transactions)
-			.groupBy(tables.transactions.categoryId)
-			.as('txAgg');
-
-		const assignmentAgg = db
-			.select({
-				categoryId: tables.budgetAssignments.categoryId,
-				count: sql<number>`count(*)`.as('count'),
-				sum: sql<number>`coalesce(sum(${tables.budgetAssignments.amount}), 0)`.as('sum'),
-				sumUntilMonth:
-					sql<number>`coalesce(sum(CASE WHEN ${tables.budgetAssignments.month} <= ${month} THEN ${tables.budgetAssignments.amount} ELSE 0 END), 0)`.as(
-						'sumUntilMonth'
-					)
-			})
-			.from(tables.budgetAssignments)
-			.groupBy(tables.budgetAssignments.categoryId)
-			.as('assignmentAgg');
+		const bal = categoryBalances(db, month);
 
 		const found = db
 			.select({
 				currentTargetPercentage: sql<null | number>`
 					CASE
 						WHEN ${tables.categories.targetBalance} IS NULL THEN NULL
-						ELSE (coalesce(${assignmentAgg.sumUntilMonth}, 0) + coalesce(${txAgg.sumUntilMonth}, 0)) * 100 / ${tables.categories.targetBalance}
+						ELSE ${bal.remaining} * 100 / ${tables.categories.targetBalance}
 					END`,
-				pendingTransactionCount: sql<number>`coalesce(${txAgg.pendingCount}, 0)`,
-				totalAssignedBudgetCount: sql<number>`coalesce(${assignmentAgg.count}, 0)`,
-				totalAssignedBudgetSum: sql<number>`coalesce(${assignmentAgg.sum}, 0)`,
-				totalRelatedTransactionCount: sql<number>`coalesce(${txAgg.count}, 0)`,
-				totalRelatedTransactionSum: sql<number>`coalesce(${txAgg.sum}, 0)`
+				pendingTransactionCount: sql<number>`coalesce(${bal.pendingCount}, 0)`,
+				totalAssignedBudgetCount: sql<number>`coalesce(${bal.assignCount}, 0)`,
+				totalAssignedBudgetSum: sql<number>`coalesce(${bal.allTimeAssignmentSum}, 0)`,
+				totalRelatedTransactionCount: sql<number>`coalesce(${bal.txCount}, 0)`,
+				totalRelatedTransactionSum: sql<number>`coalesce(${bal.allTimeTransactionSum}, 0)`
 			})
 			.from(tables.categories)
-			.leftJoin(txAgg, eq(txAgg.categoryId, tables.categories.id))
-			.leftJoin(assignmentAgg, eq(assignmentAgg.categoryId, tables.categories.id))
+			.leftJoin(bal, eq(bal.categoryId, tables.categories.id))
 			.where(and(hasAccess(tables.categories, userId, db), eq(tables.categories.id, categoryId)))
 			.get();
 
