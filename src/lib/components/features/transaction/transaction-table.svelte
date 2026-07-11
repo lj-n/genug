@@ -1,47 +1,56 @@
 <script lang="ts">
-	import { page } from '$app/state';
-	import { TableRowCreate } from '$lib/components/features/transaction';
+	import type { ListTransaction } from '$lib/server/db/user-context/transaction';
+	import type { CURRENCIES } from '$lib/utils/currencies';
+
 	import { Button } from '$lib/components/ui/button';
 	import { m } from '$lib/paraglide/messages';
-	import { getBudget } from '$lib/remote-functions/budget.remote';
-	import {
-		batchValidateTransactions,
-		listTransactions
-	} from '$lib/remote-functions/transaction.remote';
+	import { batchValidateTransactions } from '$lib/remote-functions/transaction.remote';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { parseDate } from '@internationalized/date';
-	import { untrack } from 'svelte';
 	import PlusBoldIcon from '~icons/ph/plus-bold';
 	import SealIcon from '~icons/ph/seal';
 	import SealCheckDuotoneIcon from '~icons/ph/seal-check-duotone';
 
-	import { TransactionSort } from './sort.svelte';
-	import TableBody from './table-body.svelte';
-	import TableCell from './table-cell.svelte';
-	import TableFilter from './table-filter.svelte';
-	import TableHeader from './table-header.svelte';
-	import TablePagination from './table-pagination.svelte';
-	import TableRowEdit from './table-row-edit.svelte';
-	import TableRow from './table-row.svelte';
-	import { colsClass, getTransactionURLParams } from './utils';
+	import type { TableState } from './transaction-table-state.svelte';
 
-	let { accountId, budgetId }: { accountId: string; budgetId: string } = $props();
+	import TableBody from './transaction-table-body.svelte';
+	import TableCell from './transaction-table-cell.svelte';
+	import { colsClass } from './transaction-table-cols';
+	import TableFilter from './transaction-table-filter.svelte';
+	import TableHeader from './transaction-table-header.svelte';
+	import TablePagination from './transaction-table-pagination.svelte';
+	import TableRowCreate from './transaction-table-row-create.svelte';
+	import TableRowEdit from './transaction-table-row-edit.svelte';
+	import TableRow from './transaction-table-row.svelte';
 
-	const budget = $derived(await getBudget(budgetId));
-
-	const params = $derived(getTransactionURLParams(page.url));
-	let sort = $state(new TransactionSort(untrack(() => params)));
-
-	const result = $derived(await listTransactions({ accountId, ...params }));
-	const transactions = $derived(result.transactions);
-	const pagination = $derived(result.pagination);
+	let {
+		accountId,
+		budgetId,
+		currency,
+		pagination,
+		tableState,
+		transactions
+	}: {
+		accountId: string;
+		budgetId: string;
+		currency: (typeof CURRENCIES)[number];
+		pagination: { page: number; pageSize: number; total: number };
+		tableState: TableState;
+		transactions: ListTransaction[];
+	} = $props();
 
 	let openCreateRow = $state(false);
 </script>
 
 <div class="space-y-6">
-	<TableFilter {budgetId}>
+	<TableFilter
+		{budgetId}
+		filter={tableState.filter}
+		onSetFilter={(type, value) => tableState.setFilter(type, value)}
+		onClearFilter={(type) => tableState.clearFilter(type)}
+		onClearAllFilters={() => tableState.clearAllFilters()}
+	>
 		<Button onclick={() => (openCreateRow = true)} class="ml-auto">
 			<PlusBoldIcon />
 			{m.transactions_table_create_transaction()}
@@ -49,7 +58,7 @@
 	</TableFilter>
 
 	<div role="table" class="space-y-3">
-		<TableHeader {sort} />
+		<TableHeader sort={tableState.sort} onToggle={(column) => tableState.toggleSort(column)} />
 
 		<TableBody data={transactions}>
 			{#snippet createrow()}
@@ -58,13 +67,13 @@
 					{accountId}
 					{budgetId}
 					class={colsClass}
-					urlParams={params}
+					urlParams={tableState.params}
 				/>
 			{/snippet}
 
 			{#snippet row({ cancelEditing, isEditing, item, setEditing })}
 				{#if isEditing}
-					<TableRowEdit transaction={item} {budgetId} {cancelEditing} />
+					<TableRowEdit transaction={item} {budgetId} {currency} {cancelEditing} />
 				{:else}
 					{@const validation = batchValidateTransactions.for(item.id)}
 
@@ -96,7 +105,7 @@
 							onclick={setEditing}
 							class="justify-end font-currency font-normal"
 						>
-							{formatMoney({ currency: budget.currency, money: asMoney(item.amount) })}
+							{formatMoney({ currency, money: asMoney(item.amount) })}
 						</TableCell>
 
 						<TableCell>
@@ -128,9 +137,11 @@
 		</TableBody>
 
 		<TablePagination
+			page={pagination.page}
 			pageSize={pagination.pageSize}
-			currentPage={pagination.page}
-			total={pagination.totalTransactionCount}
+			total={pagination.total}
+			onSetPage={(page) => tableState.setPage(page)}
+			onSetPageSize={(pageSize) => tableState.setPageSize(pageSize)}
 		/>
 	</div>
 </div>

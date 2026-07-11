@@ -15,7 +15,7 @@
 	import { Popover } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
 
-	import ValidationCheckbox from './validation-checkbox.svelte';
+	import ValidationCheckbox from './transaction-validation-checkbox.svelte';
 
 	let {
 		accountId,

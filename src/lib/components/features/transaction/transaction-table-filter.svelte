@@ -1,21 +1,31 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { m } from '$lib/paraglide/messages';
-	import { type Snippet, tick, untrack } from 'svelte';
+	import { type Snippet, tick } from 'svelte';
 	import FunnelBoldIcon from '~icons/ph/funnel-bold';
 	import XIcon from '~icons/ph/x';
 
-	import { type FilterType, TransactionFilter } from './filter.svelte';
-	import TableFilterCategory from './table-filter-category.svelte';
-	import TableFilterNotes from './table-filter-notes.svelte';
-	import { getTransactionURLParams } from './utils';
+	import type { FilterType, TransactionFilter } from './transaction-filter.svelte';
 
-	let { budgetId, children }: { budgetId: string; children?: Snippet } = $props();
+	import TableFilterCategory from './transaction-table-filter-category.svelte';
+	import TableFilterNotes from './transaction-table-filter-notes.svelte';
 
-	const params = $derived(getTransactionURLParams(page.url));
-	let filter = $state(new TransactionFilter(untrack(() => params)));
+	let {
+		budgetId,
+		children,
+		filter,
+		onClearAllFilters,
+		onClearFilter,
+		onSetFilter
+	}: {
+		budgetId: string;
+		children?: Snippet;
+		filter: TransactionFilter;
+		onClearAllFilters: () => void;
+		onClearFilter: (type: FilterType) => void;
+		onSetFilter: (type: FilterType, value: string | string[]) => void;
+	} = $props();
 
 	const allActive = $derived(filter.allActive);
 	const anyActive = $derived(filter.anyActive);
@@ -25,7 +35,7 @@
 	let notesRef = $state<HTMLInputElement | null>(null);
 
 	function addAndFocus(type: FilterType) {
-		filter.add(type);
+		onSetFilter(type, filter.getConfig(type).defaultValue);
 		tick().then(() => {
 			if (type === 'category') categoryRef?.focus();
 			else notesRef?.focus();
@@ -33,11 +43,11 @@
 	}
 
 	function handleCategoryChange(value: string[]) {
-		filter.updateValue('category', value);
+		onSetFilter('category', value);
 	}
 
 	function handleNotesChange(value: string) {
-		filter.updateValue('notes', value);
+		onSetFilter('notes', value);
 	}
 </script>
 
@@ -63,7 +73,7 @@
 		</DropdownMenu.Root>
 
 		{#if anyActive}
-			<Button variant="destructive" size="icon" onclick={() => filter.clearAll()}>
+			<Button variant="destructive" size="icon" onclick={() => onClearAllFilters()}>
 				<XIcon />
 			</Button>
 		{/if}
@@ -81,19 +91,19 @@
 				{#if f.type === 'category'}
 					<TableFilterCategory
 						{budgetId}
-						bind:value={f.value}
+						value={f.value}
 						onchange={handleCategoryChange}
 						bind:elementRef={categoryRef}
 					/>
 				{:else}
 					<TableFilterNotes
-						bind:value={f.value}
+						value={f.value}
 						onchange={handleNotesChange}
 						bind:elementRef={notesRef}
 					/>
 				{/if}
 
-				<Button size="icon" variant="ghost" onclick={() => filter.remove(f.type)}>
+				<Button size="icon" variant="ghost" onclick={() => onClearFilter(f.type)}>
 					<XIcon />
 				</Button>
 			</div>

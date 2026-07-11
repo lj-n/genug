@@ -3,7 +3,7 @@
 
 	import { cn } from 'tailwind-variants';
 
-	import { colsClass } from './utils';
+	import { colsClass } from './transaction-table-cols';
 
 	let { children, class: className }: { children?: Snippet; class?: string } = $props();
 </script>
