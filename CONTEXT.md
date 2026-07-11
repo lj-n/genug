@@ -13,7 +13,7 @@ A quantity of currency stored as an integer count of the smallest unit (cents fo
 _Avoid_: amount, cent value, float, display value
 
 **Archivable**:
-A category is archivable when its remaining balance (all-time assignments plus transactions) is zero and it has no pending (unvalidated) transactions. The rule is enforced by `category.archive` in user-context (see ADR-0001) and projected to the UI via `category.archivability`; nothing else may write `archivedAt`.
+A category is archivable when its all-time Remaining is zero and it has no pending (unvalidated) transactions. The rule is enforced by `category.archive` in user-context (see ADR-0001) and projected to the UI via `category.archivability`; nothing else may write `archivedAt`.
 _Avoid_: deletable, closable
 
 **Focus treatment**:
@@ -27,6 +27,18 @@ _Avoid_: endpoint, controller, service layer
 **Hot path**:
 An interaction whose server round-trip is felt because the user repeats it rapidly (e.g. assigning money to categories). Only hot paths may use optimistic query overrides; everything else refreshes single-flight.
 _Avoid_: critical path, fast path
+
+**Remaining**:
+The envelope-side running position of a category: the sum of its assignments plus the sum of its transactions. The term is incomplete without a cutoff — all-time Remaining governs Archivable; Remaining up to a Month drives the month view. Computed only in user-context.
+_Avoid_: balance (account-side, see Balance), leftover, available
+
+**Unassigned**:
+Budget money outside every envelope: income (transactions without a category) minus all assignments, budget-lifetime. Computed only in user-context.
+_Avoid_: available, to be budgeted, free money
+
+**Balance**:
+The account-side sum of transactions in an account — what is physically there, split into validated and pending. Says nothing about envelopes; the envelope-side term is Remaining.
+_Avoid_: remaining (envelope-side), funds
 
 **Feature module**:
 A component directory coupled to a specific application capability — imports remote functions, orchestrates forms, owns interaction state. Lives under `src/lib/components/features/`, one directory per capability with an `index.ts` barrel; consumers import from the explicit path (e.g. `$lib/components/features/account`). Primitives in `src/lib/components/ui` stay feature-agnostic: no remote functions, no domain logic, at most type-only domain imports.

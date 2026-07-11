@@ -1,13 +1,13 @@
 import type { Month } from '$lib/utils/month';
 
 import { database, type Database, tables } from '$db';
-import { dateIsInMonth, dateIsOnOrBefore } from '$db/month-sql';
 import { m } from '$lib/paraglide/messages';
 import { error } from '@sveltejs/kit';
 import { and, eq, getColumns, inArray, isNull, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/sqlite-core';
 
 import { accessGuard, hasAccess, ownerGuard } from './access';
+import { categoryBalances, unassigned as unassignedForBudget } from './envelope';
 import { withOrder } from './utils';
 
 const findEligibleUser = (
@@ -138,65 +138,17 @@ export const queries = (userId: string, db: Database = database) => ({
 	},
 
 	monthly: (budgetId: string, month: Month) => {
-		const transactionAgg = db
-			.select({
-				activity: sql<number>`
-				    coalesce(sum(
-                        CASE WHEN
-                            ${dateIsInMonth(tables.transactions.date, month)}
-					    THEN ${tables.transactions.amount}
-                        ELSE 0
-                        END
-                    ), 0)`.as('activity'),
-				categoryId: tables.transactions.categoryId,
-				sum: sql<number>`
-				    coalesce(sum(
-                        CASE WHEN
-                            ${dateIsOnOrBefore(tables.transactions.date, month)}
-                        THEN ${tables.transactions.amount}
-                        ELSE 0
-                        END
-                    ), 0)`.as('sum')
-			})
-			.from(tables.transactions)
-			.groupBy(tables.transactions.categoryId)
-			.as('transactionAgg');
-
-		const assignmentAgg = db
-			.select({
-				categoryId: tables.budgetAssignments.categoryId,
-				sum: sql<number>`
-				    coalesce(sum(
-                        CASE WHEN 
-                            ${tables.budgetAssignments.month} <= ${month}
-                        THEN ${tables.budgetAssignments.amount} 
-                        ELSE 0 
-                        END
-                    ), 0)`.as('sum')
-			})
-			.from(tables.budgetAssignments)
-			.groupBy(tables.budgetAssignments.categoryId)
-			.as('assignmentAgg');
+		const bal = categoryBalances(db, month);
 
 		const qb = db
 			.select({
 				...getColumns(tables.categories),
-				activity: sql<number>`coalesce(${transactionAgg.activity}, 0)`,
-				assigned: sql<number>`coalesce(${tables.budgetAssignments.amount}, 0)`,
-				remaining: sql<number>`
-                    coalesce(${assignmentAgg.sum}, 0) 
-                    + coalesce(${transactionAgg.sum}, 0)`
+				activity: sql<number>`coalesce(${bal.activity}, 0)`,
+				assigned: sql<number>`coalesce(${bal.assigned}, 0)`,
+				remaining: sql<number>`coalesce(${bal.remaining}, 0)`
 			})
 			.from(tables.categories)
-			.leftJoin(
-				tables.budgetAssignments,
-				and(
-					eq(tables.budgetAssignments.categoryId, tables.categories.id),
-					eq(tables.budgetAssignments.month, month)
-				)
-			)
-			.leftJoin(transactionAgg, eq(transactionAgg.categoryId, tables.categories.id))
-			.leftJoin(assignmentAgg, eq(assignmentAgg.categoryId, tables.categories.id))
+			.leftJoin(bal, eq(bal.categoryId, tables.categories.id))
 			.where(
 				and(
 					isNull(tables.categories.archivedAt),
@@ -210,36 +162,13 @@ export const queries = (userId: string, db: Database = database) => ({
 	},
 
 	unassigned: (budgetId: string) => {
-		const assignmentSum = db
-			.select({
-				budgetId: tables.budgetAssignments.budgetId,
-				sum: sql<number>`coalesce(sum(${tables.budgetAssignments.amount}), 0)`.as('sum')
-			})
-			.from(tables.budgetAssignments)
-			.groupBy(tables.budgetAssignments.budgetId)
-			.as('assignSum');
-
-		const incomeSum = db
-			.select({
-				budgetId: tables.transactions.budgetId,
-				sum: sql<number>`coalesce(sum(${tables.transactions.amount}), 0)`.as('sum')
-			})
-			.from(tables.transactions)
-			.where(isNull(tables.transactions.categoryId))
-			.groupBy(tables.transactions.budgetId)
-			.as('incomeSum');
-
-		const result = db
-			.select({
-				sum: sql<number>`coalesce(${incomeSum.sum}, 0) - coalesce(${assignmentSum.sum}, 0)`
-			})
+		const found = db
+			.select({ id: tables.budgets.id })
 			.from(tables.budgets)
-			.leftJoin(assignmentSum, eq(assignmentSum.budgetId, tables.budgets.id))
-			.leftJoin(incomeSum, eq(incomeSum.budgetId, tables.budgets.id))
 			.where(and(eq(tables.budgets.id, budgetId), hasAccess(tables.budgets, userId, db)))
 			.get();
-
-		return result?.sum ?? 0;
+		if (!found) return 0;
+		return unassignedForBudget(db, budgetId);
 	},
 
 	users: (budgetId: string) => {
@@ -258,10 +187,10 @@ export const queries = (userId: string, db: Database = database) => ({
 				)
 			)
 			.orderBy(
-				sql`CASE ${tables.usersToBudgets.role} 
-                    WHEN 'OWNER' THEN 1 
-                    WHEN 'MEMBER' THEN 2 
-                    WHEN 'INVITEE' THEN 3 
+				sql`CASE ${tables.usersToBudgets.role}
+                    WHEN 'OWNER' THEN 1
+                    WHEN 'MEMBER' THEN 2
+                    WHEN 'INVITEE' THEN 3
                     END`
 			)
 			.all();
