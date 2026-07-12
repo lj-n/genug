@@ -1,10 +1,12 @@
 <script lang="ts">
-	import type { Month } from '$lib/utils/month';
-
+	import { resolve } from '$app/paths';
+	import { focusRing } from '$lib/components/ui/focus-ring';
+	import * as Popover from '$lib/components/ui/popover';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget, getUnassigned } from '$lib/remote-functions/budget.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { asMoney, formatMoney } from '$lib/utils/money';
+	import { formatMonth, type Month, toParam } from '$lib/utils/month';
 	import { cn } from 'tailwind-variants';
 	import CheckFatDuoToneIcon from '~icons/ph/check-fat-duotone';
 	import WarningOctagonBoldIcon from '~icons/ph/warning-octagon-bold';
@@ -13,9 +15,38 @@
 
 	const budgetId = getBudgetId();
 
-	const unassigned = $derived(await getUnassigned({ budgetId: budgetId(), month }));
+	const breakdown = $derived(await getUnassigned({ budgetId: budgetId(), month }));
+	const unassigned = $derived(breakdown.unassigned);
 
 	const { currency } = $derived(await getBudget(budgetId()));
+
+	let open = $state(false);
+
+	const monthLabel = $derived(formatMonth({ month, options: { month: 'long', year: 'numeric' } }));
+
+	const prose = $derived.by(() => {
+		if (unassigned < 0 && breakdown.position < 0) {
+			return m.unassigned_breakdown_prose_negative_position();
+		}
+		if (unassigned < 0 && breakdown.bottleneck !== null) {
+			return m.unassigned_breakdown_prose_negative_reserved({
+				month: formatMonth({
+					month: breakdown.bottleneck,
+					options: { month: 'long', year: 'numeric' }
+				})
+			});
+		}
+		return m.unassigned_breakdown_prose_positive();
+	});
+
+	// `|| 0` normalizes the negative zero produced by negating a zero row.
+	function signedMoney(cents: number): string {
+		return formatMoney({
+			currency,
+			money: asMoney(cents || 0),
+			options: { signDisplay: 'always' }
+		});
+	}
 </script>
 
 {#snippet label()}
@@ -30,21 +61,87 @@
 	{/if}
 {/snippet}
 
-<div
-	class={cn(
-		'ml-auto flex h-9 items-center gap-2 rounded-lg px-3',
-		unassigned === 0
-			? 'bg-muted/10 text-muted'
-			: unassigned > 0
-				? 'border border-info/15 bg-info/10 text-info shadow-xs shadow-info/15'
-				: 'border border-error/60 bg-error/10 text-error'
-	)}
->
-	{@render label()}
+{#snippet row(term: string, amount: string)}
+	<div class="flex items-baseline justify-between gap-6">
+		<dt>{term}</dt>
+		<dd class="font-currency tabular-nums">{amount}</dd>
+	</div>
+{/snippet}
 
-	{#if unassigned !== 0}
-		<div class="font-semibold text-foreground tabular-nums">
-			{formatMoney({ currency, money: asMoney(unassigned) })}
-		</div>
-	{/if}
-</div>
+<Popover.Root bind:open>
+	<Popover.Trigger
+		class={cn(
+			'ml-auto flex h-9 cursor-pointer items-center gap-2 rounded-lg px-3 -outline-offset-2 hover:outline-2 hover:outline-interactive/60',
+			focusRing,
+			unassigned === 0
+				? 'bg-muted/10 text-muted'
+				: unassigned > 0
+					? 'border border-info/15 bg-info/10 text-info shadow-xs shadow-info/15'
+					: 'border border-error/60 bg-error/10 text-error'
+		)}
+		aria-label={m.unassigned_breakdown_trigger_label()}
+	>
+		{@render label()}
+
+		{#if unassigned !== 0}
+			<div class="font-semibold text-foreground tabular-nums">
+				{formatMoney({ currency, money: asMoney(unassigned) })}
+			</div>
+		{/if}
+	</Popover.Trigger>
+
+	<Popover.Content align="end" sideOffset={4} class="w-fit max-w-96 min-w-64 gap-3">
+		<dl class="flex flex-col gap-1">
+			{@render row(
+				m.unassigned_breakdown_income({ month: monthLabel }),
+				signedMoney(breakdown.incomeUntilMonth)
+			)}
+			{@render row(
+				m.unassigned_breakdown_assigned({ month: monthLabel }),
+				signedMoney(-breakdown.assignedUntilMonth)
+			)}
+
+			{#if breakdown.reserved !== 0 && breakdown.bottleneck !== null}
+				{@render row(m.unassigned_breakdown_position(), signedMoney(breakdown.position))}
+
+				<div class="flex items-baseline justify-between gap-6">
+					<dt>
+						{m.unassigned_breakdown_reserved()}
+						(<a
+							class={cn('rounded-xs text-info underline hover:no-underline', focusRing)}
+							href={resolve('/(app)/[budgetId=id]/[month=month]', {
+								budgetId: budgetId(),
+								month: toParam(breakdown.bottleneck)
+							})}
+							aria-label={m.unassigned_breakdown_bottleneck_link_label({
+								month: formatMonth({
+									month: breakdown.bottleneck,
+									options: { month: 'long', year: 'numeric' }
+								})
+							})}
+							onclick={() => (open = false)}
+							>{m.unassigned_breakdown_bottleneck({
+								month: formatMonth({
+									month: breakdown.bottleneck,
+									options: { month: 'short', year: '2-digit' }
+								})
+							})}</a
+						>)
+					</dt>
+					<dd class="font-currency tabular-nums">{signedMoney(-breakdown.reserved)}</dd>
+				</div>
+			{/if}
+
+			<div
+				class="flex items-baseline justify-between gap-6 border-t border-foreground/10 pt-1 font-semibold"
+			>
+				<dt>{m.unassigned_breakdown_total()}</dt>
+				<dd class="font-currency tabular-nums">
+					{formatMoney({ currency, money: asMoney(unassigned) })}
+				</dd>
+			</div>
+		</dl>
+
+		<p class="text-muted">{prose}</p>
+	</Popover.Content>
+</Popover.Root>

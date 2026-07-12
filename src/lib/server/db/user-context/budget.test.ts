@@ -265,7 +265,39 @@ describe('queries.unassigned', () => {
 			.run();
 		const { unassigned } = queries(user.id, db);
 
-		expect(unassigned(budget.id, jan)).toBe(700);
+		expect(unassigned(budget.id, jan).unassigned).toBe(700);
+	});
+
+	it('passes the breakdown fields through from the envelope seam', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const a = db
+			.insert(tables.accounts)
+			.values({ budgetId: budget.id, name: 'A' })
+			.returning()
+			.get();
+		db.insert(tables.transactions)
+			.values({ accountId: a.id, amount: 1000, budgetId: budget.id, date: '2025-01-01' })
+			.run();
+		const cat = db
+			.insert(tables.categories)
+			.values({ budgetId: budget.id, name: 'Rent' })
+			.returning()
+			.get();
+		// Assigned in February with no February income: February is the Bottleneck.
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 300, budgetId: budget.id, categoryId: cat.id, month: 202502 })
+			.run();
+		const { unassigned } = queries(user.id, db);
+
+		expect(unassigned(budget.id, jan)).toEqual({
+			assignedUntilMonth: 0,
+			bottleneck: feb,
+			incomeUntilMonth: 1000,
+			position: 1000,
+			reserved: 300,
+			unassigned: 700
+		});
 	});
 
 	it('reaches back an uncovered future assignment', () => {
@@ -291,7 +323,7 @@ describe('queries.unassigned', () => {
 		const { unassigned } = queries(user.id, db);
 
 		// Viewing January: 1000 - 0 - max(0, 300 - 0) = 700.
-		expect(unassigned(budget.id, jan)).toBe(700);
+		expect(unassigned(budget.id, jan).unassigned).toBe(700);
 	});
 
 	it('returns 0 when no income', () => {
@@ -299,16 +331,23 @@ describe('queries.unassigned', () => {
 		const { budget, user } = createBudgetWithUser(db);
 		const { unassigned } = queries(user.id, db);
 
-		expect(unassigned(budget.id, jan)).toBe(0);
+		expect(unassigned(budget.id, jan).unassigned).toBe(0);
 	});
 
-	it('returns 0 for a budget the user cannot access', () => {
+	it('returns an all-zero breakdown for a budget the user cannot access', () => {
 		const db = createDatabase(':memory:');
 		const { budget } = createBudgetWithUser(db);
 		const outsider = createUser(db, 'outsider');
 		const { unassigned } = queries(outsider.id, db);
 
-		expect(unassigned(budget.id, feb)).toBe(0);
+		expect(unassigned(budget.id, feb)).toEqual({
+			assignedUntilMonth: 0,
+			bottleneck: null,
+			incomeUntilMonth: 0,
+			position: 0,
+			reserved: 0,
+			unassigned: 0
+		});
 	});
 });
 

@@ -7,7 +7,11 @@ import { and, eq, getColumns, inArray, isNull, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/sqlite-core';
 
 import { accessGuard, hasAccess, ownerGuard } from './access';
-import { categoryBalances, unassigned as unassignedForBudget } from './envelope';
+import {
+	categoryBalances,
+	type UnassignedBreakdown,
+	unassigned as unassignedForBudget
+} from './envelope';
 import { withOrder } from './utils';
 
 const findEligibleUser = (
@@ -167,7 +171,16 @@ export const queries = (userId: string, db: Database = database) => ({
 			.from(tables.budgets)
 			.where(and(eq(tables.budgets.id, budgetId), hasAccess(tables.budgets, userId, db)))
 			.get();
-		if (!found) return 0;
+		if (!found) {
+			return {
+				assignedUntilMonth: 0,
+				bottleneck: null,
+				incomeUntilMonth: 0,
+				position: 0,
+				reserved: 0,
+				unassigned: 0
+			} satisfies UnassignedBreakdown;
+		}
 		return unassignedForBudget(db, budgetId, month);
 	},
 
