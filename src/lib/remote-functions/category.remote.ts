@@ -49,9 +49,11 @@ export const createCategory = guardedForm(
 			if (isHttpError(error, 400)) invalid(issue.categoryName(error.body.message));
 			throw error;
 		}
+		// Infinity: see the note on refreshBudgetData in budget.remote.ts —
+		// finite limits reject refreshes of GC-lingering client instances.
 		await Promise.all([
-			requested(getCategories, 1).refreshAll(),
-			requested(getMonthly, 1).refreshAll()
+			requested(getCategories, Infinity).refreshAll(),
+			requested(getMonthly, Infinity).refreshAll()
 		]);
 	}
 );

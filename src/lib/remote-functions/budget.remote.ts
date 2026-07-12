@@ -61,8 +61,16 @@ export const getUnassigned = guardedQuery(BudgetMonthSchema, async ({ budgetId, 
 	ctx.budget.unassigned(budgetId, month)
 );
 
+// requested(...) limits must stay Infinity: clients pass query functions to
+// .updates(...), which requests a refresh for every live instance — including
+// stale ones from client-side month navigation that are only evicted on GC.
+// A finite limit rejects the excess with a 400, putting the visible query
+// into a failed state (stale table, uncaught error in the console).
 const refreshBudgetData = () =>
-	Promise.all([requested(getMonthly, 1).refreshAll(), requested(getUnassigned, 1).refreshAll()]);
+	Promise.all([
+		requested(getMonthly, Infinity).refreshAll(),
+		requested(getUnassigned, Infinity).refreshAll()
+	]);
 
 export const assignment = guardedForm(AssignmentSchema, async (data, { ctx }) => {
 	ctx.budget.assignment(data);

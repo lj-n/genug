@@ -66,7 +66,9 @@ export const createTransaction = guardedForm(
 			notes: data.notes || null,
 			validated: data.validated
 		});
-		await requested(listTransactions, 1).refreshAll();
+		// Infinity: see the note on refreshBudgetData in budget.remote.ts —
+		// finite limits reject refreshes of GC-lingering client instances.
+		await requested(listTransactions, Infinity).refreshAll();
 	}
 );
 
@@ -80,7 +82,7 @@ export const editTransaction = guardedForm(
 			validated: rest.validated
 		};
 		ctx.transaction.edit(transactionId, update);
-		await requested(listTransactions, 1).refreshAll();
+		await requested(listTransactions, Infinity).refreshAll();
 	}
 );
 
@@ -88,7 +90,7 @@ export const batchDeleteTransactions = guardedForm(
 	BatchTransactionIdsSchema,
 	async ({ ids }, { ctx }) => {
 		ctx.transaction.delete(ids);
-		await requested(listTransactions, 1).refreshAll();
+		await requested(listTransactions, Infinity).refreshAll();
 	}
 );
 
@@ -96,6 +98,6 @@ export const batchValidateTransactions = guardedForm(
 	BatchValidateSchema,
 	async ({ ids, validated }, { ctx }) => {
 		ctx.transaction.validate(ids, validated);
-		await requested(listTransactions, 1).refreshAll();
+		await requested(listTransactions, Infinity).refreshAll();
 	}
 );
