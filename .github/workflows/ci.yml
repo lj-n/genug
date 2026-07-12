@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: read
+  # dorny/paths-filter (in the `gate` job) lists changed files via the API.
+  pull-requests: read
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -148,6 +150,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
+          if [ "${{ needs.gate.result }}" != "success" ]; then
+            echo "Gate job did not succeed (${{ needs.gate.result }}) — cannot confirm e2e status."
+            exit 1
+          fi
           if [ "${{ needs.gate.outputs.run_e2e }}" != "true" ]; then
             echo "E2E skipped (draft or docs-only change)."
             exit 0
