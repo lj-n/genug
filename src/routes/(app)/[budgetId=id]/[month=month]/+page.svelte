@@ -52,7 +52,7 @@
 
 				<CategoryQuickActions />
 
-				<UnassignedSummary />
+				<UnassignedSummary {month} />
 			</div>
 
 			<CategoryBudgetTable

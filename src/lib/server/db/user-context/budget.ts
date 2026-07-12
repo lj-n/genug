@@ -161,14 +161,14 @@ export const queries = (userId: string, db: Database = database) => ({
 		return withOrder(qb, tables.categories, 'category', userId).all();
 	},
 
-	unassigned: (budgetId: string) => {
+	unassigned: (budgetId: string, month: Month) => {
 		const found = db
 			.select({ id: tables.budgets.id })
 			.from(tables.budgets)
 			.where(and(eq(tables.budgets.id, budgetId), hasAccess(tables.budgets, userId, db)))
 			.get();
 		if (!found) return 0;
-		return unassignedForBudget(db, budgetId);
+		return unassignedForBudget(db, budgetId, month);
 	},
 
 	users: (budgetId: string) => {

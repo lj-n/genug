@@ -1,7 +1,7 @@
 import type { Month } from '$lib/utils/month';
 
 import { type Database, tables } from '$db';
-import { dateIsInMonth, dateIsOnOrBefore } from '$db/month-sql';
+import { dateIsAfter, dateIsInMonth, dateIsOnOrBefore } from '$db/month-sql';
 import { and, eq, isNotNull, isNull, sql } from 'drizzle-orm';
 
 /**
@@ -103,25 +103,49 @@ export function categoryBalances(db: Database, month: Month) {
 }
 
 /**
- * Budget-lifetime income (transactions without a category) minus all
- * assignments. Access control is the caller's responsibility.
+ * Month-scoped Unassigned with reach-back (ADR-0007): budget money outside
+ * every envelope as seen from month `M`.
+ *
+ *   Unassigned(M) = income≤M − assignments≤M − max(0, assignments>M − income>M)
+ *
+ * Income is transactions without a category; comparisons are month-granular
+ * (income by `strftime('%Y%m', date)`, assignments by their `month` column).
+ * The reach-back term charges the present month only for future assignments
+ * that future income does not yet cover, so a fully-assigned past month reads
+ * zero rather than a spurious negative. Access control is the caller's
+ * responsibility.
  */
-export function unassigned(db: Database, budgetId: string): number {
-	const [assignmentTotal] = db
+export function unassigned(db: Database, budgetId: string, month: Month): number {
+	const [assignments] = db
 		.select({
-			sum: sql<number>`coalesce(sum(${tables.budgetAssignments.amount}), 0)`.as('sum')
+			after:
+				sql<number>`coalesce(sum(CASE WHEN ${tables.budgetAssignments.month} > ${month} THEN ${tables.budgetAssignments.amount} ELSE 0 END), 0)`.as(
+					'after'
+				),
+			until:
+				sql<number>`coalesce(sum(CASE WHEN ${tables.budgetAssignments.month} <= ${month} THEN ${tables.budgetAssignments.amount} ELSE 0 END), 0)`.as(
+					'until'
+				)
 		})
 		.from(tables.budgetAssignments)
 		.where(eq(tables.budgetAssignments.budgetId, budgetId))
 		.all();
 
-	const [incomeTotal] = db
+	const [income] = db
 		.select({
-			sum: sql<number>`coalesce(sum(${tables.transactions.amount}), 0)`.as('sum')
+			after:
+				sql<number>`coalesce(sum(CASE WHEN ${dateIsAfter(tables.transactions.date, month)} THEN ${tables.transactions.amount} ELSE 0 END), 0)`.as(
+					'after'
+				),
+			until:
+				sql<number>`coalesce(sum(CASE WHEN ${dateIsOnOrBefore(tables.transactions.date, month)} THEN ${tables.transactions.amount} ELSE 0 END), 0)`.as(
+					'until'
+				)
 		})
 		.from(tables.transactions)
 		.where(and(eq(tables.transactions.budgetId, budgetId), isNull(tables.transactions.categoryId)))
 		.all();
 
-	return (incomeTotal?.sum ?? 0) - (assignmentTotal?.sum ?? 0);
+	const reachBack = Math.max(0, (assignments?.after ?? 0) - (income?.after ?? 0));
+	return (income?.until ?? 0) - (assignments?.until ?? 0) - reachBack;
 }

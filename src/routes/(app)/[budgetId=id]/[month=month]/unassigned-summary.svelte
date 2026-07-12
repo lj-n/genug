@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { Month } from '$lib/utils/month';
+
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget, getUnassigned } from '$lib/remote-functions/budget.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
@@ -7,9 +9,11 @@
 	import CheckFatDuoToneIcon from '~icons/ph/check-fat-duotone';
 	import WarningOctagonBoldIcon from '~icons/ph/warning-octagon-bold';
 
+	let { month }: { month: Month } = $props();
+
 	const budgetId = getBudgetId();
 
-	const unassigned = $derived(await getUnassigned(budgetId()));
+	const unassigned = $derived(await getUnassigned({ budgetId: budgetId(), month }));
 
 	const { currency } = $derived(await getBudget(budgetId()));
 </script>

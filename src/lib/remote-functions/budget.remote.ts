@@ -57,8 +57,8 @@ export const getMonthly = guardedQuery(BudgetMonthSchema, async ({ budgetId, mon
 	ctx.budget.monthly(budgetId, month)
 );
 
-export const getUnassigned = guardedQuery(v.string(), async (id, { ctx }) =>
-	ctx.budget.unassigned(id)
+export const getUnassigned = guardedQuery(BudgetMonthSchema, async ({ budgetId, month }, { ctx }) =>
+	ctx.budget.unassigned(budgetId, month)
 );
 
 const refreshBudgetData = () =>

@@ -7,6 +7,10 @@ import { type AnyColumn, type SQL, sql } from 'drizzle-orm';
  * param string — this file is the only place that knows about this pairing.
  */
 
+export function dateIsAfter(dateColumn: AnyColumn, month: Month): SQL {
+	return sql`strftime('%Y%m', ${dateColumn}) > ${toParam(month)}`;
+}
+
 export function dateIsInMonth(dateColumn: AnyColumn, month: Month): SQL {
 	return sql`strftime('%Y%m', ${dateColumn}) = ${toParam(month)}`;
 }
