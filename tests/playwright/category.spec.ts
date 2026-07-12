@@ -59,6 +59,18 @@ test('Category rename shows a field error for a duplicate name', async ({ pages 
 	await pages.category.editNameExpectingError(categoryName, existingName);
 });
 
+test('Quick category create shows a field error for a duplicate name', async ({ pages }) => {
+	await pages.auth.createUserAndLogin();
+
+	const budgetName = faker.commerce.department();
+	await pages.budget.createBudget(budgetName);
+
+	const categoryName = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryName);
+
+	await pages.budget.createCategoryExpectingError(categoryName);
+});
+
 test('Archive Category', async ({ pages }) => {
 	await pages.auth.createUserAndLogin();
 
