@@ -2,9 +2,9 @@ import type { NormalizedFormError } from '$lib/utils/form-error';
 
 import { m } from '$lib/paraglide/messages';
 import { error } from '@sveltejs/kit';
-import { render, screen, waitFor } from '@testing-library/svelte';
+import { cleanup, render, screen, waitFor } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 import Fixture from './dialog-form.test-fixture.svelte';
 
@@ -20,6 +20,15 @@ function mockEnhance(submit: () => Promise<boolean>) {
 		}
 	});
 }
+
+// Opening a Dialog makes bits-ui lock body scroll; unmounting schedules a
+// ~24ms `setTimeout` cleanup that touches `document.body`. If that timer fires
+// after vitest tears down jsdom, it throws `document is not defined`. Unmount
+// eagerly and wait past the delay so the cleanup runs while document is alive.
+afterEach(async () => {
+	cleanup();
+	await new Promise((resolve) => setTimeout(resolve, 50));
+});
 
 // jsdom lacks the Web Animations API the dialog's exit transition calls into.
 // Fire `onfinish` as soon as it is assigned so the outro completes and the
