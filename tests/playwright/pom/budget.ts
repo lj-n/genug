@@ -47,6 +47,26 @@ export class BudgetPage extends BasePage {
 		}
 	}
 
+	/**
+	 * Opens the create-account dialog and submits a name that already exists.
+	 * Asserts the duplicate-name error surfaces as a field error and the dialog
+	 * stays open (no redirect to a new account page).
+	 */
+	async createAccountExpectingError(name: string) {
+		await this.page.getByRole('button', { name: 'Show Accounts' }).click();
+		await this.page.getByRole('menuitem', { name: 'Add Account' }).click();
+
+		const dialog = this.page.getByRole('dialog');
+		await expect(dialog.getByRole('heading', { name: 'Add New Account' })).toBeVisible();
+
+		await dialog.getByRole('textbox', { name: 'Account Name' }).fill(name);
+		await dialog.getByRole('button', { name: 'Create Account' }).click();
+
+		await expect(dialog.getByText(`${name} already exists.`)).toBeVisible();
+		// The error keeps the dialog open — a successful create would redirect away.
+		await expect(dialog).toBeVisible();
+	}
+
 	async createBudget(name: string) {
 		await this.page.goto('/new');
 		await expect(
@@ -60,6 +80,10 @@ export class BudgetPage extends BasePage {
 		// current month page where the budget name is the heading.
 		await expect(this.page.getByRole('heading', { name })).toBeVisible();
 		this.ctx.budgetUrl = this.page.url();
+		// The budget id is the first path segment (the `(app)` group has no URL
+		// segment): /{budgetId}/{month}. Captured for direct navigation to
+		// budget-scoped pages like the standalone category create page.
+		this.ctx.budgetId = new URL(this.page.url()).pathname.split('/')[1];
 	}
 
 	async createCategory(name: string) {

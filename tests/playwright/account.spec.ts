@@ -26,3 +26,31 @@ test('Edit Account Name', async ({ pages }) => {
 	await pages.account.goto(accountName);
 	await pages.account.editName(newName);
 });
+
+test('Account create shows a field error for a duplicate name', async ({ pages }) => {
+	await pages.auth.createUserAndLogin();
+
+	const budgetName = faker.commerce.department();
+	await pages.budget.createBudget(budgetName);
+
+	const accountName = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountName);
+
+	await pages.budget.createAccountExpectingError(accountName);
+});
+
+test('Account rename shows a field error for a duplicate name', async ({ pages }) => {
+	await pages.auth.createUserAndLogin();
+
+	const budgetName = faker.commerce.department();
+	await pages.budget.createBudget(budgetName);
+
+	const existingName = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(existingName);
+
+	const accountName = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountName);
+
+	await pages.account.goto(accountName);
+	await pages.account.editNameExpectingError(existingName);
+});
