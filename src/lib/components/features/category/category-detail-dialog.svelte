@@ -10,6 +10,13 @@
 	// Writable derived: the primitive flips this locally on close so the exit
 	// transition can play; the bound id is reset afterwards.
 	let open = $derived(categoryId !== null);
+
+	// Deleting a category from the detail view removes it entirely, so the
+	// dialog must close itself — flipping `open` plays the exit transition and
+	// `onOpenChangeComplete` clears the bound id.
+	function close() {
+		open = false;
+	}
 </script>
 
 <ResponsiveModal.Root bind:open onOpenChangeComplete={(isOpen) => !isOpen && (categoryId = null)}>
@@ -27,7 +34,7 @@
 					</span>
 				</ResponsiveModal.Title>
 
-				<CategoryDetail {categoryId} />
+				<CategoryDetail {categoryId} onDeleted={close} />
 			</div>
 		{/if}
 	</ResponsiveModal.Content>

@@ -74,6 +74,42 @@ test('Archive Category', async ({ pages }) => {
 	await pages.category.archive(categoryName);
 });
 
+test('Delete Category', async ({ pages }) => {
+	await pages.auth.createUserAndLogin();
+
+	const budgetName = faker.commerce.department();
+	await pages.budget.createBudget(budgetName);
+
+	const accountName = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountName);
+
+	const categoryName = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryName);
+
+	// A freshly created category holds no money and has no transactions, so it
+	// is deletable.
+	await pages.category.delete(categoryName);
+});
+
+test('Delete is disabled while a transaction references the category', async ({ pages }) => {
+	await pages.auth.createUserAndLogin();
+
+	const budgetName = faker.commerce.department();
+	await pages.budget.createBudget(budgetName);
+
+	const accountName = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountName);
+
+	const categoryName = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryName);
+
+	await pages.account.goto(accountName);
+	await pages.account.createTransaction({ amount: '10', category: categoryName });
+
+	await pages.budget.goto(budgetName);
+	await pages.category.expectDeleteDisabled(categoryName);
+});
+
 test('Archived category links to the budget month page', async ({ pages }) => {
 	await pages.auth.createUserAndLogin();
 

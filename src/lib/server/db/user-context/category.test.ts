@@ -254,6 +254,290 @@ describe('queries.archivability', () => {
 	});
 });
 
+describe('queries.deletability', () => {
+	it('is deletable with zero remaining and no transactions', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { deletability } = queries(user.id, db);
+
+		const cat = create(budget.id, 'Empty');
+
+		expect(deletability(cat.id)).toEqual({
+			deletable: true,
+			remainingBalance: 0,
+			transactionCount: 0
+		});
+	});
+
+	it('is deletable when assignments across months net to zero and there are no transactions', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { deletability } = queries(user.id, db);
+
+		const cat = create(budget.id, 'Balanced');
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 50, budgetId: budget.id, categoryId: cat.id, month: 202501 })
+			.run();
+		db.insert(tables.budgetAssignments)
+			.values({ amount: -50, budgetId: budget.id, categoryId: cat.id, month: 202502 })
+			.run();
+
+		expect(deletability(cat.id)).toEqual({
+			deletable: true,
+			remainingBalance: 0,
+			transactionCount: 0
+		});
+	});
+
+	it('is not deletable with remaining balance', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { deletability } = queries(user.id, db);
+
+		const cat = create(budget.id, 'Funded');
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 200, budgetId: budget.id, categoryId: cat.id, month: 202501 })
+			.run();
+
+		expect(deletability(cat.id)).toEqual({
+			deletable: false,
+			remainingBalance: 200,
+			transactionCount: 0
+		});
+	});
+
+	it('is not deletable with a pending transaction', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { deletability } = queries(user.id, db);
+
+		const cat = create(budget.id, 'Pending');
+		const a = createAccount(db, budget.id, 'A');
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 30, budgetId: budget.id, categoryId: cat.id, month: 202501 })
+			.run();
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: -30,
+				budgetId: budget.id,
+				categoryId: cat.id,
+				date: '2025-01-15',
+				validated: false
+			})
+			.run();
+
+		expect(deletability(cat.id)).toEqual({
+			deletable: false,
+			remainingBalance: 0,
+			transactionCount: 1
+		});
+	});
+
+	it('is not deletable with a validated transaction (unlike archivable)', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { archivability, deletability } = queries(user.id, db);
+
+		const cat = create(budget.id, 'Spent');
+		const a = createAccount(db, budget.id, 'A');
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 50, budgetId: budget.id, categoryId: cat.id, month: 202501 })
+			.run();
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: -50,
+				budgetId: budget.id,
+				categoryId: cat.id,
+				date: '2025-01-15',
+				validated: true
+			})
+			.run();
+
+		// The category cancels out to zero and has no pending transaction, so
+		// it is archivable — but the validated transaction still makes it
+		// non-deletable (Deletable ⟹ Archivable, never the reverse).
+		expect(archivability(cat.id).archivable).toBe(true);
+		expect(deletability(cat.id)).toEqual({
+			deletable: false,
+			remainingBalance: 0,
+			transactionCount: 1
+		});
+	});
+
+	it('reports the total transaction count and remaining balance', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { deletability } = queries(user.id, db);
+
+		const cat = create(budget.id, 'Mixed');
+		const a = createAccount(db, budget.id, 'A');
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 200, budgetId: budget.id, categoryId: cat.id, month: 202501 })
+			.run();
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: -30,
+				budgetId: budget.id,
+				categoryId: cat.id,
+				date: '2025-01-15',
+				validated: true
+			})
+			.run();
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: -20,
+				budgetId: budget.id,
+				categoryId: cat.id,
+				date: '2025-02-01',
+				validated: false
+			})
+			.run();
+
+		expect(deletability(cat.id)).toEqual({
+			deletable: false,
+			remainingBalance: 150,
+			transactionCount: 2
+		});
+	});
+
+	it('throws for category without access', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user: owner } = createBudgetWithUser(db, 'OWNER', 'owner');
+		const { create } = commands(owner.id, db);
+		const cat = create(budget.id, 'Hidden');
+
+		const outsider = createUser(db, 'outsider');
+		const { deletability } = queries(outsider.id, db);
+
+		expect(() => deletability(cat.id)).toThrow();
+	});
+});
+
+describe('commands.delete', () => {
+	it('removes the category and cascades its assignment rows', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create, delete: deleteCategory } = commands(user.id, db);
+
+		const cat = create(budget.id, 'Gone');
+		// Assignments that net to zero across months keep Remaining at 0.
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 40, budgetId: budget.id, categoryId: cat.id, month: 202501 })
+			.run();
+		db.insert(tables.budgetAssignments)
+			.values({ amount: -40, budgetId: budget.id, categoryId: cat.id, month: 202502 })
+			.run();
+
+		deleteCategory(cat.id);
+
+		const category = db
+			.select()
+			.from(tables.categories)
+			.where(eq(tables.categories.id, cat.id))
+			.get();
+		expect(category).toBeUndefined();
+
+		const assignments = db
+			.select()
+			.from(tables.budgetAssignments)
+			.where(eq(tables.budgetAssignments.categoryId, cat.id))
+			.all();
+		expect(assignments).toHaveLength(0);
+	});
+
+	it("removes the category's user_entity_order rows", () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create, delete: deleteCategory } = commands(user.id, db);
+
+		const cat = create(budget.id, 'Ordered');
+
+		deleteCategory(cat.id);
+
+		const order = db
+			.select()
+			.from(tables.userEntityOrder)
+			.where(eq(tables.userEntityOrder.entityId, cat.id))
+			.all();
+		expect(order).toHaveLength(0);
+	});
+
+	it('throws 400 and leaves the category intact when a transaction exists', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create, delete: deleteCategory } = commands(user.id, db);
+		const { byId } = queries(user.id, db);
+
+		const cat = create(budget.id, 'Used');
+		const a = createAccount(db, budget.id, 'A');
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 50, budgetId: budget.id, categoryId: cat.id, month: 202501 })
+			.run();
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: -50,
+				budgetId: budget.id,
+				categoryId: cat.id,
+				date: '2025-01-15',
+				validated: true
+			})
+			.run();
+
+		let thrown;
+		try {
+			deleteCategory(cat.id);
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 400 });
+		expect(byId(cat.id).id).toBe(cat.id);
+	});
+
+	it('throws 400 and leaves the category intact when a balance remains', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create, delete: deleteCategory } = commands(user.id, db);
+		const { byId } = queries(user.id, db);
+
+		const cat = create(budget.id, 'Funded');
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 100, budgetId: budget.id, categoryId: cat.id, month: 202501 })
+			.run();
+
+		let thrown;
+		try {
+			deleteCategory(cat.id);
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 400 });
+		expect(byId(cat.id).id).toBe(cat.id);
+	});
+
+	it('throws for category without access', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user: owner } = createBudgetWithUser(db, 'OWNER', 'owner');
+		const { create } = commands(owner.id, db);
+		const cat = create(budget.id, 'Hidden');
+
+		const outsider = createUser(db, 'outsider');
+		const { delete: deleteCategory } = commands(outsider.id, db);
+
+		expect(() => deleteCategory(cat.id)).toThrow();
+	});
+});
+
 describe('commands.archive', () => {
 	it('sets archivedAt when archivable', () => {
 		const db = createDatabase(':memory:');
