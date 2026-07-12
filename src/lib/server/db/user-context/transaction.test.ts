@@ -1,6 +1,7 @@
 import { createDatabase, type Database, tables } from '$db';
 import { UNASSIGNED } from '$lib/constants';
 import { NotFoundError } from '$server/utils/not-found-error';
+import { getLocalTimeZone, today } from '@internationalized/date';
 import { describe, expect, it } from 'vitest';
 
 import { createAccount, createBudgetWithUser, createUser } from '../../../../test/fixtures';
@@ -313,16 +314,17 @@ describe('commands.create', () => {
 		expect(tx.id).toBeDefined();
 	});
 
-	it('defaults date to today when omitted', () => {
+	it('defaults date to today in local timezone when omitted', () => {
 		const db = createDatabase(':memory:');
 		const { budget, user } = createBudgetWithUser(db);
 		const a = createAccount(db, budget.id, 'A');
 		const { create } = commands(user.id, db);
 
+		// Direct ctx call bypasses the schema/adapter layer, so the business rule
+		// "a transaction without a date is dated today" is enforced here.
 		const tx = create({ accountId: a.id, amount: -42, budgetId: budget.id });
 
-		expect(tx.date).toBeDefined();
-		expect(tx.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+		expect(tx.date).toBe(today(getLocalTimeZone()).toString());
 	});
 
 	it('throws NotFoundError without budget access', () => {
@@ -380,13 +382,16 @@ describe('commands.edit', () => {
 		expect(updated).toMatchObject({ amount: 200, id: tx.id, notes: 'new' });
 	});
 
-	it('defaults validated to false when omitted', () => {
+	it('resets validated to false when omitted', () => {
 		const db = createDatabase(':memory:');
 		const { budget, user } = createBudgetWithUser(db);
 		const a = createAccount(db, budget.id, 'A');
 		const tx = createTransaction(db, budget.id, a.id, { validated: true });
 		const { edit } = commands(user.id, db);
 
+		// Direct ctx call bypasses the schema default, so this asserts the
+		// business rule "editing a transaction resets its validation" — the
+		// `?? false` in edit() is the canonical enforcing line, not dead code.
 		const updated = edit(tx.id, { amount: 300 });
 
 		expect(updated.validated).toBe(false);
