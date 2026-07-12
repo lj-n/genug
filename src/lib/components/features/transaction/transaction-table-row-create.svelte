@@ -5,7 +5,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { DatePicker } from '$lib/components/ui/date-picker';
 	import { Input } from '$lib/components/ui/input';
-	import { InputCurrency } from '$lib/components/ui/input-currency';
+	import { InputMoney } from '$lib/components/ui/input-money';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
@@ -127,7 +127,7 @@
 			</div>
 
 			<div role="cell" class="grid items-center bg-interactive/5 p-2">
-				<InputCurrency
+				<InputMoney
 					name={createTransaction.fields.amount.as('number').name}
 					aria-label="Amount"
 					bind:value={

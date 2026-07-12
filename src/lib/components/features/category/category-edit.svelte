@@ -63,7 +63,7 @@
 	/>
 
 	<InputGroup.Root>
-		<InputGroup.InputCurrency
+		<InputGroup.InputMoney
 			name={editCategory.fields.targetBalance.as('number').name}
 			bind:value={
 				() => editCategory.fields.targetBalance.value(),

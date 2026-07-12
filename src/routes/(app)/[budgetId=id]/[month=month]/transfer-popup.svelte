@@ -2,7 +2,7 @@
 	import type { Month } from '$lib/utils/month';
 
 	import { Button } from '$lib/components/ui/button';
-	import { InputCurrency } from '$lib/components/ui/input-currency';
+	import { InputMoney } from '$lib/components/ui/input-money';
 	import * as Popover from '$lib/components/ui/popover';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { UNASSIGNED } from '$lib/constants';
@@ -127,7 +127,7 @@
 			<ArrowFatLineDownDuotoneIcon class="size-5 text-success" />
 		</div>
 
-		<InputCurrency
+		<InputMoney
 			name={form.fields.amount.as('number').name}
 			aria-label={m.transfer_assignment_amount()}
 			bind:value={() => form.fields.amount.value(), (v) => form.fields.amount.set(v)}
