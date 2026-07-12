@@ -35,7 +35,7 @@
 
 	const budgetId = getBudgetId();
 	const budget = $derived(await getBudget(budgetId()));
-	const unassigned = $derived(await getUnassigned(budgetId()));
+	const unassigned = $derived(await getUnassigned({ budgetId: budgetId(), month }));
 	const getOtherRemaining = $derived(
 		(id: string) => otherCategories.find((f) => f.id === id)?.remaining ?? 0
 	);

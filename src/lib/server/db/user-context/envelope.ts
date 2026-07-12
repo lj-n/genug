@@ -103,25 +103,54 @@ export function categoryBalances(db: Database, month: Month) {
 }
 
 /**
- * Budget-lifetime income (transactions without a category) minus all
- * assignments. Access control is the caller's responsibility.
+ * Month-scoped Unassigned with reach-back (ADR-0007): budget money outside
+ * every envelope as seen from month `M`.
+ *
+ *   Unassigned(M) = min over K ≥ M of (income≤K − assignments≤K)
+ *
+ * Income is transactions without a category; comparisons are month-granular
+ * (income by `strftime('%Y%m', date)`, assignments by their `month` column).
+ * Taking the lowest running position at M and every later month means a
+ * future deficit reaches back (assigning money that is spoken for later warns
+ * now), while future income counts only from its own month onward — it can
+ * never fund an assignment in a month before it arrives. Access control is
+ * the caller's responsibility.
  */
-export function unassigned(db: Database, budgetId: string): number {
-	const [assignmentTotal] = db
+export function unassigned(db: Database, budgetId: string, month: Month): number {
+	const assignments = db
 		.select({
-			sum: sql<number>`coalesce(sum(${tables.budgetAssignments.amount}), 0)`.as('sum')
+			month: tables.budgetAssignments.month,
+			total: sql<number>`sum(${tables.budgetAssignments.amount})`.as('total')
 		})
 		.from(tables.budgetAssignments)
 		.where(eq(tables.budgetAssignments.budgetId, budgetId))
+		.groupBy(tables.budgetAssignments.month)
 		.all();
 
-	const [incomeTotal] = db
+	const income = db
 		.select({
-			sum: sql<number>`coalesce(sum(${tables.transactions.amount}), 0)`.as('sum')
+			month: sql<number>`cast(strftime('%Y%m', ${tables.transactions.date}) AS integer)`.as(
+				'month'
+			),
+			total: sql<number>`sum(${tables.transactions.amount})`.as('total')
 		})
 		.from(tables.transactions)
 		.where(and(eq(tables.transactions.budgetId, budgetId), isNull(tables.transactions.categoryId)))
+		.groupBy(sql`strftime('%Y%m', ${tables.transactions.date})`)
 		.all();
 
-	return (incomeTotal?.sum ?? 0) - (assignmentTotal?.sum ?? 0);
+	// Net change of the running position per month, with M itself as a
+	// checkpoint so position(M) participates in the minimum even when the
+	// month has no entries of its own.
+	const deltas = new Map<number, number>([[month, 0]]);
+	for (const row of income) deltas.set(row.month, (deltas.get(row.month) ?? 0) + row.total);
+	for (const row of assignments) deltas.set(row.month, (deltas.get(row.month) ?? 0) - row.total);
+
+	let position = 0;
+	let lowest = Infinity;
+	for (const m of [...deltas.keys()].sort((a, b) => a - b)) {
+		position += deltas.get(m) ?? 0;
+		if (m >= month) lowest = Math.min(lowest, position);
+	}
+	return lowest;
 }

@@ -240,7 +240,10 @@ describe('queries.monthly', () => {
 });
 
 describe('queries.unassigned', () => {
-	it('calculates income minus assignments', () => {
+	const jan = parseMonth(202501)!;
+	const feb = parseMonth(202502)!;
+
+	it('calculates income up to the month minus assignments up to the month', () => {
 		const db = createDatabase(':memory:');
 		const { budget, user } = createBudgetWithUser(db);
 		const a = db
@@ -262,7 +265,33 @@ describe('queries.unassigned', () => {
 			.run();
 		const { unassigned } = queries(user.id, db);
 
-		expect(unassigned(budget.id)).toBe(700);
+		expect(unassigned(budget.id, jan)).toBe(700);
+	});
+
+	it('reaches back an uncovered future assignment', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const a = db
+			.insert(tables.accounts)
+			.values({ budgetId: budget.id, name: 'A' })
+			.returning()
+			.get();
+		db.insert(tables.transactions)
+			.values({ accountId: a.id, amount: 1000, budgetId: budget.id, date: '2025-01-01' })
+			.run();
+		const cat = db
+			.insert(tables.categories)
+			.values({ budgetId: budget.id, name: 'Rent' })
+			.returning()
+			.get();
+		// Assigned in February with no February income to cover it.
+		db.insert(tables.budgetAssignments)
+			.values({ amount: 300, budgetId: budget.id, categoryId: cat.id, month: 202502 })
+			.run();
+		const { unassigned } = queries(user.id, db);
+
+		// Viewing January: 1000 - 0 - max(0, 300 - 0) = 700.
+		expect(unassigned(budget.id, jan)).toBe(700);
 	});
 
 	it('returns 0 when no income', () => {
@@ -270,7 +299,16 @@ describe('queries.unassigned', () => {
 		const { budget, user } = createBudgetWithUser(db);
 		const { unassigned } = queries(user.id, db);
 
-		expect(unassigned(budget.id)).toBe(0);
+		expect(unassigned(budget.id, jan)).toBe(0);
+	});
+
+	it('returns 0 for a budget the user cannot access', () => {
+		const db = createDatabase(':memory:');
+		const { budget } = createBudgetWithUser(db);
+		const outsider = createUser(db, 'outsider');
+		const { unassigned } = queries(outsider.id, db);
+
+		expect(unassigned(budget.id, feb)).toBe(0);
 	});
 });
 
