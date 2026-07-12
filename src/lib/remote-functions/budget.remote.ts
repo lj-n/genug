@@ -15,6 +15,8 @@ import { guardedCommand, guardedForm, guardedQuery } from '$server/utils/remote-
 import { redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
+import { REFRESH_LIMIT } from './remote.utils';
+
 export const getBudgets = guardedQuery(async ({ ctx }) => ctx.budget.all());
 
 export const getBudget = guardedQuery(v.string(), async (id, { ctx }) => ctx.budget.byId(id));
@@ -61,15 +63,10 @@ export const getUnassigned = guardedQuery(BudgetMonthSchema, async ({ budgetId, 
 	ctx.budget.unassigned(budgetId, month)
 );
 
-// requested(...) limits must stay Infinity: clients pass query functions to
-// .updates(...), which requests a refresh for every live instance — including
-// stale ones from client-side month navigation that are only evicted on GC.
-// A finite limit rejects the excess with a 400, putting the visible query
-// into a failed state (stale table, uncaught error in the console).
 const refreshBudgetData = () =>
 	Promise.all([
-		requested(getMonthly, Infinity).refreshAll(),
-		requested(getUnassigned, Infinity).refreshAll()
+		requested(getMonthly, REFRESH_LIMIT).refreshAll(),
+		requested(getUnassigned, REFRESH_LIMIT).refreshAll()
 	]);
 
 export const assignment = guardedForm(AssignmentSchema, async (data, { ctx }) => {

@@ -13,6 +13,8 @@ import {
 } from '$lib/schemas/transaction';
 import { guardedForm, guardedQuery } from '$server/utils/remote-guard';
 
+import { REFRESH_LIMIT } from './remote.utils';
+
 export const listTransactions = guardedQuery(
 	ListTransactionsSchema,
 	async (
@@ -66,9 +68,7 @@ export const createTransaction = guardedForm(
 			notes: data.notes || null,
 			validated: data.validated
 		});
-		// Infinity: see the note on refreshBudgetData in budget.remote.ts —
-		// finite limits reject refreshes of GC-lingering client instances.
-		await requested(listTransactions, Infinity).refreshAll();
+		await requested(listTransactions, REFRESH_LIMIT).refreshAll();
 	}
 );
 
@@ -82,7 +82,7 @@ export const editTransaction = guardedForm(
 			validated: rest.validated
 		};
 		ctx.transaction.edit(transactionId, update);
-		await requested(listTransactions, Infinity).refreshAll();
+		await requested(listTransactions, REFRESH_LIMIT).refreshAll();
 	}
 );
 
@@ -90,7 +90,7 @@ export const batchDeleteTransactions = guardedForm(
 	BatchTransactionIdsSchema,
 	async ({ ids }, { ctx }) => {
 		ctx.transaction.delete(ids);
-		await requested(listTransactions, Infinity).refreshAll();
+		await requested(listTransactions, REFRESH_LIMIT).refreshAll();
 	}
 );
 
@@ -98,6 +98,6 @@ export const batchValidateTransactions = guardedForm(
 	BatchValidateSchema,
 	async ({ ids, validated }, { ctx }) => {
 		ctx.transaction.validate(ids, validated);
-		await requested(listTransactions, Infinity).refreshAll();
+		await requested(listTransactions, REFRESH_LIMIT).refreshAll();
 	}
 );

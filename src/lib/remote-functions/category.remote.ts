@@ -11,6 +11,7 @@ import {
 import { invalid, isHttpError } from '@sveltejs/kit';
 
 import { getMonthly } from './budget.remote';
+import { REFRESH_LIMIT } from './remote.utils';
 
 export const getCategories = guardedQuery(BudgetIdSchema, async ({ budgetId }, { ctx }) =>
 	ctx.category.all(budgetId)
@@ -49,11 +50,9 @@ export const createCategory = guardedForm(
 			if (isHttpError(error, 400)) invalid(issue.categoryName(error.body.message));
 			throw error;
 		}
-		// Infinity: see the note on refreshBudgetData in budget.remote.ts —
-		// finite limits reject refreshes of GC-lingering client instances.
 		await Promise.all([
-			requested(getCategories, Infinity).refreshAll(),
-			requested(getMonthly, Infinity).refreshAll()
+			requested(getCategories, REFRESH_LIMIT).refreshAll(),
+			requested(getMonthly, REFRESH_LIMIT).refreshAll()
 		]);
 	}
 );
