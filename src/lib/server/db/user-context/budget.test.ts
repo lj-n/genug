@@ -206,6 +206,37 @@ describe('queries.monthly', () => {
 
 		expect(monthly(budget.id, month202501)).toHaveLength(0);
 	});
+
+	it('orders categories by custom position from userEntityOrder', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const catA = db
+			.insert(tables.categories)
+			.values({ budgetId: budget.id, name: 'A' })
+			.returning()
+			.get();
+		const catB = db
+			.insert(tables.categories)
+			.values({ budgetId: budget.id, name: 'B' })
+			.returning()
+			.get();
+		const catC = db
+			.insert(tables.categories)
+			.values({ budgetId: budget.id, name: 'C' })
+			.returning()
+			.get();
+		db.insert(tables.userEntityOrder)
+			.values([
+				{ entityId: catA.id, entityType: 'category', position: 2, userId: user.id },
+				{ entityId: catB.id, entityType: 'category', position: 0, userId: user.id },
+				{ entityId: catC.id, entityType: 'category', position: 1, userId: user.id }
+			])
+			.run();
+		const { monthly } = queries(user.id, db);
+
+		const result = monthly(budget.id, month202501);
+		expect(result.map((c) => c.name)).toEqual(['B', 'C', 'A']);
+	});
 });
 
 describe('queries.unassigned', () => {
