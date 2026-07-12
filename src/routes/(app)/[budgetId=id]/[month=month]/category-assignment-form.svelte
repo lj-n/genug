@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Month } from '$lib/utils/month';
 
-	import { InputCurrency } from '$lib/components/ui/input-currency';
+	import { InputMoney } from '$lib/components/ui/input-money';
 	import { m } from '$lib/paraglide/messages';
 	import { assignment, getMonthly, getUnassigned } from '$lib/remote-functions/budget.remote';
 	import { CURRENCIES } from '$lib/utils/currencies';
@@ -61,7 +61,7 @@
 			<input type="hidden" name={scopedForm.fields.month.as('number').name} value={month} />
 
 			<div class="h-full w-full">
-				<InputCurrency
+				<InputMoney
 					name={scopedForm.fields.amount.as('number').name}
 					bind:value={
 						() => scopedForm.fields.amount.value(), (v) => scopedForm.fields.amount.set(v)

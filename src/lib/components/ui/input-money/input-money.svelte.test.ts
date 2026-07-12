@@ -5,10 +5,10 @@ import userEvent from '@testing-library/user-event';
 import { flushSync } from 'svelte';
 import { describe, expect, it } from 'vitest';
 
-import InputCurrency from './input-currency.svelte';
+import InputMoney from './input-money.svelte';
 
-function renderNamedCurrencyInput(props?: Partial<ComponentProps<typeof InputCurrency>>) {
-	render(InputCurrency, {
+function renderNamedMoneyInput(props?: Partial<ComponentProps<typeof InputMoney>>) {
+	render(InputMoney, {
 		props: {
 			currency: 'EUR',
 			intlConfig: { locale: 'de-DE' },
@@ -29,10 +29,10 @@ function renderNamedCurrencyInput(props?: Partial<ComponentProps<typeof InputCur
 	return { hidden, input };
 }
 
-describe('InputCurrency cent binding', () => {
+describe('InputMoney cent binding', () => {
 	it('keeps cent precision for comma-decimal locales', async () => {
 		const user = userEvent.setup();
-		const { hidden, input } = renderNamedCurrencyInput();
+		const { hidden, input } = renderNamedMoneyInput();
 
 		await user.clear(input);
 		await user.type(input, '12,34');
@@ -43,7 +43,7 @@ describe('InputCurrency cent binding', () => {
 
 	it('keeps full cent precision when entering decimal amounts', async () => {
 		const user = userEvent.setup();
-		const { hidden, input } = renderNamedCurrencyInput({
+		const { hidden, input } = renderNamedMoneyInput({
 			currency: 'USD',
 			intlConfig: { locale: 'en-US' }
 		});
@@ -57,7 +57,7 @@ describe('InputCurrency cent binding', () => {
 
 	it('keeps cent precision when replacing an existing amount', async () => {
 		const user = userEvent.setup();
-		const { hidden, input } = renderNamedCurrencyInput({ value: 1234 });
+		const { hidden, input } = renderNamedMoneyInput({ value: 1234 });
 
 		await user.clear(input);
 		await user.type(input, '56,78');
@@ -68,7 +68,7 @@ describe('InputCurrency cent binding', () => {
 
 	it('propagates 0 cents when the input is cleared', async () => {
 		const user = userEvent.setup();
-		const { hidden, input } = renderNamedCurrencyInput({ value: 40000 });
+		const { hidden, input } = renderNamedMoneyInput({ value: 40000 });
 
 		await user.clear(input);
 		flushSync();
@@ -77,7 +77,7 @@ describe('InputCurrency cent binding', () => {
 	});
 
 	it('renders a cent value as a decimal amount for display', () => {
-		render(InputCurrency, {
+		render(InputMoney, {
 			props: {
 				currency: 'EUR',
 				intlConfig: { locale: 'de-DE' },
@@ -90,7 +90,7 @@ describe('InputCurrency cent binding', () => {
 	});
 
 	it('renders 0 cents as formatted "0,00"', () => {
-		render(InputCurrency, {
+		render(InputMoney, {
 			props: {
 				currency: 'EUR',
 				intlConfig: { locale: 'de-DE' },
@@ -107,7 +107,7 @@ describe('InputCurrency cent binding', () => {
 		const form = document.createElement('form');
 		document.body.append(form);
 
-		render(InputCurrency, {
+		render(InputMoney, {
 			props: {
 				currency: 'EUR',
 				intlConfig: { locale: 'de-DE' },
@@ -130,7 +130,7 @@ describe('InputCurrency cent binding', () => {
 		const form = document.createElement('form');
 		document.body.append(form);
 
-		render(InputCurrency, {
+		render(InputMoney, {
 			props: {
 				currency: 'EUR',
 				intlConfig: { locale: 'de-DE' },

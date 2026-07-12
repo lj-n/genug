@@ -3,17 +3,17 @@
 
 	import { cn } from 'tailwind-variants';
 
-	import { InputCurrency } from '../input-currency';
+	import { InputMoney } from '../input-money';
 
 	let {
 		class: className,
 		ref = $bindable(null),
 		value = $bindable(),
 		...props
-	}: ComponentProps<typeof InputCurrency> = $props();
+	}: ComponentProps<typeof InputMoney> = $props();
 </script>
 
-<InputCurrency
+<InputMoney
 	bind:ref
 	data-slot="input-group-control"
 	class={cn(

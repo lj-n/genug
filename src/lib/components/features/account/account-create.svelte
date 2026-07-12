@@ -8,7 +8,7 @@
 	import { FormBody } from '../../ui/form-body';
 	import { FormField } from '../../ui/form-field';
 	import { Input } from '../../ui/input';
-	import { InputCurrency } from '../../ui/input-currency';
+	import { InputMoney } from '../../ui/input-money';
 
 	const budgetId = getBudgetId();
 
@@ -27,7 +27,7 @@
 
 	<FormField field={form.fields.startingBalance} label={m.account_starting_balance_label()}>
 		{#snippet input(field)}
-			<InputCurrency
+			<InputMoney
 				name={field.as('number').name}
 				bind:value={() => field.value(), (v) => field.set(v)}
 				currency={budget.currency}
