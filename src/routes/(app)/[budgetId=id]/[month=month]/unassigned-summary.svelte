@@ -90,7 +90,7 @@
 		{/if}
 	</Popover.Trigger>
 
-	<Popover.Content align="end" sideOffset={4} class="w-fit min-w-72 gap-3">
+	<Popover.Content align="end" sideOffset={4} class="w-fit max-w-96 min-w-64 gap-3">
 		<dl class="flex flex-col gap-1">
 			{@render row(
 				m.unassigned_breakdown_income({ month: monthLabel }),
