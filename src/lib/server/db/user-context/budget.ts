@@ -158,7 +158,7 @@ export const queries = (userId: string, db: Database = database) => ({
 			)
 			.$dynamic();
 
-		return withOrder(qb, tables.categories, 'budget', userId).all();
+		return withOrder(qb, tables.categories, 'category', userId).all();
 	},
 
 	unassigned: (budgetId: string) => {
