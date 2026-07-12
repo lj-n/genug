@@ -108,6 +108,13 @@ async function renderRow(props: Partial<typeof baseProps> & { open?: boolean } =
 	const merged = { ...baseProps, open: true, ...props };
 	const utils = render(TableRowCreate, { props: merged });
 	const form = merged.open ? await screen.findByRole('row') : null;
+	if (form) {
+		// The Popover moves focus into its content once opening completes. Wait
+		// for that one-shot autofocus to land before a test drives the keyboard,
+		// so it can't steal focus from the field mid-interaction and drop the
+		// keystroke that submits the form.
+		await waitFor(() => expect(document.activeElement).not.toBe(document.body));
+	}
 	return { ...utils, form };
 }
 
