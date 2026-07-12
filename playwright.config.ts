@@ -7,6 +7,15 @@ const DEFAULT_VIEWPORT = { height: 900, width: 1440 } as const;
 const PORT = Number(process.env.E2E_PORT ?? 3000);
 const ORIGIN = `http://localhost:${PORT}`;
 
+// In CI the app is built once in a dedicated job and the `build/` output is
+// restored as an artifact, so the shards skip the (repeated) vite build.
+// Set PW_SKIP_BUILD=1 to boot the prebuilt server directly.
+const START_SERVER = `DATABASE_URL=:memory: ORIGIN=${ORIGIN} PORT=${PORT} node build`;
+const WEB_SERVER_COMMAND =
+	process.env.PW_SKIP_BUILD === '1'
+		? START_SERVER
+		: `DATABASE_URL=:memory: npm run build && ${START_SERVER}`;
+
 export default defineConfig({
 	expect: {
 		timeout: 10000
@@ -50,7 +59,7 @@ export default defineConfig({
 	},
 
 	webServer: {
-		command: `DATABASE_URL=:memory: npm run build && DATABASE_URL=:memory: ORIGIN=${ORIGIN} PORT=${PORT} node build`,
+		command: WEB_SERVER_COMMAND,
 		port: PORT,
 		// pino logs (request logs, unhandled server errors incl. logId) go to
 		// stdout, which Playwright discards by default — keep them visible so a
