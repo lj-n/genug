@@ -6,6 +6,7 @@
 	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import * as Page from '$lib/components/ui/page';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
+	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { parseMonth } from '$lib/utils/month';
 
 	import type { PageProps } from './$types';
@@ -17,7 +18,9 @@
 
 	let { params }: PageProps = $props();
 
-	const budget = $derived(await getBudget(params.budgetId));
+	const budgetId = getBudgetId();
+
+	const budget = $derived(await getBudget(budgetId()));
 
 	// The matcher guarantees a valid param on this route, but during client-side
 	// navigation away, `params` briefly reflects the target route (no month) while
