@@ -66,6 +66,16 @@ describe('InputCurrency cent binding', () => {
 		expect(hidden.value).toBe('5678');
 	});
 
+	it('propagates 0 cents when the input is cleared', async () => {
+		const user = userEvent.setup();
+		const { hidden, input } = renderNamedCurrencyInput({ value: 40000 });
+
+		await user.clear(input);
+		flushSync();
+
+		expect(hidden.value).toBe('0');
+	});
+
 	it('renders a cent value as a decimal amount for display', () => {
 		render(InputCurrency, {
 			props: {

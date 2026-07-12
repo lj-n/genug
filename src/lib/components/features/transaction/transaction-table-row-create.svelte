@@ -131,7 +131,7 @@
 					name={createTransaction.fields.amount.as('number').name}
 					aria-label="Amount"
 					bind:value={
-						() => createTransaction.fields.amount.value() ?? 0,
+						() => createTransaction.fields.amount.value(),
 						(v) => createTransaction.fields.amount.set(v)
 					}
 					currency={budget.currency}

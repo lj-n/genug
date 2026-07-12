@@ -130,7 +130,7 @@
 		<InputCurrency
 			name={form.fields.amount.as('number').name}
 			aria-label={m.transfer_assignment_amount()}
-			bind:value={() => form.fields.amount.value() ?? 0, (v) => form.fields.amount.set(v)}
+			bind:value={() => form.fields.amount.value(), (v) => form.fields.amount.set(v)}
 			currency={budget.currency}
 			class="px-2 text-right font-currency font-medium"
 			selectOnFocus

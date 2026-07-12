@@ -8,7 +8,7 @@
 	let {
 		class: className,
 		ref = $bindable(null),
-		value = $bindable(null),
+		value = $bindable(),
 		...props
 	}: ComponentProps<typeof InputCurrency> = $props();
 </script>

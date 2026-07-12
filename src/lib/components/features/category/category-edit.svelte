@@ -23,6 +23,10 @@
 
 	let savedIndicator = createSingletonToast();
 
+	$effect(() => {
+		editCategory.fields.targetBalance.set(category.targetBalance ?? 0);
+	});
+
 	const flyDuration = browser
 		? window.matchMedia('(prefers-reduced-motion: reduce)').matches
 			? 0
@@ -62,7 +66,7 @@
 		<InputGroup.InputCurrency
 			name={editCategory.fields.targetBalance.as('number').name}
 			bind:value={
-				() => editCategory.fields.targetBalance.value() ?? category.targetBalance ?? 0,
+				() => editCategory.fields.targetBalance.value(),
 				(v) => editCategory.fields.targetBalance.set(v)
 			}
 			{currency}

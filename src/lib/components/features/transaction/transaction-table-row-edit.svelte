@@ -43,6 +43,7 @@
 
 	onMount(() => {
 		form.fields.categoryId.set(transaction.categoryId ?? undefined);
+		form.fields.amount.set(transaction.amount);
 	});
 </script>
 
@@ -105,9 +106,7 @@
 		<InputCurrency
 			name={form.fields.amount.as('number').name}
 			aria-label={m.transactions_table_header_amount()}
-			bind:value={
-				() => form.fields.amount.value() ?? transaction.amount, (v) => form.fields.amount.set(v)
-			}
+			bind:value={() => form.fields.amount.value(), (v) => form.fields.amount.set(v)}
 			{currency}
 			class="px-2 text-right font-currency font-normal"
 		/>

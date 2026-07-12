@@ -29,7 +29,7 @@
 		{#snippet input(field)}
 			<InputCurrency
 				name={field.as('number').name}
-				bind:value={() => field.value() ?? 0, (v) => field.set(v)}
+				bind:value={() => field.value(), (v) => field.set(v)}
 				currency={budget.currency}
 				aria-invalid={field.issues()?.length ? true : undefined}
 			/>

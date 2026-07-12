@@ -64,8 +64,7 @@
 				<InputCurrency
 					name={scopedForm.fields.amount.as('number').name}
 					bind:value={
-						() => scopedForm.fields.amount.value() ?? category.assigned,
-						(v) => scopedForm.fields.amount.set(v)
+						() => scopedForm.fields.amount.value(), (v) => scopedForm.fields.amount.set(v)
 					}
 					{currency}
 					aria-invalid={scopedForm.fields.amount.issues()?.length ? true : undefined}

@@ -68,7 +68,7 @@
 		step,
 		suffix,
 		transformRawValue,
-		value = $bindable(null),
+		value = $bindable(),
 		...restProps
 	}: Props = $props();
 
@@ -81,9 +81,9 @@
 		return normalized === null ? '' : (normalized / 100).toFixed(2);
 	}
 
-	function floatToCents(floatValue: null | number): null | number {
+	function floatToCents(floatValue: null | number): number {
 		if (floatValue === null || floatValue === undefined || Number.isNaN(floatValue)) {
-			return null;
+			return 0;
 		}
 		return Math.round(floatValue * 100);
 	}
