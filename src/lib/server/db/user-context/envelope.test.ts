@@ -291,9 +291,57 @@ describe('unassigned', () => {
 		seedAssignment(db, budget.id, cat.id, feb, 50000); // Feb assignment
 		seedAssignment(db, budget.id, cat.id, mar, 10000); // Mar assignment
 
-		// Viewing Jan: assignments after = 60000, income after = 30000.
-		// 100000 - 0 - max(0, 60000 - 30000) = 70000.
+		// Viewing Jan: positions are Feb = 100000 + 30000 - 50000 = 80000,
+		// Mar = 80000 - 10000 = 70000. The lowest future position wins.
 		expect(unassigned(db, budget.id, jan)).toBe(70000);
+	});
+
+	it('does not let income after an uncovered assignment fund it retroactively', () => {
+		const db = createDatabase(':memory:');
+		const { budget } = createBudgetWithUser(db);
+		const account = seedAccount(db, budget.id, 'Checking');
+		const cat = seedCategory(db, budget.id, 'Groceries');
+
+		seedTransaction(db, budget.id, account.id, null, '2025-01-10', 100000); // Jan income
+		seedAssignment(db, budget.id, cat.id, feb, 50000); // Feb assignment, uncovered in Feb
+		seedTransaction(db, budget.id, account.id, null, '2025-03-10', 50000); // Mar income
+
+		// The Mar income arrives AFTER the Feb assignment; it cannot fund it.
+		// Viewing Jan, only 50000 is safe to assign: position(Feb) = 50000 is the
+		// lowest future position. A future-lump formula would report 100000.
+		expect(unassigned(db, budget.id, jan)).toBe(50000);
+		// From Mar onward the income is present: 100000 - 50000 + 50000 = 100000.
+		expect(unassigned(db, budget.id, mar)).toBe(100000);
+	});
+
+	it('keeps earlier months pinned to a fully-consumed month despite later income', () => {
+		const db = createDatabase(':memory:');
+		const { budget } = createBudgetWithUser(db);
+		const account = seedAccount(db, budget.id, 'Checking');
+		const cat = seedCategory(db, budget.id, 'Groceries');
+
+		// The #44 production shape: income fully assigned through Feb, then a
+		// future-dated income in Mar. Jan must stay at zero — the Mar money must
+		// not appear on any month page before Mar.
+		seedTransaction(db, budget.id, account.id, null, '2025-01-10', 100000); // Jan income
+		seedAssignment(db, budget.id, cat.id, feb, 100000); // consumed by Feb
+		seedTransaction(db, budget.id, account.id, null, '2025-03-15', 50000); // Mar income
+
+		expect(unassigned(db, budget.id, jan)).toBe(0);
+		expect(unassigned(db, budget.id, feb)).toBe(0);
+		expect(unassigned(db, budget.id, mar)).toBe(50000);
+	});
+
+	it('shows zero on a month before any activity even when later income exists', () => {
+		const db = createDatabase(':memory:');
+		const { budget } = createBudgetWithUser(db);
+		const account = seedAccount(db, budget.id, 'Checking');
+
+		seedTransaction(db, budget.id, account.id, null, '2025-02-10', 40000); // Feb income only
+
+		// Viewing Jan: position(Jan) = 0 and the Feb income lies ahead — nothing
+		// is assignable yet.
+		expect(unassigned(db, budget.id, jan)).toBe(0);
 	});
 
 	it('excludes income dated in a later month', () => {

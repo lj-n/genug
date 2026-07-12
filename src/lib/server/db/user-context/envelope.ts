@@ -1,7 +1,7 @@
 import type { Month } from '$lib/utils/month';
 
 import { type Database, tables } from '$db';
-import { dateIsAfter, dateIsInMonth, dateIsOnOrBefore } from '$db/month-sql';
+import { dateIsInMonth, dateIsOnOrBefore } from '$db/month-sql';
 import { and, eq, isNotNull, isNull, sql } from 'drizzle-orm';
 
 /**
@@ -106,46 +106,51 @@ export function categoryBalances(db: Database, month: Month) {
  * Month-scoped Unassigned with reach-back (ADR-0007): budget money outside
  * every envelope as seen from month `M`.
  *
- *   Unassigned(M) = income≤M − assignments≤M − max(0, assignments>M − income>M)
+ *   Unassigned(M) = min over K ≥ M of (income≤K − assignments≤K)
  *
  * Income is transactions without a category; comparisons are month-granular
  * (income by `strftime('%Y%m', date)`, assignments by their `month` column).
- * The reach-back term charges the present month only for future assignments
- * that future income does not yet cover, so a fully-assigned past month reads
- * zero rather than a spurious negative. Access control is the caller's
- * responsibility.
+ * Taking the lowest running position at M and every later month means a
+ * future deficit reaches back (assigning money that is spoken for later warns
+ * now), while future income counts only from its own month onward — it can
+ * never fund an assignment in a month before it arrives. Access control is
+ * the caller's responsibility.
  */
 export function unassigned(db: Database, budgetId: string, month: Month): number {
-	const [assignments] = db
+	const assignments = db
 		.select({
-			after:
-				sql<number>`coalesce(sum(CASE WHEN ${tables.budgetAssignments.month} > ${month} THEN ${tables.budgetAssignments.amount} ELSE 0 END), 0)`.as(
-					'after'
-				),
-			until:
-				sql<number>`coalesce(sum(CASE WHEN ${tables.budgetAssignments.month} <= ${month} THEN ${tables.budgetAssignments.amount} ELSE 0 END), 0)`.as(
-					'until'
-				)
+			month: tables.budgetAssignments.month,
+			total: sql<number>`sum(${tables.budgetAssignments.amount})`.as('total')
 		})
 		.from(tables.budgetAssignments)
 		.where(eq(tables.budgetAssignments.budgetId, budgetId))
+		.groupBy(tables.budgetAssignments.month)
 		.all();
 
-	const [income] = db
+	const income = db
 		.select({
-			after:
-				sql<number>`coalesce(sum(CASE WHEN ${dateIsAfter(tables.transactions.date, month)} THEN ${tables.transactions.amount} ELSE 0 END), 0)`.as(
-					'after'
-				),
-			until:
-				sql<number>`coalesce(sum(CASE WHEN ${dateIsOnOrBefore(tables.transactions.date, month)} THEN ${tables.transactions.amount} ELSE 0 END), 0)`.as(
-					'until'
-				)
+			month: sql<number>`cast(strftime('%Y%m', ${tables.transactions.date}) AS integer)`.as(
+				'month'
+			),
+			total: sql<number>`sum(${tables.transactions.amount})`.as('total')
 		})
 		.from(tables.transactions)
 		.where(and(eq(tables.transactions.budgetId, budgetId), isNull(tables.transactions.categoryId)))
+		.groupBy(sql`strftime('%Y%m', ${tables.transactions.date})`)
 		.all();
 
-	const reachBack = Math.max(0, (assignments?.after ?? 0) - (income?.after ?? 0));
-	return (income?.until ?? 0) - (assignments?.until ?? 0) - reachBack;
+	// Net change of the running position per month, with M itself as a
+	// checkpoint so position(M) participates in the minimum even when the
+	// month has no entries of its own.
+	const deltas = new Map<number, number>([[month, 0]]);
+	for (const row of income) deltas.set(row.month, (deltas.get(row.month) ?? 0) + row.total);
+	for (const row of assignments) deltas.set(row.month, (deltas.get(row.month) ?? 0) - row.total);
+
+	let position = 0;
+	let lowest = Infinity;
+	for (const m of [...deltas.keys()].sort((a, b) => a - b)) {
+		position += deltas.get(m) ?? 0;
+		if (m >= month) lowest = Math.min(lowest, position);
+	}
+	return lowest;
 }

@@ -33,7 +33,7 @@ The envelope-side running position of a category: the sum of its assignments plu
 _Avoid_: balance (account-side, see Balance), leftover, available
 
 **Unassigned**:
-Budget money outside every envelope, as seen from a Month: income (transactions without a category) up to the Month, minus assignments up to the Month, minus the part of later assignments that later income does not yet cover (reach-back). Like Remaining, the term is incomplete without a cutoff — it is month-scoped, not budget-lifetime, and comparisons are month-granular. Reach-back keeps the no-double-assignment guarantee without painting fully-assigned past months red; assigning in a future month with no income there is the intended negative "spending money you don't have" warning (ADR-0007). Advisory only — never a thrown rule. Computed only in user-context.
+Budget money outside every envelope, as seen from a Month: the lowest running position — income (transactions without a category) minus assignments, accumulated month by month — at the Month or any later month. Like Remaining, the term is incomplete without a cutoff — it is month-scoped, not budget-lifetime, and comparisons are month-granular. Taking the minimum over future positions keeps the no-double-assignment guarantee (a future deficit reaches back as the intended negative "spending money you don't have" warning) while future income counts only from its own month onward — it can never fund an assignment in a month before it arrives (ADR-0007). Advisory only — never a thrown rule. Computed only in user-context.
 _Avoid_: available, to be budgeted, free money
 
 **Balance**:
