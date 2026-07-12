@@ -173,6 +173,7 @@
 	"budget_settings_label_currency": "Currency",
 	"budget_settings_available_currencies": "Available Currencies",
 	"error_page_unexpected": "An unexpected error occurred.",
+	"form_error_unexpected": "Could not be saved. Please try again.",
 	"error_page_log_id": "Error ID:",
 	"error_page_go_home": "Go back home",
 	"error_account_not_found": "Account not found.",

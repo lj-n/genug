@@ -173,6 +173,7 @@
 	"budget_settings_label_currency": "Währung",
 	"budget_settings_available_currencies": "Verfügbare Währungen",
 	"error_page_unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
+	"form_error_unexpected": "Konnte nicht gespeichert werden. Bitte versuche es erneut.",
 	"error_page_log_id": "Fehler-ID:",
 	"error_page_go_home": "Zurück zur Startseite",
 	"error_account_not_found": "Konto nicht gefunden.",
