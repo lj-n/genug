@@ -28,6 +28,7 @@
 	const month = $derived(parseMonth(params.month));
 
 	let selectedCategoryId = $state<null | string>(null);
+	let categoryDialogOpen = $state(false);
 </script>
 
 <Page.Root>
@@ -59,10 +60,11 @@
 				{month}
 				openCategoryDialog={(categoryId) => {
 					selectedCategoryId = categoryId;
+					categoryDialogOpen = true;
 				}}
 			/>
 		{/if}
 	</Page.Content>
 </Page.Root>
 
-<CategoryDetailDialog bind:categoryId={selectedCategoryId} />
+<CategoryDetailDialog bind:categoryId={selectedCategoryId} bind:open={categoryDialogOpen} />

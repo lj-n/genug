@@ -32,6 +32,23 @@ test('Category detail opens as a dialog on wide viewports', async ({ page, pages
 	await expect(page.locator('[data-slot="drawer-content"]')).toHaveCount(0);
 });
 
+test('Category detail reopens for the same category after closing', async ({ page, pages }) => {
+	const categoryName = await seedCategory(pages);
+
+	await pages.category.openDetail(categoryName);
+	const dialog = page.locator('[data-slot="dialog-content"]');
+	await expect(dialog).toBeVisible();
+
+	// Close, then click the exact same category again. Because open state and the
+	// selected id used to be the same derived value, reopening the same id was a
+	// no-op — the dialog stayed shut until a different category was picked.
+	await page.keyboard.press('Escape');
+	await expect(dialog).toHaveCount(0);
+
+	await pages.category.openDetail(categoryName);
+	await expect(page.locator('[data-slot="dialog-content"]')).toBeVisible();
+});
+
 test('Category detail opens as a bottom drawer on narrow viewports', async ({ page, pages }) => {
 	const categoryName = await seedCategory(pages);
 
