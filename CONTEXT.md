@@ -36,6 +36,18 @@ _Avoid_: balance (account-side, see Balance), leftover, available
 Budget money outside every envelope, as seen from a Month: the lowest running position — income (transactions without a category) minus assignments, accumulated month by month — at the Month or any later month. Exactly: `Unassigned(M) = min over K ≥ M of (income≤K − assignments≤K)`. Like Remaining, the term is incomplete without a cutoff — it is month-scoped, not budget-lifetime, and comparisons are month-granular. Taking the minimum over future positions keeps the no-double-assignment guarantee (a future deficit reaches back as the intended negative "spending money you don't have" warning) while future income counts only from its own month onward — it can never fund an assignment in a month before it arrives (ADR-0007). Advisory only — never a thrown rule. Computed only in user-context.
 _Avoid_: available, to be budgeted, free money
 
+**Position**:
+The running position of a budget through a Month: income (transactions without a category) up to and including the month, minus assignments up to and including the month — ignoring later months. One term of the Unassigned breakdown (`Unassigned = Position − Reserved`), shown as "Stand" in the German UI. Computed only in user-context, inside the same min-scan as Unassigned (ADR-0004, ADR-0007).
+_Avoid_: balance (account-side, see Balance), available
+
+**Reserved**:
+The part of a Month's Position withheld because a later month runs lower: `Position − Unassigned`, never negative. Zero exactly when the viewed month is itself the minimum — then no Bottleneck exists and the UI omits the row. Shown as "Reserviert" in the German UI.
+_Avoid_: available, held back, blocked
+
+**Bottleneck**:
+The earliest month at/after the viewed Month whose Position equals the minimum defining Unassigned — the month pinning the value. Null when the viewed month is itself the minimum (Reserved = 0); ties break toward the earliest month, the first that binds. Shown as "Engpass" in the German UI.
+_Avoid_: constraint, limiting month
+
 **Balance**:
 The account-side sum of transactions in an account — what is physically there, split into validated and pending. Says nothing about envelopes; the envelope-side term is Remaining.
 _Avoid_: remaining (envelope-side), funds

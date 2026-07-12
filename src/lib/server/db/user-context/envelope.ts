@@ -1,7 +1,6 @@
-import type { Month } from '$lib/utils/month';
-
 import { type Database, tables } from '$db';
 import { dateIsInMonth, dateIsOnOrBefore } from '$db/month-sql';
+import { type Month, parseMonth } from '$lib/utils/month';
 import { and, eq, isNotNull, isNull, sql } from 'drizzle-orm';
 
 /**
@@ -15,6 +14,23 @@ import { and, eq, isNotNull, isNull, sql } from 'drizzle-orm';
  * To avoid drift, assignment⨝transaction aggregates at category or budget
  * level must live here and nowhere else (ADR-0004).
  */
+
+/**
+ * Decomposition of Unassigned(M) into the terms a user can check against
+ * their own data: Position is the running income-minus-assignments through
+ * the viewed month, Reserved the part withheld because a later month runs
+ * lower, and Bottleneck the earliest month at/after M pinning that minimum
+ * (null when the viewed month itself is the minimum, i.e. Reserved = 0).
+ * Invariant: unassigned = position − reserved.
+ */
+export type UnassignedBreakdown = {
+	assignedUntilMonth: number;
+	bottleneck: Month | null;
+	incomeUntilMonth: number;
+	position: number;
+	reserved: number;
+	unassigned: number;
+};
 
 export function categoryBalances(db: Database, month: Month) {
 	const txAgg = db
@@ -113,10 +129,12 @@ export function categoryBalances(db: Database, month: Month) {
  * Taking the lowest running position at M and every later month means a
  * future deficit reaches back (assigning money that is spoken for later warns
  * now), while future income counts only from its own month onward — it can
- * never fund an assignment in a month before it arrives. Access control is
- * the caller's responsibility.
+ * never fund an assignment in a month before it arrives. The min-scan's
+ * intermediate values are returned as an `UnassignedBreakdown` so the UI can
+ * explain the number without recomputing it (#73). Access control is the
+ * caller's responsibility.
  */
-export function unassigned(db: Database, budgetId: string, month: Month): number {
+export function unassigned(db: Database, budgetId: string, month: Month): UnassignedBreakdown {
 	const assignments = db
 		.select({
 			month: tables.budgetAssignments.month,
@@ -146,11 +164,31 @@ export function unassigned(db: Database, budgetId: string, month: Month): number
 	for (const row of income) deltas.set(row.month, (deltas.get(row.month) ?? 0) + row.total);
 	for (const row of assignments) deltas.set(row.month, (deltas.get(row.month) ?? 0) - row.total);
 
-	let position = 0;
+	let incomeUntilMonth = 0;
+	let assignedUntilMonth = 0;
+	for (const row of income) if (row.month <= month) incomeUntilMonth += row.total;
+	for (const row of assignments) if (row.month <= month) assignedUntilMonth += row.total;
+
+	// M is the first checkpoint ≥ M, so `lowestMonth` starts there; a strict
+	// `<` keeps the earliest month on ties — the first month that binds.
+	let running = 0;
 	let lowest = Infinity;
+	let lowestMonth: number = month;
 	for (const m of [...deltas.keys()].sort((a, b) => a - b)) {
-		position += deltas.get(m) ?? 0;
-		if (m >= month) lowest = Math.min(lowest, position);
+		running += deltas.get(m) ?? 0;
+		if (m >= month && running < lowest) {
+			lowest = running;
+			lowestMonth = m;
+		}
 	}
-	return lowest;
+
+	const position = incomeUntilMonth - assignedUntilMonth;
+	return {
+		assignedUntilMonth,
+		bottleneck: lowestMonth === month ? null : parseMonth(lowestMonth),
+		incomeUntilMonth,
+		position,
+		reserved: position - lowest,
+		unassigned: lowest
+	};
 }

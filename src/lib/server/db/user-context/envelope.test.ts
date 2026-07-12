@@ -219,14 +219,14 @@ describe('unassigned', () => {
 		seedTransaction(db, budget.id, account.id, cat.id, '2025-01-20', -30000); // categorized (not income)
 		seedAssignment(db, budget.id, cat.id, jan, 20000);
 
-		expect(unassigned(db, budget.id, jan)).toBe(100000 + 50000 - 20000); // 130000
+		expect(unassigned(db, budget.id, jan).unassigned).toBe(100000 + 50000 - 20000); // 130000
 	});
 
 	it('returns zero when there is no income and no assignments', () => {
 		const db = createDatabase(':memory:');
 		const { budget } = createBudgetWithUser(db);
 
-		expect(unassigned(db, budget.id, jan)).toBe(0);
+		expect(unassigned(db, budget.id, jan).unassigned).toBe(0);
 	});
 
 	it('returns negative when assignments in the month exceed income', () => {
@@ -244,7 +244,7 @@ describe('unassigned', () => {
 		);
 		seedAssignment(db, budget.id, cat.id, jan, 30000);
 
-		expect(unassigned(db, budget.id, jan)).toBe(-20000);
+		expect(unassigned(db, budget.id, jan).unassigned).toBe(-20000);
 	});
 
 	it('is zero on a fully-assigned past month even when later months are also fully assigned', () => {
@@ -262,7 +262,7 @@ describe('unassigned', () => {
 
 		// Viewing Jan: Feb's assignment is fully covered by Feb's income, so it
 		// reaches back nothing. 100000 - 100000 - max(0, 100000 - 100000) = 0.
-		expect(unassigned(db, budget.id, jan)).toBe(0);
+		expect(unassigned(db, budget.id, jan).unassigned).toBe(0);
 	});
 
 	it('reaches back an uncovered future assignment into the present month', () => {
@@ -277,7 +277,7 @@ describe('unassigned', () => {
 		seedAssignment(db, budget.id, cat.id, feb, 50000);
 
 		// Viewing Jan: 100000 - 0 - max(0, 50000 - 0) = 50000.
-		expect(unassigned(db, budget.id, jan)).toBe(50000);
+		expect(unassigned(db, budget.id, jan).unassigned).toBe(50000);
 	});
 
 	it('only reaches back the portion of future assignments not covered by future income', () => {
@@ -293,7 +293,7 @@ describe('unassigned', () => {
 
 		// Viewing Jan: positions are Feb = 100000 + 30000 - 50000 = 80000,
 		// Mar = 80000 - 10000 = 70000. The lowest future position wins.
-		expect(unassigned(db, budget.id, jan)).toBe(70000);
+		expect(unassigned(db, budget.id, jan).unassigned).toBe(70000);
 	});
 
 	it('does not let income after an uncovered assignment fund it retroactively', () => {
@@ -309,9 +309,9 @@ describe('unassigned', () => {
 		// The Mar income arrives AFTER the Feb assignment; it cannot fund it.
 		// Viewing Jan, only 50000 is safe to assign: position(Feb) = 50000 is the
 		// lowest future position. A future-lump formula would report 100000.
-		expect(unassigned(db, budget.id, jan)).toBe(50000);
+		expect(unassigned(db, budget.id, jan).unassigned).toBe(50000);
 		// From Mar onward the income is present: 100000 - 50000 + 50000 = 100000.
-		expect(unassigned(db, budget.id, mar)).toBe(100000);
+		expect(unassigned(db, budget.id, mar).unassigned).toBe(100000);
 	});
 
 	it('keeps earlier months pinned to a fully-consumed month despite later income', () => {
@@ -327,9 +327,9 @@ describe('unassigned', () => {
 		seedAssignment(db, budget.id, cat.id, feb, 100000); // consumed by Feb
 		seedTransaction(db, budget.id, account.id, null, '2025-03-15', 50000); // Mar income
 
-		expect(unassigned(db, budget.id, jan)).toBe(0);
-		expect(unassigned(db, budget.id, feb)).toBe(0);
-		expect(unassigned(db, budget.id, mar)).toBe(50000);
+		expect(unassigned(db, budget.id, jan).unassigned).toBe(0);
+		expect(unassigned(db, budget.id, feb).unassigned).toBe(0);
+		expect(unassigned(db, budget.id, mar).unassigned).toBe(50000);
 	});
 
 	it('shows zero on a month before any activity even when later income exists', () => {
@@ -341,7 +341,7 @@ describe('unassigned', () => {
 
 		// Viewing Jan: position(Jan) = 0 and the Feb income lies ahead — nothing
 		// is assignable yet.
-		expect(unassigned(db, budget.id, jan)).toBe(0);
+		expect(unassigned(db, budget.id, jan).unassigned).toBe(0);
 	});
 
 	it('excludes income dated in a later month', () => {
@@ -353,7 +353,7 @@ describe('unassigned', () => {
 		seedTransaction(db, budget.id, account.id, null, '2025-02-10', 40000); // Feb income
 
 		// Viewing Jan: only Jan income counts, and Feb income covers no assignment.
-		expect(unassigned(db, budget.id, jan)).toBe(100000);
+		expect(unassigned(db, budget.id, jan).unassigned).toBe(100000);
 	});
 
 	it('counts month-granular income on the viewed month regardless of day', () => {
@@ -364,6 +364,164 @@ describe('unassigned', () => {
 		// Salary dated late in January counts on the January page.
 		seedTransaction(db, budget.id, account.id, null, '2025-01-25', 80000);
 
-		expect(unassigned(db, budget.id, jan)).toBe(80000);
+		expect(unassigned(db, budget.id, jan).unassigned).toBe(80000);
+	});
+
+	it('returns the full breakdown with a null Bottleneck when the viewed month is the minimum', () => {
+		const db = createDatabase(':memory:');
+		const { budget } = createBudgetWithUser(db);
+		const account = seedAccount(db, budget.id, 'Checking');
+		const cat = seedCategory(db, budget.id, 'Groceries');
+
+		seedTransaction(db, budget.id, account.id, null, '2025-01-10', 100000);
+		seedAssignment(db, budget.id, cat.id, jan, 20000);
+
+		expect(unassigned(db, budget.id, jan)).toEqual({
+			assignedUntilMonth: 20000,
+			bottleneck: null,
+			incomeUntilMonth: 100000,
+			position: 80000,
+			reserved: 0,
+			unassigned: 80000
+		});
+	});
+
+	it('names the future Bottleneck month and the Reserved amount under partial coverage', () => {
+		const db = createDatabase(':memory:');
+		const { budget } = createBudgetWithUser(db);
+		const account = seedAccount(db, budget.id, 'Checking');
+		const cat = seedCategory(db, budget.id, 'Groceries');
+
+		seedTransaction(db, budget.id, account.id, null, '2025-01-10', 100000); // Jan income
+		seedTransaction(db, budget.id, account.id, null, '2025-02-10', 30000); // Feb income
+		seedAssignment(db, budget.id, cat.id, feb, 50000);
+		seedAssignment(db, budget.id, cat.id, mar, 10000);
+
+		// Positions: Jan 100000, Feb 80000, Mar 70000 — Mar pins the minimum.
+		expect(unassigned(db, budget.id, jan)).toEqual({
+			assignedUntilMonth: 0,
+			bottleneck: mar,
+			incomeUntilMonth: 100000,
+			position: 100000,
+			reserved: 30000,
+			unassigned: 70000
+		});
+	});
+
+	it('reports a negative Position with no Reserved when the deficit is in the past', () => {
+		const db = createDatabase(':memory:');
+		const { budget } = createBudgetWithUser(db);
+		const account = seedAccount(db, budget.id, 'Checking');
+		const cat = seedCategory(db, budget.id, 'Overassigned');
+
+		seedTransaction(db, budget.id, account.id, null, '2025-01-01', 10000);
+		seedAssignment(db, budget.id, cat.id, jan, 30000);
+
+		expect(unassigned(db, budget.id, jan)).toEqual({
+			assignedUntilMonth: 30000,
+			bottleneck: null,
+			incomeUntilMonth: 10000,
+			position: -20000,
+			reserved: 0,
+			unassigned: -20000
+		});
+	});
+
+	it('reports a positive Position pulled negative by Reserved with the Bottleneck named', () => {
+		const db = createDatabase(':memory:');
+		const { budget } = createBudgetWithUser(db);
+		const account = seedAccount(db, budget.id, 'Checking');
+		const cat = seedCategory(db, budget.id, 'Groceries');
+
+		seedTransaction(db, budget.id, account.id, null, '2025-01-10', 100000); // Jan income
+		seedAssignment(db, budget.id, cat.id, feb, 150000); // uncovered in Feb
+
+		expect(unassigned(db, budget.id, jan)).toEqual({
+			assignedUntilMonth: 0,
+			bottleneck: feb,
+			incomeUntilMonth: 100000,
+			position: 100000,
+			reserved: 150000,
+			unassigned: -50000
+		});
+	});
+
+	it('breaks Bottleneck ties toward the earliest month', () => {
+		const db = createDatabase(':memory:');
+		const { budget } = createBudgetWithUser(db);
+		const account = seedAccount(db, budget.id, 'Checking');
+		const cat = seedCategory(db, budget.id, 'Groceries');
+
+		seedTransaction(db, budget.id, account.id, null, '2025-01-10', 100000); // Jan income
+		seedAssignment(db, budget.id, cat.id, feb, 50000); // position(Feb) = 50000
+		seedTransaction(db, budget.id, account.id, null, '2025-03-10', 20000); // Mar income
+		seedAssignment(db, budget.id, cat.id, mar, 20000); // position(Mar) = 50000 again
+
+		// Feb and Mar tie at 50000; Feb binds first.
+		expect(unassigned(db, budget.id, jan)).toEqual({
+			assignedUntilMonth: 0,
+			bottleneck: feb,
+			incomeUntilMonth: 100000,
+			position: 100000,
+			reserved: 50000,
+			unassigned: 50000
+		});
+	});
+
+	it('keeps Bottleneck null when a later month only ties the viewed month', () => {
+		const db = createDatabase(':memory:');
+		const { budget } = createBudgetWithUser(db);
+		const account = seedAccount(db, budget.id, 'Checking');
+		const cat = seedCategory(db, budget.id, 'Groceries');
+
+		seedTransaction(db, budget.id, account.id, null, '2025-01-10', 100000);
+		seedAssignment(db, budget.id, cat.id, jan, 100000); // position(Jan) = 0
+		seedTransaction(db, budget.id, account.id, null, '2025-02-10', 50000);
+		seedAssignment(db, budget.id, cat.id, feb, 50000); // position(Feb) = 0
+
+		// The viewed month already sits at the minimum; nothing is withheld.
+		expect(unassigned(db, budget.id, jan)).toEqual({
+			assignedUntilMonth: 100000,
+			bottleneck: null,
+			incomeUntilMonth: 100000,
+			position: 0,
+			reserved: 0,
+			unassigned: 0
+		});
+	});
+
+	it('returns an all-zero breakdown for an empty budget', () => {
+		const db = createDatabase(':memory:');
+		const { budget } = createBudgetWithUser(db);
+
+		expect(unassigned(db, budget.id, jan)).toEqual({
+			assignedUntilMonth: 0,
+			bottleneck: null,
+			incomeUntilMonth: 0,
+			position: 0,
+			reserved: 0,
+			unassigned: 0
+		});
+	});
+
+	it('accumulates income and assignments from months before the viewed month', () => {
+		const db = createDatabase(':memory:');
+		const { budget } = createBudgetWithUser(db);
+		const account = seedAccount(db, budget.id, 'Checking');
+		const cat = seedCategory(db, budget.id, 'Groceries');
+		const dec = parseMonth(202412)!;
+
+		seedTransaction(db, budget.id, account.id, null, '2024-12-10', 50000); // Dec income
+		seedTransaction(db, budget.id, account.id, null, '2025-01-10', 10000); // Jan income
+		seedAssignment(db, budget.id, cat.id, dec, 20000);
+
+		expect(unassigned(db, budget.id, jan)).toEqual({
+			assignedUntilMonth: 20000,
+			bottleneck: null,
+			incomeUntilMonth: 60000,
+			position: 40000,
+			reserved: 0,
+			unassigned: 40000
+		});
 	});
 });
