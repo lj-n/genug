@@ -27,6 +27,7 @@
 		"@eslint/compat": "^2.0.3",
 		"@eslint/js": "^10.0.1",
 		"@faker-js/faker": "^10.4.0",
+		"@floating-ui/dom": "^1.8.0",
 		"@fontsource-variable/inter": "^5.2.8",
 		"@iconify-json/ph": "^1.2.2",
 		"@inlang/paraglide-js": "^2.10.0",

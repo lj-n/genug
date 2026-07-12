@@ -1,15 +1,12 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { m } from '$lib/paraglide/messages';
 	import { editCategory, getCategoryById } from '$lib/remote-functions/category.remote';
+	import { createAnchoredToast } from '$lib/utils/anchored-toast.svelte';
 	import { type CURRENCIES } from '$lib/utils/currencies';
-	import { createSingletonToast } from '$lib/utils/singleton-toast.svelte';
-	import { fly } from 'svelte/transition';
-	import FloppyDiskDuotoneIcon from '~icons/ph/floppy-disk-duotone';
 	import TargetIcon from '~icons/ph/target';
 
 	let {
@@ -20,23 +17,17 @@
 		currency: (typeof CURRENCIES)[number];
 	} = $props();
 
-	let savedIndicator = createSingletonToast();
+	const savedToast = createAnchoredToast();
 
 	$effect(() => {
 		editCategory.fields.targetBalance.set(category.targetBalance ?? 0);
 	});
-
-	const flyDuration = browser
-		? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-			? 0
-			: 200
-		: 0;
 </script>
 
 <form
 	{...editCategory.enhance(async (form) => {
 		if (await form.submit()) {
-			savedIndicator.trigger();
+			savedToast.success(m.saved());
 		}
 	})}
 	class="flex flex-col gap-2 rounded-md border border-muted/20 bg-background p-3 shadow-xs"
@@ -83,17 +74,7 @@
 	</InputGroup.Root>
 
 	<div class="mt-auto flex items-center justify-end gap-3">
-		{#if savedIndicator.show}
-			<div
-				class="flex items-center gap-1 font-medium text-success"
-				transition:fly={{ duration: flyDuration, x: -20 }}
-			>
-				<FloppyDiskDuotoneIcon />
-				<span>{m.saved()}</span>
-			</div>
-		{/if}
-
-		<Button type="submit" disabled={editCategory.pending > 0}>
+		<Button {@attach savedToast.attach} type="submit" disabled={editCategory.pending > 0}>
 			{m.save()}
 		</Button>
 	</div>
