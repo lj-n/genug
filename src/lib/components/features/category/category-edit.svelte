@@ -7,7 +7,6 @@
 	import { m } from '$lib/paraglide/messages';
 	import { editCategory, getCategoryById } from '$lib/remote-functions/category.remote';
 	import { type CURRENCIES } from '$lib/utils/currencies';
-	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { createSingletonToast } from '$lib/utils/singleton-toast.svelte';
 	import { fly } from 'svelte/transition';
 	import FloppyDiskDuotoneIcon from '~icons/ph/floppy-disk-duotone';
@@ -71,8 +70,7 @@
 			}
 			{currency}
 			aria-invalid={editCategory.fields.targetBalance.issues()?.length ? true : undefined}
-			class="h-12 text-center text-xl font-semibold placeholder:text-base placeholder:font-normal"
-			placeholder={formatMoney({ currency, money: asMoney(0) })}
+			class="h-12 text-center text-xl font-semibold"
 			aria-label={m.category_label_targetbalance()}
 		/>
 
