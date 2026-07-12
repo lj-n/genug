@@ -28,12 +28,6 @@ jobs:
       - run: npm run build
         env:
           DATABASE_URL: ':memory:'
-      # Share the built server with the e2e shards so they don't each rebuild it.
-      - uses: actions/upload-artifact@v4
-        with:
-          name: app-build
-          path: build/
-          retention-days: 1
 
   check:
     runs-on: ubuntu-latest
@@ -102,7 +96,7 @@ jobs:
           fi
 
   e2e-test:
-    needs: [gate, build]
+    needs: [gate]
     if: needs.gate.outputs.run_e2e == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -126,14 +120,8 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
       - run: npx playwright install-deps chromium webkit
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-      # Reuse the server built by the `build` job instead of rebuilding per shard.
-      - uses: actions/download-artifact@v4
-        with:
-          name: app-build
-          path: build/
+      - run: npx paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide
       - run: npx playwright test --shard=${{ matrix.shard }}/2
-        env:
-          PW_SKIP_BUILD: '1'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
