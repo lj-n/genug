@@ -3,6 +3,7 @@
 
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Drawer from '$lib/components/ui/drawer';
+	import { cn } from 'tailwind-variants';
 
 	import { getResponsiveModalContext } from './context';
 
@@ -25,7 +26,7 @@
 		{@render children()}
 	</Dialog.Content>
 {:else}
-	<Drawer.Content class={className}>
+	<Drawer.Content class={cn('px-6 pb-6', className)}>
 		{@render children()}
 	</Drawer.Content>
 {/if}
