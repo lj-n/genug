@@ -12,15 +12,20 @@
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { listTransactions } from '$lib/remote-functions/transaction.remote';
 	import { TransactionsURLParamsSchema } from '$lib/schemas/transaction';
+	import { getBudgetId } from '$lib/utils/budget-id-context';
+	import { stickyParam } from '$lib/utils/sticky-param';
 	import * as v from 'valibot';
 
 	import type { PageProps } from './$types';
 
 	let { params }: PageProps = $props();
 
-	const account = $derived(await getAccount(params.accountId));
-	const balanceDetail = $derived(await getAccountBalances(params.accountId));
-	const budget = $derived(await getBudget(params.budgetId));
+	const budgetId = getBudgetId();
+	const accountId = stickyParam(() => params.accountId);
+
+	const account = $derived(await getAccount(accountId()));
+	const balanceDetail = $derived(await getAccountBalances(accountId()));
+	const budget = $derived(await getBudget(budgetId()));
 
 	const balances = $derived({
 		balance: account.balance,
@@ -60,17 +65,15 @@
 
 	const tableState = new TableState(parseURLParams(page.url));
 
-	const result = $derived(
-		await listTransactions({ accountId: params.accountId, ...tableState.params })
-	);
+	const result = $derived(await listTransactions({ accountId: accountId(), ...tableState.params }));
 
 	$effect(() => {
 		const nextQuery = buildSearch(tableState.params);
 		if (nextQuery === page.url.searchParams.toString()) return;
 		goto(
 			resolve(`/(app)/[budgetId=id]/accounts/[accountId=id]?${nextQuery}`, {
-				accountId: params.accountId,
-				budgetId: params.budgetId
+				accountId: accountId(),
+				budgetId: budgetId()
 			}),
 			{ keepFocus: true, noScroll: true }
 		);
@@ -83,7 +86,7 @@
 			{account.name}
 		</Page.Title>
 
-		<AccountSetName accountId={params.accountId} />
+		<AccountSetName accountId={accountId()} />
 	</Page.Header>
 
 	<Page.Content>
@@ -92,8 +95,8 @@
 		<Separator orientation="horizontal" />
 
 		<TransactionTable
-			accountId={params.accountId}
-			budgetId={params.budgetId}
+			accountId={accountId()}
+			budgetId={budgetId()}
 			currency={budget.currency}
 			pagination={{
 				page: result.pagination.page,

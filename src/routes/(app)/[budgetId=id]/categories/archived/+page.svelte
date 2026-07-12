@@ -1,20 +1,20 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
 	import * as Page from '$lib/components/ui/page';
 	import { m } from '$lib/paraglide/messages';
 	import { getArchivedCategories, restoreCategory } from '$lib/remote-functions/category.remote';
+	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { formatDate } from '$lib/utils/format-date';
 	import { currentMonth, toParam } from '$lib/utils/month';
 	import { flip } from 'svelte/animate';
 	import PhArchive from '~icons/ph/archive';
 	import PhHandWithdraw from '~icons/ph/hand-withdraw';
 
-	const budgetId = page.params.budgetId!;
+	const budgetId = getBudgetId();
 
-	const categories = $derived(await getArchivedCategories({ budgetId }));
+	const categories = $derived(await getArchivedCategories({ budgetId: budgetId() }));
 </script>
 
 <Page.Root>
