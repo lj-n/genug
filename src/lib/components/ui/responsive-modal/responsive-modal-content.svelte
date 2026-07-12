@@ -1,0 +1,31 @@
+<script lang="ts">
+	import type { Snippet } from 'svelte';
+
+	import * as Dialog from '$lib/components/ui/dialog';
+	import * as Drawer from '$lib/components/ui/drawer';
+
+	import { getResponsiveModalContext } from './context';
+
+	let {
+		children,
+		class: className,
+		showCloseButton = true
+	}: {
+		children: Snippet;
+		class?: string;
+		/** Dialog-only close button; the Drawer variant uses its drag handle. */
+		showCloseButton?: boolean;
+	} = $props();
+
+	const ctx = getResponsiveModalContext();
+</script>
+
+{#if ctx.isDesktop}
+	<Dialog.Content class={className} {showCloseButton}>
+		{@render children()}
+	</Dialog.Content>
+{:else}
+	<Drawer.Content class={className}>
+		{@render children()}
+	</Drawer.Content>
+{/if}
