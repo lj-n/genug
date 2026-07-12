@@ -1,5 +1,5 @@
 <script lang="ts">
-	import * as Dialog from '$lib/components/ui/dialog';
+	import * as ResponsiveModal from '$lib/components/ui/responsive-modal';
 	import { m } from '$lib/paraglide/messages';
 	import HashDuotoneIcon from '~icons/ph/hash-duotone';
 
@@ -7,16 +7,16 @@
 
 	let { categoryId = $bindable() }: { categoryId: null | string } = $props();
 
-	// Writable derived: bits-ui flips this locally on close so the exit
+	// Writable derived: the primitive flips this locally on close so the exit
 	// transition can play; the bound id is reset afterwards.
 	let open = $derived(categoryId !== null);
 </script>
 
-<Dialog.Root bind:open onOpenChangeComplete={(isOpen) => !isOpen && (categoryId = null)}>
-	<Dialog.Content class="max-w-4xl">
+<ResponsiveModal.Root bind:open onOpenChangeComplete={(isOpen) => !isOpen && (categoryId = null)}>
+	<ResponsiveModal.Content class="max-w-4xl">
 		{#if categoryId !== null}
 			<div class="@container flex w-full flex-col gap-6">
-				<Dialog.Title class="flex items-center gap-2 tracking-tighter italic">
+				<ResponsiveModal.Title class="flex items-center gap-2 tracking-tighter italic">
 					<span class="text-xl font-semibold">{m.category_detail_title()}</span>
 
 					<span
@@ -25,10 +25,10 @@
 						<HashDuotoneIcon />
 						{categoryId}
 					</span>
-				</Dialog.Title>
+				</ResponsiveModal.Title>
 
 				<CategoryDetail {categoryId} />
 			</div>
 		{/if}
-	</Dialog.Content>
-</Dialog.Root>
+	</ResponsiveModal.Content>
+</ResponsiveModal.Root>
