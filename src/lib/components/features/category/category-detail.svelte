@@ -3,10 +3,11 @@
 	import { getCategoryById } from '$lib/remote-functions/category.remote';
 
 	import CategoryArchive from './category-archive.svelte';
+	import CategoryDelete from './category-delete.svelte';
 	import CategoryEdit from './category-edit.svelte';
 	import CategoryStats from './category-stats.svelte';
 
-	let { categoryId }: { categoryId: string } = $props();
+	let { categoryId, onDeleted }: { categoryId: string; onDeleted: () => void } = $props();
 
 	const category = $derived(await getCategoryById({ categoryId }));
 	const budget = $derived(await getBudget(category.budgetId));
@@ -19,4 +20,6 @@
 	<CategoryStats {category} {currency} />
 
 	<CategoryArchive {category} {currency} />
+
+	<CategoryDelete {category} {currency} {onDeleted} />
 </div>

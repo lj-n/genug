@@ -41,6 +41,16 @@ export const getCategoryArchivability = guardedBatchQuery(
 	}
 );
 
+export const getCategoryDeletability = guardedBatchQuery(
+	CategoryIdSchema,
+	async (args, { ctx }) => {
+		const results = await Promise.all(
+			args.map(({ categoryId }) => ctx.category.deletability(categoryId))
+		);
+		return (_arg, idx) => results[idx];
+	}
+);
+
 export const createCategory = guardedForm(
 	CategoryCreateSchema,
 	async ({ budgetId, categoryName }, { ctx, invalid: issue }) => {
@@ -75,6 +85,14 @@ export const archiveCategory = guardedForm(CategoryIdSchema, async ({ categoryId
 
 export const restoreCategory = guardedForm(CategoryIdSchema, async ({ categoryId }, { ctx }) => {
 	ctx.category.restore(categoryId);
+});
+
+export const deleteCategory = guardedForm(CategoryIdSchema, async ({ categoryId }, { ctx }) => {
+	ctx.category.delete(categoryId);
+	await Promise.all([
+		requested(getCategories, REFRESH_LIMIT).refreshAll(),
+		requested(getMonthly, REFRESH_LIMIT).refreshAll()
+	]);
 });
 
 export const reorderCategories = guardedCommand(OrderedIdsSchema, async (orderedIds, { ctx }) => {

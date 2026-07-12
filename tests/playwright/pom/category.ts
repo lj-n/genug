@@ -48,6 +48,28 @@ export class CategoryPage extends BasePage {
 		await expect(this.page).toHaveURL(/\/categories\/new$/);
 	}
 
+	/**
+	 * Opens the detail dialog for an empty, unused category, deletes it through
+	 * the confirm dialog, and asserts it disappears from the budget table.
+	 */
+	async delete(name: string) {
+		await this.openDetail(name);
+
+		const dialog = this.page.getByRole('dialog');
+		await expect(dialog.getByRole('heading', { name: 'Delete Category' })).toBeVisible();
+		await dialog.getByRole('button', { exact: true, name: 'Delete' }).click();
+
+		const confirm = this.page.getByRole('alertdialog');
+		await expect(
+			confirm.getByRole('heading', { name: 'Delete category permanently?' })
+		).toBeVisible();
+		await confirm.getByRole('button', { exact: true, name: 'Delete' }).click();
+
+		// Deleting closes the detail dialog and drops the category from the table.
+		await expect(dialog).not.toBeVisible();
+		await expect(this.page.getByRole('row').filter({ hasText: name })).not.toBeVisible();
+	}
+
 	async editName(currentName: string, newName: string) {
 		await this.openDetail(currentName);
 
@@ -89,6 +111,19 @@ export class CategoryPage extends BasePage {
 		// The error keeps the dialog open and no "Saved" indicator appears.
 		await expect(dialog).toBeVisible();
 		await expect(dialog.getByText('Saved')).not.toBeVisible();
+	}
+
+	/**
+	 * Opens the detail dialog for a category that still has a transaction and
+	 * asserts the Delete button is disabled with the transaction-count reason.
+	 */
+	async expectDeleteDisabled(name: string) {
+		await this.openDetail(name);
+
+		const dialog = this.page.getByRole('dialog');
+		await expect(dialog.getByRole('heading', { name: 'Delete Category' })).toBeVisible();
+		await expect(dialog.getByRole('button', { exact: true, name: 'Delete' })).toBeDisabled();
+		await expect(dialog.getByText(/transactions? still reference this category/)).toBeVisible();
 	}
 
 	/** From the budget month page: opens the archived list and follows the category link back. */

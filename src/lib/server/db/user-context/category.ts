@@ -33,6 +33,31 @@ const readArchivability = (userId: string, db: Database, categoryId: string) => 
 	};
 };
 
+/**
+ * A category may be deleted only when its all-time Remaining is zero and no
+ * transaction of any kind — pending or validated — references it. Strictly
+ * stronger than archivability: Deletable ⟹ Archivable (see ADR-0008).
+ */
+const readDeletability = (userId: string, db: Database, categoryId: string) => {
+	const bal = categoryBalances(db, currentMonth());
+
+	const found = db
+		.select({
+			remainingBalance: sql<number>`coalesce(${bal.allTimeRemaining}, 0)`,
+			transactionCount: sql<number>`coalesce(${bal.txCount}, 0)`
+		})
+		.from(tables.categories)
+		.leftJoin(bal, eq(bal.categoryId, tables.categories.id))
+		.where(and(hasAccess(tables.categories, userId, db), eq(tables.categories.id, categoryId)))
+		.get();
+
+	if (!found) error(404, m.error_category_not_found());
+	return {
+		deletable: found.transactionCount === 0 && found.remainingBalance === 0,
+		...found
+	};
+};
+
 export const queries = (userId: string, db: Database = database) => ({
 	all: (budgetId: string) => {
 		const qb = db
@@ -79,6 +104,8 @@ export const queries = (userId: string, db: Database = database) => ({
 		if (!found) error(404);
 		return found;
 	},
+
+	deletability: (categoryId: string) => readDeletability(userId, db, categoryId),
 
 	stats: (categoryId: string) => {
 		const month = currentMonth();
@@ -147,6 +174,38 @@ export const commands = (userId: string, db: Database = database) => ({
 			return category;
 		});
 	},
+
+	delete: (id: string) =>
+		db.transaction((tx) => {
+			// better-sqlite3 serializes on a single connection, so reads
+			// on `db` inside the transaction callback see the same
+			// uncommitted state as `tx`.
+			const state = readDeletability(userId, db, id);
+			if (!state.deletable) error(400, m.error_category_not_deletable());
+
+			const deleted = tx
+				.delete(tables.categories)
+				.where(and(hasAccess(tables.categories, userId, db), eq(tables.categories.id, id)))
+				.returning()
+				.get();
+
+			if (!deleted) error(404, m.error_category_not_found());
+
+			// `budget_assignments` rows fall away via ON DELETE CASCADE, but
+			// `user_entity_order` keys on the category id without a cascade —
+			// remove every user's ordering entry for this category ourselves
+			// (see ADR-0008).
+			tx.delete(tables.userEntityOrder)
+				.where(
+					and(
+						eq(tables.userEntityOrder.entityType, 'category'),
+						eq(tables.userEntityOrder.entityId, id)
+					)
+				)
+				.run();
+
+			return deleted;
+		}),
 
 	edit: (
 		id: string,
