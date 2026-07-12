@@ -11,6 +11,7 @@ import {
 import { invalid, isHttpError } from '@sveltejs/kit';
 
 import { getMonthly } from './budget.remote';
+import { REFRESH_LIMIT } from './remote.utils';
 
 export const getCategories = guardedQuery(BudgetIdSchema, async ({ budgetId }, { ctx }) =>
 	ctx.category.all(budgetId)
@@ -50,8 +51,8 @@ export const createCategory = guardedForm(
 			throw error;
 		}
 		await Promise.all([
-			requested(getCategories, 1).refreshAll(),
-			requested(getMonthly, 1).refreshAll()
+			requested(getCategories, REFRESH_LIMIT).refreshAll(),
+			requested(getMonthly, REFRESH_LIMIT).refreshAll()
 		]);
 	}
 );

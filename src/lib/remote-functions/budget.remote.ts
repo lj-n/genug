@@ -15,6 +15,8 @@ import { guardedCommand, guardedForm, guardedQuery } from '$server/utils/remote-
 import { redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
+import { REFRESH_LIMIT } from './remote.utils';
+
 export const getBudgets = guardedQuery(async ({ ctx }) => ctx.budget.all());
 
 export const getBudget = guardedQuery(v.string(), async (id, { ctx }) => ctx.budget.byId(id));
@@ -62,7 +64,10 @@ export const getUnassigned = guardedQuery(BudgetMonthSchema, async ({ budgetId, 
 );
 
 const refreshBudgetData = () =>
-	Promise.all([requested(getMonthly, 1).refreshAll(), requested(getUnassigned, 1).refreshAll()]);
+	Promise.all([
+		requested(getMonthly, REFRESH_LIMIT).refreshAll(),
+		requested(getUnassigned, REFRESH_LIMIT).refreshAll()
+	]);
 
 export const assignment = guardedForm(AssignmentSchema, async (data, { ctx }) => {
 	ctx.budget.assignment(data);

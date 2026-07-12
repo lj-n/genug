@@ -19,6 +19,36 @@ test('Assign Budget to Category', async ({ pages }) => {
 	await pages.budget.assignAmount(categoryName, '500');
 });
 
+// Regression: after client-side month navigation the previous month's query
+// instances linger in the client cache until the browser GCs them. The form's
+// single-flight refresh requests all of them, and a server-side
+// requested(..., 1) limit rejected the visible month's refresh with a 400 —
+// the assignment saved, but the table stayed stale. Full-page loads
+// (page.goto) reset the client cache and can never hit this.
+test('Assign Budget after client-side month navigation refreshes the table', async ({
+	page,
+	pages
+}) => {
+	await pages.auth.createUserAndLogin();
+
+	await pages.budget.createBudget(faker.commerce.department());
+
+	const categoryName = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryName);
+
+	// Client-side navigation — each hop leaves the previous month's query
+	// instances in the client cache until GC. Several hops raise the odds
+	// that at least one stale instance is still around at submit time.
+	for (let i = 0; i < 3; i++) {
+		await page.getByRole('button', { name: 'Select next month' }).click();
+	}
+
+	await pages.budget.assignAmount(categoryName, '7');
+	await expect(
+		pages.budget.categoryRow(categoryName).getByRole('button', { name: 'Budget' })
+	).toHaveText(formatMoney({ currency: 'EUR', money: asMoney(700) }));
+});
+
 test('Transfer Assignment — Move between categories', async ({ pages }) => {
 	await pages.auth.createUserAndLogin();
 
