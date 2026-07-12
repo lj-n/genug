@@ -32,6 +32,33 @@ test('Edit Category Name', async ({ pages }) => {
 	await pages.category.editName(categoryName, newName);
 });
 
+test('Category create shows a field error for a duplicate name', async ({ pages }) => {
+	await pages.auth.createUserAndLogin();
+
+	const budgetName = faker.commerce.department();
+	await pages.budget.createBudget(budgetName);
+
+	const categoryName = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryName);
+
+	await pages.category.createExpectingError(categoryName);
+});
+
+test('Category rename shows a field error for a duplicate name', async ({ pages }) => {
+	await pages.auth.createUserAndLogin();
+
+	const budgetName = faker.commerce.department();
+	await pages.budget.createBudget(budgetName);
+
+	const existingName = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(existingName);
+
+	const categoryName = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryName);
+
+	await pages.category.editNameExpectingError(categoryName, existingName);
+});
+
 test('Archive Category', async ({ pages }) => {
 	await pages.auth.createUserAndLogin();
 

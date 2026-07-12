@@ -27,6 +27,27 @@ export class CategoryPage extends BasePage {
 		await expect(this.page.getByRole('button', { exact: true, name })).toBeVisible();
 	}
 
+	/**
+	 * On the standalone create page (`/{budgetId}/categories/new`), submits a
+	 * name that already exists in the budget. Asserts the duplicate-name error
+	 * renders as a field error below the input and no navigation occurs.
+	 */
+	async createExpectingError(name: string) {
+		if (!this.ctx.budgetId) {
+			throw new Error('createBudget must be called before createExpectingError');
+		}
+		await this.page.goto(`/${this.ctx.budgetId}/categories/new`);
+		await expect(this.page.getByRole('heading', { name: 'Add a new category' })).toBeVisible();
+
+		const input = this.page.getByRole('textbox', { name: 'Category Name' });
+		await input.fill(name);
+		await input.press('Enter');
+
+		await expect(this.page.getByText(`${name} already exists.`)).toBeVisible();
+		// A successful create navigates back to the budget page; the error keeps us here.
+		await expect(this.page).toHaveURL(/\/categories\/new$/);
+	}
+
 	async editName(currentName: string, newName: string) {
 		await this.openDetail(currentName);
 
@@ -47,6 +68,27 @@ export class CategoryPage extends BasePage {
 		await expect(
 			this.page.getByRole('table').getByRole('button', { exact: true, name: newName })
 		).toBeVisible();
+	}
+
+	/**
+	 * Opens the edit dialog for `currentName` and renames it to `existingName`
+	 * (another category in the same budget). Asserts the duplicate-name error
+	 * surfaces within the dialog and saving does not happen.
+	 */
+	async editNameExpectingError(currentName: string, existingName: string) {
+		await this.openDetail(currentName);
+
+		const dialog = this.page.getByRole('dialog');
+		const nameInput = dialog.getByRole('textbox', { name: 'Category Name' });
+		await expect(nameInput).toHaveValue(currentName);
+		await nameInput.clear();
+		await nameInput.fill(existingName);
+		await dialog.getByRole('button', { exact: true, name: 'Save' }).click();
+
+		await expect(dialog.getByText(`${existingName} already exists.`)).toBeVisible();
+		// The error keeps the dialog open and no "Saved" indicator appears.
+		await expect(dialog).toBeVisible();
+		await expect(dialog.getByText('Saved')).not.toBeVisible();
 	}
 
 	/** From the budget month page: opens the archived list and follows the category link back. */

@@ -126,6 +126,27 @@ export class AccountPage extends BasePage {
 		await expect(this.page.getByRole('heading', { name })).toBeVisible();
 	}
 
+	/**
+	 * Opens the account settings dialog and renames the account to `existingName`
+	 * (another account in the same budget). Asserts the duplicate-name error
+	 * surfaces as a field error within the dialog.
+	 */
+	async editNameExpectingError(existingName: string) {
+		await this.page.getByRole('button', { name: 'Account Settings' }).click();
+
+		const dialog = this.page.getByRole('dialog');
+		await expect(dialog.getByRole('heading', { name: 'Change Account Name' })).toBeVisible();
+
+		const nameInput = dialog.getByRole('textbox', { name: 'Account Name' });
+		await nameInput.clear();
+		await nameInput.fill(existingName);
+		await dialog.getByRole('button', { name: 'Save Changes' }).click();
+
+		await expect(dialog.getByText(`${existingName} already exists.`)).toBeVisible();
+		// The error keeps the dialog open.
+		await expect(dialog).toBeVisible();
+	}
+
 	async editTransaction(params: EditTransactionParams) {
 		// Click first editable row to enter edit mode
 		const row = this.page

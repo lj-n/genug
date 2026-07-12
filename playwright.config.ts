@@ -2,6 +2,11 @@ import { defineConfig, devices } from '@playwright/test';
 
 const DEFAULT_VIEWPORT = { height: 900, width: 1440 } as const;
 
+// The dev server port is configurable so parallel worktrees can run the e2e
+// suite against isolated servers/databases instead of colliding on one port.
+const PORT = Number(process.env.E2E_PORT ?? 3000);
+const ORIGIN = `http://localhost:${PORT}`;
+
 export default defineConfig({
 	expect: {
 		timeout: 10000
@@ -38,15 +43,15 @@ export default defineConfig({
 	testDir: 'tests/playwright',
 
 	use: {
+		baseURL: ORIGIN,
 		contextOptions: { reducedMotion: 'reduce' },
 		trace: 'on-first-retry',
 		viewport: DEFAULT_VIEWPORT
 	},
 
 	webServer: {
-		command:
-			'DATABASE_URL=:memory: npm run build && DATABASE_URL=:memory: ORIGIN=http://localhost:3000 node build',
-		port: 3000,
+		command: `DATABASE_URL=:memory: npm run build && DATABASE_URL=:memory: ORIGIN=${ORIGIN} PORT=${PORT} node build`,
+		port: PORT,
 		// pino logs (request logs, unhandled server errors incl. logId) go to
 		// stdout, which Playwright discards by default — keep them visible so a
 		// 500 during a test can be traced to its server-side error.

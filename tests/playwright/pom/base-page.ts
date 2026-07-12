@@ -17,6 +17,8 @@ import { expect, type Page } from '@playwright/test';
 export type TestContext = {
 	/** account name -> account page URL */
 	accounts: Map<string, string>;
+	/** the current budget's id (captured after createBudget) */
+	budgetId?: string;
 	/** the current budget's page URL (captured after createBudget) */
 	budgetUrl?: string;
 };
