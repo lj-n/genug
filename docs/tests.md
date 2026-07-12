@@ -9,3 +9,4 @@
 - Reuse and extend the page-object model under `tests/playwright/pom`.
 - Respect the serial bootstrap flow in `tests/playwright/global.setup.ts`, including first-user and admin setup behavior.
 - Prefer user-visible assertions around navigation, forms, dialogs, and data changes over implementation-detail assertions.
+- The Playwright dev server defaults to port 3000. Set `E2E_PORT` to run against an isolated server/database — required when several worktrees run `npm run test:e2e` at once, otherwise they collide on the same port. Example: `E2E_PORT=3247 npm run test:e2e`.
