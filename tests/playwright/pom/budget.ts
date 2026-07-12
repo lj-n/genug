@@ -89,9 +89,14 @@ export class BudgetPage extends BasePage {
 	async createCategory(name: string) {
 		await this.page.getByRole('button', { name: 'Create Category' }).click();
 
-		const input = this.page.getByRole('textbox', { name: 'Category Name' });
+		const dialog = this.page.getByRole('dialog');
+		const input = dialog.getByRole('textbox', { name: 'Category Name' });
 		await input.fill(name);
 		await input.press('Enter');
+
+		// A successful create closes the dialog; wait for it so callers don't race
+		// the close animation (which briefly leaves two "Create Category" buttons).
+		await expect(dialog).toBeHidden();
 
 		const row = this.categoryRow(name);
 		// The row button is rendered directly in the row (no async wait).
@@ -100,6 +105,25 @@ export class BudgetPage extends BasePage {
 		// Budget button to confirm it has mounted before returning. All rows share
 		// the same getBudget cache, so this also unblocks other rows' buttons.
 		await expect(row.getByRole('button', { name: 'Budget' })).toBeVisible();
+	}
+
+	/**
+	 * Opens the quick category-create dialog and submits a name that already
+	 * exists. Asserts the duplicate-name error surfaces as a field error and the
+	 * dialog stays open (a successful create would close it).
+	 */
+	async createCategoryExpectingError(name: string) {
+		await this.page.getByRole('button', { name: 'Create Category' }).click();
+
+		const dialog = this.page.getByRole('dialog');
+		await expect(dialog.getByRole('heading', { name: 'Add a new category' })).toBeVisible();
+
+		await dialog.getByRole('textbox', { name: 'Category Name' }).fill(name);
+		await dialog.getByRole('button', { name: 'Create Category' }).click();
+
+		await expect(dialog.getByText(`${name} already exists.`)).toBeVisible();
+		// The error keeps the dialog open — a successful create would close it.
+		await expect(dialog).toBeVisible();
 	}
 
 	async goto(budgetName: string) {
