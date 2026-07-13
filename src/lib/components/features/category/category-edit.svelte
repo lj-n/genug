@@ -17,7 +17,7 @@
 		currency: (typeof CURRENCIES)[number];
 	} = $props();
 
-	const savedToast = createAnchoredToast();
+	const savedToast = createAnchoredToast({ placement: 'left' });
 
 	$effect(() => {
 		editCategory.fields.targetBalance.set(category.targetBalance ?? 0);

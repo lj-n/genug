@@ -75,7 +75,7 @@
 						shift({ padding: 8 }),
 						...(tailEl ? [arrow({ element: tailEl, padding: 6 })] : [])
 					],
-					placement: 'top',
+					placement: toast.placement,
 					strategy: 'fixed'
 				});
 

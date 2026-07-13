@@ -11,9 +11,13 @@ export type AnchoredToastItem = {
 	id: number;
 	message: string;
 	pause: () => void;
+	placement: ToastPlacement;
 	resume: () => void;
 	variant: ToastVariant;
 };
+
+/** Preferred side of the anchor; Floating UI still flips it on collision. */
+export type ToastPlacement = 'bottom' | 'left' | 'right' | 'top';
 
 export type ToastVariant = 'error' | 'success';
 
@@ -47,7 +51,8 @@ let nextId = 0;
  * last rect; a push without any anchor still renders (viewport-corner
  * fallback) and warns in dev.
  */
-export function createAnchoredToast() {
+export function createAnchoredToast(options?: { placement?: ToastPlacement }) {
+	const placement = options?.placement ?? 'top';
 	let anchorEl: HTMLElement | null = null;
 	let currentId: null | number = null;
 
@@ -95,6 +100,7 @@ export function createAnchoredToast() {
 			id,
 			message,
 			pause: () => pauseToast(id),
+			placement,
 			resume: () => resumeToast(id),
 			variant
 		});

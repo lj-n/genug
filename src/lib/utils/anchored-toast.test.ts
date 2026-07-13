@@ -34,6 +34,19 @@ describe('createAnchoredToast', () => {
 		expect(toasts[0].frozenRect).toBeNull();
 	});
 
+	it('defaults to top placement and carries a configured placement', () => {
+		const top = createAnchoredToast();
+		const left = createAnchoredToast({ placement: 'left' });
+		attachTo(top);
+		attachTo(left);
+
+		top.success('Saved');
+		left.success('Saved');
+
+		expect(toasts[0].placement).toBe('top');
+		expect(toasts[1].placement).toBe('left');
+	});
+
 	it('auto-dismisses success after 2s and error after 5s', () => {
 		const success = createAnchoredToast();
 		const error = createAnchoredToast();
