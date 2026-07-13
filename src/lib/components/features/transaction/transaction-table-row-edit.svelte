@@ -15,12 +15,14 @@
 		listTransactions
 	} from '$lib/remote-functions/transaction.remote';
 	import { clickOutside } from '$lib/utils/click-outside';
+	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { parseDate } from '@internationalized/date';
 	import { onMount } from 'svelte';
 	import { cn } from 'tailwind-variants';
 	import TrashIcon from '~icons/ph/trash';
 
 	import { colsClass } from './transaction-table-cols';
+	import RowErrors from './transaction-table-row-errors.svelte';
 	import ValidationCheckbox from './transaction-validation-checkbox.svelte';
 
 	let {
@@ -37,9 +39,24 @@
 
 	const id = $props.id();
 	const form = editTransaction.for(id);
+	const deleteForm = batchDeleteTransactions.for(id);
 	const deleteFormId = `dform-${id}`;
 
 	const categories = $derived(await getCategories({ budgetId }));
+
+	// Row-scoped micro-form (ADR-0009): thrown errors go to the anchored toast,
+	// validation issues to the shared row error line below the fields.
+	const submit = createFormSubmit(() => form, {
+		onSuccess: () => cancelEditing(),
+		toast: {},
+		updates: () => [listTransactions]
+	});
+
+	// No client-side update chain: the server refreshes the transaction list,
+	// and the refreshed list unmounts this row — that is the success signal.
+	const deleteSubmit = createFormSubmit(() => deleteForm, { toast: {} });
+
+	const pending = $derived(submit.pending || deleteSubmit.pending);
 
 	onMount(() => {
 		form.fields.categoryId.set(transaction.categoryId ?? undefined);
@@ -48,11 +65,8 @@
 </script>
 
 <form
-	{...form.enhance(async (f) => {
-		if (await f.submit().updates(listTransactions)) {
-			cancelEditing();
-		}
-	})}
+	{...submit.attrs}
+	{@attach submit.anchor}
 	role="row"
 	class={cn(
 		colsClass,
@@ -116,8 +130,10 @@
 		<ValidationCheckbox {...form.fields.validated.as('checkbox', transaction.validated)} />
 	</div>
 
+	<RowErrors issues={form.fields.allIssues()} />
+
 	<div role="cell" class="col-span-full flex items-center justify-end gap-2 bg-interactive/5 p-2">
-		<Button type="button" variant="ghost" onclick={cancelEditing}>
+		<Button type="button" variant="ghost" disabled={pending} onclick={cancelEditing}>
 			{m.cancel()}
 		</Button>
 
@@ -126,16 +142,19 @@
 			variant="destructive"
 			size="icon"
 			form={deleteFormId}
+			name={deleteForm.fields.ids.as('select multiple').name}
 			value={[transaction.id]}
+			disabled={pending}
+			{@attach deleteSubmit.anchor}
 		>
 			<TrashIcon />
 			<span class="sr-only">{m.delete()}</span>
 		</Button>
 
-		<Button type="submit">
+		<Button type="submit" disabled={pending}>
 			{m.save()}
 		</Button>
 	</div>
 </form>
 
-<form id={deleteFormId} class="hidden" {...batchDeleteTransactions.for(id)}></form>
+<form id={deleteFormId} class="hidden" {...deleteSubmit.attrs}></form>

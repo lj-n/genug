@@ -4,13 +4,10 @@
 
 	import { Button } from '$lib/components/ui/button';
 	import { m } from '$lib/paraglide/messages';
-	import { batchValidateTransactions } from '$lib/remote-functions/transaction.remote';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { parseDate } from '@internationalized/date';
 	import PlusBoldIcon from '~icons/ph/plus-bold';
-	import SealIcon from '~icons/ph/seal';
-	import SealCheckDuotoneIcon from '~icons/ph/seal-check-duotone';
 
 	import type { TableState } from './transaction-table-state.svelte';
 
@@ -23,6 +20,7 @@
 	import TableRowCreate from './transaction-table-row-create.svelte';
 	import TableRowEdit from './transaction-table-row-edit.svelte';
 	import TableRow from './transaction-table-row.svelte';
+	import ValidateToggle from './transaction-validate-toggle.svelte';
 
 	let {
 		accountId,
@@ -75,8 +73,6 @@
 				{#if isEditing}
 					<TableRowEdit transaction={item} {budgetId} {currency} {cancelEditing} />
 				{:else}
-					{@const validation = batchValidateTransactions.for(item.id)}
-
 					<TableRow>
 						<TableCell aria-label={m.transactions_table_edit_category()} onclick={setEditing}>
 							{#if item.categoryName}
@@ -110,25 +106,7 @@
 
 						<TableCell>
 							{#snippet child()}
-								<form {...validation} class="grid size-full place-content-center">
-									<input {...validation.fields.validated.as('hidden', !item.validated)} />
-
-									<Button
-										type="submit"
-										name={validation.fields.ids.as('select multiple').name}
-										value={[item.id]}
-										size="icon-lg"
-										variant="ghost"
-										class="rounded-xs hover:bg-transparent"
-										aria-label={m.transactions_table_toggle_validated()}
-									>
-										{#if item.validated}
-											<SealCheckDuotoneIcon class="size-6 text-success" />
-										{:else}
-											<SealIcon class="size-6 text-muted" />
-										{/if}
-									</Button>
-								</form>
+								<ValidateToggle transaction={item} />
 							{/snippet}
 						</TableCell>
 					</TableRow>

@@ -11,10 +11,12 @@
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategories } from '$lib/remote-functions/category.remote';
 	import { createTransaction, listTransactions } from '$lib/remote-functions/transaction.remote';
+	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { getLocalTimeZone, parseDate, today } from '@internationalized/date';
 	import { Popover } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
 
+	import RowErrors from './transaction-table-row-errors.svelte';
 	import ValidationCheckbox from './transaction-validation-checkbox.svelte';
 
 	let {
@@ -37,8 +39,21 @@
 	let submitAndContinue = $state(false);
 	let formElement: HTMLFormElement | null = $state(null);
 
+	// Row-scoped micro-form (ADR-0009): thrown errors go to the anchored toast,
+	// validation issues to the shared row error line below the fields.
+	const submit = createFormSubmit(() => createTransaction, {
+		onSuccess: (form) => {
+			if (submitAndContinue) return;
+			form.element.reset();
+			open = false;
+		},
+		toast: {},
+		updates: () => [listTransactions({ accountId, ...urlParams })]
+	});
+
 	const submitWithKeyboard: Attachment<HTMLFormElement> = (node) => {
 		const handle = (ev: KeyboardEvent) => {
+			if (submit.pending) return;
 			if (ev.key === 'Enter' && !(ev.target as HTMLElement)?.closest('[role="combobox"]')) {
 				ev.preventDefault();
 				submitAndContinue = ev.shiftKey;
@@ -78,15 +93,9 @@
 			role="row"
 			aria-label={m.transactions_table_create_transaction()}
 			bind:this={formElement}
-			{...createTransaction.enhance(async (f) => {
-				if (await f.submit().updates(listTransactions({ accountId, ...urlParams }))) {
-					if (!submitAndContinue) {
-						f.element.reset();
-						open = false;
-					}
-				}
-			})}
+			{...submit.attrs}
 			{@attach open && submitWithKeyboard}
+			{@attach submit.anchor}
 		>
 			<input {...createTransaction.fields.accountId.as('hidden', accountId)} />
 			<input {...createTransaction.fields.budgetId.as('hidden', budgetId)} />
@@ -143,17 +152,26 @@
 				<ValidationCheckbox {...createTransaction.fields.validated.as('checkbox')} />
 			</div>
 
+			<RowErrors issues={createTransaction.fields.allIssues()} />
+
 			<div
 				role="cell"
 				class="col-span-full flex items-center justify-end gap-2 bg-interactive/5 p-2"
 			>
-				<Button type="button" variant="ghost" onclick={() => (open = false)}>
+				<Button
+					type="button"
+					variant="ghost"
+					disabled={submit.pending}
+					onclick={() => (open = false)}
+				>
 					{m.cancel()}
 				</Button>
 
-				<Button type="submit" onclick={() => (submitAndContinue = false)}>{m.save()}</Button>
+				<Button type="submit" disabled={submit.pending} onclick={() => (submitAndContinue = false)}>
+					{m.save()}
+				</Button>
 
-				<Button type="submit" onclick={() => (submitAndContinue = true)}>
+				<Button type="submit" disabled={submit.pending} onclick={() => (submitAndContinue = true)}>
 					{m.save_and_continue()}
 				</Button>
 			</div>
