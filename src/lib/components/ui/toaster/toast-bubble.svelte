@@ -2,15 +2,18 @@
 	import { tv } from 'tailwind-variants';
 
 	const variants = tv({
-		slots: {
-			bubble:
-				'flex cursor-pointer items-center gap-1.5 rounded-md bg-surface-high px-3 py-1.5 text-sm font-medium shadow-md ring-1 ring-foreground/10 outline-none select-none transition-colors duration-150',
-			tail: 'absolute -z-10 size-2 rotate-45 bg-surface-high ring-1 ring-foreground/10'
-		},
+		base: 'flex cursor-pointer items-center gap-1.5 rounded-md bg-surface-high px-3 py-1.5 text-sm font-medium shadow-md ring-1 ring-foreground/10 outline-none select-none transition-colors duration-150',
 		variants: {
+			// A light tilt, alternating per toast, makes the bubble look stuck
+			// on like a sticker. Replace-in-place keeps its id, so the tilt is
+			// stable across an error→success swap.
+			tilt: {
+				left: '-rotate-2',
+				right: 'rotate-2'
+			},
 			variant: {
-				error: { bubble: 'text-error' },
-				success: { bubble: 'text-success' }
+				error: 'text-error',
+				success: 'text-success'
 			}
 		}
 	});
@@ -21,8 +24,6 @@
 		right: 'center left',
 		top: 'bottom center'
 	} as const;
-
-	const TAIL_SIDE = { bottom: 'top', left: 'right', right: 'left', top: 'bottom' } as const;
 </script>
 
 <script lang="ts">
@@ -30,16 +31,16 @@
 	import type { Attachment } from 'svelte/attachments';
 
 	import { browser } from '$app/environment';
-	import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
+	import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 	import { backOut } from 'svelte/easing';
 	import CheckCircleDuotoneIcon from '~icons/ph/check-circle-duotone';
 	import WarningCircleDuotoneIcon from '~icons/ph/warning-circle-duotone';
 
 	let { toast }: { toast: AnchoredToastItem } = $props();
 
-	let tailEl = $state<HTMLElement | null>(null);
-
-	const classes = $derived(variants({ variant: toast.variant }));
+	const bubbleClass = $derived(
+		variants({ tilt: toast.id % 2 === 0 ? 'left' : 'right', variant: toast.variant })
+	);
 
 	const reducedMotion = browser
 		? window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -68,13 +69,8 @@
 			};
 
 			const update = async () => {
-				const { middlewareData, placement, x, y } = await computePosition(reference, bubble, {
-					middleware: [
-						offset(8),
-						flip(),
-						shift({ padding: 8 }),
-						...(tailEl ? [arrow({ element: tailEl, padding: 6 })] : [])
-					],
+				const { placement, x, y } = await computePosition(reference, bubble, {
+					middleware: [offset(8), flip(), shift({ padding: 8 })],
 					placement: toast.placement,
 					strategy: 'fixed'
 				});
@@ -86,17 +82,6 @@
 				// Positioning is async — reveal only once the first coordinates
 				// are in, so the bubble never flashes at the viewport origin.
 				bubble.style.visibility = 'visible';
-
-				if (tailEl && middlewareData.arrow) {
-					const { x: tailX, y: tailY } = middlewareData.arrow;
-					Object.assign(tailEl.style, {
-						bottom: '',
-						left: tailX != null ? `${tailX}px` : '',
-						right: '',
-						[TAIL_SIDE[side]]: '-4px',
-						top: tailY != null ? `${tailY}px` : ''
-					});
-				}
 			};
 
 			if (anchor) return autoUpdate(anchor, bubble, update);
@@ -114,7 +99,7 @@
 >
 	<button
 		type="button"
-		class={classes.bubble()}
+		class={bubbleClass}
 		onclick={toast.dismiss}
 		onmouseenter={toast.pause}
 		onmouseleave={toast.resume}
@@ -128,8 +113,4 @@
 		{/if}
 		<span>{toast.message}</span>
 	</button>
-
-	{#if toast.anchor || toast.frozenRect}
-		<div bind:this={tailEl} class={classes.tail()}></div>
-	{/if}
 </div>
