@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ThemeControl } from '$lib/components/features/theme';
 	import { Button } from '$lib/components/ui/button';
 	import { FormField } from '$lib/components/ui/form-field';
 	import { Input } from '$lib/components/ui/input';
@@ -84,6 +85,12 @@
 				{m.settings_save_and_logout()}
 			</Button>
 		</form>
+
+		<div class="grid gap-3 rounded-lg bg-muted/5 p-3">
+			<h2 class="font-semibold">{m.settings_theme()}</h2>
+
+			<ThemeControl theme={data.theme} />
+		</div>
 
 		<div class="grid rounded-lg bg-muted/5 p-3">
 			<h2 class="mb-6 font-semibold">{m.settings_language()}</h2>

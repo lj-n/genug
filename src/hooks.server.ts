@@ -4,6 +4,7 @@ import * as auth from '$db/auth';
 import { getTextDirection } from '$lib/paraglide/runtime';
 import { paraglideMiddleware } from '$lib/paraglide/server';
 import { logger } from '$lib/server/logger';
+import { resolveThemeClass, THEME_COOKIE_NAME } from '$lib/utils/theme';
 import { createId } from '$server/utils/create-id';
 import { sequence } from '@sveltejs/kit/hooks';
 
@@ -52,6 +53,14 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
+const handleTheme: Handle = ({ event, resolve }) => {
+	const themeClass = resolveThemeClass(event.cookies.get(THEME_COOKIE_NAME));
+
+	return resolve(event, {
+		transformPageChunk: ({ html }) => html.replace('%theme%', themeClass ?? '')
+	});
+};
+
 const handleParaglide: Handle = ({ event, resolve }) =>
 	paraglideMiddleware(event.request, ({ locale, request }) => {
 		event.request = request;
@@ -64,7 +73,7 @@ const handleParaglide: Handle = ({ event, resolve }) =>
 		});
 	});
 
-export const handle = sequence(handleLogging, handleAuth, handleParaglide);
+export const handle = sequence(handleLogging, handleAuth, handleTheme, handleParaglide);
 
 export const handleError: HandleServerError = ({ error, event, status }) => {
 	const logId = createId();
