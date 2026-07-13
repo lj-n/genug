@@ -3,7 +3,7 @@
 
 	import { Button } from '$lib/components/ui/button';
 	import { InputMoney } from '$lib/components/ui/input-money';
-	import * as Popover from '$lib/components/ui/popover';
+	import { PopoverForm } from '$lib/components/ui/popover-form';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { UNASSIGNED } from '$lib/constants';
 	import * as m from '$lib/paraglide/messages';
@@ -48,54 +48,58 @@
 	let open = $state(false);
 </script>
 
-<Popover.Root bind:open>
-	<Popover.Trigger
-		class={cn(
-			'h-full w-full cursor-pointer p-1 text-right font-currency -outline-offset-2 hover:bg-surface hover:outline-2 hover:outline-interactive/60',
-			'aria-disabled:text-muted aria-disabled:hover:bg-transparent aria-disabled:hover:outline-none'
-		)}
-		disabled={remaining === 0}
-		aria-disabled={remaining === 0}
-		aria-label={m.transfer_assignment_trigger_label({ name: categoryName })}
-	>
-		<div
+<PopoverForm
+	{form}
+	bind:open
+	align="end"
+	sideOffset={1}
+	contentClass="rounded-xs p-3 shadow-lg"
+	formClass="flex flex-col gap-3"
+	updates={() => [getMonthly, getUnassigned]}
+>
+	{#snippet trigger(props)}
+		<button
+			{...props}
 			class={cn(
-				'flex size-full items-center justify-end rounded-sm px-1',
-				remaining > 0 && 'bg-success/10',
-				remaining < 0 && 'bg-error/10 text-error'
+				'h-full w-full cursor-pointer p-1 text-right font-currency -outline-offset-2 hover:bg-surface hover:outline-2 hover:outline-interactive/60',
+				'aria-disabled:text-muted aria-disabled:hover:bg-transparent aria-disabled:hover:outline-none'
 			)}
+			disabled={remaining === 0}
+			aria-disabled={remaining === 0}
+			aria-label={m.transfer_assignment_trigger_label({ name: categoryName })}
 		>
-			{formatMoney({ currency, money: asMoney(remaining) })}
-		</div>
-	</Popover.Trigger>
-
-	<Popover.Content align="end" sideOffset={1} class="rounded-xs p-3 shadow-lg">
-		<form
-			{...form.enhance(async (f) => {
-				if (await f.submit().updates(getMonthly, getUnassigned)) {
-					open = false;
-				}
-			})}
-			class="flex flex-col gap-3"
-		>
-			<input {...form.fields.budgetId.as('hidden', budgetId())} />
-			<input type="hidden" name={form.fields.month.as('number').name} value={month} />
-
-			{#if remaining > 0}
-				{@render moveform()}
-			{:else}
-				{@render coverform()}
-			{/if}
-
-			<div class="flex justify-end gap-2">
-				<Button variant="ghost" size="sm" onclick={() => (open = false)}
-					>{m.transfer_assignment_cancel()}</Button
-				>
-				<Button type="submit" size="sm">{m.transfer_assignment_ok()}</Button>
+			<div
+				class={cn(
+					'flex size-full items-center justify-end rounded-sm px-1',
+					remaining > 0 && 'bg-success/10',
+					remaining < 0 && 'bg-error/10 text-error'
+				)}
+			>
+				{formatMoney({ currency, money: asMoney(remaining) })}
 			</div>
-		</form>
-	</Popover.Content>
-</Popover.Root>
+		</button>
+	{/snippet}
+
+	{#snippet fields()}
+		<input {...form.fields.budgetId.as('hidden', budgetId())} />
+		<input type="hidden" name={form.fields.month.as('number').name} value={month} />
+
+		{#if remaining > 0}
+			{@render moveform()}
+		{:else}
+			{@render coverform()}
+		{/if}
+	{/snippet}
+
+	{#snippet footer({ pending })}
+		<div class="flex justify-end gap-2">
+			<Button variant="ghost" size="sm" onclick={() => (open = false)}
+				>{m.transfer_assignment_cancel()}</Button
+			>
+			<Button type="submit" size="sm" loading={pending}>{m.transfer_assignment_ok()}</Button>
+		</div>
+	{/snippet}
+</PopoverForm>
 
 {#snippet sharedFields()}
 	<input {...form.fields.sourceCategoryId.as('hidden', rowId)} />

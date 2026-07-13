@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
+	import { AlertDialogForm } from '$lib/components/ui/alert-dialog-form';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -128,38 +129,46 @@
 		<div class="space-y-2">
 			<div class="text-lg font-medium tracking-tighter text-error">Danger Zone</div>
 
-			<form
-				{...resetDatabase.enhance(async (f) => {
-					if (window.confirm('Are you sure?')) {
-						await f.submit();
-					}
-				})}
-			>
-				<Button variant="destructive" type="submit">Reset Instance</Button>
-			</form>
+			<AlertDialogForm form={resetDatabase}>
+				{#snippet trigger(props)}
+					<Button {...props} variant="destructive">Reset Instance</Button>
+				{/snippet}
+
+				{#snippet header()}
+					<AlertDialog.Title>{m.admin_reset_database_confirm_title()}</AlertDialog.Title>
+					<AlertDialog.Description>
+						{m.admin_reset_database_confirm_description()}
+					</AlertDialog.Description>
+				{/snippet}
+
+				{#snippet footer({ formId, pending })}
+					<Button type="submit" form={formId} variant="destructive" loading={pending}>
+						{m.admin_reset_database_confirm_action()}
+					</Button>
+				{/snippet}
+			</AlertDialogForm>
 		</div>
 	</Page.Content>
 </Page.Root>
 
-<AlertDialog.Root bind:open={openAlertDialog}>
-	<AlertDialog.Content>
-		<form {...removeUser} class="contents">
-			<AlertDialog.Header>
-				<AlertDialog.Title>{m.admin_delete_user_confirm_title()}</AlertDialog.Title>
-				<AlertDialog.Description>
-					{m.admin_delete_user_confirm_description()}
-				</AlertDialog.Description>
-			</AlertDialog.Header>
+<AlertDialogForm form={removeUser} bind:open={openAlertDialog}>
+	{#snippet header()}
+		<AlertDialog.Title>{m.admin_delete_user_confirm_title()}</AlertDialog.Title>
+		<AlertDialog.Description>
+			{m.admin_delete_user_confirm_description()}
+		</AlertDialog.Description>
+	{/snippet}
 
-			<input {...removeUser.fields.userId.as('hidden', '')} />
+	{#snippet fields()}
+		<input {...removeUser.fields.userId.as('hidden', '')} />
+	{/snippet}
 
-			<AlertDialog.Footer>
-				<AlertDialog.Cancel type="button">{m.cancel()}</AlertDialog.Cancel>
-				<AlertDialog.Action type="submit" variant="destructive">{m.delete()}</AlertDialog.Action>
-			</AlertDialog.Footer>
-		</form>
-	</AlertDialog.Content>
-</AlertDialog.Root>
+	{#snippet footer({ formId, pending })}
+		<Button type="submit" form={formId} variant="destructive" loading={pending}>
+			{m.delete()}
+		</Button>
+	{/snippet}
+</AlertDialogForm>
 
 <Dialog.Root bind:open={openDialog}>
 	<Dialog.Content class="max-w-lg">

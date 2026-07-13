@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
-	import { buttonVariants } from '$lib/components/ui/button';
+	import { AlertDialogForm } from '$lib/components/ui/alert-dialog-form';
+	import { Button } from '$lib/components/ui/button';
 	import { m } from '$lib/paraglide/messages';
 	import {
 		deleteCategory,
@@ -27,8 +28,6 @@
 	let noRemainingBudget = $derived(deletability.remainingBalance === 0);
 	let noTransactions = $derived(deletability.transactionCount === 0);
 	let deletable = $derived(deletability.deletable);
-
-	let confirmOpen = $state(false);
 </script>
 
 <section class="flex flex-col gap-3 rounded-md border border-muted/20 bg-background p-3 shadow-xs">
@@ -71,41 +70,35 @@
 		</div>
 	{/if}
 
-	<AlertDialog.Root bind:open={confirmOpen}>
-		<AlertDialog.Trigger
-			class="mt-auto ml-auto {buttonVariants({ variant: 'destructive' })}"
-			disabled={!deletable}
-			aria-disabled={!deletable}
-		>
-			<TrashIcon class="size-4" />
-			{m.category_delete_button()}
-		</AlertDialog.Trigger>
-
-		<AlertDialog.Content>
-			<form
-				{...deleteCategory.enhance(async (form) => {
-					if (await form.submit()) {
-						onDeleted();
-					}
-				})}
-				class="contents"
+	<AlertDialogForm form={deleteCategory} onSuccess={() => onDeleted()}>
+		{#snippet trigger(props)}
+			<Button
+				{...props}
+				variant="destructive"
+				class="mt-auto ml-auto"
+				disabled={!deletable}
+				aria-disabled={!deletable}
 			>
-				<input {...deleteCategory.fields.categoryId.as('hidden', category.id)} />
+				<TrashIcon class="size-4" />
+				{m.category_delete_button()}
+			</Button>
+		{/snippet}
 
-				<AlertDialog.Header>
-					<AlertDialog.Title>{m.category_delete_confirm_title()}</AlertDialog.Title>
-					<AlertDialog.Description>
-						{m.category_delete_confirm_description({ name: category.name })}
-					</AlertDialog.Description>
-				</AlertDialog.Header>
+		{#snippet header()}
+			<AlertDialog.Title>{m.category_delete_confirm_title()}</AlertDialog.Title>
+			<AlertDialog.Description>
+				{m.category_delete_confirm_description({ name: category.name })}
+			</AlertDialog.Description>
+		{/snippet}
 
-				<AlertDialog.Footer>
-					<AlertDialog.Cancel type="button">{m.cancel()}</AlertDialog.Cancel>
-					<AlertDialog.Action type="submit" variant="destructive">
-						{m.category_delete_confirm_action()}
-					</AlertDialog.Action>
-				</AlertDialog.Footer>
-			</form>
-		</AlertDialog.Content>
-	</AlertDialog.Root>
+		{#snippet fields()}
+			<input {...deleteCategory.fields.categoryId.as('hidden', category.id)} />
+		{/snippet}
+
+		{#snippet footer({ formId, pending })}
+			<Button type="submit" form={formId} variant="destructive" loading={pending}>
+				{m.category_delete_confirm_action()}
+			</Button>
+		{/snippet}
+	</AlertDialogForm>
 </section>

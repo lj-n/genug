@@ -1,4 +1,6 @@
 <script lang="ts">
+	import * as AlertDialog from '$lib/components/ui/alert-dialog';
+	import { AlertDialogForm } from '$lib/components/ui/alert-dialog-form';
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { m } from '$lib/paraglide/messages';
@@ -43,17 +45,34 @@
 		</p>
 
 		<Dialog.Footer>
-			<form
-				class="contents"
-				{...removeUser.enhance(async (f) => {
-					if (await f.submit()) open = false;
-				})}
+			<AlertDialogForm
+				form={removeUser}
+				onSuccess={() => {
+					open = false;
+				}}
 			>
-				<input {...removeUser.fields.budgetId.as('hidden', invitation.budgetId)} />
-				<Button variant="ghost" type="submit" name="userId" value={user.id}
-					>{m.invitation_decline_button()}</Button
-				>
-			</form>
+				{#snippet trigger(props)}
+					<Button {...props} variant="ghost">{m.invitation_decline_button()}</Button>
+				{/snippet}
+
+				{#snippet header()}
+					<AlertDialog.Title>{m.invitation_decline_confirm_title()}</AlertDialog.Title>
+					<AlertDialog.Description>
+						{m.invitation_decline_confirm_description()}
+					</AlertDialog.Description>
+				{/snippet}
+
+				{#snippet fields()}
+					<input {...removeUser.fields.budgetId.as('hidden', invitation.budgetId)} />
+					<input {...removeUser.fields.userId.as('hidden', user.id)} />
+				{/snippet}
+
+				{#snippet footer({ formId, pending })}
+					<Button type="submit" form={formId} variant="destructive" loading={pending}>
+						{m.invitation_decline_confirm_action()}
+					</Button>
+				{/snippet}
+			</AlertDialogForm>
 
 			<form
 				class="contents"
