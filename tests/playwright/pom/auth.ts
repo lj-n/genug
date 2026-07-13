@@ -16,6 +16,13 @@ export class AuthPage extends BasePage {
 
 		await this.page.getByRole('button', { name: 'Create Admin' }).click();
 
+		// Creating the admin chains two server redirects (register -> `/` ->
+		// `/new`) and the `/new` screen only renders once its `getBudgets()`
+		// query resolves. This is the run's very first authenticated navigation,
+		// so wait for the redirect chain to settle before asserting the heading —
+		// each phase gets its own budget instead of racing a single timeout.
+		await this.page.waitForURL('/new');
+
 		await expect(
 			this.page.getByRole('heading', { name: 'Create Your First Budget Plan' })
 		).toBeVisible();
