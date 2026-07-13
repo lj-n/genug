@@ -109,8 +109,10 @@ export class AccountPage extends BasePage {
 			.filter({ has: this.page.getByRole('button', { name: 'Save' }) });
 		await editForm.getByRole('button', { name: 'Delete' }).click();
 
-		// Delete submits a hidden batch-delete form — the visible edit form stays
-		// open. The assertion retries until one fewer transaction row remains.
+		// The refreshed list drops the deleted transaction, which unmounts the
+		// edit row. Asserting the edit form is gone distinguishes a real delete
+		// from merely being in edit mode (where the category cell also vanishes).
+		await expect(editForm).not.toBeVisible();
 		await expect(this.page.getByRole('cell', { name: 'Edit category' })).toHaveCount(cellCount - 1);
 	}
 

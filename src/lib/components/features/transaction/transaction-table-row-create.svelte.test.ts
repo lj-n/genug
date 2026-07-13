@@ -1,12 +1,17 @@
+import { m } from '$lib/paraglide/messages';
 import { TransactionsURLParamsSchema } from '$lib/schemas/transaction';
+import { toasts } from '$lib/utils/anchored-toast.svelte';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { parse } from 'valibot';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const remote = vi.hoisted(() => {
 	let fieldState: Record<string, unknown> = {};
-	let submitResult: Promise<unknown> = Promise.resolve(true);
+	// A thunk so a rejection is only created once the submit awaits it —
+	// otherwise vitest reports it as unhandled before the lifecycle catches.
+	let submitResult: () => Promise<unknown> = () => Promise.resolve(true);
+	let allIssuesState: undefined | { message: string; path: (number | string)[] }[];
 
 	const fieldNames = [
 		'accountId',
@@ -48,7 +53,7 @@ const remote = vi.hoisted(() => {
 				submit: () => ({
 					updates: (...queries: unknown[]) => {
 						updatedQueries.push(...queries);
-						return submitResult;
+						return submitResult();
 					}
 				})
 			});
@@ -59,9 +64,10 @@ const remote = vi.hoisted(() => {
 		createTransaction: {
 			enhance,
 			fields: Object.assign(
-				{ set: setAllFields },
+				{ allIssues: () => allIssuesState, set: setAllFields },
 				Object.fromEntries(fieldNames.map((name) => [name, field(name)]))
-			)
+			),
+			pending: 0
 		},
 		fieldState: () => fieldState,
 		getBudget: vi.fn(async () => ({ currency: 'EUR', id: 'budget-1', name: 'Budget' })),
@@ -73,13 +79,17 @@ const remote = vi.hoisted(() => {
 		onSubmit,
 		resetMocks: () => {
 			fieldState = {};
-			submitResult = Promise.resolve(true);
+			submitResult = () => Promise.resolve(true);
+			allIssuesState = undefined;
 			updatedQueries.length = 0;
 			setAllFields.mockClear();
 			onSubmit.mockClear();
 		},
 		setAllFields,
-		setSubmitResult: (result: Promise<unknown>) => {
+		setAllIssues: (issues: { message: string; path: (number | string)[] }[]) => {
+			allIssuesState = issues;
+		},
+		setSubmitResult: (result: () => Promise<unknown>) => {
 			submitResult = result;
 		},
 		updatedQueries
@@ -103,8 +113,17 @@ const baseProps = {
 	urlParams
 };
 
-async function renderRow(props: Partial<typeof baseProps> & { open?: boolean } = {}) {
+afterEach(() => {
+	[...toasts].forEach((toast) => toast.dismiss());
+	remote.createTransaction.pending = 0;
+});
+
+async function renderRow(
+	props: Partial<typeof baseProps> & { open?: boolean } = {},
+	configure?: () => void
+) {
 	remote.resetMocks();
+	configure?.();
 	const merged = { ...baseProps, open: true, ...props };
 	const utils = render(TableRowCreate, { props: merged });
 	const form = merged.open ? await screen.findByRole('row') : null;
@@ -192,7 +211,7 @@ describe('TableRowCreate', () => {
 	it('keeps the popover open when the submission fails', async () => {
 		const user = userEvent.setup();
 		await renderRow();
-		remote.setSubmitResult(Promise.resolve(false));
+		remote.setSubmitResult(() => Promise.resolve(false));
 
 		await user.click(screen.getByRole('button', { name: 'Save' }));
 
@@ -230,5 +249,68 @@ describe('TableRowCreate', () => {
 		expect(values.notes).toBeUndefined();
 		expect(values.validated).toBe(false);
 		expect(values.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+	});
+});
+
+describe('TableRowCreate — row feedback contract', () => {
+	it('shows all field issues in one shared error line', async () => {
+		await renderRow({}, () =>
+			remote.setAllIssues([
+				{ message: 'Amount must not be zero', path: ['amount'] },
+				{ message: 'Invalid date', path: ['date'] }
+			])
+		);
+
+		const alerts = screen.getAllByRole('alert');
+		expect(alerts).toHaveLength(1);
+		expect(alerts[0]).toHaveTextContent('Amount must not be zero');
+		expect(alerts[0]).toHaveTextContent('Invalid date');
+	});
+
+	it('renders no error line without issues', async () => {
+		await renderRow();
+
+		expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+	});
+
+	it('disables the row buttons during flight without a spinner', async () => {
+		await renderRow({}, () => {
+			remote.createTransaction.pending = 1;
+		});
+
+		for (const name of ['Save', 'Save & Continue', 'Cancel']) {
+			const button = screen.getByRole('button', { name });
+			expect(button).toBeDisabled();
+			expect(button).not.toHaveAttribute('aria-busy');
+		}
+		expect(document.querySelector('[data-slot=button-spinner]')).toBeNull();
+	});
+
+	it('does not submit from the keyboard while a submit is in flight', async () => {
+		const user = userEvent.setup();
+		await renderRow({}, () => {
+			remote.createTransaction.pending = 1;
+		});
+
+		const notes = screen.getByRole('textbox', { name: 'Notes' });
+		await user.click(notes);
+		await user.keyboard('{Enter}');
+
+		expect(remote.onSubmit).not.toHaveBeenCalled();
+	});
+
+	it('surfaces a thrown submit error as an anchored error toast and keeps the row open', async () => {
+		const user = userEvent.setup();
+		await renderRow();
+		remote.setSubmitResult(() => Promise.reject(new Error('better-sqlite3 exploded')));
+
+		await user.click(screen.getByRole('button', { name: 'Save' }));
+
+		await waitFor(() => expect(toasts).toHaveLength(1));
+		expect(toasts[0].variant).toBe('error');
+		expect(toasts[0].message).toBe(m.form_error_unexpected());
+		expect(toasts[0].anchor).not.toBeNull();
+		expect(screen.getByRole('row')).toBeInTheDocument();
+		expect(screen.queryByText(/better-sqlite3/)).not.toBeInTheDocument();
 	});
 });
