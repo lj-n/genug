@@ -9,16 +9,30 @@ import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import Fixture from './dialog-form.test-fixture.svelte';
 
 /**
- * A mock of a remote-form's `enhance`: returns props for the `<form>` whose
- * `onsubmit` drives the DialogForm submit wrapper with the given `submit`.
+ * A remote-form double for the DialogForm `form` prop: submitting the dialog's
+ * form plays `submit` through the primitive's lifecycle.
  */
-function mockEnhance(submit: () => Promise<boolean>) {
-	return (onSubmit: (form: { submit: () => Promise<boolean> }) => Promise<void>) => ({
-		onsubmit: (event: SubmitEvent) => {
-			event.preventDefault();
-			return onSubmit({ submit });
+function mockForm(submit: () => Promise<boolean>, pending = 0) {
+	type SubmitResult = Promise<boolean> & { updates: (...updates: unknown[]) => Promise<boolean> };
+
+	const instance = {
+		element: document.createElement('form'),
+		submit: (): SubmitResult => {
+			const promise = submit() as SubmitResult;
+			promise.updates = () => promise;
+			return promise;
 		}
-	});
+	};
+
+	return {
+		enhance: (callback: (form: typeof instance) => Promise<void>) => ({
+			onsubmit: (event: SubmitEvent) => {
+				event.preventDefault();
+				return callback(instance);
+			}
+		}),
+		pending
+	};
 }
 
 // Opening a Dialog makes bits-ui lock body scroll; unmounting schedules a
@@ -51,18 +65,71 @@ const throwsHttp = () => {
 
 const throwsUnexpected = () => Promise.reject(new Error('better-sqlite3 exploded'));
 
+describe('DialogForm — success', () => {
+	it('closes the dialog on a successful submit by default', async () => {
+		render(Fixture, { props: { form: mockForm(() => Promise.resolve(true)), open: true } });
+
+		screen.getByRole('button', { name: 'Save' }).click();
+
+		await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+	});
+
+	it('stays open when the submit reports validation issues', async () => {
+		render(Fixture, { props: { form: mockForm(() => Promise.resolve(false)), open: true } });
+
+		screen.getByRole('button', { name: 'Save' }).click();
+
+		await new Promise((resolve) => setTimeout(resolve, 20));
+		expect(screen.getByRole('dialog')).toBeInTheDocument();
+	});
+
+	it('lets onSuccess replace the default close behavior', async () => {
+		let received: unknown;
+		render(Fixture, {
+			props: {
+				form: mockForm(() => Promise.resolve(true)),
+				onSuccess: (form: unknown) => {
+					received = form;
+				},
+				open: true
+			}
+		});
+
+		screen.getByRole('button', { name: 'Save' }).click();
+
+		await waitFor(() => expect(received).toBeDefined());
+		expect(screen.getByRole('dialog')).toBeInTheDocument();
+		expect(received).toHaveProperty('element');
+	});
+});
+
+describe('DialogForm — footer', () => {
+	it('hands pending to the footer snippet', async () => {
+		render(Fixture, { props: { form: mockForm(() => Promise.resolve(true), 1), open: true } });
+
+		expect(screen.getByTestId('pending')).toHaveTextContent('true');
+	});
+
+	it('reports pending false while no submission is in flight', async () => {
+		render(Fixture, { props: { form: mockForm(() => Promise.resolve(true)), open: true } });
+
+		expect(screen.getByTestId('pending')).toHaveTextContent('false');
+	});
+});
+
 describe('DialogForm — thrown error surface', () => {
 	it('renders the built-in default inline error on a thrown non-validation error', async () => {
-		render(Fixture, { props: { enhance: mockEnhance(throwsUnexpected), open: true } });
+		render(Fixture, { props: { form: mockForm(throwsUnexpected), open: true } });
 
 		screen.getByRole('button', { name: 'Save' }).click();
 
 		const alert = await screen.findByRole('alert');
 		expect(alert).toHaveTextContent(m.form_error_unexpected());
+		expect(screen.getByRole('dialog')).toBeInTheDocument();
 	});
 
 	it('shows the localized HttpError body message, not internal text', async () => {
-		render(Fixture, { props: { enhance: mockEnhance(throwsHttp), open: true } });
+		render(Fixture, { props: { form: mockForm(throwsHttp), open: true } });
 
 		screen.getByRole('button', { name: 'Save' }).click();
 
@@ -72,7 +139,7 @@ describe('DialogForm — thrown error surface', () => {
 	});
 
 	it('does not leak internal error text for unexpected errors', async () => {
-		render(Fixture, { props: { enhance: mockEnhance(throwsUnexpected), open: true } });
+		render(Fixture, { props: { form: mockForm(throwsUnexpected), open: true } });
 
 		screen.getByRole('button', { name: 'Save' }).click();
 
@@ -89,7 +156,7 @@ describe('DialogForm — thrown error surface', () => {
 		});
 
 		render(Fixture, {
-			props: { enhance: mockEnhance(throwsUnexpected), errors, open: true }
+			props: { errors, form: mockForm(throwsUnexpected), open: true }
 		});
 
 		screen.getByRole('button', { name: 'Save' }).click();
@@ -101,7 +168,7 @@ describe('DialogForm — thrown error surface', () => {
 
 	it('clears the error when the dialog closes and does not flash it on reopen', async () => {
 		const { rerender } = render(Fixture, {
-			props: { enhance: mockEnhance(throwsUnexpected), open: true }
+			props: { form: mockForm(throwsUnexpected), open: true }
 		});
 
 		screen.getByRole('button', { name: 'Save' }).click();

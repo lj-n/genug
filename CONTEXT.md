@@ -59,3 +59,11 @@ _Avoid_: remaining (envelope-side), funds
 **Feature module**:
 A component directory coupled to a specific application capability — imports remote functions, orchestrates forms, owns interaction state. Lives under `src/lib/components/features/`, one directory per capability with an `index.ts` barrel; consumers import from the explicit path (e.g. `$lib/components/features/account`). Primitives in `src/lib/components/ui` stay feature-agnostic: no remote functions, no domain logic, at most type-only domain imports.
 _Avoid_: shared component, domain component, widget
+
+**Contained form**:
+A form living inside a closing container — dialog, alert-dialog, or popover. The container closing is the success signal; validation issues render inline at the field; thrown errors (see ADR-0001) render inline in the container, which stays open. The counterpart of a Standing form. Feedback rules in ADR-0009.
+_Avoid_: modal form, popup form
+
+**Standing form**:
+A form that remains on screen after a successful submit (settings, in-place edits, invitations). Success must be signaled explicitly — an anchored toast at the element that triggered the submit — but only when the submit produces no visible state change there; a visible change (an item appearing, moving, or leaving) is itself the signal, and adding a toast on top is noise. The counterpart of a Contained form. Feedback rules in ADR-0009.
+_Avoid_: inline form, static form, page form

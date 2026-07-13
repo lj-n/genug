@@ -19,7 +19,7 @@
 	const form = $derived(editBudget.for(budgetId()));
 </script>
 
-<DialogForm enhance={form.enhance} contentClass="gap-0" interactOutsideBehavior="ignore">
+<DialogForm {form} contentClass="gap-0" interactOutsideBehavior="ignore">
 	{#snippet trigger(props)}
 		<Button {...props} variant="ghost" size="icon-lg" class="bg-muted/10 hover:bg-muted/20">
 			<PencilIcon class="size-5" />
@@ -77,8 +77,8 @@
 		</div>
 	{/snippet}
 
-	{#snippet footer({ formId })}
+	{#snippet footer({ formId, pending })}
 		<Dialog.Close class={buttonVariants({ variant: 'ghost' })}>{m.dialog_close()}</Dialog.Close>
-		<Button type="submit" form={formId}>{m.save()}</Button>
+		<Button type="submit" form={formId} loading={pending}>{m.save()}</Button>
 	{/snippet}
 </DialogForm>

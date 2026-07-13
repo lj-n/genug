@@ -41,23 +41,57 @@
 
 	export type ButtonProps = WithElementRef<HTMLAnchorAttributes> &
 		WithElementRef<HTMLButtonAttributes> & {
+			/** In-flight submit state: disables the button and, for slow requests, overlays a spinner. */
+			loading?: boolean;
 			size?: ButtonSize;
 			variant?: ButtonVariant;
 		};
+
+	/** Spinner appears only when the request is still in flight after this delay — fast submits render none. */
+	const SPINNER_DELAY_MS = 200;
+	/** Once shown, the spinner stays at least this long so it never flashes. */
+	const SPINNER_MIN_VISIBLE_MS = 250;
 </script>
 
 <script lang="ts">
+	import CircleNotchIcon from '~icons/ph/circle-notch';
+
 	let {
 		children,
 		class: className,
 		disabled,
 		href = undefined,
+		loading = false,
 		ref = $bindable(null),
 		size = 'default',
 		type = 'button',
 		variant = 'default',
 		...restProps
 	}: ButtonProps = $props();
+
+	let spinnerVisible = $state(false);
+	// Deliberately non-reactive: only the timer callbacks and the effect below
+	// consult it, and making it reactive would re-run the effect on expiry.
+	let minVisibleElapsed = true;
+
+	// Timer-driven visibility cannot be derived; this is the imperative escape
+	// hatch the delay gate needs (see docs/code-style.md on $effect).
+	$effect(() => {
+		if (!loading) {
+			if (minVisibleElapsed) spinnerVisible = false;
+			// Otherwise the min-visible timer below hides it once it expires.
+			return;
+		}
+		const delay = setTimeout(() => {
+			spinnerVisible = true;
+			minVisibleElapsed = false;
+			setTimeout(() => {
+				minVisibleElapsed = true;
+				if (!loading) spinnerVisible = false;
+			}, SPINNER_MIN_VISIBLE_MS);
+		}, SPINNER_DELAY_MS);
+		return () => clearTimeout(delay);
+	});
 </script>
 
 {#if href}
@@ -77,11 +111,25 @@
 	<button
 		bind:this={ref}
 		data-slot="button"
-		class={cn(variants({ size, variant }), className)}
+		class={cn(variants({ size, variant }), spinnerVisible && 'relative', className)}
 		{type}
-		{disabled}
+		disabled={disabled || loading}
+		aria-busy={loading ? true : undefined}
 		{...restProps}
 	>
-		{@render children?.()}
+		{#if spinnerVisible}
+			<span
+				data-slot="button-spinner"
+				class="absolute inset-0 grid place-items-center"
+				aria-hidden="true"
+			>
+				<CircleNotchIcon class="animate-spin" />
+			</span>
+		{/if}
+		<!-- `contents` keeps children direct flex items; `invisible` inherits onto
+		     them so the label holds the button's size under the spinner. -->
+		<span class={cn('contents', spinnerVisible && 'invisible')}>
+			{@render children?.()}
+		</span>
 	</button>
 {/if}
