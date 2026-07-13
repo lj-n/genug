@@ -24,7 +24,10 @@ export default defineConfig({
 		{
 			dependencies: ['setup'],
 			name: 'tablet',
-			use: { ...devices['iPad Mini landscape'] }
+			// iPad Mini gives the responsive-layout viewport/touch profile; forcing
+			// chromium keeps the suite single-engine — webkit was ~3.5× slower and
+			// engine coverage is not this project's purpose.
+			use: { ...devices['iPad Mini landscape'], browserName: 'chromium' }
 		},
 		{
 			dependencies: ['setup'],
@@ -56,5 +59,10 @@ export default defineConfig({
 		// stdout, which Playwright discards by default — keep them visible so a
 		// 500 during a test can be traced to its server-side error.
 		stdout: 'pipe'
-	}
+	},
+
+	// Explicit worker count in CI: the runner otherwise resolves the default to
+	// 1 worker and the whole shard runs sequentially. Pinned to the 4 vCPUs of
+	// ubuntu-latest.
+	workers: process.env.CI ? 4 : undefined
 });
