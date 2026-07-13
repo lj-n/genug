@@ -106,7 +106,7 @@
 
 <div
 	{@attach position(toast.anchor, toast.frozenRect)}
-	class="invisible fixed top-0 left-0 z-50 w-max"
+	class="pointer-events-auto invisible fixed top-0 left-0 z-60 w-max"
 	role={toast.variant === 'error' ? 'alert' : 'status'}
 	aria-live={toast.variant === 'error' ? 'assertive' : 'polite'}
 	aria-atomic="true"

@@ -80,8 +80,13 @@ export class CategoryPage extends BasePage {
 		await nameInput.fill(newName);
 		await dialog.getByRole('button', { exact: true, name: 'Save' }).click();
 
-		// The "Saved" toast is anchored to the save button but rendered at body level.
-		await expect(this.page.getByRole('status').filter({ hasText: 'Saved' })).toBeVisible();
+		// The "Saved" toast is anchored to the save button but rendered at body
+		// level. Dismiss it via click: unlike toBeVisible(), a click fails when
+		// the dialog paints over the toast, so this guards against occlusion.
+		const savedToast = this.page.getByRole('status').filter({ hasText: 'Saved' });
+		await expect(savedToast).toBeVisible();
+		await savedToast.getByRole('button').click();
+		await expect(savedToast).not.toBeVisible();
 		// Saving must not close the dialog.
 		await expect(dialog).toBeVisible();
 
