@@ -203,6 +203,56 @@
 	}
 }
 
+/*
+ * Dark mode (ADR-0010). Theming is token-value override only — there is
+ * deliberately no `dark:` variant; components consume the semantic tokens and
+ * the tokens carry the theme. `system` emits no class on <html> and follows the
+ * OS via the media query below; an explicit `.light`/`.dark` override wins by
+ * source order (declared after the media block, equal specificity). These are
+ * unlayered so they override the `@theme`-emitted `:root` values. Dark values
+ * are a first pass, AA-verified in the accessibility pass (#128).
+ */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-surface: #1f1d2e;
+		--color-surface-high: #26233a;
+		--color-background: #191724;
+		--color-foreground: #e0def4;
+		--color-muted: #908caa;
+		--color-error: #eb6f92;
+		--color-info: #9ccfd8;
+		--color-interactive: #c4a7e7;
+		--color-success: #85c98d;
+		--color-focus: #f6c177;
+	}
+}
+
+.light {
+	--color-surface: #fffefd;
+	--color-surface-high: #fffffe;
+	--color-background: #fffcf8;
+	--color-foreground: #2d2a3e;
+	--color-muted: #6f6b77;
+	--color-error: #b94a44;
+	--color-info: #286983;
+	--color-interactive: #8467a6;
+	--color-success: #5da365;
+	--color-focus: #efa447;
+}
+
+.dark {
+	--color-surface: #1f1d2e;
+	--color-surface-high: #26233a;
+	--color-background: #191724;
+	--color-foreground: #e0def4;
+	--color-muted: #908caa;
+	--color-error: #eb6f92;
+	--color-info: #9ccfd8;
+	--color-interactive: #c4a7e7;
+	--color-success: #85c98d;
+	--color-focus: #f6c177;
+}
+
 @custom-variant data-open {
 	&:where([data-state='open']),
 	&:where([data-open]:not([data-open='false'])) {

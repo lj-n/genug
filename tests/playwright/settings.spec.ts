@@ -32,3 +32,20 @@ test('Change Language', async ({ pages }) => {
 	await pages.settings.goto();
 	await pages.settings.changeLanguage('de');
 });
+
+test('Change Theme applies instantly and persists across a reload', async ({ page, pages }) => {
+	await pages.auth.createUserAndLogin();
+	await pages.settings.goto();
+
+	// Applied instantly on the current document (client toggles the class).
+	await pages.settings.setTheme('Dark');
+	await expect(page.locator('html')).toHaveClass(/dark/);
+
+	// Persisted via the cookie: the server re-emits the class on a fresh load.
+	await page.reload();
+	await expect(page.locator('html')).toHaveClass(/dark/);
+
+	// Back to System drops the override so prefers-color-scheme takes over.
+	await pages.settings.setTheme('System');
+	await expect(page.locator('html')).not.toHaveClass(/dark|light/);
+});

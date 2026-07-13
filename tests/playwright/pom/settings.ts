@@ -50,4 +50,9 @@ export class SettingsPage extends BasePage {
 		await this.page.goto('/settings');
 		await expect(this.page.getByRole('heading', { name: 'Settings' })).toBeVisible();
 	}
+
+	async setTheme(label: 'Dark' | 'Light' | 'System') {
+		// A single-type toggle group exposes its items as radios.
+		await this.page.getByRole('radio', { exact: true, name: label }).click();
+	}
 }

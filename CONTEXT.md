@@ -67,3 +67,7 @@ _Avoid_: modal form, popup form
 **Standing form**:
 A form that remains on screen after a successful submit (settings, in-place edits, invitations). Success must be signaled explicitly — an anchored toast at the element that triggered the submit — but only when the submit produces no visible state change there; a visible change (an item appearing, moving, or leaving) is itself the signal, and adding a toast on top is noise. The counterpart of a Contained form. Feedback rules in ADR-0009.
 _Avoid_: inline form, static form, page form
+
+**Theme override**:
+The per-device theme preference held in the `theme` cookie: `system`, `light`, or `dark`. `system` — and any absent or unrecognised cookie — follows the OS `prefers-color-scheme`; `light`/`dark` force that theme and win over the OS signal. Resolved to an `<html>` class by `resolveThemeClass` in `src/lib/utils/theme.ts`, the single source consumed by both `hooks.server.ts` (server-set class, no SSR flash) and the client switcher (see ADR-0010). A device preference, never an account setting and never synced across browsers.
+_Avoid_: dark mode toggle, theme setting, color scheme (that names the OS signal, not the override)
