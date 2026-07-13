@@ -35,6 +35,7 @@
 
 	let openDialog = $state(false);
 	let openAlertDialog = $state(false);
+	let selectedUserId = $state('');
 	let generatedPassword = $derived(
 		createUser.result?.password ?? resetUserPassword.result?.newPassword
 	);
@@ -118,7 +119,7 @@
 										size="icon-sm"
 										variant="destructive"
 										onclick={() => {
-											removeUser.fields.userId.set(user.id);
+											selectedUserId = user.id;
 											openAlertDialog = true;
 										}}
 									>
@@ -167,7 +168,7 @@
 	{/snippet}
 
 	{#snippet fields()}
-		<input {...removeUser.fields.userId.as('hidden', '')} />
+		<input {...removeUser.fields.userId.as('hidden', selectedUserId)} />
 	{/snippet}
 
 	{#snippet footer({ formId, pending })}
