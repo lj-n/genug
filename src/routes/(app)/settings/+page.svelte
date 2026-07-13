@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import { FormField } from '$lib/components/ui/form-field';
 	import { Input } from '$lib/components/ui/input';
 	import { InputPassword } from '$lib/components/ui/input-password';
 	import * as Page from '$lib/components/ui/page';
@@ -7,6 +8,7 @@
 	import { m } from '$lib/paraglide/messages';
 	import { getLocale, type Locale, locales, setLocale } from '$lib/paraglide/runtime';
 	import { changePassword, changeUsername, getUser } from '$lib/remote-functions/user.remote';
+	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 
 	import type { PageProps } from './$types';
 
@@ -14,6 +16,16 @@
 
 	let value: Locale = $state(getLocale());
 	const user = $derived(await getUser());
+
+	const usernameSubmit = createFormSubmit(() => changeUsername, {
+		onSuccess: (form) => form.element.reset(),
+		toast: { success: () => m.saved() }
+	});
+
+	const passwordSubmit = createFormSubmit(() => changePassword, {
+		onSuccess: (form) => form.element.reset(),
+		toast: { success: () => m.settings_password_changed() }
+	});
 </script>
 
 <Page.Root>
@@ -22,43 +34,55 @@
 	</Page.Header>
 
 	<Page.Content class="max-w-xl">
-		<form {...changeUsername} class="grid gap-3 rounded-lg bg-muted/5 p-3">
+		<form {...usernameSubmit.attrs} class="grid gap-3 rounded-lg bg-muted/5 p-3">
 			<h2 class="font-semibold">{m.settings_change_display_name()}</h2>
 
-			<Input
-				aria-label={m.settings_label_display_name()}
-				{...changeUsername.fields.username.as('text', user.username)}
-			/>
+			<FormField
+				field={changeUsername.fields.username}
+				label={m.settings_label_display_name()}
+				hideLabel
+			>
+				{#snippet input(field)}
+					<Input {...field.as('text', user.username)} />
+				{/snippet}
+			</FormField>
 
-			{#each changeUsername.fields.username.issues() as issue (issue)}
-				<p class="text-sm text-error">{issue.message}</p>
-			{/each}
-
-			<Button type="submit" class="ml-auto">{m.save()}</Button>
+			<Button
+				type="submit"
+				class="ml-auto"
+				loading={usernameSubmit.pending}
+				{@attach usernameSubmit.anchor}
+			>
+				{m.save()}
+			</Button>
 		</form>
 
-		<form {...changePassword} class="grid gap-3 rounded-lg bg-muted/5 p-3">
+		<form {...passwordSubmit.attrs} class="grid gap-3 rounded-lg bg-muted/5 p-3">
 			<h2 class="font-semibold">{m.settings_change_password()}</h2>
 
-			<label class="space-y-1">
-				<span class="text-sm font-medium text-muted">{m.settings_label_current_password()}</span>
-				<InputPassword hideKeyIcon {...changePassword.fields._oldPassword.as('text')} />
-			</label>
+			<FormField
+				field={changePassword.fields._oldPassword}
+				label={m.settings_label_current_password()}
+			>
+				{#snippet input(field)}
+					<InputPassword hideKeyIcon {...field.as('text')} />
+				{/snippet}
+			</FormField>
 
-			{#each changePassword.fields._oldPassword.issues() as issue (issue)}
-				<p class="text-sm text-error">{issue.message}</p>
-			{/each}
+			<FormField field={changePassword.fields._password} label={m.settings_label_new_password()}>
+				{#snippet input(field)}
+					<InputPassword hideKeyIcon {...field.as('text')} />
+				{/snippet}
+			</FormField>
 
-			<label class="space-y-1">
-				<span class="text-sm font-medium text-muted">{m.settings_label_new_password()}</span>
-				<InputPassword hideKeyIcon {...changePassword.fields._password.as('text')} />
-			</label>
-
-			{#each changePassword.fields._password.issues() as issue (issue)}
-				<p class="text-sm text-error">{issue.message}</p>
-			{/each}
-
-			<Button type="submit" class="ml-auto">{m.settings_save_and_logout()}</Button>
+			<Button
+				type="submit"
+				class="ml-auto"
+				loading={passwordSubmit.pending}
+				{@attach passwordSubmit.anchor}
+			>
+				{m.settings_save_and_logout()}
+			</Button>
 		</form>
 
 		<div class="grid rounded-lg bg-muted/5 p-3">

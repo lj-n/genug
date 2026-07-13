@@ -8,6 +8,14 @@ export class SettingsPage extends BasePage {
 		await input.clear();
 		await input.fill(name);
 		await this.page.getByRole('button', { exact: true, name: 'Save' }).click();
+
+		// Changing the name is invisible at the origin, so success is signaled
+		// by an anchored toast. Dismiss via click to guard against occlusion.
+		const savedToast = this.page.getByRole('status').filter({ hasText: 'Saved' });
+		await expect(savedToast).toBeVisible();
+		await savedToast.getByRole('button').click();
+		await expect(savedToast).not.toBeVisible();
+
 		await expect(input).toHaveValue(name);
 	}
 
@@ -25,6 +33,17 @@ export class SettingsPage extends BasePage {
 				name: /Available Languages|Verfügbare Sprachen/
 			})
 		).toContainText(locale);
+	}
+
+	async changePassword(currentPassword: string, newPassword: string) {
+		await this.page.getByLabel('Current Password').fill(currentPassword);
+		await this.page.getByLabel('New Password').fill(newPassword);
+		await this.page.getByRole('button', { name: 'Save & Log Out' }).click();
+
+		const toast = this.page.getByRole('status').filter({ hasText: 'Password changed.' });
+		await expect(toast).toBeVisible();
+		await toast.getByRole('button').click();
+		await expect(toast).not.toBeVisible();
 	}
 
 	async goto() {

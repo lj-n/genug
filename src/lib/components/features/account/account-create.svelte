@@ -3,6 +3,7 @@
 	import { createAccount } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
+	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 
 	import { Button } from '../../ui/button';
 	import { FormBody } from '../../ui/form-body';
@@ -14,9 +15,12 @@
 
 	const budget = $derived(await getBudget(budgetId()));
 	const form = $derived(createAccount.for(budgetId()));
+
+	// Create-then-navigate: the redirect is the success signal, no toast.
+	const submit = createFormSubmit(() => form, { toast: {} });
 </script>
 
-<FormBody {...form}>
+<FormBody {...submit.attrs}>
 	<input {...form.fields.budgetId.as('hidden', budgetId())} />
 
 	<FormField field={form.fields.accountName} label={m.account_label_name()}>
@@ -36,7 +40,7 @@
 		{/snippet}
 	</FormField>
 
-	<Button type="submit" class="ml-auto">
+	<Button type="submit" class="ml-auto" loading={submit.pending} {@attach submit.anchor}>
 		{m.account_create_button()}
 	</Button>
 </FormBody>

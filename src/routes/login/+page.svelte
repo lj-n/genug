@@ -1,44 +1,47 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import { FormField } from '$lib/components/ui/form-field';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import { InputPassword } from '$lib/components/ui/input-password';
 	import { Logo } from '$lib/components/ui/logo';
 	import { m } from '$lib/paraglide/messages';
 	import { login } from '$lib/remote-functions/auth.remote';
+	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import PhUserCircleDuotone from '~icons/ph/user-circle-duotone';
+
+	const submit = createFormSubmit(() => login, { toast: {} });
 </script>
 
-<form
-	class="mx-auto mt-20 grid w-full max-w-sm space-y-6"
-	{...login.enhance(async (f) => {
-		await f.submit();
-	})}
->
+<form class="mx-auto mt-20 grid w-full max-w-sm space-y-6" {...submit.attrs}>
 	<Logo class="mx-auto mt-auto w-52" aria-hidden />
 
 	<div class="grid space-y-2 rounded-lg bg-muted/5 p-3">
-		<InputGroup.Root>
-			<InputGroup.Input
-				{...login.fields.username.as('text')}
-				placeholder={m.login_label_username()}
-				aria-label={m.login_label_username()}
-			/>
+		<FormField field={login.fields.username} label={m.login_label_username()} hideLabel>
+			{#snippet input(field)}
+				<InputGroup.Root>
+					<InputGroup.Input {...field.as('text')} placeholder={m.login_label_username()} />
 
-			<InputGroup.Addon>
-				<PhUserCircleDuotone />
-			</InputGroup.Addon>
-		</InputGroup.Root>
+					<InputGroup.Addon>
+						<PhUserCircleDuotone />
+					</InputGroup.Addon>
+				</InputGroup.Root>
+			{/snippet}
+		</FormField>
 
-		<InputPassword
-			{...login.fields._password.as('password')}
-			placeholder={m.login_label_password()}
-			aria-label={m.login_label_password()}
-		/>
+		<FormField field={login.fields._password} label={m.login_label_password()} hideLabel>
+			{#snippet input(field)}
+				<InputPassword {...field.as('password')} placeholder={m.login_label_password()} />
+			{/snippet}
+		</FormField>
 
-		{#each login.fields.allIssues() as issue (issue)}
-			<p class="text-error">{issue.message}</p>
+		<!-- Wrong credentials arrive as a form-level issue (no field path), so they
+		     render here instead of at a field. -->
+		{#each login.fields.issues() as issue (issue)}
+			<p class="text-error" role="alert">{issue.message}</p>
 		{/each}
 
-		<Button type="submit" class="ml-auto">{m.login_button()}</Button>
+		<Button type="submit" class="ml-auto" loading={submit.pending} {@attach submit.anchor}>
+			{m.login_button()}
+		</Button>
 	</div>
 </form>
