@@ -99,7 +99,7 @@ jobs:
     needs: [gate]
     if: needs.gate.outputs.run_e2e == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 8
     strategy:
       fail-fast: false
       matrix:
@@ -116,9 +116,9 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-      - run: npx playwright install --with-deps chromium webkit
+      - run: npx playwright install --with-deps chromium
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-      - run: npx playwright install-deps chromium webkit
+      - run: npx playwright install-deps chromium
         if: steps.playwright-cache.outputs.cache-hit == 'true'
       - run: npx paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide
       - run: npx playwright test --shard=${{ matrix.shard }}/2

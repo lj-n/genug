@@ -61,9 +61,13 @@ test('Category detail opens as a bottom drawer on narrow viewports', async ({ pa
 	await expect(page.locator('[data-slot="dialog-content"]')).toHaveCount(0);
 
 	// Escape dismisses the drawer, and the onOpenChangeComplete -> onAnimationEnd
-	// bridge must reset state so the same category can be reopened.
-	await page.keyboard.press('Escape');
-	await expect(drawer).toHaveCount(0);
+	// bridge must reset state so the same category can be reopened. The press is
+	// retried: the drawer paints one tick before bits-ui attaches its Escape
+	// listener — a window no user can hit, but chromium-speed automation can.
+	await expect(async () => {
+		await page.keyboard.press('Escape');
+		await expect(drawer).toHaveCount(0, { timeout: 1000 });
+	}).toPass();
 	await pages.category.openDetail(categoryName);
 	await expect(page.locator('[data-slot="drawer-content"]')).toBeVisible();
 });
