@@ -126,7 +126,7 @@
 		/>
 	</div>
 
-	<div role="cell" class="grid items-center bg-interactive/5 p-2">
+	<div role="cell" class="grid place-content-center bg-interactive/5 p-2">
 		<ValidationCheckbox {...form.fields.validated.as('checkbox', transaction.validated)} />
 	</div>
 
