@@ -7,6 +7,7 @@
 		getCategoryById
 	} from '$lib/remote-functions/category.remote';
 	import { type CURRENCIES } from '$lib/utils/currencies';
+	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { ParaglideMessage } from '@inlang/paraglide-js-svelte';
 	import ArchiveTrayBoldIcon from '~icons/ph/archive-tray-bold';
@@ -18,6 +19,9 @@
 		category: Awaited<ReturnType<typeof getCategoryById>>;
 		currency: (typeof CURRENCIES)[number];
 	} = $props();
+
+	// The item visibly moving to the archive is the success signal — no toast.
+	const submit = createFormSubmit(() => archiveCategory, { toast: {} });
 
 	const archivability = $derived(await getCategoryArchivability({ categoryId: category.id }));
 
@@ -66,9 +70,15 @@
 		</div>
 	{/if}
 
-	<form {...archiveCategory} class="mt-auto ml-auto">
+	<form {...submit.attrs} class="mt-auto ml-auto">
 		<input {...archiveCategory.fields.categoryId.as('hidden', category.id)} />
-		<Button type="submit" disabled={!archivable} aria-disabled={!archivable}>
+		<Button
+			type="submit"
+			disabled={!archivable}
+			aria-disabled={!archivable}
+			loading={submit.pending}
+			{@attach submit.anchor}
+		>
 			<ArchiveTrayBoldIcon class="size-4" />
 			{m.category_archive_button()}
 		</Button>

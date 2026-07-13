@@ -7,18 +7,23 @@
 	let {
 		class: className = '',
 		field,
+		hideLabel = false,
 		input,
 		label
 	}: {
 		class?: string;
 		field: RemoteFormField<T>;
+		/** Keeps the label for assistive technology but hides it visually — for placeholder-driven fields. */
+		hideLabel?: boolean;
 		input: Snippet<[RemoteFormField<T>]>;
 		label: string;
 	} = $props();
 </script>
 
 <label class={cn('grid gap-0.5', className)}>
-	<span class="pl-1.5 text-sm font-medium tracking-tighter">{label}</span>
+	<span class={hideLabel ? 'sr-only' : 'pl-1.5 text-sm font-medium tracking-tighter'}>
+		{label}
+	</span>
 
 	{@render input(field)}
 

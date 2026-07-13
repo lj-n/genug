@@ -6,6 +6,7 @@
 	import { m } from '$lib/paraglide/messages';
 	import { acceptInvite, getInvitations, removeUser } from '$lib/remote-functions/budget.remote';
 	import { getUser } from '$lib/remote-functions/user.remote';
+	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { ParaglideMessage } from '@inlang/paraglide-js-svelte';
 	import EnvelopeDuotoneIcon from '~icons/ph/envelope-duotone';
 
@@ -16,6 +17,13 @@
 	let open = $state(false);
 
 	const user = $derived(await getUser());
+
+	const acceptSubmit = createFormSubmit(() => acceptInvite, {
+		onSuccess: () => {
+			open = false;
+		},
+		toast: {}
+	});
 </script>
 
 <Dialog.Root bind:open>
@@ -74,14 +82,17 @@
 				{/snippet}
 			</AlertDialogForm>
 
-			<form
-				class="contents"
-				{...acceptInvite.enhance(async (f) => {
-					if (await f.submit()) open = false;
-				})}
-			>
+			<form class="contents" {...acceptSubmit.attrs}>
 				<input {...acceptInvite.fields.budgetId.as('hidden', invitation.budgetId)} />
-				<Button type="submit" name="userId" value={user.id}>{m.invitation_accept_button()}</Button>
+				<Button
+					type="submit"
+					name="userId"
+					value={user.id}
+					loading={acceptSubmit.pending}
+					{@attach acceptSubmit.anchor}
+				>
+					{m.invitation_accept_button()}
+				</Button>
 			</form>
 		</Dialog.Footer>
 	</Dialog.Content>

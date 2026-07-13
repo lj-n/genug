@@ -1,15 +1,19 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import { FormField } from '$lib/components/ui/form-field';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import { Logo } from '$lib/components/ui/logo';
 	import { m } from '$lib/paraglide/messages';
 	import { register } from '$lib/remote-functions/auth.remote';
+	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import PhEye from '~icons/ph/eye';
 	import PhEyeClosed from '~icons/ph/eye-closed';
 	import PhKeyDuotone from '~icons/ph/key-duotone';
 	import PhUserCircleDuotone from '~icons/ph/user-circle-duotone';
 
 	let type: 'password' | 'text' = $state('password');
+
+	const submit = createFormSubmit(() => register, { toast: {} });
 </script>
 
 {#snippet passwordToggle()}
@@ -29,9 +33,7 @@
 
 <form
 	class="mx-auto mt-20 grid w-full max-w-sm space-y-6 rounded-lg bg-muted/5 p-3 py-6"
-	{...register.enhance(async (f) => {
-		await f.submit();
-	})}
+	{...submit.attrs}
 >
 	<Logo class="mx-auto mt-auto w-52" aria-hidden />
 
@@ -40,42 +42,40 @@
 	</p>
 
 	<div class="space-y-2">
-		<InputGroup.Root>
-			<InputGroup.Input
-				{...register.fields.username.as('text')}
-				aria-label={m.login_label_username()}
-				placeholder={m.login_label_username()}
-			/>
+		<FormField field={register.fields.username} label={m.login_label_username()} hideLabel>
+			{#snippet input(field)}
+				<InputGroup.Root>
+					<InputGroup.Input {...field.as('text')} placeholder={m.login_label_username()} />
 
-			<InputGroup.Addon>
-				<PhUserCircleDuotone />
-			</InputGroup.Addon>
-		</InputGroup.Root>
+					<InputGroup.Addon>
+						<PhUserCircleDuotone />
+					</InputGroup.Addon>
+				</InputGroup.Root>
+			{/snippet}
+		</FormField>
 
-		<InputGroup.Root>
-			<InputGroup.Input
-				{...register.fields._password.as(type)}
-				aria-label={m.login_label_password()}
-				placeholder={m.login_label_password()}
-			/>
+		<FormField field={register.fields._password} label={m.login_label_password()} hideLabel>
+			{#snippet input(field)}
+				<InputGroup.Root>
+					<InputGroup.Input {...field.as(type)} placeholder={m.login_label_password()} />
 
-			<InputGroup.Addon>
-				<PhKeyDuotone />
-			</InputGroup.Addon>
+					<InputGroup.Addon>
+						<PhKeyDuotone />
+					</InputGroup.Addon>
 
-			<InputGroup.Addon align="inline-end">
-				{@render passwordToggle()}
-			</InputGroup.Addon>
-		</InputGroup.Root>
-
-		{#each register.fields.allIssues() as issue (issue)}
-			<p class="text-error">{issue.message}</p>
-		{/each}
+					<InputGroup.Addon align="inline-end">
+						{@render passwordToggle()}
+					</InputGroup.Addon>
+				</InputGroup.Root>
+			{/snippet}
+		</FormField>
 
 		<p class="mt-3 rounded-md bg-info/5 p-2 text-center text-base text-info">
 			{m.login_admin_credentials_info()}
 		</p>
 	</div>
 
-	<Button type="submit" class="mx-auto">{m.login_admin_button()}</Button>
+	<Button type="submit" class="mx-auto" loading={submit.pending} {@attach submit.anchor}>
+		{m.login_admin_button()}
+	</Button>
 </form>

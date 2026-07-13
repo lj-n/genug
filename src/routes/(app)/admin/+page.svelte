@@ -4,6 +4,7 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import * as Dialog from '$lib/components/ui/dialog';
+	import { FormField } from '$lib/components/ui/form-field';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import * as Page from '$lib/components/ui/page';
 	import { m } from '$lib/paraglide/messages';
@@ -16,14 +17,21 @@
 	} from '$lib/remote-functions/admin.remote';
 	import { getUser } from '$lib/remote-functions/user.remote';
 	import { copyToClipboard } from '$lib/utils/copy-to-clipboard';
+	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { slide } from 'svelte/transition';
-	import ArrowCounterClockwiseIcon from '~icons/ph/arrow-counter-clockwise';
 	import CopySimpleIcon from '~icons/ph/copy-simple';
 	import TrashIcon from '~icons/ph/trash';
 	import UserCircleIcon from '~icons/ph/user-circle';
 	import UserCirclePlusIcon from '~icons/ph/user-circle-plus';
 
+	import ResetPasswordForm from './reset-password-form.svelte';
+
 	const admin = $derived(await getUser());
+
+	const createUserSubmit = createFormSubmit(() => createUser, {
+		onSuccess: (form) => form.element.reset(),
+		toast: {}
+	});
 
 	let openDialog = $state(false);
 	let openAlertDialog = $state(false);
@@ -49,29 +57,36 @@
 				{m.admin_description()}
 			</div>
 
-			<form {...createUser}>
-				<div class="flex w-full items-center gap-2">
-					<InputGroup.Root>
-						<InputGroup.Input
-							{...createUser.fields.username.as('text')}
-							placeholder={m.admin_input_placeholder_username()}
-							aria-label={m.admin_input_placeholder_username()}
-							class="w-full bg-transparent"
-						/>
+			<form {...createUserSubmit.attrs}>
+				<FormField
+					field={createUser.fields.username}
+					label={m.admin_input_placeholder_username()}
+					hideLabel
+				>
+					{#snippet input(field)}
+						<InputGroup.Root>
+							<InputGroup.Input
+								{...field.as('text')}
+								placeholder={m.admin_input_placeholder_username()}
+								class="w-full bg-transparent"
+							/>
 
-						<InputGroup.Addon>
-							<UserCirclePlusIcon />
-						</InputGroup.Addon>
+							<InputGroup.Addon>
+								<UserCirclePlusIcon />
+							</InputGroup.Addon>
 
-						<InputGroup.Addon align="inline-end">
-							<Button type="submit">{m.admin_create_user_button()}</Button>
-						</InputGroup.Addon>
-					</InputGroup.Root>
-
-					{#each createUser.fields.username.issues() as issue (issue)}
-						<p class="text-error">{issue.message}</p>
-					{/each}
-				</div>
+							<InputGroup.Addon align="inline-end">
+								<Button
+									type="submit"
+									loading={createUserSubmit.pending}
+									{@attach createUserSubmit.anchor}
+								>
+									{m.admin_create_user_button()}
+								</Button>
+							</InputGroup.Addon>
+						</InputGroup.Root>
+					{/snippet}
+				</FormField>
 			</form>
 
 			<div class="text-lg font-medium tracking-tighter">{m.admin_users_title()}</div>
@@ -96,16 +111,8 @@
 									{m.admin_role_admin_label()}
 								</div>
 							{:else}
-								{@const form = resetUserPassword.for(user.id)}
-
 								<ButtonGroup.Root class="ml-auto opacity-0 group-hover:opacity-100">
-									<form {...form} class="contents">
-										<input {...form.fields.userId.as('hidden', user.id)} />
-										<Button size="icon-sm" type="submit">
-											<ArrowCounterClockwiseIcon />
-											<span class="sr-only">{m.admin_reset_password_sr()}</span>
-										</Button>
-									</form>
+									<ResetPasswordForm userId={user.id} />
 
 									<Button
 										size="icon-sm"

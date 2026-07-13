@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import { FormField } from '$lib/components/ui/form-field';
 	import { Input } from '$lib/components/ui/input';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { m } from '$lib/paraglide/messages';
 	import { editCategory, getCategoryById } from '$lib/remote-functions/category.remote';
-	import { createAnchoredToast } from '$lib/utils/anchored-toast.svelte';
 	import { type CURRENCIES } from '$lib/utils/currencies';
+	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import TargetIcon from '~icons/ph/target';
 
 	let {
@@ -17,7 +18,9 @@
 		currency: (typeof CURRENCIES)[number];
 	} = $props();
 
-	const savedToast = createAnchoredToast({ placement: 'left' });
+	const submit = createFormSubmit(() => editCategory, {
+		toast: { placement: 'left', success: () => m.saved() }
+	});
 
 	$effect(() => {
 		editCategory.fields.targetBalance.set(category.targetBalance ?? 0);
@@ -25,25 +28,20 @@
 </script>
 
 <form
-	{...editCategory.enhance(async (form) => {
-		if (await form.submit()) {
-			savedToast.success(m.saved());
-		}
-	})}
+	{...submit.attrs}
 	class="flex flex-col gap-2 rounded-md border border-muted/20 bg-background p-3 shadow-xs"
 >
 	<input {...editCategory.fields.categoryId.as('hidden', category.id)} />
 
-	<Input
-		{...editCategory.fields.categoryName.as('text', category.name)}
-		class="h-12 text-xl font-semibold"
-		placeholder={m.category_label_name()}
-		aria-label={m.category_label_name()}
-	/>
-
-	{#each editCategory.fields.categoryName.issues() as issue (issue)}
-		<p class="pl-1.5 text-sm text-error">{issue.message}</p>
-	{/each}
+	<FormField field={editCategory.fields.categoryName} label={m.category_label_name()} hideLabel>
+		{#snippet input(field)}
+			<Input
+				{...field.as('text', category.name)}
+				class="h-12 text-xl font-semibold"
+				placeholder={m.category_label_name()}
+			/>
+		{/snippet}
+	</FormField>
 
 	<Textarea
 		{...editCategory.fields.notes.as('text', category.notes ?? '')}
@@ -74,7 +72,7 @@
 	</InputGroup.Root>
 
 	<div class="mt-auto flex items-center justify-end gap-3">
-		<Button {@attach savedToast.attach} type="submit" disabled={editCategory.pending > 0}>
+		<Button {@attach submit.anchor} type="submit" loading={submit.pending}>
 			{m.save()}
 		</Button>
 	</div>
