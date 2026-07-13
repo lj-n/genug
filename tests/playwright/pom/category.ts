@@ -80,7 +80,13 @@ export class CategoryPage extends BasePage {
 		await nameInput.fill(newName);
 		await dialog.getByRole('button', { exact: true, name: 'Save' }).click();
 
-		await expect(dialog.getByText('Saved')).toBeVisible();
+		// The "Saved" toast is anchored to the save button but rendered at body
+		// level. Dismiss it via click: unlike toBeVisible(), a click fails when
+		// the dialog paints over the toast, so this guards against occlusion.
+		const savedToast = this.page.getByRole('status').filter({ hasText: 'Saved' });
+		await expect(savedToast).toBeVisible();
+		await savedToast.getByRole('button').click();
+		await expect(savedToast).not.toBeVisible();
 		// Saving must not close the dialog.
 		await expect(dialog).toBeVisible();
 
@@ -108,9 +114,9 @@ export class CategoryPage extends BasePage {
 		await dialog.getByRole('button', { exact: true, name: 'Save' }).click();
 
 		await expect(dialog.getByText(`${existingName} already exists.`)).toBeVisible();
-		// The error keeps the dialog open and no "Saved" indicator appears.
+		// The error keeps the dialog open and no "Saved" toast appears.
 		await expect(dialog).toBeVisible();
-		await expect(dialog.getByText('Saved')).not.toBeVisible();
+		await expect(this.page.getByRole('status').filter({ hasText: 'Saved' })).not.toBeVisible();
 	}
 
 	/**

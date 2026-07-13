@@ -4,6 +4,7 @@
 	import './layout.css';
 	import { page } from '$app/state';
 	import favicon from '$lib/assets/favicon.svg';
+	import { Toaster } from '$lib/components/ui/toaster';
 
 	import type { LayoutProps } from './$types';
 
@@ -16,3 +17,5 @@
 </svelte:head>
 
 {@render children()}
+
+<Toaster />
