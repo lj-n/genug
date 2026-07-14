@@ -4,8 +4,9 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { m } from '$lib/paraglide/messages';
-	import { getAccounts } from '$lib/remote-functions/account.remote';
+	import { getAccounts, getArchivedAccounts } from '$lib/remote-functions/account.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
+	import ArchiveIcon from '~icons/ph/archive';
 	import PiggyBankIcon from '~icons/ph/piggy-bank';
 	import PlusIcon from '~icons/ph/plus';
 
@@ -13,6 +14,7 @@
 
 	const budgetId = getBudgetId();
 	const accounts = $derived(await getAccounts(budgetId()));
+	const archivedAccounts = $derived(await getArchivedAccounts(budgetId()));
 
 	let open = $state(false);
 </script>
@@ -60,6 +62,18 @@
 			>
 				<PlusIcon />
 				{m.budget_account_list_add_account()}
+			</DropdownMenu.Item>
+
+			<DropdownMenu.Item>
+				{#snippet child({ props })}
+					<a
+						href={resolve('/(app)/[budgetId=id]/accounts/archived', { budgetId: budgetId() })}
+						{...props}
+					>
+						<ArchiveIcon />
+						{m.account_archived_link({ amount: archivedAccounts.length })}
+					</a>
+				{/snippet}
 			</DropdownMenu.Item>
 		</DropdownMenu.Group>
 	</DropdownMenu.Content>

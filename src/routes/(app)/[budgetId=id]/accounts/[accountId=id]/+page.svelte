@@ -4,7 +4,11 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { AccountBalances, AccountSetName } from '$lib/components/features/account';
+	import {
+		AccountArchivedNotice,
+		AccountBalances,
+		AccountSettings
+	} from '$lib/components/features/account';
 	import { TableState, TransactionTable } from '$lib/components/features/transaction';
 	import * as Page from '$lib/components/ui/page';
 	import { Separator } from '$lib/components/ui/separator';
@@ -13,6 +17,7 @@
 	import { listTransactions } from '$lib/remote-functions/transaction.remote';
 	import { TransactionsURLParamsSchema } from '$lib/schemas/transaction';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
+	import { currentMonth, toParam } from '$lib/utils/month';
 	import { stickyParam } from '$lib/utils/sticky-param';
 	import * as v from 'valibot';
 
@@ -86,7 +91,20 @@
 			{account.name}
 		</Page.Title>
 
-		<AccountSetName accountId={accountId()} />
+		{#if !account.archivedAt}
+			<AccountSettings
+				accountId={accountId()}
+				onArchived={() =>
+					goto(resolve('/(app)/[budgetId=id]/accounts/archived', { budgetId: budgetId() }))}
+				onDeleted={() =>
+					goto(
+						resolve('/(app)/[budgetId=id]/[month=month]', {
+							budgetId: budgetId(),
+							month: toParam(currentMonth())
+						})
+					)}
+			/>
+		{/if}
 	</Page.Header>
 
 	<Page.Content>
@@ -94,17 +112,21 @@
 
 		<Separator orientation="horizontal" />
 
-		<TransactionTable
-			accountId={accountId()}
-			budgetId={budgetId()}
-			currency={budget.currency}
-			pagination={{
-				page: result.pagination.page,
-				pageSize: result.pagination.pageSize,
-				total: result.pagination.totalTransactionCount
-			}}
-			{tableState}
-			transactions={result.transactions}
-		/>
+		{#if account.archivedAt}
+			<AccountArchivedNotice accountId={accountId()} />
+		{:else}
+			<TransactionTable
+				accountId={accountId()}
+				budgetId={budgetId()}
+				currency={budget.currency}
+				pagination={{
+					page: result.pagination.page,
+					pageSize: result.pagination.pageSize,
+					total: result.pagination.totalTransactionCount
+				}}
+				{tableState}
+				transactions={result.transactions}
+			/>
+		{/if}
 	</Page.Content>
 </Page.Root>

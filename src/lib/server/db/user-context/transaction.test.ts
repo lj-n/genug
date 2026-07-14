@@ -2,6 +2,7 @@ import { createDatabase, type Database, tables } from '$db';
 import { UNASSIGNED } from '$lib/constants';
 import { NotFoundError } from '$server/utils/not-found-error';
 import { getLocalTimeZone, today } from '@internationalized/date';
+import { eq } from 'drizzle-orm';
 import { describe, expect, it } from 'vitest';
 
 import { createAccount, createBudgetWithUser, createUser } from '../../../../test/fixtures';
@@ -337,6 +338,32 @@ describe('commands.create', () => {
 		expect(() =>
 			create({ accountId: a.id, amount: 1, budgetId: budget.id, date: '2025-01-01' })
 		).toThrow(NotFoundError);
+	});
+
+	it('throws 400 and writes nothing when the account is archived', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const a = createAccount(db, budget.id, 'A');
+		db.update(tables.accounts)
+			.set({ archivedAt: new Date() })
+			.where(eq(tables.accounts.id, a.id))
+			.run();
+		const { create } = commands(user.id, db);
+
+		let thrown;
+		try {
+			create({ accountId: a.id, amount: -42, budgetId: budget.id, date: '2025-01-01' });
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 400 });
+
+		const rows = db
+			.select()
+			.from(tables.transactions)
+			.where(eq(tables.transactions.accountId, a.id))
+			.all();
+		expect(rows).toHaveLength(0);
 	});
 });
 
