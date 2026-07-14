@@ -169,7 +169,10 @@
 								class="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center px-3 text-left"
 								onclick={() => openCategoryDialog(row.id)}
 							>
-								<span class="truncate">{row.name}</span>
+								<!-- line-clamp instead of truncate: truncate's nowrap floors the
+								     card's intrinsic min-content at the full name width and forces
+								     page-level horizontal overflow on phones. -->
+								<span class="line-clamp-1 [overflow-wrap:anywhere]">{row.name}</span>
 							</button>
 
 							<div class="flex items-center px-3">

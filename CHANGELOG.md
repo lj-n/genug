@@ -21,6 +21,8 @@ and dependency bumps get no entry.
 
 ### Fixed
 
+- The mobile navigation drawer scrolls its budget and account list instead of
+  overflowing past the bottom edge of the sheet.
 - Large dialogs (category detail, account settings) no longer overflow the
   screen on iPads in landscape. Every dialog is now capped to the viewport
   height and scrolls its body, so its title, close button, and actions stay on

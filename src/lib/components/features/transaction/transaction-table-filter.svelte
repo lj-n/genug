@@ -83,7 +83,9 @@
 
 	{#each filter.items as f (f.type)}
 		{#if f.active}
-			<div class="flex items-center gap-1.5 rounded-lg border border-info/30 bg-info/5 p-1.5">
+			<div
+				class="flex flex-wrap items-center gap-1.5 rounded-lg border border-info/30 bg-info/5 p-1.5"
+			>
 				<p class="mr-auto pl-1.5 text-sm font-medium text-info">
 					{filter.getConfig(f.type).description()}
 				</p>

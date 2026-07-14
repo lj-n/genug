@@ -25,13 +25,16 @@ async function expectNoHorizontalOverflow(page: Page) {
 	expect(widths.scroll).toBeLessThanOrEqual(widths.client);
 }
 
-async function seedBudget(pages: Pages) {
+async function seedBudget(
+	pages: Pages,
+	names: { budgetName?: string; categoryName?: string } = {}
+) {
 	await pages.auth.createUserAndLogin();
-	const budgetName = faker.commerce.department();
+	const budgetName = names.budgetName ?? faker.commerce.department();
 	await pages.budget.createBudget(budgetName);
 	const accountName = uniqueName(faker.finance.accountName());
 	await pages.budget.createAccount(accountName);
-	const categoryName = uniqueName(faker.commerce.department());
+	const categoryName = names.categoryName ?? uniqueName(faker.commerce.department());
 	await pages.budget.createCategory(categoryName);
 	return { accountName, budgetName, categoryName };
 }
@@ -52,7 +55,12 @@ test('Month view reflows to category cards without horizontal overflow', async (
 	page,
 	pages
 }) => {
-	const { budgetName, categoryName } = await seedBudget(pages);
+	// Long names regression: the page title and category name used to floor the
+	// page's min-content width and force page-level horizontal overflow.
+	const { budgetName, categoryName } = await seedBudget(pages, {
+		budgetName: uniqueName('Haushaltsbudget der Familie'),
+		categoryName: uniqueName('Lebensmittel und Haushaltswaren')
+	});
 
 	await page.setViewportSize(PHONE_VIEWPORT);
 	await pages.budget.goto(budgetName);
@@ -75,6 +83,13 @@ test('Add transaction through the bottom sheet', async ({ page, pages }) => {
 
 	await page.setViewportSize(PHONE_VIEWPORT);
 	await page.goto(pages.budget.ctx.accounts.get(accountName)!);
+	await expectNoHorizontalOverflow(page);
+
+	// An active filter row (its category select had a fixed 320px minimum)
+	// must not widen the register either.
+	await page.getByRole('button', { name: 'Filter' }).click();
+	await page.getByRole('menuitem', { name: 'Category Filter' }).click();
+	await expect(page.getByText('All Categories')).toBeVisible();
 	await expectNoHorizontalOverflow(page);
 
 	await page.getByRole('button', { name: 'New Transaction' }).click();

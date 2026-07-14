@@ -82,115 +82,122 @@
 			</Drawer.Close>
 		</Drawer.Header>
 
-		{@render invitations?.()}
+		<!-- The budget/account lists can outgrow the sheet; Drawer.Body is the
+		     one scroll region so the header stays pinned (see ADR-0013). -->
+		<Drawer.Body class="px-4">
+			{@render invitations?.()}
 
-		<nav class="mx-auto grid w-full max-w-md gap-6" {@attach closeDrawerAttachment}>
-			<ul class="space-y-6 text-lg">
-				{#each await getBudgets() as budget (budget.id)}
-					<li class="space-y-1 rounded-lg bg-surface p-1.5 shadow-sm">
-						<a
-							href={resolve('/(app)/[budgetId=id]', { budgetId: budget.id })}
-							class={cn(
-								'group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
-								isCurrentPage(page, budget.id) && 'bg-info/10 text-info hover:bg-info/15'
-							)}
-						>
-							{budget.name}
-						</a>
+			<nav class="mx-auto grid w-full max-w-md gap-6" {@attach closeDrawerAttachment}>
+				<ul class="space-y-6 text-lg">
+					{#each await getBudgets() as budget (budget.id)}
+						<li class="space-y-1 rounded-lg bg-surface p-1.5 shadow-sm">
+							<a
+								href={resolve('/(app)/[budgetId=id]', { budgetId: budget.id })}
+								class={cn(
+									'group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
+									isCurrentPage(page, budget.id) && 'bg-info/10 text-info hover:bg-info/15'
+								)}
+							>
+								{budget.name}
+							</a>
 
-						<ul class="space-y-1">
-							{#each await getAccounts(budget.id) as account (account.id)}
-								<li class="flex">
-									<div
-										class={cn(
-											'mx-1 my-auto aspect-square',
-											isCurrentPage(page, account.id) ? 'text-info' : 'text-muted'
-										)}
-									>
-										<ArrowBendDownRightBoldIcon class="size-3" />
-									</div>
+							<ul class="space-y-1">
+								{#each await getAccounts(budget.id) as account (account.id)}
+									<li class="flex">
+										<div
+											class={cn(
+												'mx-1 my-auto aspect-square',
+												isCurrentPage(page, account.id) ? 'text-info' : 'text-muted'
+											)}
+										>
+											<ArrowBendDownRightBoldIcon class="size-3" />
+										</div>
 
-									<a
-										href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', {
-											accountId: account.id,
-											budgetId: budget.id
-										})}
-										class={cn(
-											'group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
-											isCurrentPage(page, account.id) && 'bg-info/10 text-info hover:bg-info/15'
-										)}
-									>
-										{account.name}
-									</a>
-								</li>
-							{/each}
-						</ul>
-					</li>
-				{/each}
-			</ul>
+										<a
+											href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', {
+												accountId: account.id,
+												budgetId: budget.id
+											})}
+											class={cn(
+												'group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
+												isCurrentPage(page, account.id) && 'bg-info/10 text-info hover:bg-info/15'
+											)}
+										>
+											{account.name}
+										</a>
+									</li>
+								{/each}
+							</ul>
+						</li>
+					{/each}
+				</ul>
 
-			<ul class="space-y-1 rounded-lg bg-surface p-1.5 text-lg shadow-sm">
-				<li class="flex">
-					<a
-						href={resolve('/(app)/new')}
-						class={cn(
-							'group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
-							isCurrentPage(page, 'new') && 'bg-info/10 text-info hover:bg-info/15'
-						)}
-					>
-						<PlusIcon
-							class={cn('size-6', isCurrentPage(page, 'new') ? 'text-success' : 'text-muted')}
-						/>
-						{m.budget_create_button()}
-					</a>
-				</li>
-
-				<li class="flex">
-					<a
-						href={resolve('/(app)/settings')}
-						class={cn(
-							'group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
-							isCurrentPage(page, 'settings') && 'bg-info/10 text-info hover:bg-info/15'
-						)}
-					>
-						<GearSixIcon
-							class={cn('size-6', isCurrentPage(page, 'settings') ? 'text-success' : 'text-muted')}
-						/>
-						{m.settings_title()}
-					</a>
-				</li>
-
-				{#if user.isAdmin}
+				<ul class="space-y-1 rounded-lg bg-surface p-1.5 text-lg shadow-sm">
 					<li class="flex">
 						<a
-							href={resolve('/(app)/admin')}
+							href={resolve('/(app)/new')}
 							class={cn(
 								'group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
-								isCurrentPage(page, 'admin') && 'bg-info/10 text-info hover:bg-info/15'
+								isCurrentPage(page, 'new') && 'bg-info/10 text-info hover:bg-info/15'
 							)}
 						>
-							<WrenchIcon
-								class={cn('size-6', isCurrentPage(page, 'admin') ? 'text-success' : 'text-muted')}
+							<PlusIcon
+								class={cn('size-6', isCurrentPage(page, 'new') ? 'text-success' : 'text-muted')}
 							/>
-							{m.admin_settings_title()}
+							{m.budget_create_button()}
 						</a>
 					</li>
-				{/if}
 
-				<li class="flex">
-					<form {...signout.for('mobile-navigation')} class="contents">
-						<button
-							type="submit"
-							class="group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:cursor-pointer hover:bg-muted/5"
+					<li class="flex">
+						<a
+							href={resolve('/(app)/settings')}
+							class={cn(
+								'group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
+								isCurrentPage(page, 'settings') && 'bg-info/10 text-info hover:bg-info/15'
+							)}
 						>
-							<div aria-hidden="true">
-								<SignOutIcon class="size-6 text-muted" />
-							</div>
-							{m.sign_out_button({ username: user.username })}
-						</button>
-					</form>
-				</li>
-			</ul>
-		</nav>
+							<GearSixIcon
+								class={cn(
+									'size-6',
+									isCurrentPage(page, 'settings') ? 'text-success' : 'text-muted'
+								)}
+							/>
+							{m.settings_title()}
+						</a>
+					</li>
+
+					{#if user.isAdmin}
+						<li class="flex">
+							<a
+								href={resolve('/(app)/admin')}
+								class={cn(
+									'group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
+									isCurrentPage(page, 'admin') && 'bg-info/10 text-info hover:bg-info/15'
+								)}
+							>
+								<WrenchIcon
+									class={cn('size-6', isCurrentPage(page, 'admin') ? 'text-success' : 'text-muted')}
+								/>
+								{m.admin_settings_title()}
+							</a>
+						</li>
+					{/if}
+
+					<li class="flex">
+						<form {...signout.for('mobile-navigation')} class="contents">
+							<button
+								type="submit"
+								class="group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:cursor-pointer hover:bg-muted/5"
+							>
+								<div aria-hidden="true">
+									<SignOutIcon class="size-6 text-muted" />
+								</div>
+								{m.sign_out_button({ username: user.username })}
+							</button>
+						</form>
+					</li>
+				</ul>
+			</nav>
+		</Drawer.Body>
 	</Drawer.Content>
 </Drawer.Root>

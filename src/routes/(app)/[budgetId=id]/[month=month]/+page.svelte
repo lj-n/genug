@@ -32,7 +32,7 @@
 </script>
 
 <Page.Root>
-	<Page.Header class="flex-row justify-between gap-4">
+	<Page.Header class="flex-row flex-wrap justify-between gap-4">
 		<Page.Title>
 			{budget.name}
 		</Page.Title>

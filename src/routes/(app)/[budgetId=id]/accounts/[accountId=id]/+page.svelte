@@ -86,7 +86,7 @@
 </script>
 
 <Page.Root>
-	<Page.Header class="flex-row items-center justify-between gap-4">
+	<Page.Header class="flex-row flex-wrap items-center justify-between gap-4">
 		<Page.Title>
 			{account.name}
 		</Page.Title>

@@ -24,5 +24,5 @@
 	bind:value
 	oninput={handleInput}
 	placeholder={m.transaction_filter_notes_title()}
-	class="w-fit min-w-xs"
+	class="w-fit max-w-full @3xl/main:min-w-xs"
 />
