@@ -10,6 +10,8 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+## [2026.07.2] - 2026-07-14
+
 ### Added
 
 - GitHub Releases are now published automatically on each version tag, with the
