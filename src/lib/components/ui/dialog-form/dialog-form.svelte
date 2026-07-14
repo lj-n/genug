@@ -72,23 +72,25 @@
 			{@render header()}
 		</Dialog.Header>
 
-		<form id={formId} {...submit.attrs}>
-			{#if resetOnClose}
-				{#key open}
+		<Dialog.Body class="flex flex-col gap-6">
+			<form id={formId} {...submit.attrs}>
+				{#if resetOnClose}
+					{#key open}
+						{@render fields()}
+					{/key}
+				{:else}
 					{@render fields()}
-				{/key}
-			{:else}
-				{@render fields()}
-			{/if}
-		</form>
+				{/if}
+			</form>
 
-		{#if submit.error}
-			{#if errors}
-				{@render errors(submit.error)}
-			{:else}
-				<p class="text-sm text-error" role="alert">{submit.error.message}</p>
+			{#if submit.error}
+				{#if errors}
+					{@render errors(submit.error)}
+				{:else}
+					<p class="text-sm text-error" role="alert">{submit.error.message}</p>
+				{/if}
 			{/if}
-		{/if}
+		</Dialog.Body>
 
 		<Dialog.Footer>
 			{@render footer({ formId, pending: submit.pending })}

@@ -28,7 +28,11 @@ test('Category detail opens as a dialog on wide viewports', async ({ page, pages
 
 	await pages.category.openDetail(categoryName);
 
-	await expect(page.locator('[data-slot="dialog-content"]')).toBeVisible();
+	const dialog = page.locator('[data-slot="dialog-content"]');
+	await expect(dialog).toBeVisible();
+	// The dialog stays within the viewport, so its close button and pinned footer
+	// never scroll off screen even when the content outgrows the viewport height.
+	await expect(dialog).toBeInViewport();
 	await expect(page.locator('[data-slot="drawer-content"]')).toHaveCount(0);
 });
 
@@ -58,6 +62,8 @@ test('Category detail opens as a bottom drawer on narrow viewports', async ({ pa
 	const drawer = page.locator('[data-slot="drawer-content"]');
 	await expect(drawer).toBeVisible();
 	await expect(drawer).toHaveAttribute('data-vaul-drawer-direction', 'bottom');
+	// The drawer body scrolls its content instead of overflowing the viewport.
+	await expect(page.locator('[data-slot="drawer-body"]')).toBeVisible();
 	await expect(page.locator('[data-slot="dialog-content"]')).toHaveCount(0);
 
 	// Escape dismisses the drawer, and the onOpenChangeComplete -> onAnimationEnd

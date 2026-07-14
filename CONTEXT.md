@@ -71,3 +71,7 @@ _Avoid_: inline form, static form, page form
 **Theme override**:
 The per-device theme preference held in the `theme` cookie: `system`, `light`, or `dark`. `system` — and any absent or unrecognised cookie — follows the OS `prefers-color-scheme`; `light`/`dark` force that theme and win over the OS signal. Resolved to an `<html>` class by `resolveThemeClass` in `src/lib/utils/theme.ts`, the single source consumed by both `hooks.server.ts` (server-set class, no SSR flash) and the client switcher (see ADR-0010). A device preference, never an account setting and never synced across browsers.
 _Avoid_: dark mode toggle, theme setting, color scheme (that names the OS signal, not the override)
+
+**Modal Body**:
+The single scrollable region of a modal. Every modal — `Dialog`, `Drawer`, the `ResponsiveModal` shell (which switches between them at `(min-width: 640px)`), and `AlertDialog` — caps its height to the viewport and pins its `Header`/`Footer` while the `Body` (`Dialog.Body` / `Drawer.Body` / `ResponsiveModal.Body`) scrolls, so the title, close button, and actions never spill off a short viewport (e.g. an iPad in landscape). `DialogForm` wraps its fields in `Body` for free; large bespoke modals opt in explicitly (see ADR-0013). A touch-specific bottom-drawer switch was rejected there because forms confirmed from a nested alert dialog inside a vaul drawer drop their query refresh.
+_Avoid_: scroll container, modal content (that names the whole frame, not the scrolling middle)
