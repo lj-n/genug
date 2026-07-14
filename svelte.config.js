@@ -1,5 +1,14 @@
 import adapter from '@sveltejs/adapter-node';
+import { readFileSync } from 'node:fs';
 import { relative, sep } from 'node:path';
+
+const { version } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
+
+// Version surfaced to the app via `$app/environment`. Prod (version-tag) builds
+// leave BUILD_SHA unset and show the clean CalVer; stage (main-push) builds pass
+// the short SHA and show a dev-flavoured `<version>-dev+<sha>` (ADR-0012).
+const buildSha = process.env.BUILD_SHA;
+const versionName = buildSha ? `${version}-dev+${buildSha}` : version;
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -27,6 +36,10 @@ const config = {
 
 		experimental: {
 			remoteFunctions: true
+		},
+
+		version: {
+			name: versionName
 		}
 	}
 };

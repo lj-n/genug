@@ -7,6 +7,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { Logo } from '$lib/components/ui/logo';
+	import { VersionLabel } from '$lib/components/ui/version-label';
 	import { m } from '$lib/paraglide/messages';
 	import { getAccounts } from '$lib/remote-functions/account.remote';
 	import { signout } from '$lib/remote-functions/auth.remote';
@@ -62,10 +63,11 @@
 
 	<Drawer.Content class="@container/drawer-content">
 		<Drawer.Header>
-			<Drawer.Title class="mx-auto">
+			<Drawer.Title class="mx-auto flex items-end gap-2">
 				<a href={resolve('/')} class="w-fit">
 					<Logo class="h-10" />
 				</a>
+				<VersionLabel class="pb-1" />
 			</Drawer.Title>
 			<Drawer.Close
 				aria-label={m.dialog_close()}

@@ -7,6 +7,7 @@ Persistent agent and workflow rules for this repository.
 - Match existing code conventions. No drive-by refactors, renames, or reformatting.
 - Verify with real tool output — never fabricate file contents, API responses, or test results.
 - Keep codebase files in English.
+- A user-visible change (new/changed feature, bug fix, behaviour/UX change, new setting) must add an entry under `## [Unreleased]` in `CHANGELOG.md`, categorized `Added`/`Changed`/`Fixed`. Refactors, tests, CI, docs, and dependency bumps get no entry. Releases are cut with `npm run release` (CalVer + changelog stamping, see ADR-0012).
 
 ## Stack
 
