@@ -1,3 +1,4 @@
+import Body from './responsive-modal-body.svelte';
 import Close from './responsive-modal-close.svelte';
 import Content from './responsive-modal-content.svelte';
 import Description from './responsive-modal-description.svelte';
@@ -10,6 +11,7 @@ import Trigger from './responsive-modal-trigger.svelte';
 import Root from './responsive-modal.svelte';
 
 export {
+	Body,
 	Close,
 	Content,
 	Description,
@@ -19,6 +21,7 @@ export {
 	Portal,
 	//
 	Root as ResponsiveModal,
+	Body as ResponsiveModalBody,
 	Close as ResponsiveModalClose,
 	Content as ResponsiveModalContent,
 	Description as ResponsiveModalDescription,

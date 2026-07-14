@@ -50,7 +50,9 @@
 			(mirrors CategoryDetailDialog owning `open` around an inner CategoryDetail).
 		-->
 		{#if open}
-			<AccountSettingsContent {accountId} onArchived={handleArchived} onDeleted={handleDeleted} />
+			<Dialog.Body>
+				<AccountSettingsContent {accountId} onArchived={handleArchived} onDeleted={handleDeleted} />
+			</Dialog.Body>
 		{/if}
 	</Dialog.Content>
 </Dialog.Root>

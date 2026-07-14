@@ -1,3 +1,4 @@
+import Body from './drawer-body.svelte';
 import Close from './drawer-close.svelte';
 import Content from './drawer-content.svelte';
 import Description from './drawer-description.svelte';
@@ -11,11 +12,13 @@ import Trigger from './drawer-trigger.svelte';
 import Root from './drawer.svelte';
 
 export {
+	Body,
 	Close,
 	Content,
 	Description,
 	//
 	Root as Drawer,
+	Body as DrawerBody,
 	Close as DrawerClose,
 	Content as DrawerContent,
 	Description as DrawerDescription,

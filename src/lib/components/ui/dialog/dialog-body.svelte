@@ -12,13 +12,15 @@
 	}: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
 </script>
 
+<!--
+	The scrollable middle of a modal. `min-h-0` lets it shrink below its content
+	inside the flex column so the pinned header/footer stay in view and only this
+	region scrolls when the content outgrows the viewport.
+-->
 <div
 	bind:this={ref}
-	data-slot="drawer-header"
-	class={cn(
-		'flex shrink-0 flex-col gap-0.5 p-4 group-data-[vaul-drawer-direction=bottom]/drawer-content:text-center group-data-[vaul-drawer-direction=top]/drawer-content:text-center md:gap-1.5 md:text-left',
-		className
-	)}
+	data-slot="dialog-body"
+	class={cn('min-h-0 flex-1 overflow-y-auto', className)}
 	{...restProps}
 >
 	{@render children?.()}

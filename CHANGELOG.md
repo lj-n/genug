@@ -10,6 +10,14 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Fixed
+
+- Large dialogs (category detail, account settings) no longer overflow the
+  screen on iPads in landscape. Every dialog is now capped to the viewport
+  height and scrolls its body, so its title, close button, and actions stay on
+  screen and reachable instead of spilling off the top and bottom of a short
+  viewport.
+
 ## [2026.07.2] - 2026-07-14
 
 ### Added
