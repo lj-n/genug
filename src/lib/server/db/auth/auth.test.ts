@@ -1,3 +1,5 @@
+import type { Cookies } from '@sveltejs/kit';
+
 import { createDatabase, type Database } from '$db';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 
@@ -6,12 +8,16 @@ import {
 	createSession,
 	createSessionToken,
 	deleteSession,
+	deleteSessionCookie,
+	deleteUserSessions,
+	getSessionCookie,
 	hashPassword,
 	refreshSession,
+	setSessionCookie,
 	validateSession
 } from './index';
 import { createUser } from './user';
-import { DAY_IN_MS, InvalidCredentialsError, type Session } from './utils';
+import { DAY_IN_MS, InvalidCredentialsError, type Session, SESSION_COOKIE_NAME } from './utils';
 
 async function createSessionForTest(db: Database): Promise<Session> {
 	const passwordHash = await hashPassword({ password: 'password123' });
@@ -91,6 +97,37 @@ it('deleteSession - ignores missing session ids', () => {
 	const db = createDatabase(':memory:');
 
 	expect(deleteSession({ db, sessionId: 'missing-session-id' })).toBeUndefined();
+});
+
+it('deleteUserSessions - removes every session belonging to a user', async () => {
+	const db = createDatabase(':memory:');
+	const passwordHash = await hashPassword({ password: 'password123' });
+	const user = createUser({ db, passwordHash, username: 'testuser' });
+	createSession({ db, userId: user.id });
+	createSession({ db, userId: user.id });
+
+	deleteUserSessions({ db, userId: user.id });
+
+	await expect(
+		db.query.sessions.findFirst({ where: { userId: user.id } })
+	).resolves.toBeUndefined();
+});
+
+it('setSessionCookie / getSessionCookie / deleteSessionCookie - round-trip via Cookies', () => {
+	const store = new Map<string, string>();
+	const cookies = {
+		delete: (name: string) => store.delete(name),
+		get: (name: string) => store.get(name),
+		set: (name: string, value: string) => store.set(name, value)
+	} as unknown as Cookies;
+
+	const expiresAt = new Date(DAY_IN_MS * 20);
+	setSessionCookie({ cookies, expiresAt, sessionToken: 'token-value' });
+	expect(store.get(SESSION_COOKIE_NAME)).toBe('token-value');
+	expect(getSessionCookie({ cookies })).toBe('token-value');
+
+	deleteSessionCookie({ cookies });
+	expect(getSessionCookie({ cookies })).toBeUndefined();
 });
 
 beforeEach(() => {

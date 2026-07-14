@@ -1,5 +1,6 @@
 import { database, type Database, tables } from '$db';
 import { and, desc, eq, getColumns, ne, notExists } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/sqlite-core';
 
 import { hashPassword } from './index';
 
@@ -15,6 +16,7 @@ export function createUser({
 
 export function deleteUser({ db = database, userId }: { db?: Database; userId: string }) {
 	db.transaction((tx) => {
+		const otherMembers = alias(tables.usersToBudgets, 'other_members');
 		const soloOwnerBudgets = tx
 			.select({ budgetId: tables.usersToBudgets.budgetId })
 			.from(tables.usersToBudgets)
@@ -24,11 +26,11 @@ export function deleteUser({ db = database, userId }: { db?: Database; userId: s
 					notExists(
 						tx
 							.select()
-							.from(tables.usersToBudgets)
+							.from(otherMembers)
 							.where(
 								and(
-									eq(tables.usersToBudgets.budgetId, tables.usersToBudgets.budgetId),
-									ne(tables.usersToBudgets.userId, userId)
+									eq(otherMembers.budgetId, tables.usersToBudgets.budgetId),
+									ne(otherMembers.userId, userId)
 								)
 							)
 					)

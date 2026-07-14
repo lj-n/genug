@@ -34,6 +34,9 @@ vite.config.ts.timestamp-*
 src/lib/paraglide
 project.inlang/cache/
 
+# Coverage
+/coverage
+
 # Playwright
 tests/playwright/results/
 blob-report/
