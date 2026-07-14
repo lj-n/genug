@@ -10,6 +10,11 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Added
+
+- Multi-architecture container images (`linux/amd64` and `linux/arm64`), so the
+  published images run natively on ARM64 hosts.
+
 ## [2026.07.0] - 2026-07-14
 
 ### Added
