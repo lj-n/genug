@@ -10,6 +10,8 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+## [2026.07.1] - 2026-07-14
+
 ### Added
 
 - Multi-architecture container images (`linux/amd64` and `linux/arm64`), so the
