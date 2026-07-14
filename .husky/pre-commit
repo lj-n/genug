@@ -1,0 +1,2 @@
+# husky v9: no shebang needed — the wrapper in .husky/_/ provides it
+npx lint-staged
