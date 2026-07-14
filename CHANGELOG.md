@@ -10,6 +10,11 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Added
+
+- GitHub Releases are now published automatically on each version tag, with the
+  matching changelog section as the release notes.
+
 ## [2026.07.1] - 2026-07-14
 
 ### Added
