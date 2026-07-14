@@ -58,8 +58,8 @@ test('Month view reflows to category cards without horizontal overflow', async (
 	// Long names regression: the page title and category name used to floor the
 	// page's min-content width and force page-level horizontal overflow.
 	const { budgetName, categoryName } = await seedBudget(pages, {
-		budgetName: uniqueName('Haushaltsbudget der Familie'),
-		categoryName: uniqueName('Lebensmittel und Haushaltswaren')
+		budgetName: uniqueName('Comprehensive Multigenerational Household Budget'),
+		categoryName: uniqueName('Miscellaneous Household Expenditures')
 	});
 
 	await page.setViewportSize(PHONE_VIEWPORT);
