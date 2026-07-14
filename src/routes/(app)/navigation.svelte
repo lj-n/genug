@@ -6,6 +6,7 @@
 	import { page } from '$app/state';
 	import { SideMenu } from '$lib/components/features/side-menu';
 	import { Logo } from '$lib/components/ui/logo';
+	import { VersionLabel } from '$lib/components/ui/version-label';
 	import { m } from '$lib/paraglide/messages';
 	import { signout } from '$lib/remote-functions/auth.remote';
 	import { getUser } from '$lib/remote-functions/user.remote';
@@ -60,9 +61,12 @@
 {/snippet}
 
 <nav class="sticky top-8 hidden w-full max-w-72 flex-col self-start p-4 @7xl/main:flex">
-	<a href={resolve('/')} class="w-fit">
-		<Logo class="h-12" />
-	</a>
+	<div class="flex items-end gap-2">
+		<a href={resolve('/')} class="w-fit">
+			<Logo class="h-12" />
+		</a>
+		<VersionLabel class="pb-1" />
+	</div>
 
 	{@render invitations?.()}
 

@@ -16,7 +16,8 @@
 		"db:migrations": "drizzle-kit generate",
 		"test:unit": "vitest",
 		"test:e2e": "playwright test",
-		"test:e2e:ui": "playwright test --ui"
+		"test:e2e:ui": "playwright test --ui",
+		"release": "node --experimental-strip-types scripts/release.ts"
 	},
 	"dependencies": {
 		"@node-rs/argon2": "^2.0.2",

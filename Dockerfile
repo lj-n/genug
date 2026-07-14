@@ -15,6 +15,11 @@ COPY vite.config.ts ./
 COPY svelte.config.js ./
 COPY tsconfig.json ./
 
+# Stage builds pass the short commit SHA so the app surfaces a dev-flavoured
+# version (`<version>-dev+<sha>`); prod builds leave it empty (ADR-0012).
+ARG BUILD_SHA=
+ENV BUILD_SHA=$BUILD_SHA
+
 ENV DATABASE_URL=build
 RUN npm run build
 RUN npm prune --production
