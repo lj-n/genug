@@ -34,6 +34,10 @@
 	// the two assign surfaces never share field state.
 	const form = $derived(category === null ? null : assignment.for(`${category.id}-sheet`));
 
+	// The footer buttons live outside the <form> (in the pinned Footer, see
+	// ADR-0013) and submit via the form attribute.
+	const formId = $props.id();
+
 	const submit = createFormSubmit(() => form!, {
 		onSuccess: () => {
 			open = false;
@@ -53,12 +57,15 @@
 <ResponsiveModal.Root bind:open onOpenChangeComplete={(isOpen) => !isOpen && (category = null)}>
 	<ResponsiveModal.Content class="max-w-lg">
 		{#if category !== null && form !== null}
-			<div class="flex w-full flex-col gap-6">
+			<ResponsiveModal.Header>
 				<ResponsiveModal.Title class="text-xl font-semibold tracking-tighter italic">
 					{m.budget_assignment_title({ name: category.name })}
 				</ResponsiveModal.Title>
+			</ResponsiveModal.Header>
 
+			<ResponsiveModal.Body>
 				<form
+					id={formId}
 					class="flex flex-col gap-4"
 					aria-label={m.budget_assignment_title({ name: category.name })}
 					{...submit.attrs}
@@ -90,24 +97,24 @@
 								.join(' · ')}
 						</p>
 					{/if}
-
-					<div class="flex items-center justify-end gap-2">
-						<Button
-							type="button"
-							variant="ghost"
-							class="h-11"
-							disabled={submit.pending}
-							onclick={() => (open = false)}
-						>
-							{m.cancel()}
-						</Button>
-
-						<Button type="submit" class="h-11" disabled={submit.pending}>
-							{m.save()}
-						</Button>
-					</div>
 				</form>
-			</div>
+			</ResponsiveModal.Body>
+
+			<ResponsiveModal.Footer>
+				<Button
+					type="button"
+					variant="ghost"
+					class="h-11"
+					disabled={submit.pending}
+					onclick={() => (open = false)}
+				>
+					{m.cancel()}
+				</Button>
+
+				<Button type="submit" form={formId} class="h-11" disabled={submit.pending}>
+					{m.save()}
+				</Button>
+			</ResponsiveModal.Footer>
 		{/if}
 	</ResponsiveModal.Content>
 </ResponsiveModal.Root>

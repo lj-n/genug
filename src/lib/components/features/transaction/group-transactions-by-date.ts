@@ -6,7 +6,7 @@ export type TransactionDateGroup<T extends { date: string }> = {
 /**
  * Groups transactions by their (ISO `yyyy-mm-dd`) date, newest group first.
  * Input order is preserved within a group. Used by the mobile register list
- * (ADR-0013), which shows date group headers instead of a date column.
+ * (ADR-0014), which shows date group headers instead of a date column.
  */
 export function groupTransactionsByDate<T extends { date: string }>(
 	transactions: T[]

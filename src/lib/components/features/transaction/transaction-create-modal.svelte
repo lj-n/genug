@@ -33,6 +33,10 @@
 	const categories = $derived(await getCategories({ budgetId }));
 	const budget = $derived(await getBudget(budgetId));
 
+	// The footer buttons live outside the <form> (in the pinned Footer, see
+	// ADR-0013) and submit via the form attribute.
+	const formId = $props.id();
+
 	const submit = createFormSubmit(() => createTransaction, {
 		onSuccess: () => {
 			open = false;
@@ -57,12 +61,15 @@
 
 <ResponsiveModal.Root bind:open>
 	<ResponsiveModal.Content class="max-w-lg">
-		<div class="flex w-full flex-col gap-6">
+		<ResponsiveModal.Header>
 			<ResponsiveModal.Title class="text-xl font-semibold tracking-tighter italic">
 				{m.transactions_table_create_transaction()}
 			</ResponsiveModal.Title>
+		</ResponsiveModal.Header>
 
+		<ResponsiveModal.Body>
 			<form
+				id={formId}
 				class="flex flex-col gap-4"
 				aria-label={m.transactions_table_create_transaction()}
 				{...submit.attrs}
@@ -139,23 +146,23 @@
 							.join(' · ')}
 					</p>
 				{/if}
-
-				<div class="flex items-center justify-end gap-2">
-					<Button
-						type="button"
-						variant="ghost"
-						class="h-11"
-						disabled={submit.pending}
-						onclick={() => (open = false)}
-					>
-						{m.cancel()}
-					</Button>
-
-					<Button type="submit" class="h-11" disabled={submit.pending}>
-						{m.save()}
-					</Button>
-				</div>
 			</form>
-		</div>
+		</ResponsiveModal.Body>
+
+		<ResponsiveModal.Footer>
+			<Button
+				type="button"
+				variant="ghost"
+				class="h-11"
+				disabled={submit.pending}
+				onclick={() => (open = false)}
+			>
+				{m.cancel()}
+			</Button>
+
+			<Button type="submit" form={formId} class="h-11" disabled={submit.pending}>
+				{m.save()}
+			</Button>
+		</ResponsiveModal.Footer>
 	</ResponsiveModal.Content>
 </ResponsiveModal.Root>

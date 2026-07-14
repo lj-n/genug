@@ -45,6 +45,9 @@
 	const deleteForm = $derived(
 		transaction === null ? null : batchDeleteTransactions.for(transaction.id)
 	);
+	// The footer buttons live outside the <form> elements (in the pinned
+	// Footer, see ADR-0013) and submit via the form attribute.
+	const formId = `${id}-edit`;
 	const deleteFormId = `${id}-delete`;
 
 	const submit = createFormSubmit(() => form!, {
@@ -78,12 +81,15 @@
 <ResponsiveModal.Root bind:open onOpenChangeComplete={(isOpen) => !isOpen && (transaction = null)}>
 	<ResponsiveModal.Content class="max-w-lg">
 		{#if transaction !== null && form !== null && deleteForm !== null}
-			<div class="flex w-full flex-col gap-6">
+			<ResponsiveModal.Header>
 				<ResponsiveModal.Title class="text-xl font-semibold tracking-tighter italic">
 					{m.transaction_edit_title()}
 				</ResponsiveModal.Title>
+			</ResponsiveModal.Header>
 
+			<ResponsiveModal.Body>
 				<form
+					id={formId}
 					class="flex flex-col gap-4"
 					aria-label={m.transaction_edit_title()}
 					{...submit.attrs}
@@ -153,40 +159,40 @@
 								.join(' · ')}
 						</p>
 					{/if}
-
-					<div class="flex items-center justify-end gap-2">
-						<Button
-							type="button"
-							variant="ghost"
-							class="h-11"
-							disabled={pending}
-							onclick={() => (open = false)}
-						>
-							{m.cancel()}
-						</Button>
-
-						<Button
-							type="submit"
-							variant="destructive"
-							class="h-11 w-11"
-							form={deleteFormId}
-							name={deleteForm.fields.ids.as('select multiple').name}
-							value={[transaction.id]}
-							disabled={pending}
-							{@attach deleteSubmit.anchor}
-						>
-							<TrashIcon />
-							<span class="sr-only">{m.delete()}</span>
-						</Button>
-
-						<Button type="submit" class="h-11" disabled={pending}>
-							{m.save()}
-						</Button>
-					</div>
 				</form>
 
 				<form id={deleteFormId} class="hidden" {...deleteSubmit.attrs}></form>
-			</div>
+			</ResponsiveModal.Body>
+
+			<ResponsiveModal.Footer>
+				<Button
+					type="button"
+					variant="ghost"
+					class="h-11"
+					disabled={pending}
+					onclick={() => (open = false)}
+				>
+					{m.cancel()}
+				</Button>
+
+				<Button
+					type="submit"
+					variant="destructive"
+					class="h-11"
+					form={deleteFormId}
+					name={deleteForm.fields.ids.as('select multiple').name}
+					value={[transaction.id]}
+					disabled={pending}
+					{@attach deleteSubmit.anchor}
+				>
+					<TrashIcon />
+					<span class="sr-only">{m.delete()}</span>
+				</Button>
+
+				<Button type="submit" form={formId} class="h-11" disabled={pending}>
+					{m.save()}
+				</Button>
+			</ResponsiveModal.Footer>
 		{/if}
 	</ResponsiveModal.Content>
 </ResponsiveModal.Root>

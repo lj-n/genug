@@ -32,7 +32,6 @@ function transaction(overrides: Partial<ListTransaction> & { id: string }): List
 		createdBy: 'user-1',
 		createdByName: 'User',
 		date: '2026-07-14',
-		id: overrides.id,
 		notes: null,
 		validated: false,
 		...overrides

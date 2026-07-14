@@ -35,7 +35,7 @@
 					bind:this={ref}
 					{...props}
 					class={cn(
-						'fixed inset-0 z-50 m-auto grid h-fit w-full max-w-[calc(100%-2rem)] gap-6 rounded-md bg-surface p-6 text-sm ring-1 ring-foreground/10 outline-none',
+						'fixed inset-0 z-50 m-auto flex h-fit max-h-[calc(100dvh-2rem)] w-full max-w-[calc(100%-2rem)] flex-col gap-6 overflow-hidden rounded-md bg-surface p-6 text-sm ring-1 ring-foreground/10 outline-none',
 						className
 					)}
 					transition:fly={{ duration: 150, x: 6, y: 6 }}

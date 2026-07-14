@@ -1,4 +1,4 @@
-# ADR-0013: Mobile responsiveness via container-query reflow of the content tables
+# ADR-0014: Mobile responsiveness via container-query reflow of the content tables
 
 Date: 2026-07-14
 Status: accepted

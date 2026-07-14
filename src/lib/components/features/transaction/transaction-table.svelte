@@ -55,7 +55,7 @@
 		onClearFilter={(type) => tableState.clearFilter(type)}
 		onClearAllFilters={() => tableState.clearAllFilters()}
 	>
-		<!-- One create button per affordance (ADR-0013): the inline popover row at
+		<!-- One create button per affordance (ADR-0014): the inline popover row at
 		     @3xl and up, the bottom sheet below. Only one is ever visible. -->
 		<Button onclick={() => (openCreateRow = true)} class="ml-auto hidden @3xl/main:flex">
 			<PlusBoldIcon />

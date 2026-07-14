@@ -21,7 +21,7 @@
 <ResponsiveModal.Root bind:open onOpenChangeComplete={(isOpen) => !isOpen && (categoryId = null)}>
 	<ResponsiveModal.Content class="max-w-4xl">
 		{#if categoryId !== null}
-			<div class="@container flex w-full flex-col gap-6">
+			<ResponsiveModal.Header>
 				<ResponsiveModal.Title class="flex items-center gap-2 tracking-tighter italic">
 					<span class="text-xl font-semibold">{m.category_detail_title()}</span>
 
@@ -32,9 +32,11 @@
 						{categoryId}
 					</span>
 				</ResponsiveModal.Title>
+			</ResponsiveModal.Header>
 
+			<ResponsiveModal.Body class="@container">
 				<CategoryDetail {categoryId} onDeleted={close} />
-			</div>
+			</ResponsiveModal.Body>
 		{/if}
 	</ResponsiveModal.Content>
 </ResponsiveModal.Root>

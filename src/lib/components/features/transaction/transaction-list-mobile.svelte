@@ -26,7 +26,7 @@
 	const groups = $derived(groupTransactionsByDate(transactions));
 </script>
 
-<!-- Mobile register (ADR-0013): date-grouped cards below @3xl. The card re-uses
+<!-- Mobile register (ADR-0014): date-grouped cards below @3xl. The card re-uses
      the row grid, re-templated via grid areas — the validated toggle becomes a
      full-height right rail, date moves into the group header. -->
 <div role="presentation" class={cn('grid gap-4', className)}>

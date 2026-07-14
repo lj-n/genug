@@ -55,7 +55,7 @@
 	let activeAssignmentCategoryId = $state<null | string>(null);
 	let isActiveAssignment = $derived((id: string) => activeAssignmentCategoryId === id);
 
-	// Mobile assign surface (ADR-0013): one sheet for the whole table.
+	// Mobile assign surface (ADR-0014): one sheet for the whole table.
 	let assignmentModalOpen = $state(false);
 	let assignmentModalCategory = $state<(typeof categories)[number] | null>(null);
 
@@ -159,7 +159,7 @@
 						</button>
 					</BudgetTableCell>
 
-					<!-- Mobile card (ADR-0013): Remaining is the headline, Assigned opens
+					<!-- Mobile card (ADR-0014): Remaining is the headline, Assigned opens
 					     the assign sheet, Activity is read-only. Drag-reorder and
 					     transfers are desktop-only for now. -->
 					<div role="cell" class="flex w-full flex-col @3xl/main:hidden">

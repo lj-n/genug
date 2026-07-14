@@ -7,7 +7,7 @@ import { expect, test } from './fixture';
 import { uniqueName } from './unique-name';
 
 /**
- * Narrow-viewport coverage for the core flows (#133, ADR-0013): the content
+ * Narrow-viewport coverage for the core flows (#133, ADR-0014): the content
  * tables reflow to stacked lists below the shared @3xl container threshold and
  * mutations go through the bottom sheet.
  *
