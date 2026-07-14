@@ -6,6 +6,7 @@ name: Publish
 #
 #   push to main        → ghcr.io/lj-n/genug-da:stage + :sha-<short>
 #   push a version tag  → ghcr.io/lj-n/genug-da:<version> + :latest
+#                          + a GitHub Release whose notes are the CHANGELOG section
 on:
   push:
     branches: [main]
@@ -160,3 +161,41 @@ jobs:
 
       - name: Inspect image
         run: docker buildx imagetools inspect "${{ env.IMAGE }}:${{ steps.meta.outputs.version }}"
+
+  # On version tags, publish a GitHub Release using this version's CHANGELOG
+  # section as the body, so the release notes mirror the changelog verbatim.
+  release:
+    needs: [merge]
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract changelog section
+        run: |
+          # Print the lines between this version's '## [x.y.z]' heading and the
+          # next '## ' heading (sub-headings like '### Added' are kept).
+          awk -v ver="$TAG" '
+            index($0, "## [" ver "]") == 1 { grab = 1; next }
+            grab && /^## / { exit }
+            grab { print }
+          ' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then
+            echo "No CHANGELOG section found for $TAG" >&2
+            exit 1
+          fi
+        env:
+          TAG: ${{ github.ref_name }}
+
+      - name: Publish GitHub Release
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --notes-file notes.md
+          else
+            gh release create "$TAG" --title "$TAG" --notes-file notes.md --verify-tag
+          fi
+        env:
+          TAG: ${{ github.ref_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
