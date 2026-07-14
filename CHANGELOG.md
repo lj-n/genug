@@ -10,6 +10,8 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+## [2026.07.0] - 2026-07-14
+
 ### Added
 
 - Envelope budgeting with per-month assignment: assign money to categories, move
