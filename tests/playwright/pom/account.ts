@@ -20,6 +20,22 @@ type EditTransactionParams = {
 };
 
 export class AccountPage extends BasePage {
+	/**
+	 * Opens the account settings dialog and archives the account. An empty
+	 * account is archivable, so archiving navigates to the archived-accounts
+	 * list where the account appears with a restore action.
+	 */
+	async archive(accountName: string) {
+		await this.page.getByRole('button', { name: 'Account Settings' }).click();
+
+		const dialog = this.page.getByRole('dialog');
+		await dialog.getByRole('button', { name: 'Archive' }).click();
+
+		// Archiving takes the account off its detail page and lands on the archive.
+		await expect(this.page.getByRole('heading', { name: 'Archived Accounts' })).toBeVisible();
+		await expect(this.page.getByRole('link', { name: accountName })).toBeVisible();
+	}
+
 	async createTransaction(params: CreateTransactionParams | string = {}) {
 		const { amount, category, date, notes, validated } =
 			typeof params === 'string' ? { amount: params } : params;
@@ -227,6 +243,34 @@ export class AccountPage extends BasePage {
 		}
 		await this.page.goto(url);
 		await expect(this.page.getByRole('heading', { name: accountName })).toBeVisible();
+	}
+
+	/**
+	 * On the archived-accounts page, restores the named account. Restoring
+	 * navigates back to the account's detail page.
+	 */
+	/**
+	 * From the archived-accounts list, opens the named account and asserts its
+	 * detail page is read-only: the archived notice replaces the register, and
+	 * there is no way to add transactions or reach the settings dialog.
+	 */
+	async openArchivedAccountAndVerifyReadOnly(accountName: string) {
+		await this.page.getByRole('link', { name: accountName }).click();
+
+		await expect(this.page.getByRole('heading', { name: accountName })).toBeVisible();
+		await expect(this.page.getByText('This account is archived')).toBeVisible();
+		await expect(this.page.getByRole('button', { name: 'New Transaction' })).toHaveCount(0);
+		await expect(this.page.getByRole('button', { name: 'Account Settings' })).toHaveCount(0);
+	}
+
+	/**
+	 * Restores an account from the archived notice on its own detail page. The
+	 * active register (with the New Transaction button) returns in place.
+	 */
+	async restoreFromDetail() {
+		await this.page.getByRole('button', { name: 'Restore' }).click();
+
+		await expect(this.page.getByRole('button', { name: 'New Transaction' })).toBeVisible();
 	}
 
 	async toggleValidated() {

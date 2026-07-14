@@ -2,6 +2,7 @@ import type { SQLiteColumn } from 'drizzle-orm/sqlite-core';
 
 import { database, type Database, tables } from '$db';
 import { UNASSIGNED } from '$lib/constants';
+import { m } from '$lib/paraglide/messages';
 import { getLocalTimeZone, today } from '@internationalized/date';
 import { error } from '@sveltejs/kit';
 import {
@@ -82,6 +83,18 @@ export type ListTransaction = ReturnType<ReturnType<typeof queries>['page']>['ro
 export const commands = (userId: string, db: Database = database) => ({
 	create: (data: Omit<typeof tables.transactions.$inferInsert, 'date'> & { date?: string }) => {
 		accessGuard(data.budgetId, userId, db);
+
+		// An archived account is inert: reject new transactions server-side so a
+		// stale tab or back-navigation can never write to it (see ADR-0011).
+		const account = db
+			.select({ archivedAt: tables.accounts.archivedAt })
+			.from(tables.accounts)
+			.where(
+				and(eq(tables.accounts.id, data.accountId), eq(tables.accounts.budgetId, data.budgetId))
+			)
+			.get();
+		if (!account) error(404, m.error_account_not_found());
+		if (account.archivedAt) error(400, m.error_account_archived());
 
 		return db.transaction((tx) => {
 			return tx

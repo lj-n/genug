@@ -325,3 +325,479 @@ describe('commands.reorder', () => {
 		expect(order.find((o) => o.entityId === b.id)?.position).toBe(2);
 	});
 });
+
+describe('queries.all — archived split', () => {
+	it('excludes archived accounts', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { all } = queries(user.id, db);
+
+		db.insert(tables.accounts).values({ budgetId: budget.id, name: 'Active' }).run();
+		db.insert(tables.accounts)
+			.values({ archivedAt: new Date(), budgetId: budget.id, name: 'Archived' })
+			.run();
+
+		const result = all();
+		expect(result).toHaveLength(1);
+		expect(result[0].name).toBe('Active');
+	});
+});
+
+describe('queries.archived', () => {
+	it('returns only archived accounts', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { archived } = queries(user.id, db);
+
+		db.insert(tables.accounts).values({ budgetId: budget.id, name: 'Active' }).run();
+		const gone = db
+			.insert(tables.accounts)
+			.values({ archivedAt: new Date(), budgetId: budget.id, name: 'Archived' })
+			.returning()
+			.get();
+
+		const result = archived(budget.id);
+		expect(result).toHaveLength(1);
+		expect(result[0]).toMatchObject({ id: gone.id, name: 'Archived' });
+	});
+
+	it('returns empty for INVITEE', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db, 'INVITEE');
+		const { archived } = queries(user.id, db);
+
+		db.insert(tables.accounts)
+			.values({ archivedAt: new Date(), budgetId: budget.id, name: 'Archived' })
+			.run();
+
+		expect(archived(budget.id)).toHaveLength(0);
+	});
+});
+
+describe('queries.archivability', () => {
+	it('is archivable with zero balance and no pending transactions', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { archivability } = queries(user.id, db);
+
+		const a = create({ budgetId: budget.id, name: 'Empty', notes: null });
+
+		expect(archivability(a.id)).toEqual({
+			archivable: true,
+			balance: 0,
+			pendingTransactionCount: 0
+		});
+	});
+
+	it('is archivable when validated transactions cancel out', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { archivability } = queries(user.id, db);
+
+		const a = create({ budgetId: budget.id, name: 'Balanced', notes: null });
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: 100,
+				budgetId: budget.id,
+				date: '2025-01-01',
+				validated: true
+			})
+			.run();
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: -100,
+				budgetId: budget.id,
+				date: '2025-01-02',
+				validated: true
+			})
+			.run();
+
+		expect(archivability(a.id)).toEqual({
+			archivable: true,
+			balance: 0,
+			pendingTransactionCount: 0
+		});
+	});
+
+	it('is not archivable with a remaining balance', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { archivability } = queries(user.id, db);
+
+		const a = create({ budgetId: budget.id, name: 'Funded', notes: null });
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: 200,
+				budgetId: budget.id,
+				date: '2025-01-01',
+				validated: true
+			})
+			.run();
+
+		expect(archivability(a.id)).toEqual({
+			archivable: false,
+			balance: 200,
+			pendingTransactionCount: 0
+		});
+	});
+
+	it('is not archivable with a pending transaction even when the balance nets to zero', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { archivability } = queries(user.id, db);
+
+		const a = create({ budgetId: budget.id, name: 'Pending', notes: null });
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: -50,
+				budgetId: budget.id,
+				date: '2025-01-01',
+				validated: true
+			})
+			.run();
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: 50,
+				budgetId: budget.id,
+				date: '2025-01-02',
+				validated: false
+			})
+			.run();
+
+		expect(archivability(a.id)).toEqual({
+			archivable: false,
+			balance: 0,
+			pendingTransactionCount: 1
+		});
+	});
+
+	it('throws for account without access', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user: owner } = createBudgetWithUser(db, 'OWNER', 'owner');
+		const { create } = commands(owner.id, db);
+		const a = create({ budgetId: budget.id, name: 'Hidden', notes: null });
+
+		const outsider = createUser(db, 'outsider');
+		const { archivability } = queries(outsider.id, db);
+
+		expect(() => archivability(a.id)).toThrow();
+	});
+});
+
+describe('queries.deletability', () => {
+	it('is deletable with no transactions', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { deletability } = queries(user.id, db);
+
+		const a = create({ budgetId: budget.id, name: 'Empty', notes: null });
+
+		expect(deletability(a.id)).toEqual({
+			deletable: true,
+			transactionCount: 0
+		});
+	});
+
+	it('is not deletable with validated transactions that net to zero (unlike archivable)', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { archivability, deletability } = queries(user.id, db);
+
+		const a = create({ budgetId: budget.id, name: 'Spent', notes: null });
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: 100,
+				budgetId: budget.id,
+				date: '2025-01-01',
+				validated: true
+			})
+			.run();
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: -100,
+				budgetId: budget.id,
+				date: '2025-01-02',
+				validated: true
+			})
+			.run();
+
+		// Balance nets to zero with no pending, so it is archivable — but the
+		// validated transactions still make it non-deletable
+		// (Deletable ⟹ Archivable, never the reverse).
+		expect(archivability(a.id).archivable).toBe(true);
+		expect(deletability(a.id)).toEqual({
+			deletable: false,
+			transactionCount: 2
+		});
+	});
+
+	it('is not deletable with a pending transaction', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { deletability } = queries(user.id, db);
+
+		const a = create({ budgetId: budget.id, name: 'Pending', notes: null });
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: 30,
+				budgetId: budget.id,
+				date: '2025-01-01',
+				validated: false
+			})
+			.run();
+
+		expect(deletability(a.id)).toEqual({
+			deletable: false,
+			transactionCount: 1
+		});
+	});
+
+	it('reports the total transaction count', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create } = commands(user.id, db);
+		const { deletability } = queries(user.id, db);
+
+		const a = create({ budgetId: budget.id, name: 'Mixed', notes: null });
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: 30,
+				budgetId: budget.id,
+				date: '2025-01-01',
+				validated: true
+			})
+			.run();
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: 20,
+				budgetId: budget.id,
+				date: '2025-02-01',
+				validated: false
+			})
+			.run();
+
+		expect(deletability(a.id)).toEqual({
+			deletable: false,
+			transactionCount: 2
+		});
+	});
+
+	it('throws for account without access', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user: owner } = createBudgetWithUser(db, 'OWNER', 'owner');
+		const { create } = commands(owner.id, db);
+		const a = create({ budgetId: budget.id, name: 'Hidden', notes: null });
+
+		const outsider = createUser(db, 'outsider');
+		const { deletability } = queries(outsider.id, db);
+
+		expect(() => deletability(a.id)).toThrow();
+	});
+});
+
+describe('commands.archive', () => {
+	it('sets archivedAt when archivable', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { archive, create } = commands(user.id, db);
+
+		const a = create({ budgetId: budget.id, name: 'Done', notes: null });
+
+		const archived = archive(a.id);
+		expect(archived.archivedAt).toBeInstanceOf(Date);
+	});
+
+	it('throws 400 and leaves account untouched when a balance remains', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { archive, create } = commands(user.id, db);
+		const { byId } = queries(user.id, db);
+
+		const a = create({ budgetId: budget.id, name: 'Funded', notes: null });
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: 100,
+				budgetId: budget.id,
+				date: '2025-01-01',
+				validated: true
+			})
+			.run();
+
+		let thrown;
+		try {
+			archive(a.id);
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 400 });
+		expect(byId(a.id).id).toBe(a.id);
+	});
+
+	it('throws 400 when a pending transaction exists', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { archive, create } = commands(user.id, db);
+
+		const a = create({ budgetId: budget.id, name: 'Pending', notes: null });
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: -50,
+				budgetId: budget.id,
+				date: '2025-01-01',
+				validated: true
+			})
+			.run();
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: 50,
+				budgetId: budget.id,
+				date: '2025-01-02',
+				validated: false
+			})
+			.run();
+
+		let thrown;
+		try {
+			archive(a.id);
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 400 });
+	});
+
+	it('throws for account without access', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user: owner } = createBudgetWithUser(db, 'OWNER', 'owner');
+		const { create } = commands(owner.id, db);
+		const a = create({ budgetId: budget.id, name: 'Hidden', notes: null });
+
+		const outsider = createUser(db, 'outsider');
+		const { archive } = commands(outsider.id, db);
+
+		expect(() => archive(a.id)).toThrow();
+	});
+});
+
+describe('commands.restore', () => {
+	it('clears archivedAt', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { archive, create, restore } = commands(user.id, db);
+
+		const a = create({ budgetId: budget.id, name: 'Back', notes: null });
+		archive(a.id);
+
+		const restored = restore(a.id);
+		expect(restored.archivedAt).toBeNull();
+	});
+
+	it('throws for non-existent account', () => {
+		const db = createDatabase(':memory:');
+		const { user } = createBudgetWithUser(db);
+		const { restore } = commands(user.id, db);
+
+		expect(() => restore('nonexistent')).toThrow();
+	});
+});
+
+describe('commands.delete', () => {
+	it('removes the account and its user_entity_order rows', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create, delete: deleteAccount } = commands(user.id, db);
+
+		const a = create({ budgetId: budget.id, name: 'Gone', notes: null });
+
+		deleteAccount(a.id);
+
+		const account = db.select().from(tables.accounts).where(eq(tables.accounts.id, a.id)).get();
+		expect(account).toBeUndefined();
+
+		const order = db
+			.select()
+			.from(tables.userEntityOrder)
+			.where(eq(tables.userEntityOrder.entityId, a.id))
+			.all();
+		expect(order).toHaveLength(0);
+	});
+
+	it('throws 400 and leaves the account intact when a transaction exists', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create, delete: deleteAccount } = commands(user.id, db);
+		const { byId } = queries(user.id, db);
+
+		const a = create({ budgetId: budget.id, name: 'Used', notes: null });
+		db.insert(tables.transactions)
+			.values({
+				accountId: a.id,
+				amount: -50,
+				budgetId: budget.id,
+				date: '2025-01-01',
+				validated: true
+			})
+			.run();
+
+		let thrown;
+		try {
+			deleteAccount(a.id);
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 400 });
+		expect(byId(a.id).id).toBe(a.id);
+	});
+
+	it('is deletable only after the starting-balance transaction is removed', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const { create, delete: deleteAccount } = commands(user.id, db);
+		const { deletability } = queries(user.id, db);
+
+		// An account created with a starting balance carries a validated
+		// income transaction, so it is not immediately deletable (see ADR-0011).
+		const a = create({ budgetId: budget.id, name: 'Typo', notes: null }, 500);
+		expect(deletability(a.id).deletable).toBe(false);
+		expect(() => deleteAccount(a.id)).toThrow();
+
+		db.delete(tables.transactions).where(eq(tables.transactions.accountId, a.id)).run();
+
+		expect(deletability(a.id).deletable).toBe(true);
+		deleteAccount(a.id);
+		expect(
+			db.select().from(tables.accounts).where(eq(tables.accounts.id, a.id)).get()
+		).toBeUndefined();
+	});
+
+	it('throws for account without access', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user: owner } = createBudgetWithUser(db, 'OWNER', 'owner');
+		const { create } = commands(owner.id, db);
+		const a = create({ budgetId: budget.id, name: 'Hidden', notes: null });
+
+		const outsider = createUser(db, 'outsider');
+		const { delete: deleteAccount } = commands(outsider.id, db);
+
+		expect(() => deleteAccount(a.id)).toThrow();
+	});
+});

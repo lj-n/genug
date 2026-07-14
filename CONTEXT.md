@@ -13,11 +13,11 @@ A quantity of currency stored as an integer count of the smallest unit (cents fo
 _Avoid_: amount, cent value, float, display value
 
 **Archivable**:
-A category is archivable when its all-time Remaining is zero and it has no pending (unvalidated) transactions. The rule is enforced by `category.archive` in user-context (see ADR-0001) and projected to the UI via `category.archivability`; nothing else may write `archivedAt`.
+The lifecycle predicate for hiding an entity that still carries history — it holds no money and has nothing pending to reconcile. For a **category**: all-time Remaining is zero and it has no pending (unvalidated) transactions. For an **account**: its Balance is zero and it has no pending transactions — the account-side (Balance) analog of the category's envelope-side (Remaining) rule. The rule is enforced by `{category,account}.archive` in user-context (see ADR-0001) and projected to the UI via `{category,account}.archivability`; nothing else may write `archivedAt`. Archive only hides existing history; it never rewrites transactions. An archived **account** is additionally inert: `transaction.create` rejects a new transaction targeting it (a stale tab or back-navigation cannot write to it) and its detail page shows a restore notice in place of the register.
 _Avoid_: deletable, closable
 
 **Deletable**:
-A category is deletable when its all-time Remaining is zero and no transaction of any kind — pending or validated — references it. Strictly stronger than Archivable (which forbids only pending transactions): Deletable ⟹ Archivable, never the reverse. The rule is enforced by `category.delete` in user-context (see ADR-0001, ADR-0008) and projected to the UI via `category.deletability`; nothing else may hard-delete a category. Deletion is permanent — the envelope opposite of Archive, which only hides.
+The lifecycle predicate for permanently removing an entity — nothing of value would be lost. For a **category**: all-time Remaining is zero and no transaction of any kind — pending or validated — references it. For an **account**: no transaction of any kind references it (which subsumes a zero Balance, since an account's Balance is nothing but its transactions). Strictly stronger than Archivable (which forbids only pending transactions): Deletable ⟹ Archivable, never the reverse. The rule is enforced by `{category,account}.delete` in user-context (see ADR-0001, ADR-0008, ADR-0011) and projected to the UI via `{category,account}.deletability`; nothing else may hard-delete the entity. Deletion is permanent — the opposite of Archive, which only hides.
 _Avoid_: archivable, removable, trashable
 
 **Focus treatment**:
