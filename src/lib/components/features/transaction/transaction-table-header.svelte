@@ -10,8 +10,11 @@
 	import { colsClass } from './transaction-table-cols';
 	import ValidationCheckbox from './transaction-validation-checkbox.svelte';
 
-	let { onToggle, sort }: { onToggle: (column: SortColumn) => void; sort: TransactionSort } =
-		$props();
+	let {
+		class: className,
+		onToggle,
+		sort
+	}: { class?: string; onToggle: (column: SortColumn) => void; sort: TransactionSort } = $props();
 </script>
 
 {#snippet sortIcon(column: SortColumn)}
@@ -24,7 +27,7 @@
 	{/if}
 {/snippet}
 
-<div role="rowgroup">
+<div role="rowgroup" class={className}>
 	<div role="row" class={cn(colsClass, 'grid items-center rounded-lg bg-muted/5')}>
 		<div role="columnheader" class="flex items-center gap-1 px-4 text-sm font-semibold">
 			{m.transactions_table_header_category()}

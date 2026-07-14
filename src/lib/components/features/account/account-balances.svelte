@@ -23,7 +23,7 @@
 	} = $props();
 </script>
 
-<div class="flex w-fit items-center gap-6 rounded-md bg-muted/5 p-3">
+<div class="flex w-fit flex-wrap items-center gap-x-6 gap-y-2 rounded-md bg-muted/5 p-3">
 	<div class="flex flex-col items-start justify-center">
 		<div class="text-lg font-currency">
 			{formatMoney({ currency, money: asMoney(balances.validated) })}

@@ -19,19 +19,20 @@
 <div class="flex gap-0.5">
 	<Button
 		href={resolve('/(app)/[budgetId=id]/categories/new', { budgetId: budgetId() })}
-		class="md:hidden"
+		class="md:hidden @max-3xl/main:h-11"
 	>
 		<PhStackPlus class="size-6" />
 		{m.category_create_button()}
 	</Button>
 
-	<Button class="hidden md:flex" onclick={() => (open = true)}>
+	<Button class="hidden md:flex @max-3xl/main:h-11" onclick={() => (open = true)}>
 		<PhStackPlus class="size-6" />
 		{m.category_create_button()}
 	</Button>
 
 	<Button
 		variant="ghost"
+		class="@max-3xl/main:h-11"
 		href={resolve('/(app)/[budgetId=id]/categories/archived', { budgetId: budgetId() })}
 	>
 		<PhArchive class="size-6" />

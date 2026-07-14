@@ -71,7 +71,7 @@
 <Popover.Root bind:open>
 	<Popover.Trigger
 		class={cn(
-			'ml-auto flex h-9 cursor-pointer items-center gap-2 rounded-lg px-3 -outline-offset-2 hover:outline-2 hover:outline-interactive/60',
+			'ml-auto flex h-11 w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 -outline-offset-2 hover:outline-2 hover:outline-interactive/60 @3xl/main:h-9 @3xl/main:w-auto @3xl/main:justify-start',
 			focusRing,
 			unassigned === 0
 				? 'bg-muted/10 text-muted'
@@ -81,7 +81,11 @@
 		)}
 		aria-label={m.unassigned_breakdown_trigger_label()}
 	>
-		{@render label()}
+		<!-- The label is wrapped so the mobile band's justify-between sees exactly
+		     two flex items: label left, amount right. -->
+		<span class="flex items-center gap-2">
+			{@render label()}
+		</span>
 
 		{#if unassigned !== 0}
 			<div class="font-semibold text-foreground tabular-nums">

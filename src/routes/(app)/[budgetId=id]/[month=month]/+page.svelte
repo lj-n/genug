@@ -48,10 +48,14 @@
 
 	<Page.Content>
 		{#if month !== null}
-			<div class="flex items-end gap-3">
-				<MonthNavigator {month} />
+			<!-- Prominent-stack below @3xl (ADR-0013): navigator row first, then the
+			     unassigned summary as a full-width band. -->
+			<div class="flex flex-col gap-3 @3xl/main:flex-row @3xl/main:items-end">
+				<div class="flex flex-wrap items-end gap-3">
+					<MonthNavigator {month} />
 
-				<CategoryQuickActions />
+					<CategoryQuickActions />
+				</div>
 
 				<UnassignedSummary {month} />
 			</div>

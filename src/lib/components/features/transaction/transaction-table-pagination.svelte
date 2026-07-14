@@ -35,7 +35,7 @@
 	const PAGE_SIZES = ['15', '25', '50', '100'] as const;
 </script>
 
-<div class="flex items-center justify-between gap-3 rounded-lg bg-muted/5 p-1.5">
+<div class="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted/5 p-1.5">
 	<div class="flex items-center gap-2">
 		<Select.Root
 			type="single"
@@ -56,7 +56,7 @@
 			</Select.Content>
 		</Select.Root>
 
-		<div class="text-sm text-muted">
+		<div class="hidden text-sm text-muted @3xl/main:block">
 			{pagesInfo}
 		</div>
 	</div>

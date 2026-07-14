@@ -10,6 +10,15 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Changed
+
+- The app is now usable on phones: the transaction register reflows to a
+  date-grouped card list, the monthly budget table to category cards, and the
+  month header stacks with a full-width unallocated band on narrow screens.
+  Creating and editing transactions and assigning money open a bottom sheet on
+  mobile; drag-reorder and moving money between categories stay desktop-only
+  for now.
+
 ## [2026.07.2] - 2026-07-14
 
 ### Added
