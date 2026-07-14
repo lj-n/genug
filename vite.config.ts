@@ -27,6 +27,26 @@ export default defineConfig({
 			}
 		: undefined,
 	test: {
+		coverage: {
+			// Scoped floor: gate the server data layer where access control and
+			// persistence rules live. Boilerplate and generated code are excluded.
+			exclude: [
+				'src/lib/server/db/tables/**',
+				'src/lib/server/db/relations.ts',
+				'src/lib/server/db/create-database.ts',
+				'src/lib/server/db/migrations/**',
+				'src/lib/server/db/index.ts',
+				'src/lib/server/db/user-context/index.ts'
+			],
+			include: ['src/lib/server/db/**'],
+			provider: 'v8',
+			reporter: ['text', 'html'],
+			// 100% lines + functions on the guarded modules; branches reported, not gated.
+			thresholds: {
+				'src/lib/server/db/auth/**': { functions: 100, lines: 100 },
+				'src/lib/server/db/user-context/**': { functions: 100, lines: 100 }
+			}
+		},
 		environment: 'jsdom',
 		include: ['src/**/*.{test,spec}.{ts,tsx}'],
 		includeSource: ['src/**/*.{js,ts}'],
