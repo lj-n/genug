@@ -9,6 +9,20 @@ budgeting. The name is German: "genug da" roughly means "enough there".
 
 Self-hosted, single SQLite database, no external services. You own your data.
 
+## Screenshots
+
+Assign each month's money to categories — targets fill up, overspending shows
+in red.
+
+![The budget month view: categories with their assigned budget, activity, and
+remaining balance, one category overspent.](docs/screenshots/budget.png)
+
+Record transactions per account and edit category, date, notes, and amount
+inline; toggle each between pending and validated.
+
+![An account's transactions: a list with category, notes, date, and amount,
+each marked pending or validated.](docs/screenshots/transactions.png)
+
 ## Features
 
 - **Budget Plans** — Separate budgets for personal, business, etc. Each with
