@@ -162,11 +162,11 @@
 					<!-- Mobile card (ADR-0014): Remaining is the headline, Assigned opens
 					     the assign sheet, Activity is read-only. Drag-reorder and
 					     transfers are desktop-only for now. -->
-					<div role="cell" class="flex w-full flex-col @3xl/main:hidden">
+					<div role="cell" class="flex w-full flex-col py-2 @3xl/main:hidden">
 						<div class="flex items-stretch">
 							<button
 								type="button"
-								class="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center px-3 text-left"
+								class="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center px-4 text-left"
 								onclick={() => openCategoryDialog(row.id)}
 							>
 								<!-- line-clamp instead of truncate: truncate's nowrap floors the
@@ -175,7 +175,7 @@
 								<span class="line-clamp-1 [overflow-wrap:anywhere]">{row.name}</span>
 							</button>
 
-							<div class="flex items-center px-3">
+							<div class="flex items-center px-4">
 								<span
 									class={cn(
 										'rounded-sm px-2 py-1 font-currency',
@@ -188,10 +188,12 @@
 							</div>
 						</div>
 
-						<div class="flex items-stretch pb-1">
+						<!-- flex-wrap: the assigned + activity pair can outgrow narrow phones
+						     (longer locale strings); activity then drops to its own line. -->
+						<div class="flex flex-wrap items-stretch">
 							<button
 								type="button"
-								class="flex min-h-11 cursor-pointer items-center gap-1.5 px-3 text-sm"
+								class="flex min-h-11 cursor-pointer items-center gap-1.5 px-4 text-sm"
 								aria-label={m.budget_monthly_table_header_amount()}
 								onclick={() => {
 									assignmentModalCategory = row;
@@ -204,7 +206,7 @@
 								</span>
 							</button>
 
-							<div class="ml-auto flex items-center gap-1.5 px-3 text-sm">
+							<div class="ml-auto flex items-center gap-1.5 px-4 text-sm">
 								<span class="text-muted">{m.budget_monthly_table_header_activity()}</span>
 								<span class="font-currency">
 									{formatMoney({ currency, money: asMoney(row.activity) })}

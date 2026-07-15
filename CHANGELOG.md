@@ -17,7 +17,10 @@ and dependency bumps get no entry.
   month header stacks with a full-width unallocated band on narrow screens.
   Creating and editing transactions and assigning money open a bottom sheet on
   mobile; drag-reorder and moving money between categories stay desktop-only
-  for now.
+  for now. On phones the register loads further transactions with a "Load
+  more" button instead of page numbers, transaction filters are desktop-only,
+  the account balance summary stacks vertically, and the navigation toggle
+  floats in the bottom-right corner instead of covering the page heading.
 
 ### Fixed
 

@@ -50,10 +50,12 @@
 <Drawer.Root bind:open>
 	<Drawer.Trigger>
 		{#snippet child({ props })}
+			<!-- Bottom-right so it never covers the page heading or its action
+			     buttons; z-40 keeps it underneath every drawer/dialog (z-50). -->
 			<div
-				class="fixed top-2 left-1/2 z-50 flex -translate-x-1/2 rounded-xl border border-muted/10 bg-foreground p-1 text-background shadow-lg @7xl/main:hidden"
+				class="fixed right-4 bottom-4 z-40 flex rounded-xl border border-muted/10 bg-foreground p-1 text-background shadow-lg @7xl/main:hidden"
 			>
-				<Button {...props} size="icon" variant="ghost" class="mx-auto w-20">
+				<Button {...props} size="icon" variant="ghost" class="size-11">
 					<span class="sr-only">Toggle Navigation</span>
 					<ListBoldIcon class="size-5" />
 				</Button>

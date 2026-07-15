@@ -168,7 +168,7 @@
 				<Button
 					type="button"
 					variant="ghost"
-					class="h-11"
+					class="h-11 w-full sm:w-auto"
 					disabled={pending}
 					onclick={() => (open = false)}
 				>
@@ -178,7 +178,7 @@
 				<Button
 					type="submit"
 					variant="destructive"
-					class="h-11"
+					class="h-11 w-full sm:w-auto"
 					form={deleteFormId}
 					name={deleteForm.fields.ids.as('select multiple').name}
 					value={[transaction.id]}
@@ -189,7 +189,7 @@
 					<span class="sr-only">{m.delete()}</span>
 				</Button>
 
-				<Button type="submit" form={formId} class="h-11" disabled={pending}>
+				<Button type="submit" form={formId} class="h-11 w-full sm:w-auto" disabled={pending}>
 					{m.save()}
 				</Button>
 			</ResponsiveModal.Footer>

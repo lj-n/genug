@@ -110,6 +110,7 @@
 	"transactions_pagination_per_page": "{count} per page",
 	"transactions_pagination_showing": "Showing {start} - {end} of {total}",
 	"transactions_pagination_page_size_label": "How many transactions should be displayed per page?",
+	"transactions_pagination_load_more": "Load more",
 	"pagination_previous": "Previous",
 	"pagination_next": "Next",
 	"dialog_close": "Close",

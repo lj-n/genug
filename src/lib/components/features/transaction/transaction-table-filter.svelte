@@ -53,30 +53,33 @@
 
 <div class="flex w-full flex-col gap-2">
 	<div class="flex gap-1.5">
-		<DropdownMenu.Root>
-			<DropdownMenu.Trigger disabled={allActive}>
-				{#snippet child({ props })}
-					<Button {...props}>
-						<FunnelBoldIcon />
-						{m.transaction_filter_title()}
-					</Button>
-				{/snippet}
-			</DropdownMenu.Trigger>
+		<!-- Filtering is desktop-only; on the phone the register keeps only the create affordance. -->
+		<div class="hidden gap-1.5 @3xl/main:flex">
+			<DropdownMenu.Root>
+				<DropdownMenu.Trigger disabled={allActive}>
+					{#snippet child({ props })}
+						<Button {...props}>
+							<FunnelBoldIcon />
+							{m.transaction_filter_title()}
+						</Button>
+					{/snippet}
+				</DropdownMenu.Trigger>
 
-			<DropdownMenu.Content class="w-fit">
-				{#each availableFilters as f (f.type)}
-					<DropdownMenu.Item onSelect={() => addAndFocus(f.type)}>
-						{filter.getConfig(f.type).label()}
-					</DropdownMenu.Item>
-				{/each}
-			</DropdownMenu.Content>
-		</DropdownMenu.Root>
+				<DropdownMenu.Content class="w-fit">
+					{#each availableFilters as f (f.type)}
+						<DropdownMenu.Item onSelect={() => addAndFocus(f.type)}>
+							{filter.getConfig(f.type).label()}
+						</DropdownMenu.Item>
+					{/each}
+				</DropdownMenu.Content>
+			</DropdownMenu.Root>
 
-		{#if anyActive}
-			<Button variant="destructive" size="icon" onclick={() => onClearAllFilters()}>
-				<XIcon />
-			</Button>
-		{/if}
+			{#if anyActive}
+				<Button variant="destructive" size="icon" onclick={() => onClearAllFilters()}>
+					<XIcon />
+				</Button>
+			{/if}
+		</div>
 
 		{@render children?.()}
 	</div>
@@ -84,7 +87,7 @@
 	{#each filter.items as f (f.type)}
 		{#if f.active}
 			<div
-				class="flex flex-wrap items-center gap-1.5 rounded-lg border border-info/30 bg-info/5 p-1.5"
+				class="hidden flex-wrap items-center gap-1.5 rounded-lg border border-info/30 bg-info/5 p-1.5 @3xl/main:flex"
 			>
 				<p class="mr-auto pl-1.5 text-sm font-medium text-info">
 					{filter.getConfig(f.type).description()}

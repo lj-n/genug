@@ -85,12 +85,8 @@ test('Add transaction through the bottom sheet', async ({ page, pages }) => {
 	await page.goto(pages.budget.ctx.accounts.get(accountName)!);
 	await expectNoHorizontalOverflow(page);
 
-	// An active filter row (its category select had a fixed 320px minimum)
-	// must not widen the register either.
-	await page.getByRole('button', { name: 'Filter' }).click();
-	await page.getByRole('menuitem', { name: 'Category Filter' }).click();
-	await expect(page.getByText('All Categories')).toBeVisible();
-	await expectNoHorizontalOverflow(page);
+	// Filtering is desktop-only; the phone register keeps just the create button.
+	await expect(page.getByRole('button', { name: 'Filter' })).toBeHidden();
 
 	await page.getByRole('button', { name: 'New Transaction' }).click();
 

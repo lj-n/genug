@@ -67,12 +67,7 @@
 							aria-label={m.transactions_table_edit_amount()}
 							onclick={() => onEdit(item)}
 						>
-							<span
-								class={cn(
-									'font-currency',
-									item.amount < 0 ? 'text-error' : item.amount > 0 && 'text-success'
-								)}
-							>
+							<span class={cn('font-currency', item.amount > 0 && 'text-success')}>
 								{formatMoney({
 									currency,
 									money: asMoney(item.amount),

@@ -104,14 +104,14 @@
 				<Button
 					type="button"
 					variant="ghost"
-					class="h-11"
+					class="h-11 w-full sm:w-auto"
 					disabled={submit.pending}
 					onclick={() => (open = false)}
 				>
 					{m.cancel()}
 				</Button>
 
-				<Button type="submit" form={formId} class="h-11" disabled={submit.pending}>
+				<Button type="submit" form={formId} class="h-11 w-full sm:w-auto" disabled={submit.pending}>
 					{m.save()}
 				</Button>
 			</ResponsiveModal.Footer>

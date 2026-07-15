@@ -16,7 +16,7 @@
 	let open = $state(false);
 </script>
 
-<div class="flex gap-0.5">
+<div class="flex flex-wrap gap-0.5">
 	<Button
 		href={resolve('/(app)/[budgetId=id]/categories/new', { budgetId: budgetId() })}
 		class="md:hidden @max-3xl/main:h-11"
