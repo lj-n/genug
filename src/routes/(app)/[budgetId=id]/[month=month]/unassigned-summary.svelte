@@ -94,7 +94,13 @@
 		{/if}
 	</Popover.Trigger>
 
-	<Popover.Content align="end" sideOffset={4} class="w-fit max-w-96 min-w-64 gap-3">
+	<!-- Cap to the floating-UI available width so the breakdown never forces
+	     page-level horizontal overflow on phones. -->
+	<Popover.Content
+		align="end"
+		sideOffset={4}
+		class="w-fit max-w-[min(24rem,var(--bits-popover-content-available-width))] min-w-64 gap-3"
+	>
 		<dl class="flex flex-col gap-1">
 			{@render row(
 				m.unassigned_breakdown_income({ month: monthLabel }),

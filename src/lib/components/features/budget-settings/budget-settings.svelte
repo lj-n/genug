@@ -19,7 +19,7 @@
 	const form = $derived(editBudget.for(budgetId()));
 </script>
 
-<DialogForm {form} contentClass="gap-0" interactOutsideBehavior="ignore">
+<DialogForm {form} interactOutsideBehavior="ignore">
 	{#snippet trigger(props)}
 		<Button {...props} variant="ghost" size="icon-lg" class="bg-muted/10 hover:bg-muted/20">
 			<PencilIcon class="size-5" />
@@ -35,7 +35,7 @@
 	{/snippet}
 
 	{#snippet fields()}
-		<div class="mt-6 grid gap-2 rounded-lg bg-muted/5 p-3">
+		<div class="grid gap-2 rounded-lg bg-muted/5 p-3">
 			<input {...editBudget.fields.budgetId.as('hidden', budgetId())} />
 
 			<div class="grid gap-2">

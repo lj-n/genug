@@ -21,6 +21,7 @@ and dependency bumps get no entry.
   more" button instead of page numbers, transaction filters are desktop-only,
   the account balance summary stacks vertically, and the navigation toggle
   floats in the bottom-right corner instead of covering the page heading.
+  Dialog action buttons sit in a consistent row on every screen size.
 
 ### Fixed
 

@@ -6,6 +6,7 @@
 	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import * as Page from '$lib/components/ui/page';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
+	import { getCategoryById } from '$lib/remote-functions/category.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { parseMonth } from '$lib/utils/month';
 
@@ -62,7 +63,12 @@
 
 			<CategoryBudgetTable
 				{month}
-				openCategoryDialog={(categoryId) => {
+				openCategoryDialog={async (categoryId) => {
+					// Resolve the detail query before opening: the modal content
+					// top-level-awaits it, and opening first would suspend the body,
+					// so the bottom sheet animates in header-only and then snaps to
+					// full height once the data lands.
+					await getCategoryById({ categoryId });
 					selectedCategoryId = categoryId;
 					categoryDialogOpen = true;
 				}}
