@@ -236,5 +236,6 @@
 	"transfer_assignment_category": "Category",
 	"transfer_assignment_select_category": "Select category",
 	"transfer_assignment_cover": "Cover",
-	"transfer_assignment_trigger_label": "Adjust remaining for {name}"
+	"transfer_assignment_trigger_label": "Adjust remaining for {name}",
+	"source_code_link": "Source code"
 }

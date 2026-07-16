@@ -6,6 +6,7 @@
 	import { page } from '$app/state';
 	import { SideMenu } from '$lib/components/features/side-menu';
 	import { Logo } from '$lib/components/ui/logo';
+	import { SourceLink } from '$lib/components/ui/source-link';
 	import { VersionLabel } from '$lib/components/ui/version-label';
 	import { m } from '$lib/paraglide/messages';
 	import { signout } from '$lib/remote-functions/auth.remote';
@@ -110,4 +111,6 @@
 			</button>
 		</form>
 	</div>
+
+	<SourceLink class="mt-6 w-fit px-2" />
 </nav>

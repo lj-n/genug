@@ -7,6 +7,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { Logo } from '$lib/components/ui/logo';
+	import { SourceLink } from '$lib/components/ui/source-link';
 	import { VersionLabel } from '$lib/components/ui/version-label';
 	import { m } from '$lib/paraglide/messages';
 	import { getAccounts } from '$lib/remote-functions/account.remote';
@@ -199,6 +200,8 @@
 						</form>
 					</li>
 				</ul>
+
+				<SourceLink class="mx-auto mb-4 w-fit" />
 			</nav>
 		</Drawer.Body>
 	</Drawer.Content>
