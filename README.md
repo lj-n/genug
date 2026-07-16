@@ -188,3 +188,9 @@ git push --follow-tags
 
 Versions are CalVer (`YYYY.0M.MICRO`) and the changelog is hand-curated under
 `## [Unreleased]`; see [ADR-0012](docs/adr/0012-calver-releases-and-stage-deploy.md).
+
+## License
+
+genug-da is licensed under the [GNU Affero General Public License v3.0 only](LICENSE) (AGPL-3.0-only).
+
+Copyright (C) 2026 Linus Johannsen

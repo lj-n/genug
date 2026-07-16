@@ -4,6 +4,7 @@
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import { InputPassword } from '$lib/components/ui/input-password';
 	import { Logo } from '$lib/components/ui/logo';
+	import { SourceLink } from '$lib/components/ui/source-link';
 	import { m } from '$lib/paraglide/messages';
 	import { login } from '$lib/remote-functions/auth.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
@@ -45,3 +46,5 @@
 		</Button>
 	</div>
 </form>
+
+<SourceLink class="mx-auto mt-6 block w-fit" />

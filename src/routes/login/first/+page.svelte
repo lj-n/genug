@@ -3,6 +3,7 @@
 	import { FormField } from '$lib/components/ui/form-field';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import { Logo } from '$lib/components/ui/logo';
+	import { SourceLink } from '$lib/components/ui/source-link';
 	import { m } from '$lib/paraglide/messages';
 	import { register } from '$lib/remote-functions/auth.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
@@ -79,3 +80,5 @@
 		{m.login_admin_button()}
 	</Button>
 </form>
+
+<SourceLink class="mx-auto mt-6 block w-fit" />

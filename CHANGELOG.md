@@ -10,6 +10,13 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Added
+
+- The app now links to its source code repository from the navigation sidebar,
+  the mobile navigation drawer, and the login screens, as required by the
+  AGPL-3.0 §13 source offer. genug-da is licensed under AGPL-3.0-only. The
+  version number moved from beside the logo to sit next to the source link.
+
 ### Changed
 
 - The app is now usable on phones: the transaction register reflows to a
