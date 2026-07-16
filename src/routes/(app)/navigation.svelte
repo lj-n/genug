@@ -62,12 +62,9 @@
 {/snippet}
 
 <nav class="sticky top-8 hidden w-full max-w-72 flex-col self-start p-4 @7xl/main:flex">
-	<div class="flex items-end gap-2">
-		<a href={resolve('/')} class="w-fit">
-			<Logo class="h-12" />
-		</a>
-		<VersionLabel class="pb-1" />
-	</div>
+	<a href={resolve('/')} class="w-fit">
+		<Logo class="h-12" />
+	</a>
 
 	{@render invitations?.()}
 
@@ -112,5 +109,8 @@
 		</form>
 	</div>
 
-	<SourceLink class="mt-6 w-fit px-2" />
+	<div class="mt-6 flex items-center gap-2 px-2">
+		<VersionLabel />
+		<SourceLink />
+	</div>
 </nav>
