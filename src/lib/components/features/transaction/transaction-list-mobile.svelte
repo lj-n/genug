@@ -10,6 +10,7 @@
 
 	import { groupTransactionsByDate } from './group-transactions-by-date';
 	import ValidateToggle from './transaction-validate-toggle.svelte';
+	import TransferBadge from './transfer-badge.svelte';
 
 	let {
 		class: className,
@@ -50,13 +51,17 @@
 							aria-label={m.transactions_table_edit_category()}
 							onclick={() => onEdit(item)}
 						>
-							<span class="truncate">
-								{#if item.categoryName}
-									{item.categoryName}
-								{:else}
-									<span class="text-muted">{m.transaction_table_cell_category_empty()}</span>
-								{/if}
-							</span>
+							{#if item.transferId}
+								<TransferBadge transaction={item} />
+							{:else}
+								<span class="truncate">
+									{#if item.categoryName}
+										{item.categoryName}
+									{:else}
+										<span class="text-muted">{m.transaction_table_cell_category_empty()}</span>
+									{/if}
+								</span>
+							{/if}
 						</button>
 					</div>
 

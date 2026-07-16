@@ -3,10 +3,12 @@
 	import type { CURRENCIES } from '$lib/utils/currencies';
 
 	import { Button } from '$lib/components/ui/button';
+	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import { m } from '$lib/paraglide/messages';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { parseDate } from '@internationalized/date';
+	import ArrowsLeftRightIcon from '~icons/ph/arrows-left-right';
 	import PlusBoldIcon from '~icons/ph/plus-bold';
 
 	import type { TableState } from './transaction-table-state.svelte';
@@ -24,6 +26,11 @@
 	import TableRowEdit from './transaction-table-row-edit.svelte';
 	import TableRow from './transaction-table-row.svelte';
 	import ValidateToggle from './transaction-validate-toggle.svelte';
+	import TransferBadge from './transfer-badge.svelte';
+	import TransferCreateModal from './transfer-create-modal.svelte';
+	import TransferEditModal from './transfer-edit-modal.svelte';
+	import TransferTableRowCreate from './transfer-table-row-create.svelte';
+	import TransferTableRowEdit from './transfer-table-row-edit.svelte';
 
 	let {
 		accountId,
@@ -45,6 +52,10 @@
 	let createModalOpen = $state(false);
 	let editModalOpen = $state(false);
 	let editModalTransaction = $state<ListTransaction | null>(null);
+	let openTransferCreateRow = $state(false);
+	let transferCreateModalOpen = $state(false);
+	let transferEditModalOpen = $state(false);
+	let transferEditModalTransaction = $state<ListTransaction | null>(null);
 </script>
 
 <div class="space-y-6">
@@ -55,16 +66,36 @@
 		onClearFilter={(type) => tableState.clearFilter(type)}
 		onClearAllFilters={() => tableState.clearAllFilters()}
 	>
-		<!-- One create button per affordance (ADR-0014): the inline popover row at
-		     @3xl and up, the bottom sheet below. Only one is ever visible. -->
-		<Button onclick={() => (openCreateRow = true)} class="ml-auto hidden @3xl/main:flex">
-			<PlusBoldIcon />
-			{m.transactions_table_create_transaction()}
-		</Button>
-		<Button onclick={() => (createModalOpen = true)} class="ml-auto flex h-11 @3xl/main:hidden">
-			<PlusBoldIcon />
-			{m.transactions_table_create_transaction()}
-		</Button>
+		<!-- One create group per affordance (ADR-0014): the inline popover rows at
+		     @3xl and up, the bottom sheets below. Only one group is ever visible. -->
+		<ButtonGroup.Root class="ml-auto hidden @3xl/main:flex">
+			<Button onclick={() => (openCreateRow = true)}>
+				<PlusBoldIcon />
+				{m.transactions_table_create_transaction()}
+			</Button>
+			<Button
+				size="icon"
+				aria-label={m.transactions_table_create_transfer()}
+				onclick={() => (openTransferCreateRow = true)}
+			>
+				<ArrowsLeftRightIcon />
+			</Button>
+		</ButtonGroup.Root>
+
+		<ButtonGroup.Root class="ml-auto flex @3xl/main:hidden">
+			<Button class="h-11" onclick={() => (createModalOpen = true)}>
+				<PlusBoldIcon />
+				{m.transactions_table_create_transaction()}
+			</Button>
+			<Button
+				size="icon"
+				class="size-11"
+				aria-label={m.transactions_table_create_transfer()}
+				onclick={() => (transferCreateModalOpen = true)}
+			>
+				<ArrowsLeftRightIcon />
+			</Button>
+		</ButtonGroup.Root>
 	</TableFilter>
 
 	<div role="table" class="space-y-3">
@@ -83,15 +114,26 @@
 					class={colsClass}
 					urlParams={tableState.params}
 				/>
+				<TransferTableRowCreate
+					bind:open={openTransferCreateRow}
+					{accountId}
+					{budgetId}
+					class={colsClass}
+					urlParams={tableState.params}
+				/>
 			{/snippet}
 
 			{#snippet row({ cancelEditing, isEditing, item, setEditing })}
-				{#if isEditing}
+				{#if isEditing && item.transferId}
+					<TransferTableRowEdit transaction={item} {budgetId} {currency} {cancelEditing} />
+				{:else if isEditing}
 					<TableRowEdit transaction={item} {budgetId} {currency} {cancelEditing} />
 				{:else}
 					<TableRow>
 						<TableCell aria-label={m.transactions_table_edit_category()} onclick={setEditing}>
-							{#if item.categoryName}
+							{#if item.transferId}
+								<TransferBadge transaction={item} />
+							{:else if item.categoryName}
 								{item.categoryName}
 							{:else}
 								<span class="text-muted">
@@ -135,8 +177,13 @@
 			{currency}
 			{transactions}
 			onEdit={(transaction) => {
-				editModalTransaction = transaction;
-				editModalOpen = true;
+				if (transaction.transferId) {
+					transferEditModalTransaction = transaction;
+					transferEditModalOpen = true;
+				} else {
+					editModalTransaction = transaction;
+					editModalOpen = true;
+				}
 			}}
 		/>
 
@@ -160,6 +207,20 @@
 <TransactionEditModal
 	bind:open={editModalOpen}
 	bind:transaction={editModalTransaction}
+	{budgetId}
+	{currency}
+/>
+
+<TransferCreateModal
+	bind:open={transferCreateModalOpen}
+	{accountId}
+	{budgetId}
+	urlParams={tableState.params}
+/>
+
+<TransferEditModal
+	bind:open={transferEditModalOpen}
+	bind:transaction={transferEditModalTransaction}
 	{budgetId}
 	{currency}
 />

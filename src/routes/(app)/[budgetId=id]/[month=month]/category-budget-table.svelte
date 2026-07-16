@@ -15,7 +15,7 @@
 	import BudgetTableHeader from './budget-table-header.svelte';
 	import CategoryAssignmentForm from './category-assignment-form.svelte';
 	import CategoryAssignmentModal from './category-assignment-modal.svelte';
-	import TransferPopup from './transfer-popup.svelte';
+	import ReassignmentPopup from './reassignment-popup.svelte';
 
 	let {
 		month,
@@ -140,7 +140,7 @@
 					</BudgetTableCell>
 
 					<BudgetTableCell class="hidden w-1/5 p-0 @3xl/main:flex">
-						<TransferPopup
+						<ReassignmentPopup
 							{month}
 							categoryName={row.name}
 							rowId={row.id}

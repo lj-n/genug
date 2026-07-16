@@ -9,7 +9,9 @@ import {
 	BatchValidateSchema,
 	ListTransactionsSchema,
 	TransactionCreateSchema,
-	TransactionEditSchema
+	TransactionEditSchema,
+	TransferCreateSchema,
+	TransferEditSchema
 } from '$lib/schemas/transaction';
 import { guardedForm, guardedQuery } from '$server/utils/remote-guard';
 
@@ -85,6 +87,38 @@ export const editTransaction = guardedForm(
 		await requested(listTransactions, REFRESH_LIMIT).refreshAll();
 	}
 );
+
+/** Register-relative sign → transfer direction: negative leaves the viewed account. */
+function transferDirection(data: {
+	accountId: string;
+	amount: number;
+	counterpartAccountId: string;
+}) {
+	return data.amount < 0
+		? { fromAccountId: data.accountId, toAccountId: data.counterpartAccountId }
+		: { fromAccountId: data.counterpartAccountId, toAccountId: data.accountId };
+}
+
+export const createTransfer = guardedForm(TransferCreateSchema, async (data, { ctx }) => {
+	ctx.transaction.transfer({
+		amount: Math.abs(data.amount),
+		budgetId: data.budgetId,
+		date: data.date,
+		notes: data.notes || null,
+		...transferDirection(data)
+	});
+	await requested(listTransactions, REFRESH_LIMIT).refreshAll();
+});
+
+export const editTransfer = guardedForm(TransferEditSchema, async (data, { ctx }) => {
+	ctx.transaction.editTransfer(data.transferId, {
+		amount: Math.abs(data.amount),
+		date: data.date,
+		notes: data.notes === undefined ? undefined : data.notes || null,
+		...transferDirection(data)
+	});
+	await requested(listTransactions, REFRESH_LIMIT).refreshAll();
+});
 
 export const batchDeleteTransactions = guardedForm(
 	BatchTransactionIdsSchema,

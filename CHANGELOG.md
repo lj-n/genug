@@ -12,6 +12,17 @@ and dependency bumps get no entry.
 
 ### Added
 
+- Money can now be moved between two accounts of the same budget as a
+  transfer: a linked pair of transactions — an outflow in the source account,
+  an inflow in the destination. Transfers carry no category and never touch
+  the budget math (envelope activity, Unassigned). A dedicated Transfer button
+  next to New Transaction opens an inline row on desktop or a bottom sheet on
+  mobile; the amount is signed from the viewed account's perspective (negative
+  leaves it). The register shows the counterpart account ("→ Savings" /
+  "← Checking") in the category column, and a "Transfers" entry in the
+  category filter lists only transfer legs. Editing a leg edits the whole
+  transfer, deleting a leg deletes both sides, and each leg is validated
+  individually against its own account statement.
 - A forgotten password can now be reset from the server shell:
   `node build/reset-password.js <username>` (inside the container via
   `docker exec`) prints a fresh random password and signs the user out of all

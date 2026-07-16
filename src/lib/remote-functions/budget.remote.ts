@@ -8,7 +8,7 @@ import {
 	CreateBudgetSchema,
 	EditBudgetSchema,
 	FindBudgetUserSchema,
-	TransferAssignmentSchema
+	ReassignmentSchema
 } from '$lib/schemas/budget';
 import { OrderedIdsSchema } from '$lib/schemas/utils';
 import { guardedCommand, guardedForm, guardedQuery } from '$server/utils/remote-guard';
@@ -86,8 +86,8 @@ export const acceptInvite = guardedForm(BudgetAndUserIdSchema, async ({ budgetId
 	void getBudget(budgetId).refresh();
 });
 
-export const transferAssignment = guardedForm(TransferAssignmentSchema, async (data, { ctx }) => {
-	ctx.budget.transferAssignment({
+export const reassignment = guardedForm(ReassignmentSchema, async (data, { ctx }) => {
+	ctx.budget.reassignment({
 		amount: data.amount,
 		budgetId: data.budgetId,
 		month: data.month,

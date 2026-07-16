@@ -36,7 +36,7 @@ export const AssignmentSchema = v.object({
 	categoryId: v.pipe(v.string(), v.minLength(1))
 });
 
-export const TransferAssignmentSchema = v.object({
+export const ReassignmentSchema = v.object({
 	...BudgetMonthSchema.entries,
 	amount: v.pipe(
 		MoneySchema,
