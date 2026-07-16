@@ -262,48 +262,12 @@ export const commands = (userId: string, db: Database = database) => ({
 		db.insert(tables.usersToBudgets).values({ budgetId, role: 'INVITEE', userId: inviteeId }).run();
 	},
 
-	removeUser: (budgetId: string, removeUserId: string) => {
-		const isSelfRemoval = userId === removeUserId;
-		if (!isSelfRemoval) ownerGuard(budgetId, userId, db);
-		db.delete(tables.usersToBudgets)
-			.where(
-				and(
-					eq(tables.usersToBudgets.budgetId, budgetId),
-					eq(tables.usersToBudgets.userId, removeUserId)
-				)
-			)
-			.run();
-	},
-
-	reorder: (orderedIds: string[]) => {
-		db.transaction((tx) => {
-			for (const [position, entityId] of orderedIds.entries()) {
-				tx.insert(tables.userEntityOrder)
-					.values({
-						entityId,
-						entityType: 'budget',
-						position,
-						userId
-					})
-					.onConflictDoUpdate({
-						set: { position },
-						target: [
-							tables.userEntityOrder.userId,
-							tables.userEntityOrder.entityType,
-							tables.userEntityOrder.entityId
-						]
-					})
-					.run();
-			}
-		});
-	},
-
 	/**
 	 * Moves an assigned amount from one category to another within the same budget/month.
 	 * When `targetCategoryId` is `null`, the amount is returned to unassigned.
 	 * A negative amount reverses direction (from → to means to → from).
 	 */
-	transferAssignment: ({
+	reassignment: ({
 		amount,
 		budgetId,
 		month,
@@ -361,6 +325,42 @@ export const commands = (userId: string, db: Database = database) => ({
 					target: [tables.budgetAssignments.categoryId, tables.budgetAssignments.month]
 				})
 				.run();
+		});
+	},
+
+	removeUser: (budgetId: string, removeUserId: string) => {
+		const isSelfRemoval = userId === removeUserId;
+		if (!isSelfRemoval) ownerGuard(budgetId, userId, db);
+		db.delete(tables.usersToBudgets)
+			.where(
+				and(
+					eq(tables.usersToBudgets.budgetId, budgetId),
+					eq(tables.usersToBudgets.userId, removeUserId)
+				)
+			)
+			.run();
+	},
+
+	reorder: (orderedIds: string[]) => {
+		db.transaction((tx) => {
+			for (const [position, entityId] of orderedIds.entries()) {
+				tx.insert(tables.userEntityOrder)
+					.values({
+						entityId,
+						entityType: 'budget',
+						position,
+						userId
+					})
+					.onConflictDoUpdate({
+						set: { position },
+						target: [
+							tables.userEntityOrder.userId,
+							tables.userEntityOrder.entityType,
+							tables.userEntityOrder.entityId
+						]
+					})
+					.run();
+			}
 		});
 	}
 });

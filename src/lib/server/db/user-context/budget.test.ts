@@ -1,5 +1,5 @@
 import { createDatabase, type Database, tables } from '$db';
-import { TransferAssignmentSchema } from '$lib/schemas/budget';
+import { ReassignmentSchema } from '$lib/schemas/budget';
 import { parseMonth } from '$lib/utils/month';
 import { NotFoundError } from '$server/utils/not-found-error';
 import { and, eq } from 'drizzle-orm';
@@ -582,7 +582,7 @@ const getAssignment = (db: Database, categoryId: string, month = 202501) =>
 		)
 		.get();
 
-describe('commands.transferAssignment', () => {
+describe('commands.reassignment', () => {
 	it('moves amount from source category to target category', () => {
 		const db = createMemoryDb();
 		const { budget, user } = createBudgetWithUser(db);
@@ -599,9 +599,9 @@ describe('commands.transferAssignment', () => {
 		db.insert(tables.budgetAssignments)
 			.values({ amount: 200, budgetId: budget.id, categoryId: source.id, month: 202501 })
 			.run();
-		const { transferAssignment } = commands(user.id, db);
+		const { reassignment } = commands(user.id, db);
 
-		transferAssignment({
+		reassignment({
 			amount: 100,
 			budgetId: budget.id,
 			month: month202501,
@@ -631,9 +631,9 @@ describe('commands.transferAssignment', () => {
 		db.insert(tables.budgetAssignments)
 			.values({ amount: 100, budgetId: budget.id, categoryId: source.id, month: 202501 })
 			.run();
-		const { transferAssignment } = commands(user.id, db);
+		const { reassignment } = commands(user.id, db);
 
-		transferAssignment({
+		reassignment({
 			amount: 100,
 			budgetId: budget.id,
 			month: month202501,
@@ -660,9 +660,9 @@ describe('commands.transferAssignment', () => {
 			.values({ budgetId: budget.id, name: 'Target' })
 			.returning()
 			.get();
-		const { transferAssignment } = commands(user.id, db);
+		const { reassignment } = commands(user.id, db);
 
-		transferAssignment({
+		reassignment({
 			amount: 100,
 			budgetId: budget.id,
 			month: month202501,
@@ -687,9 +687,9 @@ describe('commands.transferAssignment', () => {
 		db.insert(tables.budgetAssignments)
 			.values({ amount: 200, budgetId: budget.id, categoryId: source.id, month: 202501 })
 			.run();
-		const { transferAssignment } = commands(user.id, db);
+		const { reassignment } = commands(user.id, db);
 
-		transferAssignment({
+		reassignment({
 			amount: 100,
 			budgetId: budget.id,
 			month: month202501,
@@ -720,9 +720,9 @@ describe('commands.transferAssignment', () => {
 		db.insert(tables.budgetAssignments)
 			.values({ amount: 50, budgetId: budget.id, categoryId: target.id, month: 202501 })
 			.run();
-		const { transferAssignment } = commands(user.id, db);
+		const { reassignment } = commands(user.id, db);
 
-		transferAssignment({
+		reassignment({
 			amount: -100,
 			budgetId: budget.id,
 			month: month202501,
@@ -745,10 +745,10 @@ describe('commands.transferAssignment', () => {
 			.values({ budgetId: budget.id, name: 'Target' })
 			.returning()
 			.get();
-		const { transferAssignment } = commands(outsider.id, db);
+		const { reassignment } = commands(outsider.id, db);
 
 		expect(() =>
-			transferAssignment({
+			reassignment({
 				amount: 100,
 				budgetId: budget.id,
 				month: month202501,
@@ -769,10 +769,10 @@ describe('commands.transferAssignment', () => {
 		db.insert(tables.budgetAssignments)
 			.values({ amount: 200, budgetId: budget.id, categoryId: cat.id, month: 202501 })
 			.run();
-		const { transferAssignment } = commands(user.id, db);
+		const { reassignment } = commands(user.id, db);
 
 		expect(() =>
-			transferAssignment({
+			reassignment({
 				amount: 100,
 				budgetId: budget.id,
 				month: month202501,
@@ -783,7 +783,7 @@ describe('commands.transferAssignment', () => {
 	});
 
 	it('rejects amount:0 at schema level', () => {
-		const result = v.safeParse(TransferAssignmentSchema, {
+		const result = v.safeParse(ReassignmentSchema, {
 			amount: 0,
 			budgetId: 'any',
 			month: 202501,
@@ -810,10 +810,10 @@ describe('commands.transferAssignment', () => {
 			.values({ budgetId: budget1.id, name: 'Target' })
 			.returning()
 			.get();
-		const { transferAssignment } = commands(user.id, db);
+		const { reassignment } = commands(user.id, db);
 
 		expect(() =>
-			transferAssignment({
+			reassignment({
 				amount: 100,
 				budgetId: budget1.id,
 				month: month202501,
@@ -840,10 +840,10 @@ describe('commands.transferAssignment', () => {
 			.values({ budgetId: budget2.id, name: 'Target' })
 			.returning()
 			.get();
-		const { transferAssignment } = commands(user.id, db);
+		const { reassignment } = commands(user.id, db);
 
 		expect(() =>
-			transferAssignment({
+			reassignment({
 				amount: 100,
 				budgetId: budget1.id,
 				month: month202501,

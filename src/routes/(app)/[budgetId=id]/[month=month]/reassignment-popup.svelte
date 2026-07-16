@@ -11,7 +11,7 @@
 		getBudget,
 		getMonthly,
 		getUnassigned,
-		transferAssignment
+		reassignment
 	} from '$lib/remote-functions/budget.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { asMoney, formatMoney } from '$lib/utils/money';
@@ -43,7 +43,7 @@
 
 	const currency = $derived(budget.currency);
 	const id = $props.id();
-	const form = $derived(transferAssignment.for(id));
+	const form = $derived(reassignment.for(id));
 
 	let open = $state(false);
 </script>
@@ -66,7 +66,7 @@
 			)}
 			disabled={remaining === 0}
 			aria-disabled={remaining === 0}
-			aria-label={m.transfer_assignment_trigger_label({ name: categoryName })}
+			aria-label={m.reassignment_trigger_label({ name: categoryName })}
 		>
 			<div
 				class={cn(
@@ -94,9 +94,9 @@
 	{#snippet footer({ pending })}
 		<div class="flex justify-end gap-2">
 			<Button variant="ghost" size="sm" onclick={() => (open = false)}
-				>{m.transfer_assignment_cancel()}</Button
+				>{m.reassignment_cancel()}</Button
 			>
-			<Button type="submit" size="sm" loading={pending}>{m.transfer_assignment_ok()}</Button>
+			<Button type="submit" size="sm" loading={pending}>{m.reassignment_ok()}</Button>
 		</div>
 	{/snippet}
 </PopoverForm>
@@ -111,9 +111,9 @@
 		categories={otherCategories}
 		nullable
 		ariaInvalid={form.fields.targetCategoryId.issues()?.length ? true : undefined}
-		textEmpty={m.transfer_assignment_unassigned()}
-		ariaLabel={m.transfer_assignment_category()}
-		ariaLabelTrigger={m.transfer_assignment_select_category()}
+		textEmpty={m.reassignment_unassigned()}
+		ariaLabel={m.reassignment_category()}
+		ariaLabelTrigger={m.reassignment_select_category()}
 	>
 		{#snippet customItemRow({ label, value: id })}
 			{@render customSelectRow({
@@ -128,13 +128,13 @@
 {#snippet moveform()}
 	<div class="flex flex-col gap-1.5">
 		<div class="flex items-center justify-between gap-4">
-			<span class="font-medium">{m.transfer_assignment_move()}</span>
+			<span class="font-medium">{m.reassignment_move()}</span>
 			<ArrowFatLineDownDuotoneIcon class="size-5 text-success" />
 		</div>
 
 		<InputMoney
 			name={form.fields.amount.as('number').name}
-			aria-label={m.transfer_assignment_amount()}
+			aria-label={m.reassignment_amount()}
 			bind:value={() => form.fields.amount.value(), (v) => form.fields.amount.set(v)}
 			currency={budget.currency}
 			class="px-2 text-right font-currency font-medium"
@@ -147,7 +147,7 @@
 
 {#snippet coverform()}
 	<div class="flex items-center justify-between gap-4">
-		<span class="font-medium">{m.transfer_assignment_cover()}</span>
+		<span class="font-medium">{m.reassignment_cover()}</span>
 		<ArrowFatLineDownDuotoneIcon class="size-5 rotate-180 text-error" />
 	</div>
 
