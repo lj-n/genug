@@ -7,6 +7,7 @@ COPY package*.json ./
 RUN npm ci
 
 COPY src ./src
+COPY scripts ./scripts
 COPY static ./static
 COPY messages ./messages
 COPY project.inlang ./project.inlang

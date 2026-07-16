@@ -39,7 +39,9 @@ unit-tested.
 
 ## Consequences
 
-- Recovery requires no repo checkout, no email/SMTP, and no Dockerfile change.
+- Recovery requires no repo checkout and no email/SMTP. The only Dockerfile
+  change is copying `scripts/` into the builder stage; the final image is
+  untouched, since it already receives `build/` wholesale.
 - `npm run build` gains a second step; the CLI bundle is produced by every
   build (dev, CI, Docker) and versions in lockstep with the server it sits
   beside.
