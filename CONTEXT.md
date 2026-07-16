@@ -56,6 +56,14 @@ _Avoid_: constraint, limiting month
 The account-side sum of transactions in an account — what is physically there, split into validated and pending. Says nothing about envelopes; the envelope-side term is Remaining.
 _Avoid_: remaining (envelope-side), funds
 
+**Transfer**:
+The account-side movement of money between two accounts of the same budget (checking → savings, cash withdrawal, credit-card payment), recorded as a linked pair of transactions — one outflow leg in the source account, one inflow leg in the destination account. A Transfer moves money between accounts, not in or out of the budget: its legs carry no category and are excluded from all envelope math (Remaining, Unassigned, Position). Each leg is individually validatable, since each account reconciles on its own. The envelope-side counterpart is a Reassignment.
+_Avoid_: reassignment (envelope-side), payment, transaction pair
+
+**Reassignment**:
+The envelope-side movement of assigned money between two categories of the same budget in a Month (or back to Unassigned). Moves an assignment, never actual money — account Balances are untouched. The account-side counterpart is a Transfer.
+_Avoid_: transfer (account-side), assignment transfer, move
+
 **Feature module**:
 A component directory coupled to a specific application capability — imports remote functions, orchestrates forms, owns interaction state. Lives under `src/lib/components/features/`, one directory per capability with an `index.ts` barrel; consumers import from the explicit path (e.g. `$lib/components/features/account`). Primitives in `src/lib/components/ui` stay feature-agnostic: no remote functions, no domain logic, at most type-only domain imports.
 _Avoid_: shared component, domain component, widget
