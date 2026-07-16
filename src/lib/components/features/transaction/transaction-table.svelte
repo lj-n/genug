@@ -3,6 +3,7 @@
 	import type { CURRENCIES } from '$lib/utils/currencies';
 
 	import { Button } from '$lib/components/ui/button';
+	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import { m } from '$lib/paraglide/messages';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { asMoney, formatMoney } from '$lib/utils/money';
@@ -65,25 +66,36 @@
 		onClearFilter={(type) => tableState.clearFilter(type)}
 		onClearAllFilters={() => tableState.clearAllFilters()}
 	>
-		<!-- One create button per affordance (ADR-0014): the inline popover row at
-		     @3xl and up, the bottom sheet below. Only one is ever visible. -->
-		<Button onclick={() => (openCreateRow = true)} class="ml-auto hidden @3xl/main:flex">
-			<PlusBoldIcon />
-			{m.transactions_table_create_transaction()}
-		</Button>
-		<Button onclick={() => (createModalOpen = true)} class="ml-auto flex h-11 @3xl/main:hidden">
-			<PlusBoldIcon />
-			{m.transactions_table_create_transaction()}
-		</Button>
+		<!-- One create group per affordance (ADR-0014): the inline popover rows at
+		     @3xl and up, the bottom sheets below. Only one group is ever visible. -->
+		<ButtonGroup.Root class="ml-auto hidden @3xl/main:flex">
+			<Button onclick={() => (openCreateRow = true)}>
+				<PlusBoldIcon />
+				{m.transactions_table_create_transaction()}
+			</Button>
+			<Button
+				size="icon"
+				aria-label={m.transactions_table_create_transfer()}
+				onclick={() => (openTransferCreateRow = true)}
+			>
+				<ArrowsLeftRightIcon />
+			</Button>
+		</ButtonGroup.Root>
 
-		<Button onclick={() => (openTransferCreateRow = true)} class="hidden @3xl/main:flex">
-			<ArrowsLeftRightIcon />
-			{m.transactions_table_create_transfer()}
-		</Button>
-		<Button onclick={() => (transferCreateModalOpen = true)} class="flex h-11 @3xl/main:hidden">
-			<ArrowsLeftRightIcon />
-			{m.transactions_table_create_transfer()}
-		</Button>
+		<ButtonGroup.Root class="ml-auto flex @3xl/main:hidden">
+			<Button class="h-11" onclick={() => (createModalOpen = true)}>
+				<PlusBoldIcon />
+				{m.transactions_table_create_transaction()}
+			</Button>
+			<Button
+				size="icon"
+				class="size-11"
+				aria-label={m.transactions_table_create_transfer()}
+				onclick={() => (transferCreateModalOpen = true)}
+			>
+				<ArrowsLeftRightIcon />
+			</Button>
+		</ButtonGroup.Root>
 	</TableFilter>
 
 	<div role="table" class="space-y-3">
