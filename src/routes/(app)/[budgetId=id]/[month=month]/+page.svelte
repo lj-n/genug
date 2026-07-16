@@ -6,6 +6,7 @@
 	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import * as Page from '$lib/components/ui/page';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
+	import { getCategoryById } from '$lib/remote-functions/category.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { parseMonth } from '$lib/utils/month';
 
@@ -32,7 +33,7 @@
 </script>
 
 <Page.Root>
-	<Page.Header class="flex-row justify-between gap-4">
+	<Page.Header class="flex-row flex-wrap justify-between gap-4">
 		<Page.Title>
 			{budget.name}
 		</Page.Title>
@@ -48,17 +49,26 @@
 
 	<Page.Content>
 		{#if month !== null}
-			<div class="flex items-end gap-3">
-				<MonthNavigator {month} />
+			<!-- Prominent-stack below @3xl (ADR-0014): navigator row first, then the
+			     unassigned summary as a full-width band. -->
+			<div class="flex flex-col gap-3 @3xl/main:flex-row @3xl/main:items-end">
+				<div class="flex flex-wrap items-end gap-3">
+					<MonthNavigator {month} />
 
-				<CategoryQuickActions />
+					<CategoryQuickActions />
+				</div>
 
 				<UnassignedSummary {month} />
 			</div>
 
 			<CategoryBudgetTable
 				{month}
-				openCategoryDialog={(categoryId) => {
+				openCategoryDialog={async (categoryId) => {
+					// Resolve the detail query before opening: the modal content
+					// top-level-awaits it, and opening first would suspend the body,
+					// so the bottom sheet animates in header-only and then snaps to
+					// full height once the data lands.
+					await getCategoryById({ categoryId });
 					selectedCategoryId = categoryId;
 					categoryDialogOpen = true;
 				}}

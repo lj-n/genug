@@ -8,11 +8,13 @@
 	import { clamp } from '$lib/utils/clamp';
 	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
+	import { cn } from 'tailwind-variants';
 	import PhDotsSixVerticalBold from '~icons/ph/dots-six-vertical-bold';
 
 	import BudgetTableCell from './budget-table-cell.svelte';
 	import BudgetTableHeader from './budget-table-header.svelte';
 	import CategoryAssignmentForm from './category-assignment-form.svelte';
+	import CategoryAssignmentModal from './category-assignment-modal.svelte';
 	import TransferPopup from './transfer-popup.svelte';
 
 	let {
@@ -53,13 +55,17 @@
 	let activeAssignmentCategoryId = $state<null | string>(null);
 	let isActiveAssignment = $derived((id: string) => activeAssignmentCategoryId === id);
 
+	// Mobile assign surface (ADR-0014): one sheet for the whole table.
+	let assignmentModalOpen = $state(false);
+	let assignmentModalCategory = $state<(typeof categories)[number] | null>(null);
+
 	const getPercentage = (target: number, current: number) => {
 		return clamp((current / target) * 100, 0, 100);
 	};
 </script>
 
 <div role="table">
-	<div role="rowgroup">
+	<div role="rowgroup" class="hidden @3xl/main:block">
 		<div role="row" class="flex">
 			<BudgetTableHeader class="w-2/5 text-lg font-bold tracking-tight text-foreground">
 				{m.budget_monthly_table_header_category()}
@@ -93,7 +99,7 @@
 					role="row"
 					class="relative flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/3"
 				>
-					<BudgetTableCell class="relative flex w-2/5 p-0">
+					<BudgetTableCell class="relative hidden w-2/5 p-0 @3xl/main:flex">
 						<button
 							type="button"
 							class="flex size-full cursor-pointer items-center px-2 text-left -outline-offset-2 hover:bg-surface hover:outline-2 hover:outline-interactive/60"
@@ -111,7 +117,7 @@
 						{/if}
 					</BudgetTableCell>
 
-					<BudgetTableCell class="relative w-1/5 justify-start p-0">
+					<BudgetTableCell class="relative hidden w-1/5 justify-start p-0 @3xl/main:flex">
 						<CategoryAssignmentForm
 							bind:open={
 								() => isActiveAssignment(row.id),
@@ -129,11 +135,11 @@
 						/>
 					</BudgetTableCell>
 
-					<BudgetTableCell class="w-1/5 font-currency">
+					<BudgetTableCell class="hidden w-1/5 font-currency @3xl/main:flex">
 						{formatMoney({ currency, money: asMoney(row.activity) })}
 					</BudgetTableCell>
 
-					<BudgetTableCell class="w-1/5 p-0">
+					<BudgetTableCell class="hidden w-1/5 p-0 @3xl/main:flex">
 						<TransferPopup
 							{month}
 							categoryName={row.name}
@@ -143,7 +149,7 @@
 						/>
 					</BudgetTableCell>
 
-					<BudgetTableCell class="w-9 border-0 last:p-2">
+					<BudgetTableCell class="hidden w-9 border-0 last:p-2 @3xl/main:flex">
 						<button
 							class="flex size-9 cursor-grab items-center justify-center text-muted hover:text-interactive"
 							data-drag-handle="category"
@@ -152,8 +158,73 @@
 							<PhDotsSixVerticalBold />
 						</button>
 					</BudgetTableCell>
+
+					<!-- Mobile card (ADR-0014): Remaining is the headline, Assigned opens
+					     the assign sheet, Activity is read-only. Drag-reorder and
+					     transfers are desktop-only for now. -->
+					<div role="cell" class="flex w-full flex-col py-2 @3xl/main:hidden">
+						<div class="flex items-stretch">
+							<button
+								type="button"
+								class="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center px-4 text-left"
+								onclick={() => openCategoryDialog(row.id)}
+							>
+								<!-- line-clamp instead of truncate: truncate's nowrap floors the
+								     card's intrinsic min-content at the full name width and forces
+								     page-level horizontal overflow on phones. -->
+								<span class="line-clamp-1 [overflow-wrap:anywhere]">{row.name}</span>
+							</button>
+
+							<div class="flex items-center px-4">
+								<span
+									class={cn(
+										'rounded-sm px-2 py-1 font-currency',
+										row.remaining > 0 && 'bg-success/10',
+										row.remaining < 0 && 'bg-error/10 text-error'
+									)}
+								>
+									{formatMoney({ currency, money: asMoney(row.remaining) })}
+								</span>
+							</div>
+						</div>
+
+						<!-- flex-wrap: the assigned + activity pair can outgrow narrow phones
+						     (longer locale strings); activity then drops to its own line. -->
+						<div class="flex flex-wrap items-stretch">
+							<button
+								type="button"
+								class="flex min-h-11 cursor-pointer items-center gap-1.5 px-4 text-sm"
+								aria-label={m.budget_monthly_table_header_amount()}
+								onclick={() => {
+									assignmentModalCategory = row;
+									assignmentModalOpen = true;
+								}}
+							>
+								<span class="text-muted">{m.budget_monthly_table_header_amount()}</span>
+								<span class="font-currency">
+									{formatMoney({ currency, money: asMoney(row.assigned) })}
+								</span>
+							</button>
+
+							<div class="ml-auto flex items-center gap-1.5 px-4 text-sm">
+								<span class="text-muted">{m.budget_monthly_table_header_activity()}</span>
+								<span class="font-currency">
+									{formatMoney({ currency, money: asMoney(row.activity) })}
+								</span>
+							</div>
+						</div>
+					</div>
 				</div>
 			{/each}
 		{/if}
 	</div>
 </div>
+
+{#if month !== null}
+	<CategoryAssignmentModal
+		bind:open={assignmentModalOpen}
+		bind:category={assignmentModalCategory}
+		{currency}
+		{month}
+	/>
+{/if}

@@ -15,7 +15,13 @@
 
 <h1
 	bind:this={ref}
-	class={cn('flex items-center gap-2 text-3xl font-bold tracking-tighter', className)}
+	class={cn(
+		// `overflow-wrap: anywhere` keeps a long single-word title (budget or
+		// account name) from flooring the page's min-content width on phones —
+		// it breaks mid-word only when a word cannot fit the line.
+		'flex items-center gap-2 text-3xl font-bold tracking-tighter [overflow-wrap:anywhere]',
+		className
+	)}
 	{...restProps}
 >
 	{#if children}

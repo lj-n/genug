@@ -12,6 +12,12 @@
 	}: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
 </script>
 
-<div bind:this={ref} class={cn('flex w-full flex-col gap-6 p-4 md:p-8', className)} {...restProps}>
+<!-- Extra bottom padding while the floating nav toggle is shown (below @7xl)
+     so it never covers the last row of content when fully scrolled. -->
+<div
+	bind:this={ref}
+	class={cn('flex w-full flex-col gap-6 p-4 md:p-8 @max-7xl/main:pb-24', className)}
+	{...restProps}
+>
 	{@render children?.()}
 </div>

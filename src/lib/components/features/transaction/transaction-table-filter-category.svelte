@@ -20,7 +20,7 @@
 </script>
 
 <Select.Root type="multiple" bind:value onValueChange={onchange}>
-	<Select.Trigger bind:ref={elementRef} class="w-fit min-w-xs">
+	<Select.Trigger bind:ref={elementRef} class="w-fit max-w-full @3xl/main:min-w-xs">
 		{#if value.length}
 			{m.transaction_filter_category_selected({ selected: value.length })}
 		{:else}

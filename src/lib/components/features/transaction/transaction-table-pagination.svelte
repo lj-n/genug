@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Button } from '$lib/components/ui/button';
 	import * as PaginationPrimitive from '$lib/components/ui/pagination';
 	import * as Select from '$lib/components/ui/select';
 	import { m } from '$lib/paraglide/messages';
@@ -33,9 +34,26 @@
 	});
 
 	const PAGE_SIZES = ['15', '25', '50', '100'] as const;
+
+	// Mobile "load more" (ADR-0014): no page numbers on the phone — growing the
+	// page size keeps the register URL-driven and simply extends the list.
+	const LOAD_MORE_STEP = 15;
+	const hasMore = $derived(page * pageSize < total);
 </script>
 
-<div class="flex items-center justify-between gap-3 rounded-lg bg-muted/5 p-1.5">
+{#if hasMore}
+	<Button
+		variant="ghost"
+		class="h-11 w-full bg-muted/5 @3xl/main:hidden"
+		onclick={() => onSetPageSize(pageSize + LOAD_MORE_STEP)}
+	>
+		{m.transactions_pagination_load_more()}
+	</Button>
+{/if}
+
+<div
+	class="hidden flex-wrap items-center justify-between gap-3 rounded-lg bg-muted/5 p-1.5 @3xl/main:flex"
+>
 	<div class="flex items-center gap-2">
 		<Select.Root
 			type="single"
@@ -56,7 +74,7 @@
 			</Select.Content>
 		</Select.Root>
 
-		<div class="text-sm text-muted">
+		<div class="hidden text-sm text-muted @3xl/main:block">
 			{pagesInfo}
 		</div>
 	</div>

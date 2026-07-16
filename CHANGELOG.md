@@ -10,8 +10,23 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Changed
+
+- The app is now usable on phones: the transaction register reflows to a
+  date-grouped card list, the monthly budget table to category cards, and the
+  month header stacks with a full-width unallocated band on narrow screens.
+  Creating and editing transactions and assigning money open a bottom sheet on
+  mobile; drag-reorder and moving money between categories stay desktop-only
+  for now. On phones the register loads further transactions with a "Load
+  more" button instead of page numbers, transaction filters are desktop-only,
+  the account balance summary stacks vertically, and the navigation toggle
+  floats in the bottom-right corner instead of covering the page heading.
+  Dialog action buttons sit in a consistent row on every screen size.
+
 ### Fixed
 
+- The mobile navigation drawer scrolls its budget and account list instead of
+  overflowing past the bottom edge of the sheet.
 - Large dialogs (category detail, account settings) no longer overflow the
   screen on iPads in landscape. Every dialog is now capped to the viewport
   height and scrolls its body, so its title, close button, and actions stay on

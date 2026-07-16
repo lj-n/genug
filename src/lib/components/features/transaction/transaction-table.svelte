@@ -11,6 +11,9 @@
 
 	import type { TableState } from './transaction-table-state.svelte';
 
+	import TransactionCreateModal from './transaction-create-modal.svelte';
+	import TransactionEditModal from './transaction-edit-modal.svelte';
+	import TransactionListMobile from './transaction-list-mobile.svelte';
 	import TableBody from './transaction-table-body.svelte';
 	import TableCell from './transaction-table-cell.svelte';
 	import { colsClass } from './transaction-table-cols';
@@ -39,6 +42,9 @@
 	} = $props();
 
 	let openCreateRow = $state(false);
+	let createModalOpen = $state(false);
+	let editModalOpen = $state(false);
+	let editModalTransaction = $state<ListTransaction | null>(null);
 </script>
 
 <div class="space-y-6">
@@ -49,16 +55,26 @@
 		onClearFilter={(type) => tableState.clearFilter(type)}
 		onClearAllFilters={() => tableState.clearAllFilters()}
 	>
-		<Button onclick={() => (openCreateRow = true)} class="ml-auto">
+		<!-- One create button per affordance (ADR-0014): the inline popover row at
+		     @3xl and up, the bottom sheet below. Only one is ever visible. -->
+		<Button onclick={() => (openCreateRow = true)} class="ml-auto hidden @3xl/main:flex">
+			<PlusBoldIcon />
+			{m.transactions_table_create_transaction()}
+		</Button>
+		<Button onclick={() => (createModalOpen = true)} class="ml-auto flex h-11 @3xl/main:hidden">
 			<PlusBoldIcon />
 			{m.transactions_table_create_transaction()}
 		</Button>
 	</TableFilter>
 
 	<div role="table" class="space-y-3">
-		<TableHeader sort={tableState.sort} onToggle={(column) => tableState.toggleSort(column)} />
+		<TableHeader
+			class="hidden @3xl/main:block"
+			sort={tableState.sort}
+			onToggle={(column) => tableState.toggleSort(column)}
+		/>
 
-		<TableBody data={transactions}>
+		<TableBody class="hidden @3xl/main:grid" data={transactions}>
 			{#snippet createrow()}
 				<TableRowCreate
 					bind:open={openCreateRow}
@@ -114,6 +130,16 @@
 			{/snippet}
 		</TableBody>
 
+		<TransactionListMobile
+			class="@3xl/main:hidden"
+			{currency}
+			{transactions}
+			onEdit={(transaction) => {
+				editModalTransaction = transaction;
+				editModalOpen = true;
+			}}
+		/>
+
 		<TablePagination
 			page={pagination.page}
 			pageSize={pagination.pageSize}
@@ -123,3 +149,17 @@
 		/>
 	</div>
 </div>
+
+<TransactionCreateModal
+	bind:open={createModalOpen}
+	{accountId}
+	{budgetId}
+	urlParams={tableState.params}
+/>
+
+<TransactionEditModal
+	bind:open={editModalOpen}
+	bind:transaction={editModalTransaction}
+	{budgetId}
+	{currency}
+/>

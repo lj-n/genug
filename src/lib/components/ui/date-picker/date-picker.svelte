@@ -14,7 +14,7 @@
 		class?: string;
 		disabled?: boolean;
 		formatDisplay?: (date: CalendarDate) => string;
-		label?: string;
+		label: string;
 		locale?: Locale;
 		name?: string;
 		open?: boolean;
@@ -30,7 +30,7 @@
 		class: className,
 		disabled = false,
 		formatDisplay,
-		label = 'Datum wählen',
+		label,
 		locale = getLocale(),
 		name,
 		open = $bindable(false),
