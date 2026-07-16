@@ -135,7 +135,9 @@
 		/>
 	</div>
 
-	<div role="cell" class="grid place-content-center bg-interactive/5 p-2"></div>
+	<!-- Empty (validation is per-leg, display-mode only) but sized like the
+	     validate toggle it replaces, so entering edit mode doesn't shift the row. -->
+	<div role="cell" class="grid min-h-14 place-content-center bg-interactive/5 p-2"></div>
 
 	<RowErrors issues={form.fields.allIssues()} />
 

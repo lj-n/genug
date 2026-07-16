@@ -25,7 +25,7 @@
 	import TableRowEdit from './transaction-table-row-edit.svelte';
 	import TableRow from './transaction-table-row.svelte';
 	import ValidateToggle from './transaction-validate-toggle.svelte';
-	import { transferCounterpartLabel } from './transfer-counterpart-label';
+	import TransferBadge from './transfer-badge.svelte';
 	import TransferCreateModal from './transfer-create-modal.svelte';
 	import TransferEditModal from './transfer-edit-modal.svelte';
 	import TransferTableRowCreate from './transfer-table-row-create.svelte';
@@ -120,7 +120,7 @@
 					<TableRow>
 						<TableCell aria-label={m.transactions_table_edit_category()} onclick={setEditing}>
 							{#if item.transferId}
-								{transferCounterpartLabel(item)}
+								<TransferBadge transaction={item} />
 							{:else if item.categoryName}
 								{item.categoryName}
 							{:else}

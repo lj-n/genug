@@ -147,7 +147,9 @@
 				/>
 			</div>
 
-			<div role="cell" class="grid place-content-center bg-interactive/5 p-2"></div>
+			<!-- Empty (transfer legs start pending) but sized like the validate
+			     checkbox of the transaction create row, so both rows line up. -->
+			<div role="cell" class="grid min-h-14 place-content-center bg-interactive/5 p-2"></div>
 
 			<RowErrors issues={createTransfer.fields.allIssues()} />
 
