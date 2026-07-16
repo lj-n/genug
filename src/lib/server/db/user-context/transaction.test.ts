@@ -1,5 +1,5 @@
 import { createDatabase, type Database, tables } from '$db';
-import { UNASSIGNED } from '$lib/constants';
+import { TRANSFER, UNASSIGNED } from '$lib/constants';
 import { NotFoundError } from '$server/utils/not-found-error';
 import { getLocalTimeZone, today } from '@internationalized/date';
 import { eq } from 'drizzle-orm';
@@ -124,6 +124,39 @@ describe('queries.page', () => {
 		expect(result.total).toBe(2);
 	});
 
+	it('excludes transfer legs from the UNASSIGNED sentinel — it means income', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const a = createAccount(db, budget.id, 'A');
+		const b = createAccount(db, budget.id, 'B');
+		const income = createTransaction(db, budget.id, a.id, { categoryId: null });
+		createTransaction(db, budget.id, a.id, { amount: -100, transferId: 'transfer1' });
+		createTransaction(db, budget.id, b.id, { amount: 100, transferId: 'transfer1' });
+		const { page } = queries(user.id, db);
+
+		const result = page({ categoryId: [UNASSIGNED] }, {}, { page: 0, pageSize: 15 });
+		expect(result.rows.map((t) => t.id)).toEqual([income.id]);
+		expect(result.total).toBe(1);
+	});
+
+	it('filters transfer legs with the TRANSFER sentinel', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const a = createAccount(db, budget.id, 'A');
+		const b = createAccount(db, budget.id, 'B');
+		createTransaction(db, budget.id, a.id, { categoryId: null });
+		const fromLeg = createTransaction(db, budget.id, a.id, {
+			amount: -100,
+			transferId: 'transfer1'
+		});
+		const toLeg = createTransaction(db, budget.id, b.id, { amount: 100, transferId: 'transfer1' });
+		const { page } = queries(user.id, db);
+
+		const result = page({ categoryId: [TRANSFER] }, {}, { page: 0, pageSize: 15 });
+		expect(result.rows.map((t) => t.id).sort()).toEqual([fromLeg.id, toLeg.id].sort());
+		expect(result.total).toBe(2);
+	});
+
 	it('searches notes with LIKE metacharacters treated literally', () => {
 		const db = createDatabase(':memory:');
 		const { budget, user } = createBudgetWithUser(db);
@@ -140,6 +173,41 @@ describe('queries.page', () => {
 		const underscoreResult = page({ notes: 'invoice_' }, {}, { page: 0, pageSize: 15 });
 		expect(underscoreResult.rows.map((t) => t.id)).toEqual([underscore.id]);
 		expect(underscoreResult.total).toBe(1);
+	});
+
+	it('includes the counterpart account of transfer legs', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const checking = createAccount(db, budget.id, 'Checking');
+		const savings = createAccount(db, budget.id, 'Savings');
+		const plain = createTransaction(db, budget.id, checking.id);
+		const { from, to } = commands(user.id, db).transfer({
+			amount: 500,
+			budgetId: budget.id,
+			fromAccountId: checking.id,
+			toAccountId: savings.id
+		});
+		const { byId, page } = queries(user.id, db);
+
+		const rows = page({}, {}, { page: 0, pageSize: 15 }).rows;
+		const rowById = new Map(rows.map((r) => [r.id, r]));
+		expect(rowById.get(from.id)).toMatchObject({
+			counterpartAccountId: savings.id,
+			counterpartAccountName: 'Savings'
+		});
+		expect(rowById.get(to.id)).toMatchObject({
+			counterpartAccountId: checking.id,
+			counterpartAccountName: 'Checking'
+		});
+		expect(rowById.get(plain.id)).toMatchObject({
+			counterpartAccountId: null,
+			counterpartAccountName: null
+		});
+
+		expect(byId(from.id)).toMatchObject({
+			counterpartAccountId: savings.id,
+			counterpartAccountName: 'Savings'
+		});
 	});
 
 	it('includes categoryName and createdByName', () => {
@@ -430,6 +498,380 @@ describe('commands.edit', () => {
 		const { edit } = commands(user.id, db);
 
 		expect(() => edit('nonexistent', { amount: 1 })).toThrow();
+	});
+});
+
+describe('commands.transfer', () => {
+	it('creates both legs atomically with shared transferId, correct signs, no category', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const checking = createAccount(db, budget.id, 'Checking');
+		const savings = createAccount(db, budget.id, 'Savings');
+		const { transfer } = commands(user.id, db);
+
+		const { from, to } = transfer({
+			amount: 500,
+			budgetId: budget.id,
+			date: '2025-03-01',
+			fromAccountId: checking.id,
+			notes: 'monthly savings',
+			toAccountId: savings.id
+		});
+
+		expect(from).toMatchObject({
+			accountId: checking.id,
+			amount: -500,
+			categoryId: null,
+			createdBy: user.id,
+			date: '2025-03-01',
+			notes: 'monthly savings'
+		});
+		expect(to).toMatchObject({
+			accountId: savings.id,
+			amount: 500,
+			categoryId: null,
+			createdBy: user.id,
+			date: '2025-03-01',
+			notes: 'monthly savings'
+		});
+		expect(from.transferId).toBeDefined();
+		expect(from.transferId).toBe(to.transferId);
+		expect(from.id).not.toBe(to.id);
+	});
+
+	it('defaults date to today in local timezone when omitted', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const checking = createAccount(db, budget.id, 'Checking');
+		const savings = createAccount(db, budget.id, 'Savings');
+		const { transfer } = commands(user.id, db);
+
+		const { from, to } = transfer({
+			amount: 500,
+			budgetId: budget.id,
+			fromAccountId: checking.id,
+			toAccountId: savings.id
+		});
+
+		expect(from.date).toBe(today(getLocalTimeZone()).toString());
+		expect(to.date).toBe(from.date);
+	});
+
+	it('throws 400 on non-positive amount', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const checking = createAccount(db, budget.id, 'Checking');
+		const savings = createAccount(db, budget.id, 'Savings');
+		const { transfer } = commands(user.id, db);
+
+		for (const amount of [0, -500]) {
+			let thrown;
+			try {
+				transfer({
+					amount,
+					budgetId: budget.id,
+					fromAccountId: checking.id,
+					toAccountId: savings.id
+				});
+			} catch (e) {
+				thrown = e;
+			}
+			expect(thrown).toMatchObject({ status: 400 });
+		}
+	});
+
+	it('throws 400 when source and destination are the same account', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const checking = createAccount(db, budget.id, 'Checking');
+		const { transfer } = commands(user.id, db);
+
+		let thrown;
+		try {
+			transfer({
+				amount: 500,
+				budgetId: budget.id,
+				fromAccountId: checking.id,
+				toAccountId: checking.id
+			});
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 400 });
+	});
+
+	it('throws 404 when an account belongs to another budget', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const checking = createAccount(db, budget.id, 'Checking');
+		const foreignBudget = db.insert(tables.budgets).values({ name: 'Other' }).returning().get();
+		const foreignAccount = createAccount(db, foreignBudget.id, 'Foreign');
+		const { transfer } = commands(user.id, db);
+
+		let thrown;
+		try {
+			transfer({
+				amount: 500,
+				budgetId: budget.id,
+				fromAccountId: checking.id,
+				toAccountId: foreignAccount.id
+			});
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 404 });
+	});
+
+	it('throws 400 and writes nothing when an account is archived', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const checking = createAccount(db, budget.id, 'Checking');
+		const savings = createAccount(db, budget.id, 'Savings');
+		db.update(tables.accounts)
+			.set({ archivedAt: new Date() })
+			.where(eq(tables.accounts.id, savings.id))
+			.run();
+		const { transfer } = commands(user.id, db);
+
+		let thrown;
+		try {
+			transfer({
+				amount: 500,
+				budgetId: budget.id,
+				fromAccountId: checking.id,
+				toAccountId: savings.id
+			});
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 400 });
+
+		const rows = db.select().from(tables.transactions).all();
+		expect(rows).toHaveLength(0);
+	});
+
+	it('throws NotFoundError without budget access', () => {
+		const db = createDatabase(':memory:');
+		const { budget } = createBudgetWithUser(db, 'OWNER', 'owner');
+		const checking = createAccount(db, budget.id, 'Checking');
+		const savings = createAccount(db, budget.id, 'Savings');
+		const outsider = createUser(db, 'outsider');
+		const { transfer } = commands(outsider.id, db);
+
+		expect(() =>
+			transfer({
+				amount: 500,
+				budgetId: budget.id,
+				fromAccountId: checking.id,
+				toAccountId: savings.id
+			})
+		).toThrow(NotFoundError);
+	});
+});
+
+describe('commands.editTransfer', () => {
+	function setupTransfer(db: Database) {
+		const { budget, user } = createBudgetWithUser(db);
+		const checking = createAccount(db, budget.id, 'Checking');
+		const savings = createAccount(db, budget.id, 'Savings');
+		const cmd = commands(user.id, db);
+		const { from, to } = cmd.transfer({
+			amount: 500,
+			budgetId: budget.id,
+			date: '2025-03-01',
+			fromAccountId: checking.id,
+			toAccountId: savings.id
+		});
+		return { budget, checking, cmd, from, savings, to, user };
+	}
+
+	it('updates amount on both legs keeping signs', () => {
+		const db = createDatabase(':memory:');
+		const { cmd, from } = setupTransfer(db);
+
+		const updated = cmd.editTransfer(from.transferId!, { amount: 750 });
+
+		expect(updated.from.amount).toBe(-750);
+		expect(updated.to.amount).toBe(750);
+	});
+
+	it('updates date and notes on both legs', () => {
+		const db = createDatabase(':memory:');
+		const { cmd, from } = setupTransfer(db);
+
+		const updated = cmd.editTransfer(from.transferId!, {
+			date: '2025-04-01',
+			notes: 'rescheduled'
+		});
+
+		expect(updated.from).toMatchObject({ date: '2025-04-01', notes: 'rescheduled' });
+		expect(updated.to).toMatchObject({ date: '2025-04-01', notes: 'rescheduled' });
+	});
+
+	it('moves legs to different accounts', () => {
+		const db = createDatabase(':memory:');
+		const { budget, cmd, from } = setupTransfer(db);
+		const cash = createAccount(db, budget.id, 'Cash');
+
+		const updated = cmd.editTransfer(from.transferId!, { fromAccountId: cash.id });
+
+		expect(updated.from.accountId).toBe(cash.id);
+		expect(updated.from.amount).toBe(-500);
+	});
+
+	it('throws 400 on non-positive amount', () => {
+		const db = createDatabase(':memory:');
+		const { cmd, from } = setupTransfer(db);
+
+		let thrown;
+		try {
+			cmd.editTransfer(from.transferId!, { amount: 0 });
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 400 });
+	});
+
+	it('throws 400 when the edit would collapse both legs onto one account', () => {
+		const db = createDatabase(':memory:');
+		const { cmd, from, savings } = setupTransfer(db);
+
+		let thrown;
+		try {
+			cmd.editTransfer(from.transferId!, { fromAccountId: savings.id });
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 400 });
+	});
+
+	it('throws 400 when the new account is archived', () => {
+		const db = createDatabase(':memory:');
+		const { budget, cmd, from } = setupTransfer(db);
+		const cash = createAccount(db, budget.id, 'Cash');
+		db.update(tables.accounts)
+			.set({ archivedAt: new Date() })
+			.where(eq(tables.accounts.id, cash.id))
+			.run();
+
+		let thrown;
+		try {
+			cmd.editTransfer(from.transferId!, { fromAccountId: cash.id });
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 400 });
+	});
+
+	it('throws 404 when the new account belongs to another budget', () => {
+		const db = createDatabase(':memory:');
+		const { cmd, from } = setupTransfer(db);
+		const foreignBudget = db.insert(tables.budgets).values({ name: 'Other' }).returning().get();
+		const foreignAccount = createAccount(db, foreignBudget.id, 'Foreign');
+
+		let thrown;
+		try {
+			cmd.editTransfer(from.transferId!, { toAccountId: foreignAccount.id });
+		} catch (e) {
+			thrown = e;
+		}
+		expect(thrown).toMatchObject({ status: 404 });
+	});
+
+	it('throws 404 for a non-existent transfer', () => {
+		const db = createDatabase(':memory:');
+		const { user } = createBudgetWithUser(db);
+		const { editTransfer } = commands(user.id, db);
+
+		expect(() => editTransfer('nonexistent', { amount: 100 })).toThrow();
+	});
+
+	it('throws 404 without access', () => {
+		const db = createDatabase(':memory:');
+		const { from } = setupTransfer(db);
+		const outsider = createUser(db, 'outsider');
+		const { editTransfer } = commands(outsider.id, db);
+
+		expect(() => editTransfer(from.transferId!, { amount: 100 })).toThrow();
+	});
+
+	it('never touches the validated flags', () => {
+		const db = createDatabase(':memory:');
+		const { cmd, from, to } = setupTransfer(db);
+		cmd.validate([from.id], true);
+
+		const updated = cmd.editTransfer(from.transferId!, { amount: 750 });
+
+		expect(updated.from.validated).toBe(true);
+		expect(updated.to.validated).toBe(false);
+		expect(to.validated).toBe(false);
+	});
+});
+
+describe('commands.edit on transfer legs', () => {
+	it('throws 400 for any transfer leg', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const checking = createAccount(db, budget.id, 'Checking');
+		const savings = createAccount(db, budget.id, 'Savings');
+		const cmd = commands(user.id, db);
+		const { from, to } = cmd.transfer({
+			amount: 500,
+			budgetId: budget.id,
+			fromAccountId: checking.id,
+			toAccountId: savings.id
+		});
+
+		for (const leg of [from, to]) {
+			let thrown;
+			try {
+				cmd.edit(leg.id, { amount: 999 });
+			} catch (e) {
+				thrown = e;
+			}
+			expect(thrown).toMatchObject({ status: 400 });
+		}
+	});
+});
+
+describe('commands.delete with transfer legs', () => {
+	it('expands the selection to counterpart legs', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db);
+		const checking = createAccount(db, budget.id, 'Checking');
+		const savings = createAccount(db, budget.id, 'Savings');
+		const cmd = commands(user.id, db);
+		const { from, to } = cmd.transfer({
+			amount: 500,
+			budgetId: budget.id,
+			fromAccountId: checking.id,
+			toAccountId: savings.id
+		});
+		const plain = createTransaction(db, budget.id, checking.id);
+
+		const deleted = cmd.delete([from.id, plain.id]);
+
+		expect(deleted.map((t) => t.id).sort()).toEqual([from.id, plain.id, to.id].sort());
+		expect(db.select().from(tables.transactions).all()).toHaveLength(0);
+	});
+
+	it('deletes nothing without access', () => {
+		const db = createDatabase(':memory:');
+		const { budget, user } = createBudgetWithUser(db, 'OWNER', 'owner');
+		const checking = createAccount(db, budget.id, 'Checking');
+		const savings = createAccount(db, budget.id, 'Savings');
+		const { from } = commands(user.id, db).transfer({
+			amount: 500,
+			budgetId: budget.id,
+			fromAccountId: checking.id,
+			toAccountId: savings.id
+		});
+
+		const outsider = createUser(db, 'outsider');
+		const deleted = commands(outsider.id, db).delete([from.id]);
+
+		expect(deleted).toHaveLength(0);
+		expect(db.select().from(tables.transactions).all()).toHaveLength(2);
 	});
 });
 

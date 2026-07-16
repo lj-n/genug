@@ -229,6 +229,45 @@ describe('unassigned', () => {
 		expect(unassigned(db, budget.id, jan).unassigned).toBe(0);
 	});
 
+	it('excludes transfer legs from income — even when legs diverge across months', () => {
+		const db = createDatabase(':memory:');
+		const { budget } = createBudgetWithUser(db);
+		const checking = seedAccount(db, budget.id, 'Checking');
+		const savings = seedAccount(db, budget.id, 'Savings');
+
+		seedTransaction(db, budget.id, checking.id, null, '2025-01-10', 100000); // income
+
+		// Exclusion is explicit, not reliance on leg cancellation (ADR-0015):
+		// the legs sit in different months, so cancellation would not hold.
+		db.insert(tables.transactions)
+			.values([
+				{
+					accountId: checking.id,
+					amount: -40000,
+					budgetId: budget.id,
+					date: '2025-01-31',
+					transferId: 'transfer1'
+				},
+				{
+					accountId: savings.id,
+					amount: 40000,
+					budgetId: budget.id,
+					date: '2025-02-01',
+					transferId: 'transfer1'
+				}
+			])
+			.run();
+
+		expect(unassigned(db, budget.id, jan)).toMatchObject({
+			incomeUntilMonth: 100000,
+			unassigned: 100000
+		});
+		expect(unassigned(db, budget.id, feb)).toMatchObject({
+			incomeUntilMonth: 100000,
+			unassigned: 100000
+		});
+	});
+
 	it('returns negative when assignments in the month exceed income', () => {
 		const db = createDatabase(':memory:');
 		const { budget } = createBudgetWithUser(db);

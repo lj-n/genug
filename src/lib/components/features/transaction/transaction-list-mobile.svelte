@@ -10,6 +10,7 @@
 
 	import { groupTransactionsByDate } from './group-transactions-by-date';
 	import ValidateToggle from './transaction-validate-toggle.svelte';
+	import { transferCounterpartLabel } from './transfer-counterpart-label';
 
 	let {
 		class: className,
@@ -51,7 +52,9 @@
 							onclick={() => onEdit(item)}
 						>
 							<span class="truncate">
-								{#if item.categoryName}
+								{#if item.transferId}
+									{transferCounterpartLabel(item)}
+								{:else if item.categoryName}
 									{item.categoryName}
 								{:else}
 									<span class="text-muted">{m.transaction_table_cell_category_empty()}</span>

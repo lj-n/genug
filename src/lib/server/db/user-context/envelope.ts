@@ -153,7 +153,15 @@ export function unassigned(db: Database, budgetId: string, month: Month): Unassi
 			total: sql<number>`sum(${tables.transactions.amount})`.as('total')
 		})
 		.from(tables.transactions)
-		.where(and(eq(tables.transactions.budgetId, budgetId), isNull(tables.transactions.categoryId)))
+		.where(
+			and(
+				eq(tables.transactions.budgetId, budgetId),
+				isNull(tables.transactions.categoryId),
+				// Transfer legs are budget-neutral by explicit exclusion, not by
+				// relying on the two legs cancelling out (ADR-0015).
+				isNull(tables.transactions.transferId)
+			)
+		)
 		.groupBy(sql`strftime('%Y%m', ${tables.transactions.date})`)
 		.all();
 

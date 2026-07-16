@@ -23,6 +23,33 @@ export const TransactionEditSchema = v.object({
 	validated: v.optional(v.boolean(), false)
 });
 
+// Transfer forms are register-relative: `amount` is signed from the viewed
+// account's perspective (negative leaves it), `counterpartAccountId` is the
+// other side. The adapter maps sign + accounts to from/to (ADR-0015).
+export const TransferCreateSchema = v.object({
+	accountId: v.pipe(v.string(), v.minLength(1)),
+	amount: v.pipe(
+		MoneySchema,
+		v.check((value) => value !== 0)
+	),
+	budgetId: v.pipe(v.string(), v.minLength(1)),
+	counterpartAccountId: v.pipe(v.string(), v.minLength(1)),
+	date: v.optional(v.pipe(v.string(), v.minLength(1))),
+	notes: v.optional(v.string())
+});
+
+export const TransferEditSchema = v.object({
+	accountId: v.pipe(v.string(), v.minLength(1)),
+	amount: v.pipe(
+		MoneySchema,
+		v.check((value) => value !== 0)
+	),
+	counterpartAccountId: v.pipe(v.string(), v.minLength(1)),
+	date: v.optional(v.pipe(v.string(), v.minLength(1))),
+	notes: v.optional(v.string()),
+	transferId: v.pipe(v.string(), v.minLength(1))
+});
+
 export const BatchTransactionIdsSchema = v.object({
 	ids: v.array(v.pipe(v.string(), v.minLength(1)))
 });

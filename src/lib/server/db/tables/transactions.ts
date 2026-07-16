@@ -35,12 +35,14 @@ export const transactions = sqliteTable(
 			.primaryKey()
 			.$defaultFn(() => createId()),
 		notes: t.text('notes'),
+		transferId: t.text('transfer_id'),
 		validated: t.integer('validated', { mode: 'boolean' }).default(false).notNull()
 	}),
 	(t) => [
 		index('transaction_budget').on(t.budgetId),
 		index('transaction_account').on(t.accountId),
 		index('transaction_account_date').on(t.accountId, t.date),
+		index('transaction_transfer').on(t.transferId),
 		foreignKey({
 			columns: [t.accountId, t.budgetId],
 			foreignColumns: [accounts.id, accounts.budgetId]
@@ -49,7 +51,10 @@ export const transactions = sqliteTable(
 			columns: [t.categoryId, t.budgetId],
 			foreignColumns: [categories.id, categories.budgetId]
 		}),
-		check('date_format', sql`${t.date} LIKE '____-__-__'`) // YYYY-MM-DD
+		check('date_format', sql`${t.date} LIKE '____-__-__'`), // YYYY-MM-DD
+		// Transfer legs carry no category — ever (ADR-0015). Pair-level
+		// invariants stay command-enforced per ADR-0001.
+		check('transfer_no_category', sql`${t.transferId} IS NULL OR ${t.categoryId} IS NULL`)
 	]
 );
 
@@ -162,6 +167,53 @@ if (import.meta.vitest) {
 				budgetId: budget.id,
 				categoryId: category.id,
 				date: '12/31/2023' // invalid date
+			})
+		).rejects.toThrow();
+	});
+
+	it('transactions - transfer legs cannot carry a category (check constraint)', async () => {
+		const database = createDatabase(':memory:');
+
+		const [budget] = await database
+			.insert(budgets)
+			.values({
+				name: 'Budget 1'
+			})
+			.returning();
+
+		const [account] = await database
+			.insert(accounts)
+			.values({
+				budgetId: budget.id,
+				name: 'Account 1'
+			})
+			.returning();
+
+		const [category] = await database
+			.insert(categories)
+			.values({
+				budgetId: budget.id,
+				name: 'Category 1'
+			})
+			.returning();
+
+		await database.insert(transactions).values({
+			accountId: account.id,
+			amount: -1000,
+			budgetId: budget.id,
+			categoryId: null,
+			date: '2023-12-31',
+			transferId: 'transfer1' // category-free transfer leg
+		});
+
+		await expect(
+			database.insert(transactions).values({
+				accountId: account.id,
+				amount: 1000,
+				budgetId: budget.id,
+				categoryId: category.id, // categorized transfer leg
+				date: '2023-12-31',
+				transferId: 'transfer2'
 			})
 		).rejects.toThrow();
 	});

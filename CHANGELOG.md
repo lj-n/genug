@@ -12,6 +12,17 @@ and dependency bumps get no entry.
 
 ### Added
 
+- Money can now be moved between two accounts of the same budget as a
+  transfer: a linked pair of transactions — an outflow in the source account,
+  an inflow in the destination. Transfers carry no category and never touch
+  the budget math (envelope activity, Unassigned). A dedicated Transfer button
+  next to New Transaction opens an inline row on desktop or a bottom sheet on
+  mobile; the amount is signed from the viewed account's perspective (negative
+  leaves it). The register shows the counterpart account ("→ Savings" /
+  "← Checking") in the category column, and a "Transfers" entry in the
+  category filter lists only transfer legs. Editing a leg edits the whole
+  transfer, deleting a leg deletes both sides, and each leg is validated
+  individually against its own account statement.
 - The app now links to its source code repository from the navigation sidebar,
   the mobile navigation drawer, and the login screens, as required by the
   AGPL-3.0 §13 source offer. genug-da is licensed under AGPL-3.0-only. The

@@ -121,12 +121,15 @@ const transaction: ListTransaction = {
 	budgetId: 'budget-1',
 	categoryId: 'category-1',
 	categoryName: 'Groceries',
+	counterpartAccountId: null,
+	counterpartAccountName: null,
 	createdAt: new Date('2026-07-01T00:00:00Z'),
 	createdBy: 'user-1',
 	createdByName: 'user',
 	date: '2026-07-01',
 	id: 'tx-1',
 	notes: 'weekly shop',
+	transferId: null,
 	validated: false
 };
 
