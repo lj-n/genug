@@ -234,6 +234,8 @@
 	"error_account_not_deletable": "Dieses Konto kann nicht gelöscht werden: Keine Zahlung darf auf das Konto verweisen.",
 	"error_account_archived": "Dieses Konto ist archiviert. Stelle es wieder her, bevor du Zahlungen hinzufügst.",
 	"error_transfer_amount_positive": "Ein Umbuchungsbetrag muss positiv sein.",
+	"error_transfer_account_required": "Wähle ein Gegenkonto aus.",
+	"error_transfer_amount_zero": "Gib einen Betrag ungleich null an.",
 	"error_transfer_same_account": "Quell- und Zielkonto müssen sich unterscheiden.",
 	"error_transaction_is_transfer_leg": "Diese Zahlung gehört zu einer Umbuchung. Bearbeite stattdessen die Umbuchung.",
 	"error_category_not_archivable": "Diese Kategorie kann nicht archiviert werden: Der verbleibende Betrag muss null sein und alle Transaktionen müssen validiert sein.",

@@ -1,3 +1,4 @@
+import { m } from '$lib/paraglide/messages';
 import { MoneySchema } from '$lib/utils/money';
 import * as v from 'valibot';
 
@@ -30,10 +31,10 @@ export const TransferCreateSchema = v.object({
 	accountId: v.pipe(v.string(), v.minLength(1)),
 	amount: v.pipe(
 		MoneySchema,
-		v.check((value) => value !== 0)
+		v.check((value) => value !== 0, m.error_transfer_amount_zero())
 	),
 	budgetId: v.pipe(v.string(), v.minLength(1)),
-	counterpartAccountId: v.pipe(v.string(), v.minLength(1)),
+	counterpartAccountId: v.pipe(v.string(), v.minLength(1, m.error_transfer_account_required())),
 	date: v.optional(v.pipe(v.string(), v.minLength(1))),
 	notes: v.optional(v.string())
 });
@@ -42,9 +43,9 @@ export const TransferEditSchema = v.object({
 	accountId: v.pipe(v.string(), v.minLength(1)),
 	amount: v.pipe(
 		MoneySchema,
-		v.check((value) => value !== 0)
+		v.check((value) => value !== 0, m.error_transfer_amount_zero())
 	),
-	counterpartAccountId: v.pipe(v.string(), v.minLength(1)),
+	counterpartAccountId: v.pipe(v.string(), v.minLength(1, m.error_transfer_account_required())),
 	date: v.optional(v.pipe(v.string(), v.minLength(1))),
 	notes: v.optional(v.string()),
 	transferId: v.pipe(v.string(), v.minLength(1))

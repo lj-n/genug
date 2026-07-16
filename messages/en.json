@@ -234,6 +234,8 @@
 	"error_account_not_deletable": "This account cannot be deleted: no transaction may reference it.",
 	"error_account_archived": "This account is archived. Restore it before adding transactions.",
 	"error_transfer_amount_positive": "A transfer amount must be positive.",
+	"error_transfer_account_required": "Choose a counterpart account.",
+	"error_transfer_amount_zero": "Enter an amount other than zero.",
 	"error_transfer_same_account": "Source and destination account must differ.",
 	"error_transaction_is_transfer_leg": "This transaction is part of a transfer. Edit the transfer instead.",
 	"error_category_not_archivable": "This category cannot be archived: the remaining balance must be zero and all transactions must be validated.",
