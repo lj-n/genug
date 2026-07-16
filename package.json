@@ -6,7 +6,8 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
-		"build": "vite build",
+		"build": "vite build && npm run build:reset-password",
+		"build:reset-password": "esbuild scripts/reset-password.ts --bundle --platform=node --format=esm --outfile=build/reset-password.js --define:import.meta.vitest=undefined '--alias:$db=./src/lib/server/db' '--alias:$env/dynamic/private=./scripts/env-shim.ts' '--alias:$lib=./src/lib' '--alias:$server=./src/lib/server' --external:better-sqlite3 --external:@node-rs/argon2",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo '' ; husky",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -54,6 +55,7 @@
 		"bits-ui": "^2.16.3",
 		"drizzle-kit": "^1.0.0-rc.3",
 		"drizzle-orm": "^1.0.0-rc.3",
+		"esbuild": "^0.28.1",
 		"eslint": "^10.0.3",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-perfectionist": "^5.7.0",
