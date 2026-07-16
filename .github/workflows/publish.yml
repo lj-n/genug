@@ -29,7 +29,7 @@ jobs:
   # Tag pushes always publish. main pushes skip when only docs/markdown changed,
   # reusing ci.yml's paths-filter philosophy.
   gate:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     outputs:
       publish: ${{ steps.decide.outputs.publish }}
     steps:
@@ -55,9 +55,10 @@ jobs:
             echo "Docs-only push to main — skipping image build."
           fi
 
-  # Each platform builds natively on its own runner — no QEMU. arm64 uses the
-  # ubuntu-24.04-arm standard runner (counts against included Actions minutes),
-  # so better-sqlite3 compiles per arch at native speed instead of emulated.
+  # Each platform builds natively on its own runner — no QEMU — so
+  # better-sqlite3 compiles per arch at native speed instead of emulated.
+  # The CI_RUNNER / CI_RUNNER_ARM repo variables override the labels (see
+  # ci.yml); unset they fall back to the GitHub-hosted standard runners.
   # Each job pushes an untagged, digest-only image; the merge job stitches them
   # into a single multi-arch tag.
   build:
@@ -69,9 +70,9 @@ jobs:
       matrix:
         include:
           - platform: linux/amd64
-            runner: ubuntu-latest
+            runner: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
           - platform: linux/arm64
-            runner: ubuntu-24.04-arm
+            runner: ${{ vars.CI_RUNNER_ARM || 'ubuntu-24.04-arm' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -124,7 +125,7 @@ jobs:
   # Stitches the per-arch digests into one multi-arch tag list and pushes it.
   merge:
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -167,7 +168,7 @@ jobs:
   release:
     needs: [merge]
     if: github.ref_type == 'tag'
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     permissions:
       contents: write
     steps:
