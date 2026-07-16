@@ -7,7 +7,8 @@
 	import { Input } from '$lib/components/ui/input';
 	import * as Page from '$lib/components/ui/page';
 	import { m } from '$lib/paraglide/messages';
-	import { createCategory } from '$lib/remote-functions/category.remote';
+	import { getMonthly } from '$lib/remote-functions/budget.remote';
+	import { createCategory, getCategories } from '$lib/remote-functions/category.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import PhStack from '~icons/ph/stack';
 
@@ -19,7 +20,8 @@
 		onSuccess: () => {
 			goto(resolve('/(app)/[budgetId=id]', { budgetId }));
 		},
-		toast: {}
+		toast: {},
+		updates: () => [getCategories, getMonthly]
 	});
 </script>
 

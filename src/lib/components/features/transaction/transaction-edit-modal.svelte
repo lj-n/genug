@@ -64,7 +64,8 @@
 		onSuccess: () => {
 			open = false;
 		},
-		toast: {}
+		toast: {},
+		updates: () => [listTransactions]
 	});
 
 	const pending = $derived(submit.pending || deleteSubmit.pending);

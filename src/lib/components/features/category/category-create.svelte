@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
 	import { getMonthly } from '$lib/remote-functions/budget.remote';
-	import { createCategory } from '$lib/remote-functions/category.remote';
+	import { createCategory, getCategories } from '$lib/remote-functions/category.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 
 	import { Button } from '../../ui/button';
@@ -16,7 +16,7 @@
 
 <FormBody
 	{...createCategory.enhance(async (form) => {
-		if (await form.submit().updates(getMonthly)) {
+		if (await form.submit().updates(getCategories, getMonthly)) {
 			form.element.reset();
 			onSuccess?.();
 		}

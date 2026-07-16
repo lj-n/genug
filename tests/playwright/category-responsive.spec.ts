@@ -53,6 +53,28 @@ test('Category detail reopens for the same category after closing', async ({ pag
 	await expect(page.locator('[data-slot="dialog-content"]')).toBeVisible();
 });
 
+test('Deleting a category from the drawer refreshes the budget table', async ({ page, pages }) => {
+	const categoryName = await seedCategory(pages);
+
+	await page.setViewportSize({ height: 720, width: 390 });
+	await pages.category.openDetail(categoryName);
+
+	const drawer = page.locator('[data-slot="drawer-content"]');
+	await expect(drawer).toBeVisible();
+
+	// Delete through the nested alert-dialog confirm (#147: this path used to
+	// drop the post-submit query refresh, leaving a stale row until reload).
+	await drawer.getByRole('button', { exact: true, name: 'Delete' }).click();
+	const confirm = page.getByRole('alertdialog');
+	await expect(
+		confirm.getByRole('heading', { name: 'Delete category permanently?' })
+	).toBeVisible();
+	await confirm.getByRole('button', { exact: true, name: 'Delete' }).click();
+
+	await expect(drawer).not.toBeVisible();
+	await expect(page.getByRole('row').filter({ hasText: categoryName })).not.toBeVisible();
+});
+
 test('Category detail opens as a bottom drawer on narrow viewports', async ({ page, pages }) => {
 	const categoryName = await seedCategory(pages);
 

@@ -56,7 +56,10 @@
 
 	// Deleting either leg removes the whole transfer server-side (ADR-0015); the
 	// refreshed list unmounts this row — that is the success signal.
-	const deleteSubmit = createFormSubmit(() => deleteForm, { toast: {} });
+	const deleteSubmit = createFormSubmit(() => deleteForm, {
+		toast: {},
+		updates: () => [listTransactions]
+	});
 
 	const pending = $derived(submit.pending || deleteSubmit.pending);
 

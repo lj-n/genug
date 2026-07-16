@@ -6,7 +6,8 @@
 	import {
 		deleteAccount,
 		getAccount,
-		getAccountDeletability
+		getAccountDeletability,
+		getAccounts
 	} from '$lib/remote-functions/account.remote';
 	import TrashIcon from '~icons/ph/trash';
 
@@ -43,7 +44,7 @@
 		</div>
 	{/if}
 
-	<AlertDialogForm form={deleteAccount} onSuccess={() => onDeleted()}>
+	<AlertDialogForm form={deleteAccount} onSuccess={() => onDeleted()} updates={() => [getAccounts]}>
 		{#snippet trigger(props)}
 			<Button
 				{...props}
