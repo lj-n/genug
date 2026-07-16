@@ -2,7 +2,7 @@ import { database, type Database, tables } from '$db';
 import { and, desc, eq, getColumns, ne, notExists } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/sqlite-core';
 
-import { hashPassword } from './index';
+import { deleteUserSessions, hashPassword } from './index';
 
 export function createUser({
 	db = database,
@@ -88,6 +88,29 @@ export async function isFirstUser({ db = database }: { db?: Database } = {}) {
 	return (await db.$count(tables.users)) === 0;
 }
 
+/**
+ * Replaces the user's password with a fresh random one and signs the user out
+ * everywhere; the returned plaintext is the only way into the account. Backs
+ * the server-shell recovery CLI (ADR-0015).
+ */
+export async function resetPassword({
+	db = database,
+	username
+}: {
+	db?: Database;
+	username: string;
+}) {
+	const user = await db.query.users.findFirst({ where: { username } });
+	if (!user) throw new Error(`No user with username "${username}" exists`);
+
+	const password = generatePassword();
+	const passwordHash = await hashPassword({ password });
+	db.update(tables.users).set({ passwordHash }).where(eq(tables.users.id, user.id)).run();
+	deleteUserSessions({ db, userId: user.id });
+
+	return password;
+}
+
 export async function setPassword({
 	db = database,
 	password,
@@ -114,4 +137,18 @@ export function setUsername({
 	username: string;
 }) {
 	db.update(tables.users).set({ username }).where(eq(tables.users.id, userId)).run();
+}
+
+/**
+ * Generates a random password that satisfies `PasswordSchema` by construction:
+ * 16 characters (within the 8–20 bounds) ending in a guaranteed digit and
+ * special character, from the same crypto-random source as `createSessionToken`.
+ */
+function generatePassword() {
+	const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+	const bytes = crypto.getRandomValues(new Uint8Array(16));
+	const body = Array.from(bytes.subarray(0, 14), (byte) => alphabet[byte % alphabet.length]);
+	const digit = '0123456789'[bytes[14] % 10];
+	const special = '!@#$%^&*?'[bytes[15] % 9];
+	return body.join('') + digit + special;
 }

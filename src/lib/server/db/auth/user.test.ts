@@ -1,9 +1,19 @@
 import { createDatabase, tables } from '$db';
+import { PasswordSchema } from '$lib/schemas/auth';
 import { and, eq } from 'drizzle-orm';
+import * as v from 'valibot';
 import { expect, it } from 'vitest';
 
-import { hashPassword } from './index';
-import { createUser, deleteUser, getAllUsers, isFirstUser, setPassword, setUsername } from './user';
+import { authenticateUser, createSession, hashPassword } from './index';
+import {
+	createUser,
+	deleteUser,
+	getAllUsers,
+	isFirstUser,
+	resetPassword,
+	setPassword,
+	setUsername
+} from './user';
 
 it('createUser - creates user with correct properties', async () => {
 	const db = createDatabase(':memory:');
@@ -159,6 +169,72 @@ it('setPassword - updates the hash so the new password authenticates', async () 
 
 	const stored = await db.query.users.findFirst({ where: { id: user.id } });
 	expect(stored?.passwordHash).not.toBe(passwordHash);
+});
+
+it('resetPassword - the returned password authenticates the user', async () => {
+	const db = createDatabase(':memory:');
+	const passwordHash = await hashPassword({ password: 'oldpassword1!' });
+	const user = createUser({ db, passwordHash, username: 'testuser' });
+
+	const password = await resetPassword({ db, username: 'testuser' });
+
+	await expect(authenticateUser({ db, password, username: 'testuser' })).resolves.toMatchObject({
+		id: user.id
+	});
+});
+
+it('resetPassword - the old password no longer authenticates', async () => {
+	const db = createDatabase(':memory:');
+	const passwordHash = await hashPassword({ password: 'oldpassword1!' });
+	createUser({ db, passwordHash, username: 'testuser' });
+
+	await resetPassword({ db, username: 'testuser' });
+
+	await expect(
+		authenticateUser({ db, password: 'oldpassword1!', username: 'testuser' })
+	).rejects.toThrow();
+});
+
+it('resetPassword - deletes all existing sessions of the user', async () => {
+	const db = createDatabase(':memory:');
+	const passwordHash = await hashPassword({ password: 'oldpassword1!' });
+	const user = createUser({ db, passwordHash, username: 'testuser' });
+	createSession({ db, userId: user.id });
+	createSession({ db, userId: user.id });
+
+	await resetPassword({ db, username: 'testuser' });
+
+	const sessions = db.select().from(tables.sessions).all();
+	expect(sessions).toHaveLength(0);
+});
+
+it('resetPassword - leaves sessions of other users untouched', async () => {
+	const db = createDatabase(':memory:');
+	const passwordHash = await hashPassword({ password: 'oldpassword1!' });
+	createUser({ db, passwordHash, username: 'testuser' });
+	const other = createUser({ db, passwordHash, username: 'other' });
+	createSession({ db, userId: other.id });
+
+	await resetPassword({ db, username: 'testuser' });
+
+	const sessions = db.select().from(tables.sessions).all();
+	expect(sessions).toHaveLength(1);
+});
+
+it('resetPassword - throws on unknown username', async () => {
+	const db = createDatabase(':memory:');
+
+	await expect(resetPassword({ db, username: 'nobody' })).rejects.toThrow('nobody');
+});
+
+it('resetPassword - the generated password satisfies the password policy', async () => {
+	const db = createDatabase(':memory:');
+	const passwordHash = await hashPassword({ password: 'oldpassword1!' });
+	createUser({ db, passwordHash, username: 'testuser' });
+
+	const password = await resetPassword({ db, username: 'testuser' });
+
+	expect(v.safeParse(PasswordSchema, password).success).toBe(true);
 });
 
 it('setUsername - updates the username', async () => {

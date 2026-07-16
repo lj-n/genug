@@ -12,6 +12,11 @@ and dependency bumps get no entry.
 
 ### Added
 
+- A forgotten password can now be reset from the server shell:
+  `node build/reset-password.js <username>` (inside the container via
+  `docker exec`) prints a fresh random password and signs the user out of all
+  sessions. Works on any deployment without email/SMTP configuration — see
+  `docs/self-hosting.md`.
 - The app now links to its source code repository from the navigation sidebar,
   the mobile navigation drawer, and the login screens, as required by the
   AGPL-3.0 §13 source offer. genug-da is licensed under AGPL-3.0-only. The
