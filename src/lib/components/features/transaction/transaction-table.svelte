@@ -4,12 +4,15 @@
 
 	import { Button } from '$lib/components/ui/button';
 	import * as ButtonGroup from '$lib/components/ui/button-group';
+	import { EmptyState } from '$lib/components/ui/empty-state';
 	import { m } from '$lib/paraglide/messages';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { parseDate } from '@internationalized/date';
 	import ArrowsLeftRightIcon from '~icons/ph/arrows-left-right';
+	import FunnelIcon from '~icons/ph/funnel';
 	import PlusBoldIcon from '~icons/ph/plus-bold';
+	import ReceiptIcon from '~icons/ph/receipt';
 
 	import type { TableState } from './transaction-table-state.svelte';
 
@@ -56,6 +59,15 @@
 	let transferCreateModalOpen = $state(false);
 	let transferEditModalOpen = $state(false);
 	let transferEditModalTransaction = $state<ListTransaction | null>(null);
+
+	// Branch on the *total* (filtered) count, not the rows on this page, so a
+	// stale page URL beyond the last page never shows onboarding copy over data.
+	const isEmpty = $derived(pagination.total === 0);
+	// Mirror the params that actually reached the server — an added-but-blank
+	// filter chip must not flip the copy to "no matches".
+	const filtersApplied = $derived(
+		tableState.params.categoryId.length > 0 || tableState.params.notes !== undefined
+	);
 </script>
 
 <div class="space-y-6">
@@ -187,13 +199,47 @@
 			}}
 		/>
 
-		<TablePagination
-			page={pagination.page}
-			pageSize={pagination.pageSize}
-			total={pagination.total}
-			onSetPage={(page) => tableState.setPage(page)}
-			onSetPageSize={(pageSize) => tableState.setPageSize(pageSize)}
-		/>
+		{#if isEmpty}
+			{#if filtersApplied}
+				<EmptyState icon={FunnelIcon} title={m.transactions_table_empty_filtered_title()}>
+					{#snippet action()}
+						<Button onclick={() => tableState.clearAllFilters()}>
+							{m.transactions_table_empty_filtered_clear()}
+						</Button>
+					{/snippet}
+				</EmptyState>
+			{:else}
+				<EmptyState
+					icon={ReceiptIcon}
+					title={m.transactions_table_empty_title()}
+					description={m.transactions_table_empty_description()}
+				>
+					{#snippet action()}
+						<p class="max-w-md rounded-lg border border-info/30 bg-info/5 p-3 text-sm text-info">
+							{m.transactions_table_empty_income_hint()}
+						</p>
+						<!-- Same breakpoint split as the toolbar buttons above: inline
+						     popover row at @3xl and up, bottom sheet below. -->
+						<Button onclick={() => (openCreateRow = true)} class="hidden @3xl/main:flex">
+							<PlusBoldIcon />
+							{m.transactions_table_empty_create()}
+						</Button>
+						<Button onclick={() => (createModalOpen = true)} class="flex h-11 @3xl/main:hidden">
+							<PlusBoldIcon />
+							{m.transactions_table_empty_create()}
+						</Button>
+					{/snippet}
+				</EmptyState>
+			{/if}
+		{:else}
+			<TablePagination
+				page={pagination.page}
+				pageSize={pagination.pageSize}
+				total={pagination.total}
+				onSetPage={(page) => tableState.setPage(page)}
+				onSetPageSize={(pageSize) => tableState.setPageSize(pageSize)}
+			/>
+		{/if}
 	</div>
 </div>
 

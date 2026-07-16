@@ -23,6 +23,16 @@ and dependency bumps get no entry.
   category filter lists only transfer legs. Editing a leg edits the whole
   transfer, deleting a leg deletes both sides, and each leg is validated
   individually against its own account statement.
+- Every core screen that can be empty now explains itself instead of rendering
+  a blank surface. A fresh budget's month view shows a getting-started card
+  with two inline steps (add your first account, create your first category)
+  that disappears once the first category exists. An account with no
+  transactions explains the register and teaches that income is simply a
+  transaction without a category, while a register emptied by filters offers a
+  clear-filters action instead. The account dropdown hints when no accounts
+  exist yet, the archived-accounts and archived-categories pages state what
+  will appear there, and pagination controls hide while the transaction list
+  is empty.
 - A forgotten password can now be reset from the server shell:
   `node build/reset-password.js <username>` (inside the container via
   `docker exec`) prints a fresh random password and signs the user out of all

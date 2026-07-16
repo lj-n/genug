@@ -1,5 +1,5 @@
 import { asMoney, formatMoney } from '$lib/utils/money';
-import { expect } from '@playwright/test';
+import { expect, type Locator } from '@playwright/test';
 
 import { BasePage } from './base-page';
 
@@ -34,6 +34,11 @@ export class AccountPage extends BasePage {
 		// Archiving takes the account off its detail page and lands on the archive.
 		await expect(this.page.getByRole('heading', { name: 'Archived Accounts' })).toBeVisible();
 		await expect(this.page.getByRole('link', { name: accountName })).toBeVisible();
+	}
+
+	/** Clears all filters through the filtered-empty state's action. */
+	async clearFiltersFromEmptyState() {
+		await this.page.getByRole('button', { name: 'Clear filters' }).click();
 	}
 
 	async createTransaction(params: CreateTransactionParams | string = {}) {
@@ -236,6 +241,13 @@ export class AccountPage extends BasePage {
 		}
 	}
 
+	/** Activates the notes filter (desktop-only affordance) and types a search term. */
+	async filterByNotes(text: string) {
+		await this.page.getByRole('button', { name: 'Filter' }).click();
+		await this.page.getByRole('menuitem', { name: 'Notes Filter' }).click();
+		await this.page.getByRole('textbox', { name: 'Notes Filter' }).fill(text);
+	}
+
 	async goto(accountName: string) {
 		const url = this.ctx.accounts.get(accountName);
 		if (!url) {
@@ -261,6 +273,25 @@ export class AccountPage extends BasePage {
 		await expect(this.page.getByText('This account is archived')).toBeVisible();
 		await expect(this.page.getByRole('button', { name: 'New Transaction' })).toHaveCount(0);
 		await expect(this.page.getByRole('button', { name: 'Account Settings' })).toHaveCount(0);
+	}
+
+	/** The page-size trigger of the transaction pagination (hidden while the list is empty). */
+	paginationControls(): Locator {
+		return this.page.getByText('15 per page');
+	}
+
+	/**
+	 * Records the first transaction through the truly-empty state's action, which
+	 * opens the same inline create row as the toolbar button.
+	 */
+	async recordFirstTransaction(amount: string) {
+		await this.page.getByRole('button', { name: 'Record your first transaction' }).click();
+
+		const createRow = this.page.getByRole('row', { name: 'New Transaction' });
+		await createRow.getByRole('textbox', { name: 'Amount' }).fill(amount);
+		await createRow.getByRole('button', { exact: true, name: 'Save' }).click();
+
+		await expect(createRow).not.toBeVisible();
 	}
 
 	/**
@@ -291,5 +322,20 @@ export class AccountPage extends BasePage {
 		} else {
 			await expect(row.locator('svg.text-success').first()).toBeVisible();
 		}
+	}
+
+	/** The truly-empty register's guidance title. */
+	transactionsEmptyState(): Locator {
+		return this.page.getByText('No transactions yet');
+	}
+
+	/** The filtered-empty state's title ("no matches", never onboarding copy). */
+	transactionsFilteredEmptyState(): Locator {
+		return this.page.getByText('No transactions match your filters');
+	}
+
+	/** The income-is-an-uncategorized-transaction hint in the truly-empty state. */
+	transactionsIncomeHint(): Locator {
+		return this.page.getByText('Income is simply a transaction without a category');
 	}
 }

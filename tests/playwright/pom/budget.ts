@@ -3,6 +3,11 @@ import { expect, type Locator } from '@playwright/test';
 import { BasePage } from './base-page';
 
 export class BudgetPage extends BasePage {
+	/** The empty-accounts hint inside the account dropdown (dropdown must be open). */
+	accountDropdownEmptyHint(): Locator {
+		return this.page.getByText('No accounts yet');
+	}
+
 	async assignAmount(categoryName: string, amount: string) {
 		const budgetButton = this.categoryRow(categoryName).getByRole('button', { name: 'Budget' });
 		// The table can re-render after a category change (SvelteKit invalidateAll
@@ -67,6 +72,29 @@ export class BudgetPage extends BasePage {
 		await expect(dialog).toBeVisible();
 	}
 
+	/**
+	 * Creates the first account through the getting-started card's step-1 action.
+	 * Mirrors createAccount: the server redirects to the new account page, so the
+	 * URL is captured and the test returns to the budget page afterwards.
+	 */
+	async createAccountFromGettingStarted(name: string, startingBalance = '0') {
+		await this.gettingStartedAccountStep().click();
+		await expect(this.page.getByRole('heading', { name: 'Add New Account' })).toBeVisible();
+
+		await this.page.getByRole('textbox', { name: 'Account Name' }).fill(name);
+		await this.page
+			.getByRole('textbox', { name: 'What is the current balance?' })
+			.fill(startingBalance);
+		await this.page.getByRole('button', { name: 'Create Account' }).click();
+
+		await expect(this.page.getByRole('heading', { name })).toBeVisible();
+		this.ctx.accounts.set(name, this.page.url());
+
+		if (this.ctx.budgetUrl) {
+			await this.page.goto(this.ctx.budgetUrl);
+		}
+	}
+
 	async createBudget(name: string) {
 		await this.page.goto('/new');
 		await expect(
@@ -126,12 +154,50 @@ export class BudgetPage extends BasePage {
 		await expect(dialog).toBeVisible();
 	}
 
+	/** Creates the first category through the getting-started card's step-2 action. */
+	async createCategoryFromGettingStarted(name: string) {
+		await this.gettingStartedCategoryStep().click();
+
+		const dialog = this.page.getByRole('dialog');
+		const input = dialog.getByRole('textbox', { name: 'Category Name' });
+		await input.fill(name);
+		await input.press('Enter');
+
+		await expect(dialog).toBeHidden();
+		await expect(this.categoryRow(name).getByRole('button', { exact: true, name })).toBeVisible();
+	}
+
+	/** Step-1 action button on the getting-started card; gone once an account exists. */
+	gettingStartedAccountStep(): Locator {
+		return this.page.getByRole('button', { name: 'Add your first account' });
+	}
+
+	/** Step-1 done marker (sr-only text next to the checkmark). */
+	gettingStartedAccountStepDone(): Locator {
+		return this.page.getByText('Done', { exact: true });
+	}
+
+	/** Step-2 action on the getting-started card (dialog button on desktop, link on the phone). */
+	gettingStartedCategoryStep(): Locator {
+		return this.page.getByRole('button', { name: 'Create your first category' });
+	}
+
+	/** Title of the getting-started card, shown while the budget has no categories. */
+	gettingStartedTitle(): Locator {
+		return this.page.getByText('Set up your budget');
+	}
+
 	async goto(budgetName: string) {
 		if (!this.ctx.budgetUrl) {
 			throw new Error('createBudget must be called before goto');
 		}
 		await this.page.goto(this.ctx.budgetUrl);
 		await expect(this.page.getByRole('heading', { name: budgetName })).toBeVisible();
+	}
+
+	async openAccountsDropdown() {
+		await this.page.getByRole('button', { name: 'Show Accounts' }).click();
+		await expect(this.page.getByRole('menu')).toBeVisible();
 	}
 
 	/** The transfer trigger for a category; its label shows the "remaining" amount. */

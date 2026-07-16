@@ -50,6 +50,12 @@
 					{/snippet}
 				</DropdownMenu.Item>
 			{/each}
+
+			{#if accounts.length === 0}
+				<p class="max-w-52 px-2 py-1.5 text-sm text-muted">
+					{m.budget_account_list_empty_hint()}
+				</p>
+			{/if}
 		</DropdownMenu.Group>
 
 		<DropdownMenu.Separator />
