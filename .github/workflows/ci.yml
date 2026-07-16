@@ -14,9 +14,12 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Runner routing: the CI_RUNNER repo variable overrides the runner label for
+# all jobs (e.g. ubicloud-standard-2). Unset it to fall back to GitHub-hosted.
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,7 +33,7 @@ jobs:
           DATABASE_URL: ':memory:'
 
   check:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -42,7 +45,7 @@ jobs:
       - run: npm run check
 
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -54,7 +57,7 @@ jobs:
       - run: npm run lint
 
   unit-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -70,7 +73,7 @@ jobs:
   # Decide whether the (expensive) e2e suite should run for this PR.
   # Skips drafts and changes that touch only docs/markdown.
   gate:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     outputs:
       run_e2e: ${{ steps.decide.outputs.run_e2e }}
     steps:
@@ -98,7 +101,7 @@ jobs:
   e2e-test:
     needs: [gate]
     if: needs.gate.outputs.run_e2e == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 8
     strategy:
       fail-fast: false
@@ -135,7 +138,7 @@ jobs:
     name: 🎉 E2E Tests Passed
     needs: [gate, e2e-test]
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - run: |
           if [ "${{ needs.gate.result }}" != "success" ]; then
@@ -156,7 +159,7 @@ jobs:
   e2e-merge:
     needs: [gate, e2e-test]
     if: always() && needs.gate.outputs.run_e2e == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
