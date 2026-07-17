@@ -1,5 +1,9 @@
 # genug-da
 
+[![CI](https://github.com/lj-n/genug-da/actions/workflows/ci.yml/badge.svg)](https://github.com/lj-n/genug-da/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/tag/lj-n/genug-da?label=release)](CHANGELOG.md)
+[![License: AGPL-3.0-only](https://img.shields.io/badge/license-AGPL--3.0--only-blue)](LICENSE)
+
 A self-hosted [envelope budgeting](https://en.wikipedia.org/wiki/Envelope_system) app.
 
 ## What is genug-da?
@@ -28,7 +32,7 @@ each marked pending or validated.](docs/screenshots/transactions.png)
 - **Budget Plans** — Separate budgets for personal, business, etc. Each with
   its own accounts, categories, and transactions.
 - **Accounts** — Map your bank accounts and credit cards. Track validated vs.
-  pending balances.
+  pending balances. Transfer between accounts.
 - **Categories** — Organize spending areas. Archive unused ones. Set target
   balances.
 - **Transactions** — Inline editing of category, date, notes, amount. Toggle
@@ -51,114 +55,36 @@ SvelteKit, Svelte 5, and Drizzle ORM.
 Svelte 5 (runes), SvelteKit 2, Tailwind CSS 4, bits-ui, Drizzle ORM,
 better-sqlite3, valibot, @node-rs/argon2, Paraglide i18n, Vitest, Playwright.
 
-## Getting Started
+## Deploy
 
-### Prerequisites
-
-- Node.js 22+
-- Build tools for native addons (better-sqlite3 compiles from source)
-
-### Environment Variables
-
-`DATABASE_URL` — path to the SQLite database file, e.g.
-`./data/genug-da.db`. Required.
-
-`PORT` — port the server listens on (default: `3000`).
-
-`ORIGIN` — public URL of your instance, e.g. `https://budget.example.com`.
-Required for CSRF protection when running behind a reverse proxy.
-
-### Container images (GHCR)
-
-Prebuilt images are published to the GitHub Container Registry at
-`ghcr.io/lj-n/genug-da` (see [ADR-0012](docs/adr/0012-calver-releases-and-stage-deploy.md)):
-
-| Tag           | Built from      | Use                                                                         |
-| ------------- | --------------- | --------------------------------------------------------------------------- |
-| `latest`      | latest release  | Production — moving pointer to the newest release.                          |
-| `<version>`   | a release       | Production — immutable pin (`2026.07.0`); roll back by pinning a prior one. |
-| `stage`       | tip of `main`   | Testing — rolling build ahead of the last release.                          |
-| `sha-<short>` | a `main` commit | Testing — immutable pin to an exact commit.                                 |
-
-Stage builds show a dev-flavoured version beside the logo (`2026.07.0-dev+a1b2c3d`);
-release builds show the clean CalVer.
-
-While the repository (and image) is private, authenticate the host once with a
-personal access token that has `read:packages`:
-
-```sh
-echo "$GHCR_PAT" | docker login ghcr.io -u <github-username> --password-stdin
-```
-
-### Docker Compose (production)
-
-Pulls the released image; swap `latest` for a specific `<version>` to pin or
-roll back.
+Prebuilt images are published to `ghcr.io/lj-n/genug-da`. A minimal Docker
+Compose stack:
 
 ```yml
 services:
   genug-da:
-    container_name: genug-da
     image: ghcr.io/lj-n/genug-da:latest
     restart: unless-stopped
     ports:
       - '3000:3000'
     volumes:
       - ./data:/app/data:rw
-    logging:
-      driver: json-file
-      options:
-        max-size: '10m'
-        max-file: '5'
     environment:
       DATABASE_URL: '/app/data/genug.db'
       ORIGIN: 'https://your.domain'
-      NODE_ENV: 'production'
 ```
 
-Update with `docker compose pull && docker compose up -d`. To build locally
-instead of pulling, replace `image:` with `build: .`.
+The first login on a fresh instance creates the admin user.
 
-### Docker Compose (stage)
-
-A second stack pulling `:stage` lets you try the tip of `main` before promoting
-it to production. Give it its own data volume, port, and origin so it never
-touches production data.
-
-```yml
-services:
-  genug-da-stage:
-    container_name: genug-da-stage
-    image: ghcr.io/lj-n/genug-da:stage
-    restart: unless-stopped
-    ports:
-      - '3003:3000'
-    volumes:
-      - ./data-stage:/app/data:rw
-    environment:
-      DATABASE_URL: '/app/data/genug.db'
-      ORIGIN: 'https://stage.your.domain'
-      NODE_ENV: 'production'
-```
-
-### Docker (standalone)
-
-```sh
-docker build -t genug-da .
-docker run -p 3000:3000 -v ./data:/app/data -e DATABASE_URL=/app/data/genug-da.db genug-da
-```
-
-### Manual
-
-```sh
-npm install
-DATABASE_URL=:memory: npm run build
-node build
-```
+For the full picture — image tags and rollback, reverse proxy and `ORIGIN`,
+all environment variables, running without Docker, backups, upgrades, and
+password recovery — see [docs/self-hosting.md](docs/self-hosting.md).
 
 ## Usage
 
-Detailed docs coming soon.
+[docs/usage.md](docs/usage.md) walks through the app feature by feature:
+first login, budget plans, accounts, categories, monthly assignment,
+transactions and transfers, multi-user, and settings.
 
 ## Development
 
@@ -186,6 +112,10 @@ git push --follow-tags
 
 Versions are CalVer (`YYYY.0M.MICRO`) and the changelog is hand-curated under
 `## [Unreleased]`; see [ADR-0012](docs/adr/0012-calver-releases-and-stage-deploy.md).
+
+## Contributing
+
+See [CONTRIBUTING](.github/CONTRIBUTING.md).
 
 ## License
 
