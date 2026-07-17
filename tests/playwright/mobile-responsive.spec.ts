@@ -165,6 +165,11 @@ test('Add account and category at phone width', async ({ page, pages }) => {
 
 	await pages.budget.createAccount(uniqueName(faker.finance.accountName()));
 
+	// The quick-actions row only renders once a category exists; the first one
+	// comes from the table's empty-state CTA (a dialog at any width).
+	await pages.budget.createCategoryViaTableCta(uniqueName(faker.commerce.department()));
+	await expectNoHorizontalOverflow(page);
+
 	// Below the md breakpoint the quick action routes to the standalone
 	// category form page instead of the inline dialog.
 	const categoryName = uniqueName(faker.commerce.department());

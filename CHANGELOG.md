@@ -12,6 +12,8 @@ and dependency bumps get no entry.
 
 ### Fixed
 
+- The Add-Account dialog now receives keyboard focus when it opens;
+  previously focus stayed on the triggering button behind the overlay.
 - Deleting a category or account from the detail view on a narrow (phone)
   viewport now removes the row from the budget table immediately; previously
   the deleted entry could linger until a page reload.
@@ -21,13 +23,16 @@ and dependency bumps get no entry.
 - New budgets now come with guidance instead of blank screens: a tutorial
   card at the top of the month view walks through the first two steps (add an
   account, create a category) with independent checkmarks and inline create
-  dialogs, and closes with a hint that income is recorded as a transaction
-  without a category — "your account" becoming a link once one exists. The
-  category table, the account's transaction list, the account dropdown, and
-  the archived-accounts/-categories pages each show a deliberate empty state;
-  the transaction list distinguishes "no transactions yet" (guidance plus an
-  add-transaction action) from "nothing matches your filters" (clear-filters
-  action), and pagination is hidden while the list is empty.
+  dialogs, and closes with a pointer to the first account for recording
+  transactions. Until the first category exists, the month navigator, quick
+  actions, and unassigned summary stay out of the way; the archived-categories
+  link appears only once something is archived. The category table, the
+  account's transaction list, the account dropdown, and the
+  archived-accounts/-categories pages each show a deliberate empty state; the
+  transaction list distinguishes "no transactions yet" (guidance plus an
+  add-transaction action, including the income-is-a-transaction-without-a-
+  category hint) from "nothing matches your filters" (clear-filters action),
+  and pagination is hidden while the list is empty.
 - Money can now be moved between two accounts of the same budget as a
   transfer: a linked pair of transactions — an outflow in the source account,
   an inflow in the destination. Transfers carry no category and never touch

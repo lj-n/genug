@@ -25,6 +25,14 @@ test('Empty-state guidance — canonical first-run path', async ({ page, pages }
 	await expect(pages.budget.categoryTableEmptyCta()).toBeVisible();
 	await expect(page.getByRole('columnheader', { exact: true, name: 'Category' })).toHaveCount(0);
 
+	// Without a category there is nothing to navigate, assign, or archive: the
+	// month navigator, quick actions, and unassigned summary are all absent.
+	await expect(page.getByRole('button', { name: 'Select previous month' })).toHaveCount(0);
+	await expect(page.getByRole('button', { name: 'Create Category' })).toHaveCount(0);
+	await expect(page.getByRole('link', { name: 'Create Category' })).toHaveCount(0);
+	await expect(page.getByRole('button', { name: 'Explain the unallocated amount' })).toHaveCount(0);
+	await expect(page.getByRole('link', { name: '0 archived' })).toHaveCount(0);
+
 	// The account dropdown carries the no-accounts hint.
 	await page.getByRole('button', { name: 'Show Accounts' }).click();
 	await expect(page.getByText('No accounts yet — add one below.')).toBeVisible();
@@ -51,8 +59,10 @@ test('Empty-state guidance — canonical first-run path', async ({ page, pages }
 	await expect(page.getByText('No accounts yet — add one below.')).toHaveCount(0);
 	await page.keyboard.press('Escape');
 
-	// The footer link leads to the truly-empty register: guidance with the
-	// income hint and the add-transaction action, no pagination machinery.
+	// The footer link — now carrying the account's name — leads to the
+	// truly-empty register: guidance with the income hint and the
+	// add-transaction action, no pagination machinery.
+	await expect(pages.budget.tutorialFooterAccountLink()).toHaveText(accountName);
 	await pages.budget.tutorialFooterAccountLink().click();
 	await expect(page.getByRole('heading', { name: accountName })).toBeVisible();
 	await expect(pages.account.transactionsEmptyState()).toBeVisible();
@@ -91,6 +101,13 @@ test('Empty-state guidance — canonical first-run path', async ({ page, pages }
 
 	await expect(pages.budget.tutorialCard()).toHaveCount(0);
 	await expect(page.getByRole('columnheader', { exact: true, name: 'Category' })).toBeVisible();
+
+	// With a category the month affordances return — except the archived link,
+	// which waits for the first archived category.
+	await expect(page.getByRole('button', { name: 'Select previous month' })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Create Category' })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Explain the unallocated amount' })).toBeVisible();
+	await expect(page.getByRole('link', { name: '0 archived' })).toHaveCount(0);
 });
 
 // Regression (#167): a user who creates a category before an account must not

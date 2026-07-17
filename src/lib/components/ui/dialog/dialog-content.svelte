@@ -28,7 +28,16 @@
 
 <DialogPortal {...portalProps}>
 	<Dialog.Overlay />
-	<DialogPrimitive.Content data-slot="dialog-content" {...restProps} forceMount>
+	<DialogPrimitive.Content
+		data-slot="dialog-content"
+		{...restProps}
+		forceMount
+		onOpenAutoFocus={(e) => {
+			e.preventDefault();
+			document.documentElement.dataset.openAutoFocusFired = 'yes';
+			setTimeout(() => ref?.focus(), 0);
+		}}
+	>
 		{#snippet child({ open, props })}
 			{#if open}
 				<div

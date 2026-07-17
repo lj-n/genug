@@ -80,6 +80,9 @@ export class BudgetPage extends BasePage {
 	async createAccountViaTutorial(name: string, startingBalance = '0') {
 		await this.tutorialStepAction('account').click();
 		await expect(this.page.getByRole('heading', { name: 'Add New Account' })).toBeVisible();
+		// Regression: a suspending await in the form used to let the dialog open
+		// without receiving focus, stranding keyboard users behind the overlay.
+		await expect(this.page.locator('[data-slot="dialog-content"]')).toBeFocused();
 
 		await this.page.getByRole('textbox', { name: 'Account Name' }).fill(name);
 		await this.page
@@ -115,7 +118,10 @@ export class BudgetPage extends BasePage {
 	}
 
 	async createCategory(name: string) {
-		await this.page.getByRole('button', { name: 'Create Category' }).click();
+		// The quick-actions button only renders once a category exists; on a
+		// fresh budget the first category comes from the table's empty-state
+		// CTA ("Create a category") — both open the same quick dialog.
+		await this.page.getByRole('button', { name: /^create (a )?category$/i }).click();
 
 		const dialog = this.page.getByRole('dialog');
 		const input = dialog.getByRole('textbox', { name: 'Category Name' });
@@ -224,9 +230,9 @@ export class BudgetPage extends BasePage {
 		return this.page.getByRole('region', { name: 'Set up your budget' });
 	}
 
-	/** The footer phrase that links to the first account once one exists. */
+	/** The footer link to the first account (its name); absent until one exists. */
 	tutorialFooterAccountLink(): Locator {
-		return this.tutorialCard().getByRole('link', { name: 'your account' });
+		return this.tutorialCard().getByRole('link');
 	}
 
 	/** A tutorial step's inline action button; only rendered while the step is open. */
