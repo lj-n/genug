@@ -32,6 +32,17 @@ and dependency bumps get no entry.
 - The Add-Account dialog now receives keyboard focus when it opens;
   previously focus stayed on the triggering button behind the overlay.
 
+- The container image now sets `PORT=3000` and exposes the same port. It
+  previously exposed 3002 while the server listened on 3000, so a plain
+  `docker run -p 3002:3002` served nothing without an explicit `PORT` env
+  var. The README and self-hosting docs now agree on 3000 and document how
+  to override the port and why `ORIGIN` is required.
+
+- The README's `DATABASE_URL` examples used a `file:` URI prefix that
+  better-sqlite3 does not support — copied verbatim, they crashed the
+  container with "unable to open database file". The examples now use plain
+  file paths.
+
 ## [2026.07.3] - 2026-07-17
 
 ### Fixed

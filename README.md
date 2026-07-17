@@ -61,9 +61,9 @@ better-sqlite3, valibot, @node-rs/argon2, Paraglide i18n, Vitest, Playwright.
 ### Environment Variables
 
 `DATABASE_URL` — path to the SQLite database file, e.g.
-`file:./data/genug-da.db`. Required.
+`./data/genug-da.db`. Required.
 
-`PORT` — port the server listens on (default: `3002`).
+`PORT` — port the server listens on (default: `3000`).
 
 `ORIGIN` — public URL of your instance, e.g. `https://budget.example.com`.
 Required for CSRF protection when running behind a reverse proxy.
@@ -102,7 +102,7 @@ services:
     image: ghcr.io/lj-n/genug-da:latest
     restart: unless-stopped
     ports:
-      - '3002:3002'
+      - '3000:3000'
     volumes:
       - ./data:/app/data:rw
     logging:
@@ -111,8 +111,7 @@ services:
         max-size: '10m'
         max-file: '5'
     environment:
-      PORT: 3002
-      DATABASE_URL: 'file:/app/data/genug.db'
+      DATABASE_URL: '/app/data/genug.db'
       ORIGIN: 'https://your.domain'
       NODE_ENV: 'production'
 ```
@@ -133,12 +132,11 @@ services:
     image: ghcr.io/lj-n/genug-da:stage
     restart: unless-stopped
     ports:
-      - '3003:3002'
+      - '3003:3000'
     volumes:
       - ./data-stage:/app/data:rw
     environment:
-      PORT: 3002
-      DATABASE_URL: 'file:/app/data/genug.db'
+      DATABASE_URL: '/app/data/genug.db'
       ORIGIN: 'https://stage.your.domain'
       NODE_ENV: 'production'
 ```
@@ -147,7 +145,7 @@ services:
 
 ```sh
 docker build -t genug-da .
-docker run -p 3002:3002 -v ./data:/app/data -e DATABASE_URL=file:./data/genug-da.db genug-da
+docker run -p 3000:3000 -v ./data:/app/data -e DATABASE_URL=/app/data/genug-da.db genug-da
 ```
 
 ### Manual

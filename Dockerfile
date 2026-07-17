@@ -30,12 +30,13 @@ FROM node:22-alpine
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV PORT=3000
 
 COPY --from=builder /app/build build/
 COPY --from=builder /app/node_modules node_modules/
 COPY --from=builder /app/src/lib/server/db/migrations src/lib/server/db/migrations/
 COPY --from=builder /app/package.json ./
 
-EXPOSE 3002
+EXPOSE 3000
 
 CMD ["node", "build"]
