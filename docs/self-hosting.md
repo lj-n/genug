@@ -48,7 +48,7 @@ services:
     image: ghcr.io/lj-n/genug-da:latest
     restart: unless-stopped
     ports:
-      - '3002:3002'
+      - '3000:3000'
     volumes:
       - ./data:/app/data:rw
     logging:
@@ -57,8 +57,7 @@ services:
         max-size: '10m'
         max-file: '5'
     environment:
-      PORT: 3002
-      DATABASE_URL: 'file:/app/data/genug.db'
+      DATABASE_URL: '/app/data/genug.db'
       ORIGIN: 'https://your.domain'
 ```
 
@@ -96,24 +95,23 @@ services:
     image: ghcr.io/lj-n/genug-da:stage
     restart: unless-stopped
     ports:
-      - '3003:3002'
+      - '3003:3000'
     volumes:
       - ./data-stage:/app/data:rw
     environment:
-      PORT: 3002
-      DATABASE_URL: 'file:/app/data/genug.db'
+      DATABASE_URL: '/app/data/genug.db'
       ORIGIN: 'https://stage.your.domain'
 ```
 
 ## Environment variables
 
-| Variable       | Required            | Description                                                                                                            |
-| -------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL` | yes                 | Path to the SQLite database file, e.g. `file:/app/data/genug.db`. The app refuses to start without it.                 |
-| `ORIGIN`       | yes, behind a proxy | Public URL of the instance (`https://budget.example.com`). Used for CSRF protection; see above.                        |
-| `PORT`         | no                  | Port the server listens on. adapter-node defaults to `3000`; the compose examples set `3002`, which the image exposes. |
-| `LOG_LEVEL`    | no                  | Log verbosity ([pino](https://getpino.io) levels, e.g. `debug`, `info`, `warn`, `error`). Defaults to `info`.          |
-| `NODE_ENV`     | no                  | `production` switches logs to plain JSON. Already set in the container image; set it yourself for manual runs.         |
+| Variable       | Required            | Description                                                                                                                                |
+| -------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `DATABASE_URL` | yes                 | Path to the SQLite database file, e.g. `/app/data/genug.db` (a plain path, not a `file:` URI). The app refuses to start without it.        |
+| `ORIGIN`       | yes, behind a proxy | Public URL of the instance (`https://budget.example.com`). Used for CSRF protection; see above.                                            |
+| `PORT`         | no                  | Port the server listens on. Defaults to `3000`, which the image sets and exposes. Set it to serve on a different port (map that port too). |
+| `LOG_LEVEL`    | no                  | Log verbosity ([pino](https://getpino.io) levels, e.g. `debug`, `info`, `warn`, `error`). Defaults to `info`.                              |
+| `NODE_ENV`     | no                  | `production` switches logs to plain JSON. Already set in the container image; set it yourself for manual runs.                             |
 
 The server is built with SvelteKit's adapter-node, which understands further
 variables (`HOST`, `BODY_SIZE_LIMIT`, proxy-header handling, …) — see the
@@ -124,7 +122,7 @@ variables (`HOST`, `BODY_SIZE_LIMIT`, proxy-header handling, …) — see the
 ```sh
 npm install
 DATABASE_URL=:memory: npm run build
-DATABASE_URL=file:./data/genug.db NODE_ENV=production node build
+DATABASE_URL=./data/genug.db NODE_ENV=production node build
 ```
 
 Migrations run automatically at startup.

@@ -66,12 +66,11 @@ services:
     image: ghcr.io/lj-n/genug-da:latest
     restart: unless-stopped
     ports:
-      - '3002:3002'
+      - '3000:3000'
     volumes:
       - ./data:/app/data:rw
     environment:
-      PORT: 3002
-      DATABASE_URL: 'file:/app/data/genug.db'
+      DATABASE_URL: '/app/data/genug.db'
       ORIGIN: 'https://your.domain'
 ```
 
