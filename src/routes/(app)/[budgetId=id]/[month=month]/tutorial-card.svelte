@@ -10,7 +10,7 @@
 	import { focusRing } from '$lib/components/ui/focus-ring';
 	import { m } from '$lib/paraglide/messages';
 	import { getAccounts } from '$lib/remote-functions/account.remote';
-	import { getBudget, getMonthly } from '$lib/remote-functions/budget.remote';
+	import { getBudget, getMonthly, getUnassigned } from '$lib/remote-functions/budget.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { cn } from 'tailwind-variants';
 	import CheckCircleFillIcon from '~icons/ph/check-circle-fill';
@@ -107,7 +107,11 @@
 			</Dialog.Description>
 		</Dialog.Header>
 
-		<AccountCreate {currency} />
+		<AccountCreate
+			{currency}
+			onSuccess={() => (accountDialogOpen = false)}
+			updates={() => [getUnassigned({ budgetId: budgetId(), month })]}
+		/>
 	</Dialog.Content>
 </Dialog.Root>
 

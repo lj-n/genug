@@ -23,8 +23,8 @@ and dependency bumps get no entry.
 - New budgets now come with guidance instead of blank screens: a tutorial
   card at the top of the month view walks through the first two steps (add an
   account, create a category) with independent checkmarks and inline create
-  dialogs, and closes with a pointer to the first account for recording
-  transactions. Until the first category exists, the month navigator, quick
+  dialogs — both create in place, without leaving the month view — and closes
+  with a pointer to the first account for recording transactions. Until the first category exists, the month navigator, quick
   actions, and unassigned summary stay out of the way; the archived-categories
   link appears only once something is archived. The category table, the
   account's transaction list, the account dropdown, and the

@@ -1,8 +1,13 @@
 <script lang="ts">
 	import type { CURRENCIES } from '$lib/utils/currencies';
+	import type { RemoteQueryUpdate } from '@sveltejs/kit';
 
 	import { m } from '$lib/paraglide/messages';
-	import { createAccount } from '$lib/remote-functions/account.remote';
+	import {
+		createAccount,
+		createAccountInline,
+		getAccounts
+	} from '$lib/remote-functions/account.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 
@@ -16,14 +21,40 @@
 	// when its dialog opens, and a top-level await would suspend the dialog
 	// subtree past bits-ui's open autofocus — focus would stay on the trigger
 	// behind the overlay. Callers resolve the budget at page mount instead.
-	let { currency }: { currency: (typeof CURRENCIES)[number] } = $props();
+	//
+	// With `onSuccess` the form creates in place (no redirect): the callback is
+	// the close signal and the account list refreshes single-flight, plus any
+	// caller-declared `updates`. Without it, the redirect is the success signal.
+	let {
+		currency,
+		onSuccess,
+		updates
+	}: {
+		currency: (typeof CURRENCIES)[number];
+		onSuccess?: () => void;
+		updates?: () => RemoteQueryUpdate[];
+	} = $props();
 
 	const budgetId = getBudgetId();
 
-	const form = $derived(createAccount.for(budgetId()));
+	const form = $derived(
+		onSuccess ? createAccountInline.for(budgetId()) : createAccount.for(budgetId())
+	);
 
-	// Create-then-navigate: the redirect is the success signal, no toast.
-	const submit = createFormSubmit(() => form, { toast: {} });
+	// The mode (inline vs redirect) is fixed per call site — no caller ever
+	// swaps `onSuccess` after mount, so capturing its presence at init is
+	// deliberate.
+	// svelte-ignore state_referenced_locally
+	const submit = createFormSubmit(() => form, {
+		onSuccess: onSuccess
+			? (instance) => {
+					instance.element.reset();
+					onSuccess();
+				}
+			: undefined,
+		toast: {},
+		updates: onSuccess ? () => [getAccounts(budgetId()), ...(updates?.() ?? [])] : undefined
+	});
 </script>
 
 <FormBody {...submit.attrs}>

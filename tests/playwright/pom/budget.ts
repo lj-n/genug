@@ -73,9 +73,9 @@ export class BudgetPage extends BasePage {
 	}
 
 	/**
-	 * Creates an account through the tutorial card's step-1 dialog. Account
-	 * creation redirects to the new account's page; like `createAccount`, the
-	 * URL is captured and the test returns to the budget page.
+	 * Creates an account through the tutorial card's step-1 dialog. Unlike
+	 * `createAccount`, this creates in place: the dialog closes and the card
+	 * checks off step 1 without leaving the month view.
 	 */
 	async createAccountViaTutorial(name: string, startingBalance = '0') {
 		await this.tutorialStepAction('account').click();
@@ -90,12 +90,7 @@ export class BudgetPage extends BasePage {
 			.fill(startingBalance);
 		await this.page.getByRole('button', { name: 'Create Account' }).click();
 
-		await expect(this.page.getByRole('heading', { name })).toBeVisible();
-		this.ctx.accounts.set(name, this.page.url());
-
-		if (this.ctx.budgetUrl) {
-			await this.page.goto(this.ctx.budgetUrl);
-		}
+		await expect(this.page.getByRole('heading', { name: 'Add New Account' })).toBeHidden();
 	}
 
 	async createBudget(name: string) {
