@@ -99,6 +99,74 @@ test('Toggle Validated', async ({ pages }) => {
 	await pages.account.toggleValidated();
 });
 
+test('Toggle and switch create rows from their trigger buttons', async ({ page, pages }) => {
+	await pages.auth.createUserAndLogin();
+
+	const budgetName = faker.commerce.department();
+	await pages.budget.createBudget(budgetName);
+
+	const accountName = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountName);
+
+	await pages.account.goto(accountName);
+
+	const transactionButton = page.getByRole('button', { exact: true, name: 'New Transaction' });
+	const transferButton = page.getByRole('button', { exact: true, name: 'Transfer' });
+	const transactionRow = page.getByRole('row', { name: 'New Transaction' });
+	const transferRow = page.getByRole('row', { exact: true, name: 'Transfer' });
+
+	// A human-paced click: the popover's dismiss layer debounces outside
+	// pointerdowns by ~10ms, so a fast synthetic click can mask the
+	// close-on-pointerdown/reopen-on-click flicker this test guards against.
+	// Holding the button past the debounce window makes it observable.
+	const pacedClick = async (button: typeof transactionButton) => {
+		await button.hover();
+		await page.mouse.down();
+		await page.waitForTimeout(50);
+		await page.mouse.up();
+	};
+
+	// Second click on the trigger closes the row — no dismiss on pointerdown.
+	await pacedClick(transactionButton);
+	await expect(transactionRow).toBeVisible();
+	await transactionButton.hover();
+	await page.mouse.down();
+	await page.waitForTimeout(50);
+	await expect(transactionRow).toBeVisible();
+	await page.mouse.up();
+	await expect(transactionRow).toBeHidden();
+
+	// Same toggle for the transfer row.
+	await pacedClick(transferButton);
+	await expect(transferRow).toBeVisible();
+	await pacedClick(transferButton);
+	await expect(transferRow).toBeHidden();
+
+	// Clicking the other trigger while a row is open switches rows.
+	await pacedClick(transactionButton);
+	await expect(transactionRow).toBeVisible();
+	await pacedClick(transferButton);
+	await expect(transferRow).toBeVisible();
+	await expect(transactionRow).toBeHidden();
+	await pacedClick(transactionButton);
+	await expect(transactionRow).toBeVisible();
+	await expect(transferRow).toBeHidden();
+
+	// True outside clicks and Escape still dismiss the row.
+	await page.getByRole('heading', { name: accountName }).click();
+	await expect(transactionRow).toBeHidden();
+	await pacedClick(transactionButton);
+	await expect(transactionRow).toBeVisible();
+	await page.keyboard.press('Escape');
+	await expect(transactionRow).toBeHidden();
+
+	// Cancel still dismisses the row.
+	await pacedClick(transferButton);
+	await expect(transferRow).toBeVisible();
+	await transferRow.getByRole('button', { name: 'Cancel' }).click();
+	await expect(transferRow).toBeHidden();
+});
+
 test('Sort Transactions', async ({ page, pages }) => {
 	await pages.auth.createUserAndLogin();
 
