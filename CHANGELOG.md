@@ -12,11 +12,9 @@ and dependency bumps get no entry.
 
 ### Fixed
 
-- Deleting a category from the detail view on a narrow (phone) viewport now
-  removes the row from the budget table immediately; previously the deleted
-  category could linger until a page reload. The same fix hardens account
-  deletion, category creation, and transaction delete/validate against stale
-  lists after submit.
+- Deleting a category or account from the detail view on a narrow (phone)
+  viewport now removes the row from the budget table immediately; previously
+  the deleted entry could linger until a page reload.
 
 ### Added
 
