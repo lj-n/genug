@@ -5,6 +5,7 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { m } from '$lib/paraglide/messages';
 	import { getAccounts, getArchivedAccounts } from '$lib/remote-functions/account.remote';
+	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import ArchiveIcon from '~icons/ph/archive';
 	import PiggyBankIcon from '~icons/ph/piggy-bank';
@@ -15,6 +16,9 @@
 	const budgetId = getBudgetId();
 	const accounts = $derived(await getAccounts(budgetId()));
 	const archivedAccounts = $derived(await getArchivedAccounts(budgetId()));
+	// Resolved here (page mount) so AccountCreate's dialog opens without a
+	// suspending await — see the note in account-create.svelte.
+	const { currency } = $derived(await getBudget(budgetId()));
 
 	let open = $state(false);
 </script>
@@ -34,6 +38,12 @@
 			<DropdownMenu.Label>
 				{m.budget_account_list_accounts_label()}
 			</DropdownMenu.Label>
+
+			{#if accounts.length === 0}
+				<p class="max-w-52 px-2 py-1.5 text-sm text-muted">
+					{m.account_dropdown_empty_hint()}
+				</p>
+			{/if}
 
 			{#each accounts as account (account.id)}
 				<DropdownMenu.Item>
@@ -88,6 +98,6 @@
 			</Dialog.Description>
 		</Dialog.Header>
 
-		<AccountCreate />
+		<AccountCreate {currency} />
 	</Dialog.Content>
 </Dialog.Root>

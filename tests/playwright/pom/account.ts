@@ -1,5 +1,5 @@
 import { asMoney, formatMoney } from '$lib/utils/money';
-import { expect } from '@playwright/test';
+import { expect, type Locator } from '@playwright/test';
 
 import { BasePage } from './base-page';
 
@@ -21,6 +21,16 @@ type EditTransactionParams = {
 
 export class AccountPage extends BasePage {
 	/**
+	 * Adds a notes filter through the filter dropdown. The input debounces
+	 * before the list refreshes; callers assert on the resulting list state.
+	 */
+	async applyNotesFilter(text: string) {
+		await this.page.getByRole('button', { name: 'Filter' }).click();
+		await this.page.getByRole('menuitem', { name: 'Notes Filter' }).click();
+		await this.page.getByPlaceholder('Notes Filter').fill(text);
+	}
+
+	/**
 	 * Opens the account settings dialog and archives the account. An empty
 	 * account is archivable, so archiving navigates to the archived-accounts
 	 * list where the account appears with a restore action.
@@ -34,6 +44,11 @@ export class AccountPage extends BasePage {
 		// Archiving takes the account off its detail page and lands on the archive.
 		await expect(this.page.getByRole('heading', { name: 'Archived Accounts' })).toBeVisible();
 		await expect(this.page.getByRole('link', { name: accountName })).toBeVisible();
+	}
+
+	/** The filtered-empty state's clear-filters action. */
+	clearFiltersAction(): Locator {
+		return this.page.getByRole('button', { name: 'Clear filters' });
 	}
 
 	async createTransaction(params: CreateTransactionParams | string = {}) {
@@ -263,6 +278,11 @@ export class AccountPage extends BasePage {
 		await expect(this.page.getByRole('button', { name: 'Account Settings' })).toHaveCount(0);
 	}
 
+	/** The desktop pagination summary ("Showing x - y of z"); hidden while the list is empty. */
+	paginationInfo(): Locator {
+		return this.page.getByText(/^Showing \d/);
+	}
+
 	/**
 	 * Restores an account from the archived notice on its own detail page. The
 	 * active register (with the New Transaction button) returns in place.
@@ -291,5 +311,20 @@ export class AccountPage extends BasePage {
 		} else {
 			await expect(row.locator('svg.text-success').first()).toBeVisible();
 		}
+	}
+
+	/** The truly-empty state's add-transaction action. */
+	transactionsEmptyAction(): Locator {
+		return this.page.getByRole('button', { name: 'Record your first transaction' });
+	}
+
+	/** The truly-empty register state shown when the account has no transactions at all. */
+	transactionsEmptyState(): Locator {
+		return this.page.getByText('No transactions yet');
+	}
+
+	/** The filtered-empty state shown when active filters match no transactions. */
+	transactionsFilteredEmptyState(): Locator {
+		return this.page.getByText('No transactions match your filters');
 	}
 }

@@ -11,6 +11,7 @@ import {
 import { invalid, isHttpError, redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
+import { getUnassigned } from './budget.remote';
 import { REFRESH_LIMIT } from './remote.utils';
 
 export const getAccounts = guardedQuery(v.string(), async (budgetId, { ctx }) =>
@@ -49,6 +50,27 @@ export const createAccount = guardedForm(
 			303,
 			resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', { accountId: account.id, budgetId })
 		);
+	}
+);
+
+// Same operation as `createAccount` for surfaces that stay in place (the
+// month-view tutorial card): no redirect — the containing dialog closes and
+// the account list refreshes single-flight instead.
+export const createAccountInline = guardedForm(
+	AccountCreateSchema,
+	async ({ accountName, budgetId, startingBalance }, { ctx, invalid: issue }) => {
+		try {
+			ctx.account.create({ budgetId, name: accountName }, startingBalance);
+		} catch (error) {
+			if (isHttpError(error, 400)) invalid(issue.accountName(error.body.message));
+			throw error;
+		}
+		await Promise.all([
+			requested(getAccounts, REFRESH_LIMIT).refreshAll(),
+			// A starting balance is an income transaction — the unassigned
+			// summary must not go stale when a category already exists.
+			requested(getUnassigned, REFRESH_LIMIT).refreshAll()
+		]);
 	}
 );
 

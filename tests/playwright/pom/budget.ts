@@ -24,6 +24,11 @@ export class BudgetPage extends BasePage {
 		return this.page.getByRole('row').filter({ hasText: name });
 	}
 
+	/** The category table's empty-state CTA, shown while the budget has no categories. */
+	categoryTableEmptyCta(): Locator {
+		return this.page.getByRole('button', { name: 'Create a category' });
+	}
+
 	async createAccount(name: string, startingBalance = '0') {
 		await this.page.getByRole('button', { name: 'Show Accounts' }).click();
 		await this.page.getByRole('menuitem', { name: 'Add Account' }).click();
@@ -67,6 +72,27 @@ export class BudgetPage extends BasePage {
 		await expect(dialog).toBeVisible();
 	}
 
+	/**
+	 * Creates an account through the tutorial card's step-1 dialog. Unlike
+	 * `createAccount`, this creates in place: the dialog closes and the card
+	 * checks off step 1 without leaving the month view.
+	 */
+	async createAccountViaTutorial(name: string, startingBalance = '0') {
+		await this.tutorialStepAction('account').click();
+		await expect(this.page.getByRole('heading', { name: 'Add New Account' })).toBeVisible();
+		// Regression: a suspending await in the form used to let the dialog open
+		// without receiving focus, stranding keyboard users behind the overlay.
+		await expect(this.page.locator('[data-slot="dialog-content"]')).toBeFocused();
+
+		await this.page.getByRole('textbox', { name: 'Account Name' }).fill(name);
+		await this.page
+			.getByRole('textbox', { name: 'What is the current balance?' })
+			.fill(startingBalance);
+		await this.page.getByRole('button', { name: 'Create Account' }).click();
+
+		await expect(this.page.getByRole('heading', { name: 'Add New Account' })).toBeHidden();
+	}
+
 	async createBudget(name: string) {
 		await this.page.goto('/new');
 		await expect(
@@ -87,7 +113,10 @@ export class BudgetPage extends BasePage {
 	}
 
 	async createCategory(name: string) {
-		await this.page.getByRole('button', { name: 'Create Category' }).click();
+		// The quick-actions button only renders once a category exists; on a
+		// fresh budget the first category comes from the table's empty-state
+		// CTA ("Create a category") — both open the same quick dialog.
+		await this.page.getByRole('button', { name: /^create (a )?category$/i }).click();
 
 		const dialog = this.page.getByRole('dialog');
 		const input = dialog.getByRole('textbox', { name: 'Category Name' });
@@ -126,6 +155,36 @@ export class BudgetPage extends BasePage {
 		await expect(dialog).toBeVisible();
 	}
 
+	/**
+	 * Opens the quick category dialog from the category table's empty-state CTA
+	 * and creates a category. Unlike `createCategory`, the row assertion waits on
+	 * the table replacing the empty state.
+	 */
+	async createCategoryViaTableCta(name: string) {
+		await this.categoryTableEmptyCta().click();
+
+		const dialog = this.page.getByRole('dialog');
+		const input = dialog.getByRole('textbox', { name: 'Category Name' });
+		await input.fill(name);
+		await input.press('Enter');
+
+		await expect(dialog).toBeHidden();
+		await expect(this.categoryRow(name)).toBeVisible();
+	}
+
+	/** Creates a category through the tutorial card's step-2 quick dialog. */
+	async createCategoryViaTutorial(name: string) {
+		await this.tutorialStepAction('category').click();
+
+		const dialog = this.page.getByRole('dialog');
+		const input = dialog.getByRole('textbox', { name: 'Category Name' });
+		await input.fill(name);
+		await input.press('Enter');
+
+		await expect(dialog).toBeHidden();
+		await expect(this.categoryRow(name)).toBeVisible();
+	}
+
 	async goto(budgetName: string) {
 		if (!this.ctx.budgetUrl) {
 			throw new Error('createBudget must be called before goto');
@@ -159,6 +218,23 @@ export class BudgetPage extends BasePage {
 		await this.page.getByRole('textbox', { name: 'Amount' }).fill(amount);
 		await this.page.getByRole('button', { exact: true, name: 'OK' }).click();
 		await expect(this.page.getByRole('textbox', { name: 'Amount' })).not.toBeVisible();
+	}
+
+	/** The tutorial card region, shown while the budget lacks an account or a category. */
+	tutorialCard(): Locator {
+		return this.page.getByRole('region', { name: 'Set up your budget' });
+	}
+
+	/** The footer link to the first account (its name); absent until one exists. */
+	tutorialFooterAccountLink(): Locator {
+		return this.tutorialCard().getByRole('link');
+	}
+
+	/** A tutorial step's inline action button; only rendered while the step is open. */
+	tutorialStepAction(step: 'account' | 'category'): Locator {
+		return this.tutorialCard().getByRole('button', {
+			name: step === 'account' ? 'Add account' : 'New category'
+		});
 	}
 
 	async #openTransfer(categoryName: string) {

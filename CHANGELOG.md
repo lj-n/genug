@@ -10,6 +10,28 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Added
+
+- New budgets now come with guidance instead of blank screens: a tutorial
+  card at the top of the month view walks through the first two steps (add an
+  account, create a category) with independent checkmarks and inline create
+  dialogs — both create in place, without leaving the month view — and closes
+  with a pointer to the first account for recording transactions. Until the
+  first category exists, the month navigator, quick actions, and unassigned
+  summary stay out of the way; the archived-categories link appears only once
+  something is archived. The category table, the account's transaction list,
+  the account dropdown, and the archived-accounts/-categories pages each show
+  a deliberate empty state; the transaction list distinguishes "no
+  transactions yet" (guidance plus an add-transaction action, including the
+  income-is-a-transaction-without-a-category hint) from "nothing matches your
+  filters" (clear-filters action), and pagination is hidden while the list is
+  empty.
+
+### Fixed
+
+- The Add-Account dialog now receives keyboard focus when it opens;
+  previously focus stayed on the triggering button behind the overlay.
+
 ## [2026.07.3] - 2026-07-17
 
 ### Fixed

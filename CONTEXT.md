@@ -83,3 +83,11 @@ _Avoid_: dark mode toggle, theme setting, color scheme (that names the OS signal
 **Modal Body**:
 The single scrollable region of a modal. Every modal — `Dialog`, `Drawer`, the `ResponsiveModal` shell (which switches between them at `(min-width: 640px)`), and `AlertDialog` — caps its height to the viewport and pins its `Header`/`Footer` while the `Body` (`Dialog.Body` / `Drawer.Body` / `ResponsiveModal.Body`) scrolls, so the title, close button, and actions never spill off a short viewport (e.g. an iPad in landscape). `DialogForm` wraps its fields in `Body` for free; large bespoke modals opt in explicitly (see ADR-0013). A touch-specific bottom-drawer switch was rejected there because forms confirmed from a nested alert dialog inside a vaul drawer drop their query refresh.
 _Avoid_: scroll container, modal content (that names the whole frame, not the scrolling middle)
+
+**Tutorial card**:
+The stateless first-block card of the month view guiding a fresh budget's first two actions — add an account, create a category — with independent per-step checkmarks and a closing what's-next text (record income as a transaction without a category, then assign it; "your account" links to the first account once one exists). Visible exactly while the budget lacks an account or a category; derived purely from data the screen already loads, never persisted, never dismissible. Disappears when both exist and truthfully returns if a budget loses its last account.
+_Avoid_: getting started card, onboarding wizard, checklist
+
+**Empty state**:
+The deliberate placeholder a surface renders when it has nothing to show — icon, title, optional description, optional action — so blankness reads as intent, not absence. A filtered-empty list ("nothing matches your filters", clear-filters action) is a distinct state from a truly empty one (guidance and a create action) and must never show onboarding copy over existing data; the distinction is drawn from the total count, never the current page.
+_Avoid_: blank state, placeholder text, zero state

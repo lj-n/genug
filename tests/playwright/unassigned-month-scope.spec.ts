@@ -22,7 +22,9 @@ test('Unassigned does not leak current-month income into earlier months (#44)', 
 	await pages.budget.createAccount(accountName, '5');
 
 	// Back on the budget page; capture budgetId + current month from the URL.
+	// The unassigned summary only renders once a category exists.
 	await pages.budget.goto(budgetName);
+	await pages.budget.createCategory(uniqueName(faker.commerce.department()));
 	const url = new URL(page.url());
 	const [, budgetId, currentParam] = url.pathname.split('/');
 	const current = parseMonth(currentParam)!;
@@ -68,6 +70,8 @@ test('Unassigned counts a future-dated income only from its month onward (#44)',
 
 	const accountName = uniqueName(faker.finance.accountName());
 	await pages.budget.createAccount(accountName);
+	// The unassigned summary only renders once a category exists.
+	await pages.budget.createCategory(uniqueName(faker.commerce.department()));
 	await pages.account.goto(accountName);
 
 	// New income transaction (no category) dated two months in the future.
