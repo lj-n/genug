@@ -4,12 +4,15 @@
 
 	import { Button } from '$lib/components/ui/button';
 	import * as ButtonGroup from '$lib/components/ui/button-group';
+	import { EmptyState } from '$lib/components/ui/empty-state';
 	import { m } from '$lib/paraglide/messages';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { parseDate } from '@internationalized/date';
 	import ArrowsLeftRightIcon from '~icons/ph/arrows-left-right';
+	import FunnelIcon from '~icons/ph/funnel';
 	import PlusBoldIcon from '~icons/ph/plus-bold';
+	import ReceiptIcon from '~icons/ph/receipt';
 
 	import type { TableState } from './transaction-table-state.svelte';
 
@@ -56,6 +59,13 @@
 	let transferCreateModalOpen = $state(false);
 	let transferEditModalOpen = $state(false);
 	let transferEditModalTransaction = $state<ListTransaction | null>(null);
+
+	// The empty branches key off the total count, never the rows on this page:
+	// a stale page URL beyond the last page must not show onboarding copy over
+	// existing data. With no active filters the total is the unfiltered count
+	// (transfer legs included), so zero really means "nothing recorded yet".
+	const isEmpty = $derived(pagination.total === 0);
+	const isFiltered = $derived(tableState.filter.anyActive);
 </script>
 
 <div class="space-y-6">
@@ -187,13 +197,46 @@
 			}}
 		/>
 
-		<TablePagination
-			page={pagination.page}
-			pageSize={pagination.pageSize}
-			total={pagination.total}
-			onSetPage={(page) => tableState.setPage(page)}
-			onSetPageSize={(pageSize) => tableState.setPageSize(pageSize)}
-		/>
+		{#if isEmpty && isFiltered}
+			<EmptyState
+				icon={FunnelIcon}
+				title={m.transactions_filtered_empty_title()}
+				description={m.transactions_filtered_empty_description()}
+			>
+				{#snippet action()}
+					<Button onclick={() => tableState.clearAllFilters()}>
+						{m.transactions_filtered_empty_action()}
+					</Button>
+				{/snippet}
+			</EmptyState>
+		{:else if isEmpty && !openCreateRow && !openTransferCreateRow}
+			<EmptyState
+				icon={ReceiptIcon}
+				title={m.transactions_empty_title()}
+				description={m.transactions_empty_description()}
+			>
+				{#snippet action()}
+					<!-- Same breakpoint split as the create buttons above: inline row on
+					     desktop, bottom sheet below @3xl. -->
+					<Button class="hidden @3xl/main:flex" onclick={() => (openCreateRow = true)}>
+						{m.transactions_empty_action()}
+					</Button>
+					<Button class="flex @3xl/main:hidden" onclick={() => (createModalOpen = true)}>
+						{m.transactions_empty_action()}
+					</Button>
+				{/snippet}
+			</EmptyState>
+		{/if}
+
+		{#if !isEmpty}
+			<TablePagination
+				page={pagination.page}
+				pageSize={pagination.pageSize}
+				total={pagination.total}
+				onSetPage={(page) => tableState.setPage(page)}
+				onSetPageSize={(pageSize) => tableState.setPageSize(pageSize)}
+			/>
+		{/if}
 	</div>
 </div>
 

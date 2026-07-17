@@ -35,6 +35,12 @@
 				{m.budget_account_list_accounts_label()}
 			</DropdownMenu.Label>
 
+			{#if accounts.length === 0}
+				<p class="max-w-52 px-2 py-1.5 text-sm text-muted">
+					{m.account_dropdown_empty_hint()}
+				</p>
+			{/if}
+
 			{#each accounts as account (account.id)}
 				<DropdownMenu.Item>
 					{#snippet child({ props })}

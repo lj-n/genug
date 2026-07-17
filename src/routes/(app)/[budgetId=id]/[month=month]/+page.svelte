@@ -15,6 +15,7 @@
 	import CategoryBudgetTable from './category-budget-table.svelte';
 	import CategoryQuickActions from './category-quick-actions.svelte';
 	import MonthNavigator from './month-navigator.svelte';
+	import TutorialCard from './tutorial-card.svelte';
 	import UnassignedSummary from './unassigned-summary.svelte';
 
 	let { params }: PageProps = $props();
@@ -49,6 +50,8 @@
 
 	<Page.Content>
 		{#if month !== null}
+			<TutorialCard {month} />
+
 			<!-- Prominent-stack below @3xl (ADR-0014): navigator row first, then the
 			     unassigned summary as a full-width band. -->
 			<div class="flex flex-col gap-3 @3xl/main:flex-row @3xl/main:items-end">
