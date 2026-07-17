@@ -23,12 +23,19 @@
 		accountId,
 		budgetId,
 		class: className,
+		interactOutsideIgnore = null,
 		open = $bindable(false),
 		urlParams
 	}: {
 		accountId: string;
 		budgetId: string;
 		class?: string;
+		/**
+		 * Outside interactions inside this element do not dismiss the row. The
+		 * table passes its trigger button group so the buttons can implement
+		 * toggle/switch semantics without the dismiss layer racing them.
+		 */
+		interactOutsideIgnore?: HTMLElement | null;
 		open?: boolean;
 		urlParams: TransactionsURLParams;
 	} = $props();
@@ -84,7 +91,11 @@
 		}
 	}}
 >
-	<Popover.ContentStatic>
+	<Popover.ContentStatic
+		onInteractOutside={(e) => {
+			if (interactOutsideIgnore?.contains(e.target as Node)) e.preventDefault();
+		}}
+	>
 		<form
 			class={cn(
 				className,
