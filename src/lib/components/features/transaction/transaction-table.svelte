@@ -124,96 +124,101 @@
 		</ButtonGroup.Root>
 	</TableFilter>
 
-	<div role="table" class="space-y-3">
-		<TableHeader
-			class="hidden @3xl/main:block"
-			sort={tableState.sort}
-			onToggle={(column) => tableState.toggleSort(column)}
-		/>
+	<!-- role="table" wraps only the header/body/mobile row groups; the empty
+	     state and pagination (which contains a nav and a menu button) sit outside
+	     it, since a table may only contain row/rowgroup children. -->
+	<div class="space-y-3">
+		<div role="table" class="space-y-3">
+			<TableHeader
+				class="hidden @3xl/main:block"
+				sort={tableState.sort}
+				onToggle={(column) => tableState.toggleSort(column)}
+			/>
 
-		<TableBody class="hidden @3xl/main:grid" data={transactions}>
-			{#snippet createrow()}
-				<TableRowCreate
-					bind:open={openCreateRow}
-					{accountId}
-					{budgetId}
-					class={colsClass}
-					interactOutsideIgnore={createTriggerGroup}
-					urlParams={tableState.params}
-				/>
-				<TransferTableRowCreate
-					bind:open={openTransferCreateRow}
-					{accountId}
-					{budgetId}
-					class={colsClass}
-					interactOutsideIgnore={createTriggerGroup}
-					urlParams={tableState.params}
-				/>
-			{/snippet}
+			<TableBody class="hidden @3xl/main:grid" data={transactions}>
+				{#snippet createrow()}
+					<TableRowCreate
+						bind:open={openCreateRow}
+						{accountId}
+						{budgetId}
+						class={colsClass}
+						interactOutsideIgnore={createTriggerGroup}
+						urlParams={tableState.params}
+					/>
+					<TransferTableRowCreate
+						bind:open={openTransferCreateRow}
+						{accountId}
+						{budgetId}
+						class={colsClass}
+						interactOutsideIgnore={createTriggerGroup}
+						urlParams={tableState.params}
+					/>
+				{/snippet}
 
-			{#snippet row({ cancelEditing, isEditing, item, setEditing })}
-				{#if isEditing && item.transferId}
-					<TransferTableRowEdit transaction={item} {budgetId} {currency} {cancelEditing} />
-				{:else if isEditing}
-					<TableRowEdit transaction={item} {budgetId} {currency} {cancelEditing} />
-				{:else}
-					<TableRow>
-						<TableCell aria-label={m.transactions_table_edit_category()} onclick={setEditing}>
-							{#if item.transferId}
-								<TransferBadge transaction={item} />
-							{:else if item.categoryName}
-								{item.categoryName}
-							{:else}
-								<span class="text-muted">
-									{m.transaction_table_cell_category_empty()}
-								</span>
-							{/if}
-						</TableCell>
+				{#snippet row({ cancelEditing, isEditing, item, setEditing })}
+					{#if isEditing && item.transferId}
+						<TransferTableRowEdit transaction={item} {budgetId} {currency} {cancelEditing} />
+					{:else if isEditing}
+						<TableRowEdit transaction={item} {budgetId} {currency} {cancelEditing} />
+					{:else}
+						<TableRow>
+							<TableCell aria-label={m.transactions_table_edit_category()} onclick={setEditing}>
+								{#if item.transferId}
+									<TransferBadge transaction={item} />
+								{:else if item.categoryName}
+									{item.categoryName}
+								{:else}
+									<span class="text-muted">
+										{m.transaction_table_cell_category_empty()}
+									</span>
+								{/if}
+							</TableCell>
 
-						<TableCell aria-label={m.transactions_table_edit_notes()} onclick={setEditing}>
-							{item.notes ?? ''}
-						</TableCell>
+							<TableCell aria-label={m.transactions_table_edit_notes()} onclick={setEditing}>
+								{item.notes ?? ''}
+							</TableCell>
 
-						<TableCell
-							aria-label={m.transactions_table_edit_date()}
-							onclick={setEditing}
-							class="justify-end"
-						>
-							{formatTransactionDate(parseDate(item.date))}
-						</TableCell>
+							<TableCell
+								aria-label={m.transactions_table_edit_date()}
+								onclick={setEditing}
+								class="justify-end"
+							>
+								{formatTransactionDate(parseDate(item.date))}
+							</TableCell>
 
-						<TableCell
-							aria-label={m.transactions_table_edit_amount()}
-							onclick={setEditing}
-							class="justify-end font-currency font-normal"
-						>
-							{formatMoney({ currency, money: asMoney(item.amount) })}
-						</TableCell>
+							<TableCell
+								aria-label={m.transactions_table_edit_amount()}
+								onclick={setEditing}
+								class="justify-end font-currency font-normal"
+							>
+								{formatMoney({ currency, money: asMoney(item.amount) })}
+							</TableCell>
 
-						<TableCell>
-							{#snippet child()}
-								<ValidateToggle transaction={item} />
-							{/snippet}
-						</TableCell>
-					</TableRow>
-				{/if}
-			{/snippet}
-		</TableBody>
+							<TableCell>
+								{#snippet child()}
+									<ValidateToggle transaction={item} />
+								{/snippet}
+							</TableCell>
+						</TableRow>
+					{/if}
+				{/snippet}
+			</TableBody>
 
-		<TransactionListMobile
-			class="@3xl/main:hidden"
-			{currency}
-			{transactions}
-			onEdit={(transaction) => {
-				if (transaction.transferId) {
-					transferEditModalTransaction = transaction;
-					transferEditModalOpen = true;
-				} else {
-					editModalTransaction = transaction;
-					editModalOpen = true;
-				}
-			}}
-		/>
+			<TransactionListMobile
+				class="@3xl/main:hidden"
+				{currency}
+				{transactions}
+				onEdit={(transaction) => {
+					if (transaction.transferId) {
+						transferEditModalTransaction = transaction;
+						transferEditModalOpen = true;
+					} else {
+						editModalTransaction = transaction;
+						editModalOpen = true;
+					}
+				}}
+			/>
+		</div>
 
 		{#if isEmpty && isFiltered}
 			<EmptyState

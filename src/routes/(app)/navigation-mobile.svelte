@@ -67,7 +67,7 @@
 	<Drawer.Content class="@container/drawer-content">
 		<Drawer.Header>
 			<Drawer.Title class="mx-auto">
-				<a href={resolve('/')} class="w-fit">
+				<a href={resolve('/')} class="w-fit" aria-label={m.navigation_home()}>
 					<Logo class="h-10" />
 				</a>
 			</Drawer.Title>
