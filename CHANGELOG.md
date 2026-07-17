@@ -10,6 +10,8 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+## [2026.07.3] - 2026-07-17
+
 ### Fixed
 
 - The New Transaction and Transfer buttons now toggle their inline create row:
