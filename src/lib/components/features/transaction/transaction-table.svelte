@@ -49,6 +49,12 @@
 	} = $props();
 
 	let openCreateRow = $state(false);
+	// The inline-row triggers are plain buttons, not popover triggers (the rows
+	// own their Popover.Root). Without this exclusion the dismiss layer treats a
+	// click on them as an outside interaction and closes the row on pointerdown,
+	// which the click handler then immediately reopens (#174). The rows ignore
+	// interactions inside this group; the buttons implement toggle/switch.
+	let createTriggerGroup = $state<HTMLDivElement | null>(null);
 	let createModalOpen = $state(false);
 	let editModalOpen = $state(false);
 	let editModalTransaction = $state<ListTransaction | null>(null);
@@ -68,15 +74,25 @@
 	>
 		<!-- One create group per affordance (ADR-0014): the inline popover rows at
 		     @3xl and up, the bottom sheets below. Only one group is ever visible. -->
-		<ButtonGroup.Root class="ml-auto hidden @3xl/main:flex">
-			<Button onclick={() => (openCreateRow = true)}>
+		<ButtonGroup.Root class="ml-auto hidden @3xl/main:flex" bind:ref={createTriggerGroup}>
+			<Button
+				aria-expanded={openCreateRow}
+				onclick={() => {
+					openTransferCreateRow = false;
+					openCreateRow = !openCreateRow;
+				}}
+			>
 				<PlusBoldIcon />
 				{m.transactions_table_create_transaction()}
 			</Button>
 			<Button
 				size="icon"
 				aria-label={m.transactions_table_create_transfer()}
-				onclick={() => (openTransferCreateRow = true)}
+				aria-expanded={openTransferCreateRow}
+				onclick={() => {
+					openCreateRow = false;
+					openTransferCreateRow = !openTransferCreateRow;
+				}}
 			>
 				<ArrowsLeftRightIcon />
 			</Button>
@@ -112,6 +128,7 @@
 					{accountId}
 					{budgetId}
 					class={colsClass}
+					interactOutsideIgnore={createTriggerGroup}
 					urlParams={tableState.params}
 				/>
 				<TransferTableRowCreate
@@ -119,6 +136,7 @@
 					{accountId}
 					{budgetId}
 					class={colsClass}
+					interactOutsideIgnore={createTriggerGroup}
 					urlParams={tableState.params}
 				/>
 			{/snippet}

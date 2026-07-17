@@ -12,6 +12,10 @@ and dependency bumps get no entry.
 
 ### Fixed
 
+- The New Transaction and Transfer buttons now toggle their inline create row:
+  clicking the button again cleanly closes the open row instead of making it
+  flicker, and clicking the other button switches directly to the other row.
+
 - Deleting a category or account from the detail view on a narrow (phone)
   viewport now removes the row from the budget table immediately; previously
   the deleted entry could linger until a page reload.
