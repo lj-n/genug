@@ -10,6 +10,12 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Fixed
+
+- Deleting a category or account from the detail view on a narrow (phone)
+  viewport now removes the row from the budget table immediately; previously
+  the deleted entry could linger until a page reload.
+
 ### Added
 
 - Money can now be moved between two accounts of the same budget as a

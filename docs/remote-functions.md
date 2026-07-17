@@ -61,6 +61,12 @@ The canonical rule is **one pattern, awaited at component top level**
 ### Mutations and cache refresh
 
 - Default: single-flight refresh via `await form.submit().updates(query, ...)`.
+- **Every submit site of a form whose server function calls `requested(...)`
+  must chain `.updates(...)` declaring (at least) the same query functions.**
+  `requested()` only sees instances the client declared; without `.updates()`
+  it is a silent no-op and the client falls back to `invalidateAll()`, which
+  refreshes every cached query — including ones whose entity the mutation just
+  deleted (404s) — and can drop the visible update entirely (#147).
 - Optimistic updates (`.updates(query.withOverride(...))`) are opt-in for
   hot paths only: rapid repeated interactions where the round-trip is felt
   (assigning money to categories, toggling transaction validation). Anything

@@ -3,7 +3,10 @@
 
 	import { Button } from '$lib/components/ui/button';
 	import { m } from '$lib/paraglide/messages';
-	import { batchValidateTransactions } from '$lib/remote-functions/transaction.remote';
+	import {
+		batchValidateTransactions,
+		listTransactions
+	} from '$lib/remote-functions/transaction.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { cn } from 'tailwind-variants';
 	import SealIcon from '~icons/ph/seal';
@@ -26,7 +29,10 @@
 
 	// Row-scoped micro-form (ADR-0009): the seal icon flipping with the
 	// refreshed list is the success signal; thrown errors go to the toast.
-	const submit = createFormSubmit(() => form, { toast: {} });
+	const submit = createFormSubmit(() => form, {
+		toast: {},
+		updates: () => [listTransactions]
+	});
 </script>
 
 <!-- Centering via flex + auto margins (not grid place-content) so a caller's

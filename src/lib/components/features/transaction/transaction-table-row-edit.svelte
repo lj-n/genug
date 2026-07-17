@@ -52,9 +52,12 @@
 		updates: () => [listTransactions]
 	});
 
-	// No client-side update chain: the server refreshes the transaction list,
-	// and the refreshed list unmounts this row — that is the success signal.
-	const deleteSubmit = createFormSubmit(() => deleteForm, { toast: {} });
+	// No onSuccess: the refreshed list unmounts this row — that is the
+	// success signal.
+	const deleteSubmit = createFormSubmit(() => deleteForm, {
+		toast: {},
+		updates: () => [listTransactions]
+	});
 
 	const pending = $derived(submit.pending || deleteSubmit.pending);
 

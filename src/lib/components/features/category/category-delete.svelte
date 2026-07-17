@@ -3,8 +3,10 @@
 	import { AlertDialogForm } from '$lib/components/ui/alert-dialog-form';
 	import { Button } from '$lib/components/ui/button';
 	import { m } from '$lib/paraglide/messages';
+	import { getMonthly } from '$lib/remote-functions/budget.remote';
 	import {
 		deleteCategory,
+		getCategories,
 		getCategoryById,
 		getCategoryDeletability
 	} from '$lib/remote-functions/category.remote';
@@ -70,7 +72,11 @@
 		</div>
 	{/if}
 
-	<AlertDialogForm form={deleteCategory} onSuccess={() => onDeleted()}>
+	<AlertDialogForm
+		form={deleteCategory}
+		onSuccess={() => onDeleted()}
+		updates={() => [getCategories, getMonthly]}
+	>
 		{#snippet trigger(props)}
 			<Button
 				{...props}

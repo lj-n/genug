@@ -81,3 +81,11 @@ scrollable, which is what made it overflow-proof.
   still drops query refreshes for forms confirmed through a nested alert dialog.
   Revisiting the touch-drawer switch depends on resolving that vaul × remote-form
   interaction.
+- **Resolved (#147):** the dropped refresh was not a vaul × bits-ui layer
+  problem. The delete form never chained `.updates(...)`, so the server's
+  `requested(...).refreshAll()` was a silent no-op and the client fell back to
+  `invalidateAll()` — which re-fetched the deleted category's own detail
+  queries (404) and raced the drawer teardown, discarding the table update.
+  With `.updates(...)` declared at the submit site the refresh arrives in the
+  form response itself and the drawer path is reliable; the touch-drawer
+  switch is no longer blocked by this defect.
