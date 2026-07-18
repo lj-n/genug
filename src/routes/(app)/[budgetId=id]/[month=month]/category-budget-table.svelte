@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Month } from '$lib/utils/month';
 
+	import { resolve } from '$app/paths';
 	import { CategoryCreate } from '$lib/components/features/category';
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -20,14 +21,13 @@
 	import BudgetTableHeader from './budget-table-header.svelte';
 	import CategoryAssignmentForm from './category-assignment-form.svelte';
 	import CategoryAssignmentModal from './category-assignment-modal.svelte';
+	import CategoryPopover from './category-popover.svelte';
 	import ReassignmentPopup from './reassignment-popup.svelte';
 
 	let {
-		month,
-		openCategoryDialog
+		month
 	}: {
 		month: Month | null;
-		openCategoryDialog: (categoryId: string) => void;
 	} = $props();
 
 	const budgetId = getBudgetId();
@@ -124,13 +124,7 @@
 						class="relative flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/3"
 					>
 						<BudgetTableCell class="relative hidden w-2/5 p-0 @3xl/main:flex">
-							<button
-								type="button"
-								class="flex size-full cursor-pointer items-center px-2 text-left -outline-offset-2 hover:bg-surface hover:outline-2 hover:outline-interactive/60"
-								onclick={() => openCategoryDialog(row.id)}
-							>
-								{row.name}
-							</button>
+							<CategoryPopover {currency} {month} {row} />
 							{#if row.targetBalance !== null}
 								<div class="absolute bottom-0 flex w-full">
 									<div
@@ -188,16 +182,18 @@
 					     transfers are desktop-only for now. -->
 						<div role="cell" class="flex w-full flex-col py-2 @3xl/main:hidden">
 							<div class="flex items-stretch">
-								<button
-									type="button"
+								<a
+									href={resolve('/(app)/[budgetId=id]/categories/[categoryId=id]', {
+										budgetId: budgetId(),
+										categoryId: row.id
+									})}
 									class="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center px-4 text-left"
-									onclick={() => openCategoryDialog(row.id)}
 								>
 									<!-- line-clamp instead of truncate: truncate's nowrap floors the
 								     card's intrinsic min-content at the full name width and forces
 								     page-level horizontal overflow on phones. -->
 									<span class="line-clamp-1 [overflow-wrap:anywhere]">{row.name}</span>
-								</button>
+								</a>
 
 								<div class="flex items-center px-4">
 									<span

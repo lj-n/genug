@@ -6,12 +6,15 @@ import { expect, test } from './fixture';
 import { uniqueName } from './unique-name';
 
 /**
- * The category detail surface uses the responsive modal shell: a Dialog at
- * >=640px and a bottom Drawer below.
+ * The category detail surface splits by viewport, carried entirely by the
+ * budget table's desktop-cells/mobile-card markup split (no runtime viewport
+ * detection): at @3xl/main and up the name cell anchors a monthly-stats
+ * popover with a Settings link to the detail page; below that, the card's
+ * name is a plain link straight to the page.
  *
  * Seeding runs at the project's default desktop viewport (the POM navigation
  * assumes a desktop/tablet layout); the narrow case only shrinks the viewport
- * right before opening the detail, which is all the shell's media query reads.
+ * right before following the name link, which is all the markup split reads.
  */
 async function seedCategory(pages: Pages) {
 	await pages.auth.createUserAndLogin();
@@ -23,79 +26,51 @@ async function seedCategory(pages: Pages) {
 	return categoryName;
 }
 
-test('Category detail opens as a dialog on wide viewports', async ({ page, pages }) => {
+test('Category name cell opens the monthly-stats popover on wide viewports', async ({ pages }) => {
 	const categoryName = await seedCategory(pages);
 
-	await pages.category.openDetail(categoryName);
+	await pages.category.openPopover(categoryName);
 
-	const dialog = page.locator('[data-slot="dialog-content"]');
-	await expect(dialog).toBeVisible();
-	// The dialog stays within the viewport, so its close button and pinned footer
-	// never scroll off screen even when the content outgrows the viewport height.
-	await expect(dialog).toBeInViewport();
-	await expect(page.locator('[data-slot="drawer-content"]')).toHaveCount(0);
+	const popover = pages.category.popover();
+	// The popover stays within the viewport, so the Settings link never renders
+	// off screen.
+	await expect(popover).toBeInViewport();
+
+	// Month label (the viewed month — what the stats are scoped to), the
+	// Settings link to the detail page, and the monthly stats body.
+	const monthLabel = new Intl.DateTimeFormat('en', {
+		month: 'long',
+		year: 'numeric'
+	}).format(new Date());
+	await expect(popover.getByRole('heading', { name: monthLabel })).toBeVisible();
+	await expect(popover.getByRole('link', { name: 'Settings' })).toBeVisible();
+	await expect(popover.getByText('Average Monthly Spend')).toBeVisible();
 });
 
-test('Category detail reopens for the same category after closing', async ({ page, pages }) => {
+test('Category popover reopens for the same category after closing', async ({ page, pages }) => {
 	const categoryName = await seedCategory(pages);
 
-	await pages.category.openDetail(categoryName);
-	const dialog = page.locator('[data-slot="dialog-content"]');
-	await expect(dialog).toBeVisible();
+	await pages.category.openPopover(categoryName);
 
-	// Close, then click the exact same category again. Because open state and the
-	// selected id used to be the same derived value, reopening the same id was a
-	// no-op — the dialog stayed shut until a different category was picked.
 	await page.keyboard.press('Escape');
-	await expect(dialog).toHaveCount(0);
+	await expect(pages.category.popover()).toHaveCount(0);
 
-	await pages.category.openDetail(categoryName);
-	await expect(page.locator('[data-slot="dialog-content"]')).toBeVisible();
+	await pages.category.openPopover(categoryName);
 });
 
-test('Deleting a category from the drawer refreshes the budget table', async ({ page, pages }) => {
+test('Category name navigates to the detail page on narrow viewports', async ({ page, pages }) => {
 	const categoryName = await seedCategory(pages);
 
 	await page.setViewportSize({ height: 720, width: 390 });
-	await pages.category.openDetail(categoryName);
 
-	const drawer = page.locator('[data-slot="drawer-content"]');
-	await expect(drawer).toBeVisible();
+	// The mobile card's name is a plain link — no popover in between.
+	await page
+		.getByRole('row')
+		.filter({ hasText: categoryName })
+		.getByRole('link', { exact: true, name: categoryName })
+		.click();
 
-	// Delete through the nested alert-dialog confirm (#147: this path used to
-	// drop the post-submit query refresh, leaving a stale row until reload).
-	await drawer.getByRole('button', { exact: true, name: 'Delete' }).click();
-	const confirm = page.getByRole('alertdialog');
-	await expect(
-		confirm.getByRole('heading', { name: 'Delete category permanently?' })
-	).toBeVisible();
-	await confirm.getByRole('button', { exact: true, name: 'Delete' }).click();
-
-	await expect(drawer).not.toBeVisible();
-	await expect(page.getByRole('row').filter({ hasText: categoryName })).not.toBeVisible();
-});
-
-test('Category detail opens as a bottom drawer on narrow viewports', async ({ page, pages }) => {
-	const categoryName = await seedCategory(pages);
-
-	await page.setViewportSize({ height: 720, width: 390 });
-	await pages.category.openDetail(categoryName);
-
-	const drawer = page.locator('[data-slot="drawer-content"]');
-	await expect(drawer).toBeVisible();
-	await expect(drawer).toHaveAttribute('data-vaul-drawer-direction', 'bottom');
-	// The drawer body scrolls its content instead of overflowing the viewport.
-	await expect(page.locator('[data-slot="drawer-body"]')).toBeVisible();
-	await expect(page.locator('[data-slot="dialog-content"]')).toHaveCount(0);
-
-	// Escape dismisses the drawer, and the onOpenChangeComplete -> onAnimationEnd
-	// bridge must reset state so the same category can be reopened. The press is
-	// retried: the drawer paints one tick before bits-ui attaches its Escape
-	// listener — a window no user can hit, but chromium-speed automation can.
-	await expect(async () => {
-		await page.keyboard.press('Escape');
-		await expect(drawer).toHaveCount(0, { timeout: 1000 });
-	}).toPass();
-	await pages.category.openDetail(categoryName);
-	await expect(page.locator('[data-slot="drawer-content"]')).toBeVisible();
+	await expect(page).toHaveURL(/\/categories\/[^/]+$/);
+	await expect(page.getByRole('heading', { name: categoryName })).toBeVisible();
+	await expect(pages.category.popover()).toHaveCount(0);
 });

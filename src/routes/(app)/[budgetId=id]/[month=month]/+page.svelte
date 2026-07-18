@@ -2,11 +2,10 @@
 	import { AccountDropdown } from '$lib/components/features/account';
 	import { BudgetSettings } from '$lib/components/features/budget-settings';
 	import { BudgetUserManager } from '$lib/components/features/budget-user-manager';
-	import { CategoryDetailDialog } from '$lib/components/features/category';
 	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import * as Page from '$lib/components/ui/page';
 	import { getBudget, getMonthly } from '$lib/remote-functions/budget.remote';
-	import { getArchivedCategories, getCategoryById } from '$lib/remote-functions/category.remote';
+	import { getArchivedCategories } from '$lib/remote-functions/category.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { parseMonth } from '$lib/utils/month';
 
@@ -39,9 +38,6 @@
 	// Already loaded by the quick actions (cached): with no active category
 	// left, the archived link must still be reachable below.
 	const archivedCategories = $derived(await getArchivedCategories({ budgetId: budgetId() }));
-
-	let selectedCategoryId = $state<null | string>(null);
-	let categoryDialogOpen = $state(false);
 </script>
 
 <Page.Root>
@@ -81,26 +77,7 @@
 				<CategoryQuickActions showCreate={false} />
 			{/if}
 
-			<CategoryBudgetTable
-				{month}
-				openCategoryDialog={async (categoryId) => {
-					// Resolve the detail query before opening: the modal content
-					// top-level-awaits it, and opening first would suspend the body,
-					// so the bottom sheet animates in header-only and then snaps to
-					// full height once the data lands.
-					await getCategoryById({ categoryId });
-					selectedCategoryId = categoryId;
-					categoryDialogOpen = true;
-				}}
-			/>
+			<CategoryBudgetTable {month} />
 		{/if}
 	</Page.Content>
 </Page.Root>
-
-{#if month !== null}
-	<CategoryDetailDialog
-		bind:categoryId={selectedCategoryId}
-		bind:open={categoryDialogOpen}
-		{month}
-	/>
-{/if}

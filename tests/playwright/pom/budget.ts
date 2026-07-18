@@ -105,6 +105,7 @@ export class BudgetPage extends BasePage {
 		// createBudget redirects to /{budgetId}, which redirects again to the
 		// current month page where the budget name is the heading.
 		await expect(this.page.getByRole('heading', { name })).toBeVisible();
+		this.ctx.budgetName = name;
 		this.ctx.budgetUrl = this.page.url();
 		// The budget id is the first path segment (the `(app)` group has no URL
 		// segment): /{budgetId}/{month}. Captured for direct navigation to

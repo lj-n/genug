@@ -46,8 +46,7 @@
 
 		<!--
 			The awaited data lives in a nested component so a query refresh after a
-			submit re-suspends only the content, never this component's `open` state
-			(mirrors CategoryDetailDialog owning `open` around an inner CategoryDetail).
+			submit re-suspends only the content, never this component's `open` state.
 		-->
 		{#if open}
 			<Dialog.Body>

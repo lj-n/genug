@@ -1,2 +1,6 @@
+export { default as CategoryArchive } from './category-archive.svelte';
 export { default as CategoryCreate } from './category-create.svelte';
-export { default as CategoryDetailDialog } from './category-detail-dialog.svelte';
+export { default as CategoryDelete } from './category-delete.svelte';
+export { default as CategoryEdit } from './category-edit.svelte';
+export { default as CategoryStatsMonthly } from './category-stats-monthly.svelte';
+export { default as CategoryStats } from './category-stats.svelte';
