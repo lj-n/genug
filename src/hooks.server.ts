@@ -1,6 +1,7 @@
 import type { Handle, HandleServerError } from '@sveltejs/kit';
 
 import * as auth from '$db/auth';
+import { validateApiToken } from '$db/auth/api-tokens';
 import { getTextDirection } from '$lib/paraglide/runtime';
 import { paraglideMiddleware } from '$lib/paraglide/server';
 import { logger } from '$lib/server/logger';
@@ -27,6 +28,15 @@ const handleLogging: Handle = async ({ event, resolve }) => {
 };
 
 const handleAuth: Handle = async ({ event, resolve }) => {
+	const authorization = event.request.headers.get('authorization');
+
+	// API clients authenticate with a bearer token; they never get a web session.
+	if (authorization?.startsWith('Bearer ')) {
+		event.locals.session = null;
+		event.locals.user = await validateApiToken({ token: authorization.slice('Bearer '.length) });
+		return resolve(event);
+	}
+
 	const sessionToken = auth.getSessionCookie(event);
 
 	if (!sessionToken) {

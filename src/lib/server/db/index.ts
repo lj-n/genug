@@ -10,6 +10,7 @@ const database = createDatabase(env.DATABASE_URL);
 export { createDatabase, type Database, database };
 
 export * from './auth';
+export * from './auth/api-tokens';
 export * from './auth/user';
 export * from './auth/utils';
 export * as tables from './tables';
