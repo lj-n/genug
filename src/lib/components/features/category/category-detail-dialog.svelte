@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { Month } from '$lib/utils/month';
+
 	import * as ResponsiveModal from '$lib/components/ui/responsive-modal';
 	import { m } from '$lib/paraglide/messages';
 	import HashDuotoneIcon from '~icons/ph/hash-duotone';
@@ -7,8 +9,9 @@
 
 	let {
 		categoryId = $bindable(),
+		month,
 		open = $bindable(false)
-	}: { categoryId: null | string; open?: boolean } = $props();
+	}: { categoryId: null | string; month: Month; open?: boolean } = $props();
 
 	// Deleting a category from the detail view removes it entirely, so the
 	// dialog must close itself — flipping `open` plays the exit transition and
@@ -35,7 +38,7 @@
 			</ResponsiveModal.Header>
 
 			<ResponsiveModal.Body class="@container">
-				<CategoryDetail {categoryId} onDeleted={close} />
+				<CategoryDetail {categoryId} {month} onDeleted={close} />
 			</ResponsiveModal.Body>
 		{/if}
 	</ResponsiveModal.Content>

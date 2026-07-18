@@ -97,4 +97,10 @@
 	</Page.Content>
 </Page.Root>
 
-<CategoryDetailDialog bind:categoryId={selectedCategoryId} bind:open={categoryDialogOpen} />
+{#if month !== null}
+	<CategoryDetailDialog
+		bind:categoryId={selectedCategoryId}
+		bind:open={categoryDialogOpen}
+		{month}
+	/>
+{/if}

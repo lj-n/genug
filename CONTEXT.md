@@ -52,6 +52,10 @@ _Avoid_: available, held back, blocked
 The earliest month at/after the viewed Month whose Position equals the minimum defining Unassigned — the month pinning the value. Null when the viewed month is itself the minimum (Reserved = 0); ties break toward the earliest month, the first that binds. Shown as "Engpass" in the German UI.
 _Avoid_: constraint, limiting month
 
+**Activity**:
+The net flow of a category within a Month: the signed sum of its transactions in that month — outflows negative, refunds/reimbursements positive. "Spend" in the UI is Activity negated for display; a refund genuinely reduces a month's spend. All per-month category aggregates (trailing averages, deltas, sparklines) are built from Activity, never from gross outflows. Computed only in user-context (the envelope-math seam, ADR-0004).
+_Avoid_: spend (display-side negation, not a separate quantity), gross outflow, monthly total
+
 **Balance**:
 The account-side sum of transactions in an account — what is physically there, split into validated and pending. Says nothing about envelopes; the envelope-side term is Remaining.
 _Avoid_: remaining (envelope-side), funds
