@@ -62,7 +62,7 @@
 {/snippet}
 
 <nav class="sticky top-8 hidden w-full max-w-72 flex-col self-start p-4 @7xl/main:flex">
-	<a href={resolve('/')} class="w-fit">
+	<a href={resolve('/')} class="w-fit" aria-label={m.navigation_home()}>
 		<Logo class="h-12" />
 	</a>
 

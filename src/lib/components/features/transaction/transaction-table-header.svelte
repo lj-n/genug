@@ -15,6 +15,13 @@
 		onToggle,
 		sort
 	}: { class?: string; onToggle: (column: SortColumn) => void; sort: TransactionSort } = $props();
+
+	// Expose the active sort to assistive tech: without aria-sort the direction
+	// lives only in the caret icon, which a screen reader never announces.
+	function ariaSort(column: SortColumn): 'ascending' | 'descending' | 'none' {
+		if (sort.column !== column) return 'none';
+		return sort.direction === 'asc' ? 'ascending' : 'descending';
+	}
 </script>
 
 {#snippet sortIcon(column: SortColumn)}
@@ -29,7 +36,11 @@
 
 <div role="rowgroup" class={className}>
 	<div role="row" class={cn(colsClass, 'grid items-center rounded-lg bg-muted/5')}>
-		<div role="columnheader" class="flex items-center gap-1 px-4 text-sm font-semibold">
+		<div
+			role="columnheader"
+			aria-sort={ariaSort('category')}
+			class="flex items-center gap-1 px-4 text-sm font-semibold"
+		>
 			{m.transactions_table_header_category()}
 			<button
 				onclick={() => onToggle('category')}
@@ -41,19 +52,31 @@
 		<div role="columnheader" class="px-4 text-sm font-semibold">
 			{m.transactions_table_header_notes()}
 		</div>
-		<div role="columnheader" class="flex items-center justify-end gap-1 px-4 text-sm font-semibold">
+		<div
+			role="columnheader"
+			aria-sort={ariaSort('date')}
+			class="flex items-center justify-end gap-1 px-4 text-sm font-semibold"
+		>
 			<button onclick={() => onToggle('date')} aria-label={m.transactions_table_sort_date()}>
 				{@render sortIcon('date')}
 			</button>
 			{m.transactions_table_header_date()}
 		</div>
-		<div role="columnheader" class="flex items-center justify-end gap-1 px-4 text-sm font-semibold">
+		<div
+			role="columnheader"
+			aria-sort={ariaSort('amount')}
+			class="flex items-center justify-end gap-1 px-4 text-sm font-semibold"
+		>
 			<button onclick={() => onToggle('amount')} aria-label={m.transactions_table_sort_amount()}>
 				{@render sortIcon('amount')}
 			</button>
 			{m.transactions_table_header_amount()}
 		</div>
-		<div role="columnheader" class="flex items-center gap-1 px-2 text-sm font-semibold">
+		<div
+			role="columnheader"
+			aria-sort={ariaSort('validated')}
+			class="flex items-center gap-1 px-2 text-sm font-semibold"
+		>
 			<button
 				onclick={() => onToggle('validated')}
 				aria-label={m.transactions_table_sort_validated()}

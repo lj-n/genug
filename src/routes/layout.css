@@ -8,12 +8,12 @@
 	--color-surface-high: #fffffe;
 	--color-background: #fffcf8;
 	--color-foreground: #2d2a3e;
-	--color-muted: #6f6b77;
-	--color-error: #b94a44;
+	--color-muted: #696671;
+	--color-error: #b04641;
 	--color-info: #286983;
 	--color-interactive: #8467a6;
-	--color-success: #5da365;
-	--color-focus: #efa447;
+	--color-success: #497f4f;
+	--color-focus: #bf8339;
 	--font-sans: 'Inter Variable', sans-serif;
 
 	--container-8xl: 88rem; /* 1408px */
@@ -232,12 +232,12 @@
 	--color-surface-high: #fffffe;
 	--color-background: #fffcf8;
 	--color-foreground: #2d2a3e;
-	--color-muted: #6f6b77;
-	--color-error: #b94a44;
+	--color-muted: #696671;
+	--color-error: #b04641;
 	--color-info: #286983;
 	--color-interactive: #8467a6;
-	--color-success: #5da365;
-	--color-focus: #efa447;
+	--color-success: #497f4f;
+	--color-focus: #bf8339;
 }
 
 .dark {

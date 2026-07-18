@@ -82,6 +82,7 @@
 	"settings_title": "Settings",
 	"admin_settings_title": "Admin Settings",
 	"sign_out_button": "Sign out {username}",
+	"navigation_home": "genug — home",
 	"unassigned_money_label": "Unallocated:",
 	"all_assigned_money_label": "All done.",
 	"negative_unassigned_money_label": "Overspent:",

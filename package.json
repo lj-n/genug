@@ -28,6 +28,7 @@
 		"pino": "^10.3.1"
 	},
 	"devDependencies": {
+		"@axe-core/playwright": "^4.12.1",
 		"@eslint/compat": "^2.0.3",
 		"@eslint/js": "^10.0.1",
 		"@faker-js/faker": "^10.4.0",

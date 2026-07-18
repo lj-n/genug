@@ -27,6 +27,21 @@ and dependency bumps get no entry.
   filters" (clear-filters action), and pagination is hidden while the list is
   empty.
 
+- The core flows — add transaction, assign money, view month, add
+  account/category, and login — now meet WCAG 2.1 AA. Every step is completable
+  by keyboard with a visible focus indicator, form inputs and icon-only buttons
+  (the app logo, the budget-members button) carry accessible names, and the
+  dense transaction table announces its sorted column to screen readers. An
+  automated axe gate over these flows keeps them clean.
+
+### Changed
+
+- Light-theme colours were darkened slightly to meet AA contrast: the focus
+  ring, success green, error red, and muted secondary text now clear the
+  contrast thresholds — including where coloured text sits on its own tinted
+  background (such as the "Overspent" summary and the archive/delete warnings).
+  The dark theme is unchanged.
+
 ### Fixed
 
 - The Add-Account dialog now receives keyboard focus when it opens;
