@@ -16,6 +16,14 @@ export const relations = defineRelations(tables, (r) => ({
 		})
 	},
 
+	apiTokens: {
+		user: r.one.users({
+			from: r.apiTokens.userId,
+			optional: false,
+			to: r.users.id
+		})
+	},
+
 	budgets: {
 		accounts: r.many.accounts({
 			from: r.budgets.id,

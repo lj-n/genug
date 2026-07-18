@@ -6,6 +6,29 @@ import { createId } from '../../utils/create-id';
 
 export const entityOrderTypes = ['budget', 'account', 'category'] as const;
 
+export const apiTokens = sqliteTable(
+	'api_tokens',
+	(t) => ({
+		createdAt: t
+			.integer('created_at', { mode: 'timestamp' })
+			.$defaultFn(() => new Date())
+			.notNull(),
+		expiresAt: t.integer('expires_at', { mode: 'timestamp' }),
+		id: t
+			.text('id')
+			.primaryKey()
+			.$defaultFn(() => createId()),
+		lastUsedAt: t.integer('last_used_at', { mode: 'timestamp' }),
+		name: t.text('name').notNull(),
+		tokenHash: t.text('token_hash').notNull().unique(),
+		userId: t
+			.text('user_id')
+			.references(() => users.id, { onDelete: 'cascade' })
+			.notNull()
+	}),
+	(t) => [index('api_token_user').on(t.userId)]
+);
+
 export const sessions = sqliteTable(
 	'sessions',
 	(t) => ({
