@@ -12,6 +12,14 @@ and dependency bumps get no entry.
 
 ### Added
 
+- Personal access tokens for API clients (the upcoming iOS app): the settings
+  page gains an "API Tokens" section where you create a named token (with an
+  optional expiry date), reveal it exactly once — as plaintext with a copy
+  button and as a QR code encoding the server URL plus token for
+  scan-to-connect — and see and revoke issued tokens, including their creation,
+  last-used, and expiry dates. Tokens are stored hashed and authenticate
+  requests via the `Authorization: Bearer` header.
+
 - The category-detail stats are now grouped into a month-scoped and an
   all-time family. The viewed month's group shows a 12-month spend sparkline
   (ending at and including the viewed month, whose bar renders muted as
