@@ -49,6 +49,13 @@ and dependency bumps get no entry.
 
 ### Changed
 
+- Category details moved from a dialog to a dedicated page. On desktop,
+  clicking a category in the budget table now shows a lightweight popover with
+  the viewed month's stats and a Settings link to the new page; on mobile,
+  tapping a category card's name navigates straight to it. The page holds the
+  familiar edit, stats, archive, and delete tiles, and archived categories
+  redirect to the archived list.
+
 - Light-theme colours were darkened slightly to meet AA contrast: the focus
   ring, success green, error red, and muted secondary text now clear the
   contrast thresholds — including where coloured text sits on its own tinted

@@ -19,6 +19,8 @@ export type TestContext = {
 	accounts: Map<string, string>;
 	/** the current budget's id (captured after createBudget) */
 	budgetId?: string;
+	/** the current budget's name (captured after createBudget) */
+	budgetName?: string;
 	/** the current budget's page URL (captured after createBudget) */
 	budgetUrl?: string;
 };

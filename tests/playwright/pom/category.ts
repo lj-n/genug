@@ -1,19 +1,24 @@
-import { expect } from '@playwright/test';
+import { expect, type Locator } from '@playwright/test';
 
 import { BasePage } from './base-page';
 
 export class CategoryPage extends BasePage {
+	/**
+	 * From the detail page: archives the category, waits for the redirect to the
+	 * archived-categories page, then returns to the budget table and asserts the
+	 * row is gone.
+	 */
 	async archive(name: string) {
-		await this.openDetail(name);
+		await this.gotoDetailPage(name);
 
-		const dialog = this.page.getByRole('dialog');
-		await expect(dialog.getByRole('heading', { name: 'Archive Category' })).toBeVisible();
-		await dialog.getByRole('button', { exact: true, name: 'Archive' }).click();
+		await expect(this.page.getByRole('heading', { name: 'Archive Category' })).toBeVisible();
+		await this.page.getByRole('button', { exact: true, name: 'Archive' }).click();
 
-		await dialog.getByRole('button', { name: 'Close' }).first().click();
-		await expect(dialog).not.toBeVisible();
+		// Archiving flips `archivedAt`, and the detail page redirects archived
+		// categories to the archived list.
+		await expect(this.page.getByRole('heading', { name: 'Archived Categories' })).toBeVisible();
 
-		// The archived category leaves the budget table.
+		await this.#gotoBudgetTable();
 		await expect(this.page.getByRole('row').filter({ hasText: name })).not.toBeVisible();
 	}
 
@@ -49,15 +54,15 @@ export class CategoryPage extends BasePage {
 	}
 
 	/**
-	 * Opens the detail dialog for an empty, unused category, deletes it through
-	 * the confirm dialog, and asserts it disappears from the budget table.
+	 * From the detail page of an empty, unused category: deletes it through the
+	 * confirm dialog and asserts the post-delete navigation lands on the budget
+	 * table with the row gone (#147: this refresh used to be dropped).
 	 */
 	async delete(name: string) {
-		await this.openDetail(name);
+		await this.gotoDetailPage(name);
 
-		const dialog = this.page.getByRole('dialog');
-		await expect(dialog.getByRole('heading', { name: 'Delete Category' })).toBeVisible();
-		await dialog.getByRole('button', { exact: true, name: 'Delete' }).click();
+		await expect(this.page.getByRole('heading', { name: 'Delete Category' })).toBeVisible();
+		await this.page.getByRole('button', { exact: true, name: 'Delete' }).click();
 
 		const confirm = this.page.getByRole('alertdialog');
 		await expect(
@@ -65,71 +70,68 @@ export class CategoryPage extends BasePage {
 		).toBeVisible();
 		await confirm.getByRole('button', { exact: true, name: 'Delete' }).click();
 
-		// Deleting closes the detail dialog and drops the category from the table.
-		await expect(dialog).not.toBeVisible();
+		// Deleting navigates to the budget table at the current month.
+		await expect(this.page).toHaveURL(/\/\d{6}$/);
 		await expect(this.page.getByRole('row').filter({ hasText: name })).not.toBeVisible();
 	}
 
 	async editName(currentName: string, newName: string) {
-		await this.openDetail(currentName);
+		await this.gotoDetailPage(currentName);
 
-		const dialog = this.page.getByRole('dialog');
-		const nameInput = dialog.getByRole('textbox', { name: 'Category Name' });
+		const nameInput = this.page.getByRole('textbox', { name: 'Category Name' });
 		await expect(nameInput).toHaveValue(currentName);
 		await nameInput.clear();
 		await nameInput.fill(newName);
-		await dialog.getByRole('button', { exact: true, name: 'Save' }).click();
+		await this.page.getByRole('button', { exact: true, name: 'Save' }).click();
 
 		// The "Saved" toast is anchored to the save button but rendered at body
 		// level. Dismiss it via click: unlike toBeVisible(), a click fails when
-		// the dialog paints over the toast, so this guards against occlusion.
+		// other content paints over the toast, so this guards against occlusion.
 		const savedToast = this.page.getByRole('status').filter({ hasText: 'Saved' });
 		await expect(savedToast).toBeVisible();
 		await savedToast.getByRole('button').click();
 		await expect(savedToast).not.toBeVisible();
-		// Saving must not close the dialog.
-		await expect(dialog).toBeVisible();
 
-		await dialog.getByRole('button', { name: 'Close' }).first().click();
-		await expect(dialog).not.toBeVisible();
+		// Saving stays on the page; the name-only title picks up the new name.
+		await expect(this.page).toHaveURL(/\/categories\/[^/]+$/);
+		await expect(this.page.getByRole('heading', { name: newName })).toBeVisible();
 
+		await this.#gotoBudgetTable();
 		await expect(
 			this.page.getByRole('table').getByRole('button', { exact: true, name: newName })
 		).toBeVisible();
 	}
 
 	/**
-	 * Opens the edit dialog for `currentName` and renames it to `existingName`
+	 * Opens the detail page for `currentName` and renames it to `existingName`
 	 * (another category in the same budget). Asserts the duplicate-name error
-	 * surfaces within the dialog and saving does not happen.
+	 * surfaces as a field error and saving does not happen.
 	 */
 	async editNameExpectingError(currentName: string, existingName: string) {
-		await this.openDetail(currentName);
+		await this.gotoDetailPage(currentName);
 
-		const dialog = this.page.getByRole('dialog');
-		const nameInput = dialog.getByRole('textbox', { name: 'Category Name' });
+		const nameInput = this.page.getByRole('textbox', { name: 'Category Name' });
 		await expect(nameInput).toHaveValue(currentName);
 		await nameInput.clear();
 		await nameInput.fill(existingName);
-		await dialog.getByRole('button', { exact: true, name: 'Save' }).click();
+		await this.page.getByRole('button', { exact: true, name: 'Save' }).click();
 
-		await expect(dialog.getByText(`${existingName} already exists.`)).toBeVisible();
-		// The error keeps the dialog open and no "Saved" toast appears.
-		await expect(dialog).toBeVisible();
+		await expect(this.page.getByText(`${existingName} already exists.`)).toBeVisible();
+		// The error keeps us on the page and no "Saved" toast appears.
+		await expect(this.page).toHaveURL(/\/categories\/[^/]+$/);
 		await expect(this.page.getByRole('status').filter({ hasText: 'Saved' })).not.toBeVisible();
 	}
 
 	/**
-	 * Opens the detail dialog for a category that still has a transaction and
+	 * Opens the detail page for a category that still has a transaction and
 	 * asserts the Delete button is disabled with the transaction-count reason.
 	 */
 	async expectDeleteDisabled(name: string) {
-		await this.openDetail(name);
+		await this.gotoDetailPage(name);
 
-		const dialog = this.page.getByRole('dialog');
-		await expect(dialog.getByRole('heading', { name: 'Delete Category' })).toBeVisible();
-		await expect(dialog.getByRole('button', { exact: true, name: 'Delete' })).toBeDisabled();
-		await expect(dialog.getByText(/transactions? still reference this category/)).toBeVisible();
+		await expect(this.page.getByRole('heading', { name: 'Delete Category' })).toBeVisible();
+		await expect(this.page.getByRole('button', { exact: true, name: 'Delete' })).toBeDisabled();
+		await expect(this.page.getByText(/transactions? still reference this category/)).toBeVisible();
 	}
 
 	/** From the budget month page: opens the archived list and follows the category link back. */
@@ -143,11 +145,39 @@ export class CategoryPage extends BasePage {
 		await expect(this.page.getByRole('heading', { name: budgetName })).toBeVisible();
 	}
 
-	/** Opens the category detail dialog from the budget table row. */
-	async openDetail(name: string) {
+	/**
+	 * From the budget table: reaches the category detail page through the
+	 * popover's Settings link.
+	 */
+	async gotoDetailPage(name: string) {
+		await this.openPopover(name);
+		await this.popover().getByRole('link', { name: 'Settings' }).click();
+
+		await expect(this.page).toHaveURL(/\/categories\/[^/]+$/);
+		await expect(this.page.getByRole('heading', { name })).toBeVisible();
+	}
+
+	/** Opens the anchored monthly-stats popover from the desktop name cell. */
+	async openPopover(name: string) {
 		const row = this.page.getByRole('row').filter({ hasText: name });
 		await row.getByRole('button', { exact: true, name }).click();
 
-		await expect(this.page.getByRole('dialog')).toBeVisible();
+		await expect(this.popover()).toBeVisible();
+	}
+
+	/** The monthly-stats popover anchored to the desktop name cell. */
+	popover(): Locator {
+		return this.page.locator('[data-slot="popover-content"]');
+	}
+
+	/** Returns to the budget month page captured at createBudget time. */
+	async #gotoBudgetTable() {
+		if (!this.ctx.budgetUrl || !this.ctx.budgetName) {
+			throw new Error('createBudget must be called before navigating to the budget table');
+		}
+		await this.page.goto(this.ctx.budgetUrl);
+		// The budget heading, not the table: archiving the last category leaves
+		// the table's empty state instead of a rendered table.
+		await expect(this.page.getByRole('heading', { name: this.ctx.budgetName })).toBeVisible();
 	}
 }
