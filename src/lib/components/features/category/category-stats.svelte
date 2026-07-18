@@ -5,7 +5,7 @@
 	import { type CURRENCIES } from '$lib/utils/currencies';
 	import { formatRelativeDate } from '$lib/utils/format-relative-date';
 	import { asMoney, formatMoney } from '$lib/utils/money';
-	import { formatMonth, type Month } from '$lib/utils/month';
+	import { addMonths, formatMonth, type Month } from '$lib/utils/month';
 	import { parseDate } from '@internationalized/date';
 
 	let {
@@ -77,7 +77,20 @@
 				money: asMoney(stats.spendDelta)
 			})}
 		</div>
-		<div class="text-sm">{m.category_stats_delta()}</div>
+		<div class="text-sm">
+			{m.category_stats_delta({
+				month: formatMonth({
+					month: addMonths(month, -1),
+					options: { month: 'short', year: 'numeric' }
+				})
+			})}
+		</div>
+		<div class="text-xs text-foreground/60 tabular-nums">
+			{m.category_stats_delta_breakdown({
+				currentSpend: formatMoney({ currency, money: asMoney(stats.monthSpend) }),
+				previousSpend: formatMoney({ currency, money: asMoney(stats.previousMonthSpend) })
+			})}
+		</div>
 	</div>
 
 	{#if stats.currentTargetPercentage !== null}

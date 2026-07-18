@@ -238,9 +238,14 @@ describe('queries.stats', () => {
 
 		// Empty previous month counts as €0 — the whole spend is the delta.
 		expect(stats(cat.id, parseMonth(202506)!).spendDelta).toBe(400);
+		expect(stats(cat.id, parseMonth(202506)!).previousMonthSpend).toBe(0);
 
 		insertTransaction(db, { ...tx, amount: -100 }, '2025-05-10');
-		expect(stats(cat.id, parseMonth(202506)!).spendDelta).toBe(300);
+		const june = stats(cat.id, parseMonth(202506)!);
+		expect(june.spendDelta).toBe(300);
+		// Both sides of the comparison are exposed for the UI to display.
+		expect(june.monthSpend).toBe(400);
+		expect(june.previousMonthSpend).toBe(100);
 		// Each viewed month compares against its own predecessor, ignoring later months.
 		expect(stats(cat.id, parseMonth(202505)!).spendDelta).toBe(100);
 	});

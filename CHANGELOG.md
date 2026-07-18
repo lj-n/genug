@@ -18,7 +18,10 @@ and dependency bumps get no entry.
   partial data), the average monthly spend over the six months before the
   viewed month (young categories average only from their first activity
   onward; a dash appears until a category has any history), and the absolute
-  spend difference against the previous month. The all-time group keeps
+  spend difference against the previous month, labelled with the compared
+  month's name (e.g. "Spend vs. Jun 2026") and showing both months' spend
+  totals underneath so the comparison is verifiable at a glance. The
+  all-time group keeps
   total spend and transaction count and adds the date of the category's most
   recent transaction, shown relative to today.
 

@@ -146,7 +146,9 @@ export const queries = (userId: string, db: Database = database) => ({
 			return { month: m, spend: spend(m) };
 		});
 
-		const spendDelta = spend(month) - spend(addMonths(month, -1));
+		const monthSpend = spend(month);
+		const previousMonthSpend = spend(addMonths(month, -1));
+		const spendDelta = monthSpend - previousMonthSpend;
 
 		// Trailing average over the six calendar months strictly before the
 		// viewed month, zero months included — but the divisor never reaches
@@ -162,7 +164,14 @@ export const queries = (userId: string, db: Database = database) => ({
 				? null
 				: Math.round(averageWindow.reduce((sum, m) => sum + spend(m), 0) / averageWindow.length);
 
-		return { ...found, sparkline, spendDelta, trailingAverageSpend };
+		return {
+			...found,
+			monthSpend,
+			previousMonthSpend,
+			sparkline,
+			spendDelta,
+			trailingAverageSpend
+		};
 	}
 });
 
