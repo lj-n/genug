@@ -1,6 +1,11 @@
 import { requested } from '$app/server';
 import { BudgetIdSchema } from '$lib/schemas/budget';
-import { CategoryCreateSchema, CategoryEditSchema, CategoryIdSchema } from '$lib/schemas/category';
+import {
+	CategoryCreateSchema,
+	CategoryEditSchema,
+	CategoryIdSchema,
+	CategoryStatsSchema
+} from '$lib/schemas/category';
 import { OrderedIdsSchema } from '$lib/schemas/utils';
 import {
 	guardedBatchQuery,
@@ -26,8 +31,10 @@ export const getCategoryById = guardedBatchQuery(CategoryIdSchema, async (args, 
 	return (_arg, idx) => results[idx];
 });
 
-export const getCategoryStats = guardedBatchQuery(CategoryIdSchema, async (args, { ctx }) => {
-	const results = await Promise.all(args.map(({ categoryId }) => ctx.category.stats(categoryId)));
+export const getCategoryStats = guardedBatchQuery(CategoryStatsSchema, async (args, { ctx }) => {
+	const results = await Promise.all(
+		args.map(({ categoryId, month }) => ctx.category.stats(categoryId, month))
+	);
 	return (_arg, idx) => results[idx];
 });
 

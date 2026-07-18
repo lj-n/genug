@@ -12,6 +12,19 @@ and dependency bumps get no entry.
 
 ### Added
 
+- The category-detail stats are now grouped into a month-scoped and an
+  all-time family. The viewed month's group shows a 12-month spend sparkline
+  (ending at and including the viewed month, whose bar renders muted as
+  partial data), the average monthly spend over the six months before the
+  viewed month (young categories average only from their first activity
+  onward; a dash appears until a category has any history), and the absolute
+  spend difference against the previous month, labelled with the compared
+  month's name (e.g. "Spend vs. Jun 2026") and showing both months' spend
+  totals underneath so the comparison is verifiable at a glance. The
+  all-time group keeps
+  total spend and transaction count and adds the date of the category's most
+  recent transaction, shown relative to today.
+
 - New budgets now come with guidance instead of blank screens: a tutorial
   card at the top of the month view walks through the first two steps (add an
   account, create a category) with independent checkmarks and inline create
@@ -43,6 +56,10 @@ and dependency bumps get no entry.
   The dark theme is unchanged.
 
 ### Fixed
+
+- The category-detail target progress now follows the viewed month. It
+  previously always measured against the calendar's current month, so
+  browsing past or future months showed a wrong percentage.
 
 - The Add-Account dialog now receives keyboard focus when it opens;
   previously focus stayed on the triggering button behind the overlay.

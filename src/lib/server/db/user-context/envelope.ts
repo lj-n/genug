@@ -32,6 +32,28 @@ export type UnassignedBreakdown = {
 	unassigned: number;
 };
 
+/**
+ * Per-month Activity (see `CONTEXT.md`) of a single category: the signed sum
+ * of its transactions grouped by calendar month, months in the YYYYMM
+ * encoding of `Month`. Only months with at least one transaction appear —
+ * callers zero-fill calendar gaps. Transfer legs are excluded implicitly:
+ * they carry no category. Access control is the caller's responsibility.
+ */
+export function categoryActivityByMonth(
+	db: Database,
+	categoryId: string
+): { activity: number; month: number }[] {
+	return db
+		.select({
+			activity: sql<number>`sum(${tables.transactions.amount})`.as('activity'),
+			month: sql<number>`cast(strftime('%Y%m', ${tables.transactions.date}) AS integer)`.as('month')
+		})
+		.from(tables.transactions)
+		.where(eq(tables.transactions.categoryId, categoryId))
+		.groupBy(sql`strftime('%Y%m', ${tables.transactions.date})`)
+		.all();
+}
+
 export function categoryBalances(db: Database, month: Month) {
 	const txAgg = db
 		.select({
@@ -43,6 +65,7 @@ export function categoryBalances(db: Database, month: Month) {
 				'allTimeTransactionSum'
 			),
 			categoryId: tables.transactions.categoryId,
+			lastTransactionDate: sql<string>`max(${tables.transactions.date})`.as('lastTransactionDate'),
 			pendingCount:
 				sql<number>`coalesce(sum(CASE WHEN ${tables.transactions.validated} = false THEN 1 ELSE 0 END), 0)`.as(
 					'pendingCount'
@@ -105,6 +128,10 @@ export function categoryBalances(db: Database, month: Month) {
 			assignCount: sql<number>`coalesce(${assignmentAgg.assignCount}, 0)`.as('assignCount'),
 			assigned: sql<number>`coalesce(${assignmentAgg.assigned}, 0)`.as('assigned'),
 			categoryId: allCategoryIds.categoryId,
+			// null (not coalesced) when the category has no transaction at all
+			lastTransactionDate: sql<null | string>`${txAgg.lastTransactionDate}`.as(
+				'lastTransactionDate'
+			),
 			pendingCount: sql<number>`coalesce(${txAgg.pendingCount}, 0)`.as('pendingCount'),
 			remaining:
 				sql<number>`coalesce(${assignmentAgg.assignSumUntilMonth}, 0) + coalesce(${txAgg.txSumUntilMonth}, 0)`.as(

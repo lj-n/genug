@@ -1,12 +1,12 @@
 import { database, type Database, tables } from '$db';
 import { m } from '$lib/paraglide/messages';
-import { currentMonth } from '$lib/utils/month';
+import { addMonths, currentMonth, type Month } from '$lib/utils/month';
 import { error } from '@sveltejs/kit';
 import { and, eq, getColumns, isNotNull, isNull, ne, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/sqlite-core';
 
 import { accessGuard, hasAccess } from './access';
-import { categoryBalances } from './envelope';
+import { categoryActivityByMonth, categoryBalances } from './envelope';
 import { withOrder } from './utils';
 
 /**
@@ -107,8 +107,7 @@ export const queries = (userId: string, db: Database = database) => ({
 
 	deletability: (categoryId: string) => readDeletability(userId, db, categoryId),
 
-	stats: (categoryId: string) => {
-		const month = currentMonth();
+	stats: (categoryId: string, month: Month) => {
 		const bal = categoryBalances(db, month);
 
 		const found = db
@@ -116,8 +115,9 @@ export const queries = (userId: string, db: Database = database) => ({
 				currentTargetPercentage: sql<null | number>`
 					CASE
 						WHEN ${tables.categories.targetBalance} IS NULL THEN NULL
-						ELSE ${bal.remaining} * 100 / ${tables.categories.targetBalance}
+						ELSE coalesce(${bal.remaining}, 0) * 100 / ${tables.categories.targetBalance}
 					END`,
+				lastActivityDate: sql<null | string>`${bal.lastTransactionDate}`,
 				pendingTransactionCount: sql<number>`coalesce(${bal.pendingCount}, 0)`,
 				totalAssignedBudgetCount: sql<number>`coalesce(${bal.assignCount}, 0)`,
 				totalAssignedBudgetSum: sql<number>`coalesce(${bal.allTimeAssignmentSum}, 0)`,
@@ -130,7 +130,48 @@ export const queries = (userId: string, db: Database = database) => ({
 			.get();
 
 		if (!found) error(404);
-		return found;
+
+		// Spend is Activity negated for display (see CONTEXT.md); calendar
+		// gaps read as zero.
+		const activityByMonth = new Map(
+			categoryActivityByMonth(db, categoryId).map((row) => [row.month, row.activity])
+		);
+		const spend = (m: Month) => {
+			const activity = activityByMonth.get(m) ?? 0;
+			return activity === 0 ? 0 : -activity;
+		};
+
+		const sparkline = Array.from({ length: 12 }, (_, i) => {
+			const m = addMonths(month, i - 11);
+			return { month: m, spend: spend(m) };
+		});
+
+		const monthSpend = spend(month);
+		const previousMonthSpend = spend(addMonths(month, -1));
+		const spendDelta = monthSpend - previousMonthSpend;
+
+		// Trailing average over the six calendar months strictly before the
+		// viewed month, zero months included — but the divisor never reaches
+		// back before the category's first-ever activity month, so young
+		// categories aren't diluted by pre-existence months. No activity
+		// before the viewed month means no average at all.
+		const firstActivityMonth = Math.min(...activityByMonth.keys());
+		const averageWindow = Array.from({ length: 6 }, (_, i) => addMonths(month, i - 6)).filter(
+			(m) => m >= firstActivityMonth
+		);
+		const trailingAverageSpend =
+			averageWindow.length === 0
+				? null
+				: Math.round(averageWindow.reduce((sum, m) => sum + spend(m), 0) / averageWindow.length);
+
+		return {
+			...found,
+			monthSpend,
+			previousMonthSpend,
+			sparkline,
+			spendDelta,
+			trailingAverageSpend
+		};
 	}
 });
 
