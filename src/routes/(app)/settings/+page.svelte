@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ApiTokenManager } from '$lib/components/features/api-tokens';
 	import { ThemeControl } from '$lib/components/features/theme';
 	import { Button } from '$lib/components/ui/button';
 	import { FormField } from '$lib/components/ui/form-field';
@@ -90,6 +91,12 @@
 			<h2 class="font-semibold">{m.settings_theme()}</h2>
 
 			<ThemeControl theme={data.theme} />
+		</div>
+
+		<div class="grid gap-3 rounded-lg bg-muted/5 p-3">
+			<h2 class="font-semibold">{m.settings_api_tokens()}</h2>
+
+			<ApiTokenManager />
 		</div>
 
 		<div class="grid rounded-lg bg-muted/5 p-3">

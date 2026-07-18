@@ -46,9 +46,36 @@ export class SettingsPage extends BasePage {
 		await expect(toast).not.toBeVisible();
 	}
 
+	/** Issues a token and returns the one-time plaintext from the reveal dialog. */
+	async createApiToken(name: string): Promise<string> {
+		await this.page.getByRole('textbox', { name: 'Token Name' }).fill(name);
+		await this.page.getByRole('button', { name: 'Create Token' }).click();
+
+		const dialog = this.page.getByRole('dialog', { name: 'Token Created' });
+		await expect(dialog).toBeVisible();
+		await expect(dialog.getByRole('img', { name: /QR code/ })).toBeVisible();
+		const token = (await dialog.locator('[aria-label="api-token"]').textContent()) ?? '';
+		expect(token.length).toBeGreaterThan(20);
+
+		await dialog.getByRole('button', { name: 'Close' }).first().click();
+		await expect(dialog).not.toBeVisible();
+		return token;
+	}
+
 	async goto() {
 		await this.page.goto('/settings');
 		await expect(this.page.getByRole('heading', { name: 'Settings' })).toBeVisible();
+	}
+
+	async revokeApiToken(name: string) {
+		const row = this.page.getByRole('listitem').filter({ hasText: name });
+		await row.getByRole('button', { name: `Revoke ${name}` }).click();
+
+		const dialog = this.page.getByRole('alertdialog', { name: 'Revoke Token' });
+		await expect(dialog).toBeVisible();
+		await dialog.getByRole('button', { exact: true, name: 'Revoke' }).click();
+		await expect(dialog).not.toBeVisible();
+		await expect(row).not.toBeVisible();
 	}
 
 	async setTheme(label: 'Dark' | 'Light' | 'System') {

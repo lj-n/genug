@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker';
 import { expect } from '@playwright/test';
 
 import { test } from './fixture';
+import { uniqueName } from './unique-name';
 
 test('Change Display Name', async ({ page, pages }) => {
 	const [username] = await pages.auth.createUserAndLogin();
@@ -25,6 +26,21 @@ test('Change Password shows a success toast and logs out', async ({ page, pages 
 	await expect(page).toHaveURL(/\/login$/);
 
 	await pages.auth.login(username, newPassword);
+});
+
+test('Create and revoke an API token', async ({ page, pages }) => {
+	await pages.auth.createUserAndLogin();
+	await pages.settings.goto();
+
+	const name = uniqueName('token');
+	await pages.settings.createApiToken(name);
+
+	const row = page.getByRole('listitem').filter({ hasText: name });
+	await expect(row).toBeVisible();
+	await expect(row).toContainText('Never used');
+
+	await pages.settings.revokeApiToken(name);
+	await expect(page.getByText('No API tokens yet.')).toBeVisible();
 });
 
 test('Change Language', async ({ pages }) => {
