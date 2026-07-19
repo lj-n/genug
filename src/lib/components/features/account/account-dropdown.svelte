@@ -74,17 +74,19 @@
 				{m.budget_account_list_add_account()}
 			</DropdownMenu.Item>
 
-			<DropdownMenu.Item>
-				{#snippet child({ props })}
-					<a
-						href={resolve('/(app)/[budgetId=id]/accounts/archived', { budgetId: budgetId() })}
-						{...props}
-					>
-						<ArchiveIcon />
-						{m.account_archived_link({ amount: archivedAccounts.length })}
-					</a>
-				{/snippet}
-			</DropdownMenu.Item>
+			{#if archivedAccounts.length > 0}
+				<DropdownMenu.Item>
+					{#snippet child({ props })}
+						<a
+							href={resolve('/(app)/[budgetId=id]/accounts/archived', { budgetId: budgetId() })}
+							{...props}
+						>
+							<ArchiveIcon />
+							{m.account_archived_link({ amount: archivedAccounts.length })}
+						</a>
+					{/snippet}
+				</DropdownMenu.Item>
+			{/if}
 		</DropdownMenu.Group>
 	</DropdownMenu.Content>
 </DropdownMenu.Root>

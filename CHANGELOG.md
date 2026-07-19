@@ -67,6 +67,10 @@ and dependency bumps get no entry.
 
 ### Changed
 
+- The account dropdown now hides the archived-accounts link when a budget has
+  no archived accounts, instead of showing a "0 archived" link to an empty
+  page. The link reappears once an account is archived.
+
 - Category details moved from a dialog to a dedicated page. On desktop,
   clicking a category in the budget table now shows a lightweight popover with
   the viewed month's stats and a Settings link to the new page; on mobile,
