@@ -12,6 +12,16 @@ and dependency bumps get no entry.
 
 ### Added
 
+- An HTTP API for native clients (the upcoming iOS app), served under
+  `/api/v1` by the same instance as the web app and authenticated with a
+  personal access token (`Authorization: Bearer`). It exposes the month
+  envelope view, budget/account/category lists, the transaction register, and
+  endpoints to capture, edit, and delete transactions, move money between
+  accounts, and set or reassign category budgets. Every write returns the
+  server-recomputed envelope and affected account balances in its own
+  response, so a client never recomputes budget math locally. The web app and
+  its behaviour are unchanged.
+
 - Personal access tokens for API clients (the upcoming iOS app): the settings
   page gains an "API Tokens" section where you create a named token (with an
   optional expiry date), reveal it exactly once — as plaintext with a copy
