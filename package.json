@@ -1,7 +1,7 @@
 {
 	"name": "genug-da",
 	"private": true,
-	"version": "2026.07.3",
+	"version": "2026.07.4",
 	"license": "AGPL-3.0-only",
 	"type": "module",
 	"scripts": {

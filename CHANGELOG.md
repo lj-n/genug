@@ -10,6 +10,8 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+## [2026.07.4] - 2026-07-19
+
 ### Added
 
 - An HTTP API for native clients (the upcoming iOS app), served under
