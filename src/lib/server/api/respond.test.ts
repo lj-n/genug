@@ -62,22 +62,16 @@ describe('toErrorResponse', () => {
 		expect(body.code).toBe('not_found');
 	});
 
-	it('maps the named domain rules to their stable codes', async () => {
+	it('carries a stable code set on the error body through the envelope', async () => {
 		let archived: unknown;
 		try {
-			error(400, m.error_account_archived());
+			error(400, { code: 'account_archived', message: m.error_account_archived() });
 		} catch (err) {
 			archived = err;
 		}
-		expect((await bodyOf(archived)).body.code).toBe('account_archived');
-
-		let transferLeg: unknown;
-		try {
-			error(400, m.error_transaction_is_transfer_leg());
-		} catch (err) {
-			transferLeg = err;
-		}
-		expect((await bodyOf(transferLeg)).body.code).toBe('transaction_is_transfer_leg');
+		const { body } = await bodyOf(archived);
+		expect(body.code).toBe('account_archived');
+		expect(body.message).toBe(m.error_account_archived());
 	});
 
 	it('wraps an unexpected error as a 500 internal_error', async () => {

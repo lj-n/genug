@@ -5,6 +5,8 @@ declare global {
 		type Database = import('$db').Database;
 
 		interface Error {
+			/** Stable machine code for the native-client API envelope (`src/lib/server/api/respond.ts`). */
+			code?: string;
 			logId?: string;
 			message: string;
 		}

@@ -133,10 +133,10 @@ describe('reference + envelope reads', () => {
 	});
 
 	it('a read against an inaccessible budget is a 404', () => {
-		expect(() => listAccounts(s.ctx, 'budget_missing')).toThrowError(
+		expect(() => listAccounts(s.ctx, 'budget_missing')).toThrow(
 			expect.objectContaining({ status: 404 })
 		);
-		expect(() => getEnvelopeView(s.ctx, 'budget_missing', month)).toThrowError(
+		expect(() => getEnvelopeView(s.ctx, 'budget_missing', month)).toThrow(
 			expect.objectContaining({ status: 404 })
 		);
 	});
@@ -285,6 +285,6 @@ describe('register', () => {
 	it('the register of an inaccessible account is a 404', () => {
 		expect(() =>
 			listTransactions(s.ctx, { accountId: 'account_missing', page: 1, pageSize: 15 })
-		).toThrowError(expect.objectContaining({ status: 404 }));
+		).toThrow(expect.objectContaining({ status: 404 }));
 	});
 });

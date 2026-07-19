@@ -11,7 +11,6 @@
 
 import type { Logger } from 'pino';
 
-import { m } from '$lib/paraglide/messages';
 import { type Month, parseMonth } from '$lib/utils/month';
 import { error, isHttpError, json } from '@sveltejs/kit';
 import * as v from 'valibot';
@@ -78,11 +77,14 @@ export function toErrorResponse(err: unknown, logger?: Logger): Response {
 	}
 
 	if (isHttpError(err)) {
-		const message =
-			err.body && typeof err.body === 'object' && 'message' in err.body
-				? String(err.body.message)
-				: String(err.body);
-		return apiError(err.status, codeForHttpError(err.status, message), message);
+		const body: unknown = err.body;
+		const hasObjectBody = typeof body === 'object' && body !== null;
+		const message = hasObjectBody && 'message' in body ? String(body.message) : String(err.body);
+		const code =
+			hasObjectBody && 'code' in body && typeof body.code === 'string'
+				? body.code
+				: codeForStatus(err.status);
+		return apiError(err.status, code, message);
 	}
 
 	logger?.error({ err }, 'unhandled api error');
@@ -90,16 +92,12 @@ export function toErrorResponse(err: unknown, logger?: Logger): Response {
 }
 
 /**
- * Map a domain error to a stable machine code. The two rules the contract
- * names explicitly (`account_archived`, `transaction_is_transfer_leg`) are
- * matched by their rendered message — the throw and this catch run in the
- * same request, hence the same Paraglide locale, so the strings are equal.
- * Everything else falls back to a status-derived code.
+ * Fallback machine code for an `HttpError` that didn't carry an explicit
+ * `code` on its body. Domain rules that need a stable code (e.g.
+ * `account_archived`, `transaction_is_transfer_leg`) set it at the throw site
+ * via `error(status, { code, message })`; everything else lands here.
  */
-function codeForHttpError(status: number, message: string): string {
-	if (message === m.error_account_archived()) return 'account_archived';
-	if (message === m.error_transaction_is_transfer_leg()) return 'transaction_is_transfer_leg';
-
+function codeForStatus(status: number): string {
 	switch (status) {
 		case 400:
 			return 'bad_request';
