@@ -57,6 +57,8 @@ test('Empty-state guidance — canonical first-run path', async ({ page, pages }
 	await page.getByRole('button', { name: 'Show Accounts' }).click();
 	await expect(page.getByRole('menuitem', { name: accountName })).toBeVisible();
 	await expect(page.getByText('No accounts yet — add one below.')).toHaveCount(0);
+	// With no archived accounts the dropdown omits the "0 archived" link (#171).
+	await expect(page.getByRole('menuitem', { name: '0 archived' })).toHaveCount(0);
 	await page.keyboard.press('Escape');
 
 	// The footer link — now carrying the account's name — leads to the
