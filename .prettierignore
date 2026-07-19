@@ -9,3 +9,6 @@ bun.lockb
 /static/
 ./src/lib/paraglide
 project.inlang/
+
+# Generated OpenAPI contract (assembled by `npm run api:generate`)
+docs/api/openapi.yaml
