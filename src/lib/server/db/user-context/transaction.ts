@@ -169,7 +169,11 @@ export const commands = (userId: string, db: Database = database) => ({
 		if (!existing) error(404);
 		// Editing a single leg is ambiguous — transfers change through
 		// editTransfer, which keeps both legs consistent (ADR-0015).
-		if (existing.transferId) error(400, m.error_transaction_is_transfer_leg());
+		if (existing.transferId)
+			error(400, {
+				code: 'transaction_is_transfer_leg',
+				message: m.error_transaction_is_transfer_leg()
+			});
 
 		const data = { ...update, validated: update.validated ?? false };
 		const updated = db
@@ -324,7 +328,8 @@ function activeAccountGuard(db: Database, budgetId: string, accountId: string) {
 		.where(and(eq(tables.accounts.id, accountId), eq(tables.accounts.budgetId, budgetId)))
 		.get();
 	if (!account) error(404, m.error_account_not_found());
-	if (account.archivedAt) error(400, m.error_account_archived());
+	if (account.archivedAt)
+		error(400, { code: 'account_archived', message: m.error_account_archived() });
 }
 
 function escapeLikePattern(term: string) {
