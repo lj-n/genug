@@ -12,7 +12,6 @@ export {
 	Content,
 	Description,
 	Header,
-	//
 	Root as Popover,
 	Close as PopoverClose,
 	Content as PopoverContent,

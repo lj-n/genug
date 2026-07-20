@@ -282,7 +282,6 @@ export const commands = (userId: string, db: Database = database) => ({
 	}) => {
 		accessGuard(budgetId, userId, db);
 
-		// Validate that both categories belong to this budget
 		{
 			const categoryIds = [sourceCategoryId];
 			if (targetCategoryId !== null) categoryIds.push(targetCategoryId);

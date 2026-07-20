@@ -77,7 +77,7 @@ export function refreshSession({ db = database, session }: { db?: Database; sess
 	}
 
 	if (shouldRefresh(session.expiresAt)) {
-		session.expiresAt = new Date(Date.now() + DAY_IN_MS * 15); // Extend session by 15 days
+		session.expiresAt = new Date(Date.now() + DAY_IN_MS * 15);
 		db.update(tables.sessions)
 			.set({ expiresAt: session.expiresAt })
 			.where(eq(tables.sessions.id, session.id))

@@ -18,7 +18,6 @@ import YearSelect from './calendar-year-select.svelte';
 import Root from './calendar.svelte';
 
 export {
-	//
 	Root as Calendar,
 	Caption,
 	Cell,

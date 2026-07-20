@@ -100,7 +100,7 @@ if (import.meta.vitest) {
 		await expect(
 			database.insert(users).values({
 				passwordHash: 'hash2',
-				username: 'user1' // same username
+				username: 'user1'
 			})
 		).rejects.toThrow();
 	});

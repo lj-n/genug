@@ -65,7 +65,6 @@ describe('hasAccess', () => {
 			.values({ budgetId: budget.id, role: 'INVITEE', userId: invitee.id })
 			.run();
 
-		// OWNER sees the budget via hasAccess
 		const ownerRows = db
 			.select({ id: tables.budgets.id })
 			.from(tables.budgets)
@@ -73,7 +72,6 @@ describe('hasAccess', () => {
 			.all();
 		expect(ownerRows).toHaveLength(1);
 
-		// INVITEE does not see it (filtered out by hasAccess)
 		const inviteeRows = db
 			.select({ id: tables.budgets.id })
 			.from(tables.budgets)
@@ -96,7 +94,6 @@ describe('isOwner', () => {
 			.values({ budgetId: budget.id, role: 'MEMBER', userId: member.id })
 			.run();
 
-		// OWNER sees the budget via isOwner
 		const ownerRows = db
 			.select({ id: tables.budgets.id })
 			.from(tables.budgets)
@@ -104,7 +101,6 @@ describe('isOwner', () => {
 			.all();
 		expect(ownerRows).toHaveLength(1);
 
-		// MEMBER does not see it via isOwner
 		const memberRows = db
 			.select({ id: tables.budgets.id })
 			.from(tables.budgets)
