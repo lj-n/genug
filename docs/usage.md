@@ -8,6 +8,21 @@ app: money you receive lands in an unassigned pool, and you assign it to
 spending categories before you spend it. Each category's remaining balance
 tells you how much you can still spend in that area.
 
+## Contents
+
+- [First login](#first-login)
+- [Budget plans](#budget-plans)
+- [Accounts](#accounts)
+- [Categories](#categories)
+- [The monthly budget view](#the-monthly-budget-view)
+  - [Assigning money](#assigning-money)
+  - [Moving money and covering overspending](#moving-money-and-covering-overspending)
+- [Transactions](#transactions)
+  - [Transfers between accounts](#transfers-between-accounts)
+- [Multi-user](#multi-user)
+- [Settings](#settings)
+- [Administration](#administration)
+
 ## First login
 
 On a fresh instance, the first visit redirects to a "Create Admin" screen.
@@ -81,6 +96,10 @@ numbers for the selected month:
 - **Remaining** — what is left to spend: assignments minus spending,
   carried across months.
 
+<img src="screenshots/budget.png" width="640" alt="The monthly budget view:
+each category with its assigned budget, activity, and remaining balance, one
+category overspent in red, and the unallocated pool at the top.">
+
 Use the month and year navigation to move between months; each month's
 assignments are independent.
 
@@ -95,6 +114,10 @@ you have already assigned money in future months, that reservation is
 reflected too — the breakdown popover shows income, allocations, and where a
 future bottleneck sits. A negative Unassigned value is a warning that you
 have assigned more than you have received so far, not a hard error.
+
+<img src="screenshots/unassigned.png" width="384" alt="The unallocated
+breakdown popover: income and assignments through the month, position, the
+amount reserved for a later month, and the total still available to assign.">
 
 ### Moving money and covering overspending
 
@@ -111,6 +134,10 @@ pool:
 Transactions live under an account. Each has a category (or none — a
 transaction without a category is income to the budget), a date, optional
 notes, an amount, and a validated flag.
+
+<img src="screenshots/transactions.png" width="640" alt="An account's
+transactions: a list showing each transaction's category, notes, date, and
+amount, each row marked pending or validated.">
 
 - **Add** — from an account, open the new-transaction form; new entries
   default to pending.

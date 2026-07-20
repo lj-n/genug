@@ -14,7 +14,7 @@
  */
 import { createUser, hashPassword } from '$db';
 import { createUserCtx } from '$db/user-context';
-import { currentMonth } from '$lib/utils/month';
+import { addMonths, currentMonth } from '$lib/utils/month';
 
 export type SeedResult = {
 	budgetId: string;
@@ -85,6 +85,14 @@ const SAVINGS_TRANSACTIONS: TransactionSeed[] = [
 	{ amount: 30000, category: null, day: 9, notes: 'Round-up savings', validated: true }
 ];
 
+// A single assignment one month ahead. It has no income of its own, so it pulls
+// the future running position below the current month's — lighting up the
+// Unassigned popover's reach-back terms (Position, Reserved, and a bottleneck
+// month) for the unassigned.png screenshot. Sized well under the current-month
+// income so the current month stays comfortably positive (calm, not a warning).
+// Removing it silently flattens the popover — see docs/dev/screenshots.md.
+const FUTURE_ASSIGNMENT = { amount: 120000, category: 'Rent' } as const;
+
 export async function seedFixture(): Promise<SeedResult> {
 	const month = currentMonth();
 	const dateForDay = (day: number) =>
@@ -110,6 +118,13 @@ export async function seedFixture(): Promise<SeedResult> {
 		categoryIds.set(seed.name, category.id);
 	}
 	ctx.category.reorder(CATEGORIES.map((seed) => categoryIds.get(seed.name)!));
+
+	ctx.budget.assignment({
+		amount: FUTURE_ASSIGNMENT.amount,
+		budgetId,
+		categoryId: categoryIds.get(FUTURE_ASSIGNMENT.category)!,
+		month: addMonths(month, 1)
+	});
 
 	for (const tx of CHECKING_TRANSACTIONS) {
 		ctx.transaction.create({
