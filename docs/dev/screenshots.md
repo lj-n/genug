@@ -1,13 +1,15 @@
-# README Screenshots
+# Documentation Screenshots
 
-The README embeds two screenshots — the budget month view and an account's
-transactions — living in `../screenshots/`. They are captured from a
+The docs embed three screenshots, all living in `../screenshots/`: the budget
+month view (`budget.png`) and an account's transactions (`transactions.png`)
+are shown in the README; the Unassigned breakdown popover (`unassigned.png`)
+is embedded in [`../usage.md`](../usage.md). They are captured from a
 deterministic demo fixture, not a live instance.
 
 ## Regenerating
 
-Run after notable UI changes to the budget month view or the transactions
-table, then commit the updated PNGs:
+Run after notable UI changes to the budget month view, the transactions
+table, or the Unassigned breakdown popover, then commit the updated PNGs:
 
 ```bash
 npm run screenshots
@@ -27,3 +29,10 @@ current month). Keep it deterministic — no random data — so screenshots only
 change when the UI or the fixture does. All transactions are dated within the
 current month, so the budget view always shows live activity whenever you
 regenerate.
+
+The fixture also makes one assignment in the **following** month
+(`FUTURE_ASSIGNMENT`). It has no income of its own, so it reserves part of the
+current month's money and gives the Unassigned popover a non-zero Position,
+Reserved, and bottleneck month to show in `unassigned.png` — while the current
+month stays positive. Remove it and the popover flattens to the calm state,
+silently killing what that screenshot demonstrates.

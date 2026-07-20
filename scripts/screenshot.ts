@@ -1,8 +1,8 @@
 /**
- * Captures the README screenshots end-to-end (issue #112 / #122): point a
- * throwaway SQLite file at a fresh build, seed the demo fixture, boot the
- * production server, log in, and screenshot the budget month view (the hero)
- * and an account's transactions.
+ * Captures the documentation screenshots end-to-end (issue #112 / #122): point
+ * a throwaway SQLite file at a fresh build, seed the demo fixture, boot the
+ * production server, log in, and screenshot the budget month view (the hero),
+ * an account's transactions, and the Unassigned breakdown popover.
  *
  * Not CI-gated — reproducibility is the kept-current mechanism. Rerun with
  * `npm run screenshots` after notable UI changes and commit the PNGs
@@ -46,7 +46,8 @@ async function main(): Promise<void> {
 		await waitForServer(`${ORIGIN}/login`);
 
 		mkdirSync(OUT_DIR, { recursive: true });
-		const page = await browser.newPage({ reducedMotion: 'reduce', viewport: VIEWPORT });
+		const context = await browser.newContext({ reducedMotion: 'reduce', viewport: VIEWPORT });
+		const page = await context.newPage();
 
 		await page.goto(`${ORIGIN}/login`);
 		await page.getByLabel('Username').fill(fixture.username);
@@ -76,6 +77,31 @@ async function main(): Promise<void> {
 		await page.getByRole('heading', { name: 'Checking' }).waitFor();
 		await page.getByText('Supermarket').first().waitFor();
 		await capture('transactions.png');
+
+		console.log('Capturing the Unassigned breakdown popover…');
+		// The popover is a small element (~380 CSS px), so a 1× element shot looks
+		// soft once embedded near that width. Capture it in its own context at 2×
+		// device scale for a crisp image, reusing the logged-in session so we skip
+		// a second login. It needs a bespoke path anyway: the popover must stay
+		// open, but the shared `capture()` helper blurs focus (dismissing it) and
+		// shoots the full viewport.
+		const hidpi = await browser.newContext({
+			deviceScaleFactor: 2,
+			reducedMotion: 'reduce',
+			storageState: await context.storageState(),
+			viewport: VIEWPORT
+		});
+		const hidpiPage = await hidpi.newPage();
+		await hidpiPage.goto(`${ORIGIN}/${fixture.budgetId}/${fixture.month}`);
+		await hidpiPage.getByRole('heading', { name: 'Household' }).waitFor();
+		await hidpiPage.getByRole('button', { name: 'Explain the unallocated amount' }).click();
+		const popover = hidpiPage.locator('[data-slot="popover-content"]');
+		await popover.getByText('Reserved').waitFor();
+		// `.screenshot()` waits for the open transition to settle first.
+		await popover.screenshot({ path: join(OUT_DIR, 'unassigned.png') });
+		const box = await popover.boundingBox();
+		console.log(`Popover CSS width: ${box?.width}px (embed at ~this width so 2× stays crisp)`);
+		await hidpi.close();
 
 		console.log(`Wrote screenshots to ${OUT_DIR}/`);
 	} finally {
