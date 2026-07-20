@@ -8,6 +8,7 @@
  * `npm run screenshots` after notable UI changes and commit the PNGs
  * (see docs/dev/screenshots.md).
  */
+import { THEME_COOKIE_NAME } from '$lib/utils/theme';
 import { chromium } from '@playwright/test';
 import { execFileSync, spawn } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
@@ -66,17 +67,27 @@ async function main(): Promise<void> {
 			await page.screenshot({ path: join(OUT_DIR, name) });
 		};
 
+		// The two README shots are captured in both themes (issue #235): the
+		// light variant first, then the same views forced dark. Both go through
+		// the same navigation so only the theme differs between the pair.
+		const captureBudget = async (name: string) => {
+			await page.goto(`${ORIGIN}/${fixture.budgetId}/${fixture.month}`);
+			await page.getByRole('heading', { name: 'Household' }).waitFor();
+			await page.getByText('Rent').first().waitFor();
+			await capture(name);
+		};
+		const captureTransactions = async (name: string) => {
+			await page.goto(`${ORIGIN}/${fixture.budgetId}/accounts/${fixture.checkingAccountId}`);
+			await page.getByRole('heading', { name: 'Checking' }).waitFor();
+			await page.getByText('Supermarket').first().waitFor();
+			await capture(name);
+		};
+
 		console.log('Capturing the budget month view…');
-		await page.goto(`${ORIGIN}/${fixture.budgetId}/${fixture.month}`);
-		await page.getByRole('heading', { name: 'Household' }).waitFor();
-		await page.getByText('Rent').first().waitFor();
-		await capture('budget.png');
+		await captureBudget('budget.png');
 
 		console.log('Capturing the transactions view…');
-		await page.goto(`${ORIGIN}/${fixture.budgetId}/accounts/${fixture.checkingAccountId}`);
-		await page.getByRole('heading', { name: 'Checking' }).waitFor();
-		await page.getByText('Supermarket').first().waitFor();
-		await capture('transactions.png');
+		await captureTransactions('transactions.png');
 
 		console.log('Capturing the Unassigned breakdown popover…');
 		// The popover is a small element (~380 CSS px), so a 1× element shot looks
@@ -102,6 +113,17 @@ async function main(): Promise<void> {
 		const box = await popover.boundingBox();
 		console.log(`Popover CSS width: ${box?.width}px (embed at ~this width so 2× stays crisp)`);
 		await hidpi.close();
+
+		// Dark-theme companions for the README <picture> sources, captured last
+		// so the forced-dark cookie never leaks into the storageState the hidpi
+		// popover context copies above. The `theme` cookie forces an explicit
+		// override that wins over the OS `prefers-color-scheme` (ADR-0010); the
+		// server stamps `.dark` on `<html>` on the next navigation, so a fresh
+		// goto renders dark.
+		console.log('Capturing the dark-theme companions…');
+		await context.addCookies([{ name: THEME_COOKIE_NAME, url: ORIGIN, value: 'dark' }]);
+		await captureBudget('budget-dark.png');
+		await captureTransactions('transactions-dark.png');
 
 		console.log(`Wrote screenshots to ${OUT_DIR}/`);
 	} finally {
