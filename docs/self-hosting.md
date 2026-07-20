@@ -57,13 +57,29 @@ services:
         max-file: '5'
     environment:
       DATABASE_URL: '/app/data/genug.db'
-      ORIGIN: 'https://your.domain'
+      ORIGIN: 'https://budget.example.com'
 ```
 
 Update with `docker compose pull && docker compose up -d`. To build locally
 instead of pulling, replace `image:` with `build: .`.
 
-### First admin
+## Reverse proxy and ORIGIN
+
+A reverse proxy is not required by the app. It serves plain HTTP, and a
+local or LAN-only instance works without one. But do not expose that
+plain-HTTP port directly to the internet: put a reverse proxy in front to
+terminate TLS, so passwords never cross the wire in clear. Any proxy will do
+— Caddy, nginx, Traefik — and none needs anything special from the app's
+side.
+
+Whatever the setup, set `ORIGIN` to the exact public URL users type into the
+browser (scheme and host, e.g. `https://budget.example.com`; for a direct
+local run, `http://localhost:3000`). SvelteKit checks form submissions
+against this origin for CSRF protection — with `ORIGIN` unset or wrong,
+logins and every other form fail. That includes the create-admin form
+covered next, so get this right before the first start.
+
+## First admin
 
 No seeding or bootstrap command is needed. When the app starts with an empty
 database, the first visit redirects to a create-admin screen and the first
@@ -72,24 +88,15 @@ further user accounts in the app — there is no open registration and no
 email involved. Since anyone who reaches a fresh instance first would become
 admin, register the admin user right after the first start.
 
-### Reverse proxy and ORIGIN
-
-Run the app behind a reverse proxy that terminates TLS; the app itself
-serves plain HTTP. Whatever proxy you use, set `ORIGIN` to the exact public
-URL users type into the browser (scheme and host, e.g.
-`https://budget.example.com`). SvelteKit checks form submissions against
-this origin for CSRF protection — with `ORIGIN` unset or wrong, logins and
-every other form fail.
-
 ## Environment variables
 
-| Variable       | Required            | Description                                                                                                                                |
-| -------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `DATABASE_URL` | yes                 | Path to the SQLite database file, e.g. `/app/data/genug.db` (a plain path, not a `file:` URI). The app refuses to start without it.        |
-| `ORIGIN`       | yes, behind a proxy | Public URL of the instance (`https://budget.example.com`). Used for CSRF protection; see above.                                            |
-| `PORT`         | no                  | Port the server listens on. Defaults to `3000`, which the image sets and exposes. Set it to serve on a different port (map that port too). |
-| `LOG_LEVEL`    | no                  | Log verbosity ([pino](https://getpino.io) levels, e.g. `debug`, `info`, `warn`, `error`). Defaults to `info`.                              |
-| `NODE_ENV`     | no                  | `production` switches logs to plain JSON. Already set in the container image; set it yourself for manual runs.                             |
+| Variable       | Required | Description                                                                                                                                                                                                   |
+| -------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL` | yes      | Path to the SQLite database file, e.g. `/app/data/genug.db` (a plain path, not a `file:` URI). The app refuses to start without it.                                                                           |
+| `ORIGIN`       | yes      | Public URL of the instance (`https://budget.example.com`, or `http://localhost:3000` for a direct local run). SvelteKit checks form Origin against it for CSRF; unset or wrong → every form fails. See above. |
+| `PORT`         | no       | Port the server listens on. Defaults to `3000`, which the image sets and exposes. Set it to serve on a different port (map that port too).                                                                    |
+| `LOG_LEVEL`    | no       | Log verbosity ([pino](https://getpino.io) levels, e.g. `debug`, `info`, `warn`, `error`). Defaults to `info`.                                                                                                 |
+| `NODE_ENV`     | no       | `production` switches logs to plain JSON. Already set in the container image; set it yourself for manual runs.                                                                                                |
 
 The server is built with SvelteKit's adapter-node, which understands further
 variables (`HOST`, `BODY_SIZE_LIMIT`, proxy-header handling, …) — see the
@@ -100,7 +107,9 @@ variables (`HOST`, `BODY_SIZE_LIMIT`, proxy-header handling, …) — see the
 ```sh
 npm install
 DATABASE_URL=:memory: npm run build
-DATABASE_URL=./data/genug.db NODE_ENV=production node build
+DATABASE_URL=./data/genug.db \
+  ORIGIN=http://localhost:3000 \
+  NODE_ENV=production node build
 ```
 
 Migrations run automatically at startup.
