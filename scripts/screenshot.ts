@@ -6,7 +6,7 @@
  *
  * Not CI-gated — reproducibility is the kept-current mechanism. Rerun with
  * `npm run screenshots` after notable UI changes and commit the PNGs
- * (see docs/screenshots.md).
+ * (see docs/dev/screenshots.md).
  */
 import { chromium } from '@playwright/test';
 import { execFileSync, spawn } from 'node:child_process';

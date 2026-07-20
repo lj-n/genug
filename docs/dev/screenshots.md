@@ -1,7 +1,7 @@
 # README Screenshots
 
 The README embeds two screenshots — the budget month view and an account's
-transactions — living in `docs/screenshots/`. They are captured from a
+transactions — living in `../screenshots/`. They are captured from a
 deterministic demo fixture, not a live instance.
 
 ## Regenerating

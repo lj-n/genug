@@ -75,7 +75,7 @@
 	let minVisibleElapsed = true;
 
 	// Timer-driven visibility cannot be derived; this is the imperative escape
-	// hatch the delay gate needs (see docs/code-style.md on $effect).
+	// hatch the delay gate needs (see docs/dev/code-style.md on $effect).
 	$effect(() => {
 		if (!loading) {
 			if (minVisibleElapsed) spinnerVisible = false;

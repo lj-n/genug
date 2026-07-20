@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions use CalVer
-(`YYYY.0M.MICRO`, see [ADR-0012](docs/adr/0012-calver-releases-and-stage-deploy.md)).
+(`YYYY.0M.MICRO`, see [ADR-0012](docs/dev/adr/0012-calver-releases-and-stage-deploy.md)).
 
 Only user-visible changes are recorded here — new or changed features, bug
 fixes, behaviour and UX changes, and new settings. Refactors, tests, CI, docs,
