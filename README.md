@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
+    <img src="docs/logo-light.svg" width="320" alt="genug-da">
+  </picture>
+</p>
+
 # genug-da
 
 [![CI](https://github.com/lj-n/genug-da/actions/workflows/ci.yml/badge.svg)](https://github.com/lj-n/genug-da/actions/workflows/ci.yml)
