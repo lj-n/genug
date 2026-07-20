@@ -99,6 +99,46 @@ test('Toggle Validated', async ({ pages }) => {
 	await pages.account.toggleValidated();
 });
 
+test("Transfer's counterpart leg shows in the other account without reload", async ({
+	page,
+	pages
+}) => {
+	// The desktop side menu (the cross-account switcher used below) only mounts at
+	// the wide breakpoint; pin a desktop viewport so this runs the same way under
+	// the tablet project.
+	await page.setViewportSize({ height: 900, width: 1440 });
+
+	await pages.auth.createUserAndLogin();
+
+	const budgetName = faker.commerce.department();
+	await pages.budget.createBudget(budgetName);
+
+	const accountA = uniqueName(faker.finance.accountName());
+	const accountB = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountA);
+	await pages.budget.createAccount(accountB);
+
+	// Visit account B first so its transaction query is cached client-side; the
+	// bug is that a transfer created from another account fails to invalidate
+	// this cached instance, so it stays stale.
+	await pages.account.switchToAccountViaSideMenu(accountB);
+	await expect(pages.account.transactionsEmptyState()).toBeVisible();
+
+	// Create the transfer while viewing account A; the counterpart leg lands in B.
+	await pages.account.switchToAccountViaSideMenu(accountA);
+	await pages.account.createTransfer({ amount: '25', counterpartAccount: accountB });
+
+	// Return to B via browser back, which restores B's cached query instance
+	// rather than refetching it (a fresh navigation would refetch and mask the
+	// bug). B's leg must show immediately — its category cell carries a transfer
+	// badge naming the counterpart account (A).
+	await page.goBack();
+	await expect(page.getByRole('heading', { name: accountB })).toBeVisible();
+	await expect(
+		page.getByRole('cell', { name: 'Edit category' }).filter({ hasText: accountA })
+	).toBeVisible();
+});
+
 test('Toggle and switch create rows from their trigger buttons', async ({ page, pages }) => {
 	await pages.auth.createUserAndLogin();
 

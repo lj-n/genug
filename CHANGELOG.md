@@ -12,6 +12,10 @@ and dependency bumps get no entry.
 
 ### Fixed
 
+- Creating a transfer now updates the counterpart account's register right
+  away. After adding a transfer while viewing one account, switching to the
+  other account shows the new leg immediately, without a manual page reload.
+
 - The create-transaction and create-transfer forms no longer carry a
   half-typed draft across accounts. Switching to another account (in the same
   or a different budget) and reopening the create form now shows an empty form;
