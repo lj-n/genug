@@ -16,7 +16,6 @@ export {
 	Close,
 	Content,
 	Description,
-	//
 	Root as Drawer,
 	Body as DrawerBody,
 	Close as DrawerClose,

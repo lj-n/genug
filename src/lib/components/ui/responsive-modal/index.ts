@@ -19,7 +19,6 @@ export {
 	Header,
 	Overlay,
 	Portal,
-	//
 	Root as ResponsiveModal,
 	Body as ResponsiveModalBody,
 	Close as ResponsiveModalClose,

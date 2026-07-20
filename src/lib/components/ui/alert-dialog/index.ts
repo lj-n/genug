@@ -13,7 +13,6 @@ import Root from './alert-dialog.svelte';
 
 export {
 	Action,
-	//
 	Root as AlertDialog,
 	Action as AlertDialogAction,
 	Cancel as AlertDialogCancel,

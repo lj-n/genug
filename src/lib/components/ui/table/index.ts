@@ -16,7 +16,6 @@ export {
 	Header,
 	Root,
 	Row,
-	//
 	Root as Table,
 	Body as TableBody,
 	Caption as TableCaption,

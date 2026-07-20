@@ -17,15 +17,10 @@
 		'not-data-selected:hover:bg-muted/10 not-data-selected:hover:text-foreground',
 		'[&[data-today]:not([data-selected])]:bg-muted/5 [&[data-today]:not([data-selected])]:text-foreground [&[data-today][data-disabled]]:text-muted',
 		'data-selected:bg-info/10 data-selected:text-info data-selected:hover:text-foreground',
-		// Outside months
 		'[&[data-outside-month]:not([data-selected])]:text-muted [&[data-outside-month]:not([data-selected])]:hover:text-foreground',
-		// Disabled
 		'data-disabled:pointer-events-none data-disabled:text-muted data-disabled:opacity-50',
-		// Unavailable
 		'data-unavailable:text-muted data-unavailable:line-through',
-		// focus
 		'focus:relative',
-		// inner spans
 		'[&>span]:text-xs [&>span]:opacity-70',
 		className
 	)}

@@ -11,7 +11,6 @@ import Shortcut from './command-shortcut.svelte';
 import Root from './command.svelte';
 
 export {
-	//
 	Root as Command,
 	Dialog as CommandDialog,
 	Empty as CommandEmpty,

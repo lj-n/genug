@@ -51,7 +51,6 @@ export function guardedCommand<Schema extends StandardSchemaV1, Input, Output>(
 	schemaOrFn: ((input: Input, auth: GuardedAuth) => Promise<Output>) | Schema,
 	maybeFn?: (output: StandardSchemaV1.InferOutput<Schema>, auth: GuardedAuth) => Promise<Output>
 ) {
-	// Handle the case with schema parameter (first overload)
 	if (isStandardSchema(schemaOrFn) && typeof maybeFn === 'function') {
 		return command(schemaOrFn, async (output) => {
 			const event = getRequestEvent();
@@ -62,7 +61,6 @@ export function guardedCommand<Schema extends StandardSchemaV1, Input, Output>(
 		});
 	}
 
-	// Handle the case where there's no schema parameter (second overload)
 	if (typeof schemaOrFn === 'function' && !maybeFn) {
 		return command('unchecked', async (input: Input) => {
 			const event = getRequestEvent();
@@ -119,7 +117,6 @@ export function guardedForm<
 				}
 		  ) => Promise<Output>)
 ) {
-	// Handle the case with schema parameter (first overload)
 	if (isStandardSchema(schemaOrFn) && typeof maybeFn === 'function') {
 		const fn = maybeFn as (
 			output: StandardSchemaV1.InferOutput<Schema>,
@@ -136,7 +133,6 @@ export function guardedForm<
 		});
 	}
 
-	// Handle the case with unchecked schema parameter (second overload)
 	if (typeof schemaOrFn === 'string' && typeof maybeFn === 'function') {
 		const fn = maybeFn as (
 			input: Input,
@@ -153,7 +149,6 @@ export function guardedForm<
 		});
 	}
 
-	// Handle the case where there's no schema parameter (third overload)
 	if (typeof schemaOrFn === 'function' && !maybeFn) {
 		return form(async () => {
 			const event = getRequestEvent();
@@ -178,7 +173,6 @@ export function guardedQuery<Schema extends StandardSchemaV1, Output>(
 	schemaOrFn: ((auth: GuardedAuth) => Promise<Output>) | Schema,
 	maybeFn?: (output: StandardSchemaV1.InferOutput<Schema>, auth: GuardedAuth) => Promise<Output>
 ) {
-	// Handle the case with schema parameter (first overload)
 	if (isStandardSchema(schemaOrFn) && typeof maybeFn === 'function') {
 		return query(schemaOrFn, (output) => {
 			const event = getRequestEvent();
@@ -189,7 +183,6 @@ export function guardedQuery<Schema extends StandardSchemaV1, Output>(
 		});
 	}
 
-	// Handle the case where there's no schema parameter (second overload)
 	if (typeof schemaOrFn === 'function' && !maybeFn) {
 		return query(() => {
 			const event = getRequestEvent();

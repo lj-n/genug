@@ -51,7 +51,7 @@ export const transactions = sqliteTable(
 			columns: [t.categoryId, t.budgetId],
 			foreignColumns: [categories.id, categories.budgetId]
 		}),
-		check('date_format', sql`${t.date} LIKE '____-__-__'`), // YYYY-MM-DD
+		check('date_format', sql`${t.date} LIKE '____-__-__'`),
 		// Transfer legs carry no category — ever (ADR-0015). Pair-level
 		// invariants stay command-enforced per ADR-0001.
 		check('transfer_no_category', sql`${t.transferId} IS NULL OR ${t.categoryId} IS NULL`)
@@ -90,11 +90,11 @@ if (import.meta.vitest) {
 
 		await expect(
 			database.insert(transactions).values({
-				accountId: 'nonexistent_account', // invalid accountId
+				accountId: 'nonexistent_account',
 				amount: 1000,
 				budgetId: budget.id,
 				categoryId: category.id,
-				date: new Date().toISOString().split('T')[0] // format as YYYY-MM-DD
+				date: new Date().toISOString().split('T')[0]
 			})
 		).rejects.toThrow();
 
@@ -103,8 +103,8 @@ if (import.meta.vitest) {
 				accountId: account.id,
 				amount: 1000,
 				budgetId: budget.id,
-				categoryId: 'nonexistent_category', // invalid categoryId
-				date: new Date().toISOString().split('T')[0] // format as YYYY-MM-DD
+				categoryId: 'nonexistent_category',
+				date: new Date().toISOString().split('T')[0]
 			})
 		).rejects.toThrow();
 
@@ -119,9 +119,9 @@ if (import.meta.vitest) {
 			database.insert(transactions).values({
 				accountId: account.id,
 				amount: 1000,
-				budgetId: secondBudget.id, // mismatched budgetId - accountId
+				budgetId: secondBudget.id,
 				categoryId: category.id,
-				date: new Date().toISOString().split('T')[0] // format as YYYY-MM-DD
+				date: new Date().toISOString().split('T')[0]
 			})
 		).rejects.toThrow();
 	});
@@ -157,7 +157,7 @@ if (import.meta.vitest) {
 			amount: 1000,
 			budgetId: budget.id,
 			categoryId: category.id,
-			date: '2023-12-31' // valid date
+			date: '2023-12-31'
 		});
 
 		await expect(
@@ -166,7 +166,7 @@ if (import.meta.vitest) {
 				amount: 1000,
 				budgetId: budget.id,
 				categoryId: category.id,
-				date: '12/31/2023' // invalid date
+				date: '12/31/2023'
 			})
 		).rejects.toThrow();
 	});
@@ -203,7 +203,7 @@ if (import.meta.vitest) {
 			budgetId: budget.id,
 			categoryId: null,
 			date: '2023-12-31',
-			transferId: 'transfer1' // category-free transfer leg
+			transferId: 'transfer1'
 		});
 
 		await expect(
@@ -211,7 +211,7 @@ if (import.meta.vitest) {
 				accountId: account.id,
 				amount: 1000,
 				budgetId: budget.id,
-				categoryId: category.id, // categorized transfer leg
+				categoryId: category.id,
 				date: '2023-12-31',
 				transferId: 'transfer2'
 			})

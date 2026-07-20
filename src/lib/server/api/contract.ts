@@ -192,7 +192,7 @@ export const contract: OpenApiDocument = {
 				type: 'object'
 			},
 
-			// ---- Hand-authored envelope response schemas (drift risk — see header) ----
+			// Hand-authored envelope response schemas (drift risk — see header)
 
 			EnvelopeDelta: {
 				description:
@@ -276,8 +276,6 @@ export const contract: OpenApiDocument = {
 				],
 				type: 'object'
 			},
-
-			// ---- Entity + result schemas ----
 
 			TransactionDeleteResult: {
 				properties: {

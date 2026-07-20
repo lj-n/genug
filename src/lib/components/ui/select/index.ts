@@ -20,7 +20,6 @@ export {
 	Root,
 	ScrollDownButton,
 	ScrollUpButton,
-	//
 	Root as Select,
 	Content as SelectContent,
 	Group as SelectGroup,

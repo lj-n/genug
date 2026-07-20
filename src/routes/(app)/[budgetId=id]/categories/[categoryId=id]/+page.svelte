@@ -30,7 +30,7 @@
 
 	// Archived categories are managed through the archived list's restore flow,
 	// not this page. Archiving here trips the same redirect: the submit
-	// refreshes getCategoryById, which now carries archivedAt.
+	// refreshes getCategoryById, populating archivedAt.
 	$effect(() => {
 		if (category.archivedAt !== null) {
 			goto(resolve('/(app)/[budgetId=id]/categories/archived', { budgetId: budgetId() }));
