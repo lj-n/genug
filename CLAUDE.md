@@ -15,11 +15,11 @@ SvelteKit 2 + Svelte 5 runes, `@sveltejs/adapter-node`, Tailwind 4, Drizzle ORM 
 
 ## Build, Test, and Lint Commands
 
-Set `DATABASE_URL` for builds and DB-backed tests. For local runs, `:memory:` is the common value.
+A committed `.env` provides `DATABASE_URL=local.db`, so a fresh clone runs these commands with no prefix. Override machine-specific values in `.env.local` (gitignored, wins over `.env`). Unit tests force `:memory:` automatically.
 
 ```bash
 # development
-DATABASE_URL=:memory: npm run dev
+npm run dev
 
 # type/svelte checks
 npm run check
@@ -30,13 +30,13 @@ npm run lint:fix
 npm run format
 
 # production build / preview
-DATABASE_URL=:memory: npm run build
-DATABASE_URL=:memory: npm run preview
+npm run build
+npm run preview
 
 # unit tests
-DATABASE_URL=:memory: npm run test:unit
-DATABASE_URL=:memory: npm run test:unit -- src/lib/server/db/auth/auth.test.ts
-DATABASE_URL=:memory: npm run test:unit -- src/lib/server/db/auth/auth.test.ts -t "authenticateUser - returns user on valid credentials"
+npm run test:unit
+npm run test:unit -- src/lib/server/db/auth/auth.test.ts
+npm run test:unit -- src/lib/server/db/auth/auth.test.ts -t "authenticateUser - returns user on valid credentials"
 
 # Playwright
 npm run test:e2e

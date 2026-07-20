@@ -103,8 +103,11 @@ keep my own data in: one SQLite file, no external services.
 
 ```sh
 npm install
-DATABASE_URL=:memory: npm run dev
+npm run dev
 ```
+
+A committed `.env` supplies a `DATABASE_URL=local.db` default, so no prefix is
+needed. Override it in `.env.local` (gitignored) if you want a different path.
 
 ```sh
 npm run test:unit       # Vitest

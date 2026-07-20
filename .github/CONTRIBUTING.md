@@ -21,9 +21,10 @@ prior, agreed-upon issue may be closed without review.
 ## Development setup
 
 See the [Development section of the README](../README.md#development) for
-setup and the test/lint commands. In short: Node.js 22+, `npm install`, and
-run everything with `DATABASE_URL=:memory:` — `npm run dev`, `npm run check`,
-`npm run lint`, `npm run test:unit`, `npm run test:e2e`.
+setup and the test/lint commands. In short: Node.js 22+, `npm install`, then
+`npm run dev`, `npm run check`, `npm run lint`, `npm run test:unit`,
+`npm run test:e2e`. A committed `.env` provides the `DATABASE_URL` default, so
+no prefix is needed.
 
 ## Conduct
 

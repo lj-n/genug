@@ -106,11 +106,15 @@ variables (`HOST`, `BODY_SIZE_LIMIT`, proxy-header handling, …) — see the
 
 ```sh
 npm install
-DATABASE_URL=:memory: npm run build
+npm run build
 DATABASE_URL=./data/genug.db \
   ORIGIN=http://localhost:3000 \
   NODE_ENV=production node build
 ```
+
+`node build` runs adapter-node's server, which does not read `.env` — pass
+`DATABASE_URL` explicitly, as shown. The build step picks up the committed
+`.env` default on its own.
 
 Migrations run automatically at startup.
 
