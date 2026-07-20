@@ -19,7 +19,7 @@ Assign each month's money to categories — targets fill up, overspending shows
 in red.
 
 ![The budget month view: categories with their assigned budget, activity, and
-remaining balance, one category overspent.](docs/screenshots/budget.png)
+remaining balance, with one category overspent.](docs/screenshots/budget.png)
 
 Record transactions per account and edit category, date, notes, and amount
 inline; toggle each between pending and validated.
