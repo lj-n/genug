@@ -229,19 +229,36 @@ describe('TableRowCreate', () => {
 		expect(screen.queryByRole('row')).not.toBeInTheDocument();
 	});
 
-	// bits-ui 2.18.1 never fires onOpenChangeComplete(true) for Popover.ContentStatic — on
-	// open, its presence manager reads the content node before it is mounted and bails, so
-	// only the close direction fires (reproduced in real Chromium, not a jsdom artifact).
-	// The component's reset-on-open is therefore currently dead code in the app as well.
-	// This test states the intended behavior; when a bits-ui upgrade fixes the callback,
-	// vitest will report it as "expected to fail, but passed" — then remove the `.fails`.
-	it.fails('resets the form fields when the popover opens', async () => {
-		const { rerender } = await renderRow({ open: false });
+	// The draft is scoped to the viewed account: reopening on the SAME account
+	// keeps a half-typed draft, but switching accounts and reopening must clear
+	// it. The reset is keyed on the accountId change, not the popover open event
+	// (bits-ui never fires onOpenChangeComplete(true) for static popover content).
+	it('keeps the draft when reopened on the same account', async () => {
+		const { rerender } = await renderRow({ open: true });
+
+		// The fresh mount seeds the defaults once for this account.
+		await waitFor(() => expect(remote.setAllFields).toHaveBeenCalledTimes(1));
+		remote.setAllFields.mockClear();
+
+		// Close, then reopen on the same account: no reset, the draft survives.
+		await rerender({ ...baseProps, open: false });
+		await rerender({ ...baseProps, open: true });
+		await screen.findByRole('row');
 
 		expect(remote.setAllFields).not.toHaveBeenCalled();
+	});
 
-		await rerender({ open: true });
+	it('resets the draft when reopened on a different account', async () => {
+		const { rerender } = await renderRow({ open: true });
+
+		await waitFor(() => expect(remote.setAllFields).toHaveBeenCalledTimes(1));
+		remote.setAllFields.mockClear();
+
+		// Navigate to another account, then reopen the create form.
+		await rerender({ ...baseProps, accountId: 'account-2', open: false });
+		await rerender({ ...baseProps, accountId: 'account-2', open: true });
 		await screen.findByRole('row');
+
 		await waitFor(() => expect(remote.setAllFields).toHaveBeenCalledTimes(1));
 		const values = remote.fieldState();
 		expect(values.amount).toBe(0);

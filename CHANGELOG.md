@@ -10,6 +10,13 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Fixed
+
+- The create-transaction and create-transfer forms no longer carry a
+  half-typed draft across accounts. Switching to another account (in the same
+  or a different budget) and reopening the create form now shows an empty form;
+  a draft is only kept when you reopen the form on the same account.
+
 ## [2026.07.4] - 2026-07-19
 
 ### Added
