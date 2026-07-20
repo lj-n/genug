@@ -127,6 +127,40 @@ export class AccountPage extends BasePage {
 		}
 	}
 
+	/**
+	 * Creates a transfer from the currently-viewed account through the inline
+	 * transfer create row (desktop register). The viewed account is one leg by
+	 * definition; `counterpartAccount` is the other side, picked from the account
+	 * dropdown. A positive amount arrives in the viewed account, a negative one
+	 * leaves it — either way both legs are written.
+	 */
+	async createTransfer({
+		amount,
+		counterpartAccount,
+		notes
+	}: {
+		amount: string;
+		counterpartAccount: string;
+		notes?: string;
+	}) {
+		await this.page.getByRole('button', { exact: true, name: 'Transfer' }).click();
+
+		const createRow = this.page.getByRole('row', { exact: true, name: 'Transfer' });
+		await expect(createRow).toBeVisible();
+
+		await createRow.getByRole('button', { name: 'Open account dropdown' }).click();
+		await this.page.getByRole('option', { name: counterpartAccount }).click();
+
+		if (notes !== undefined) {
+			await createRow.getByRole('textbox', { name: 'Notes' }).fill(notes);
+		}
+
+		await createRow.getByRole('textbox', { name: 'Amount' }).fill(amount);
+
+		await createRow.getByRole('button', { exact: true, name: 'Save' }).click();
+		await expect(createRow).not.toBeVisible();
+	}
+
 	async deleteTransaction() {
 		const row = this.page
 			.getByRole('row')
@@ -291,6 +325,22 @@ export class AccountPage extends BasePage {
 		await this.page.getByRole('button', { name: 'Restore' }).click();
 
 		await expect(this.page.getByRole('button', { name: 'New Transaction' })).toBeVisible();
+	}
+
+	/**
+	 * Switches to another account through the desktop side-menu link. Unlike
+	 * `goto`, this is a client-side (SPA) navigation, so the target account's
+	 * cached transaction query is reused rather than refetched from a fresh
+	 * document — the path that exercises counterpart-leg cache invalidation.
+	 */
+	async switchToAccountViaSideMenu(accountName: string) {
+		// Scope to the navigation landmark: the same account name can also appear as
+		// a link elsewhere (e.g. the month view's setup tutorial card).
+		await this.page
+			.getByRole('navigation')
+			.getByRole('link', { exact: true, name: accountName })
+			.click();
+		await expect(this.page.getByRole('heading', { name: accountName })).toBeVisible();
 	}
 
 	async toggleValidated() {

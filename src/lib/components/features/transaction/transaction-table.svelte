@@ -151,7 +151,6 @@
 						{budgetId}
 						class={colsClass}
 						interactOutsideIgnore={createTriggerGroup}
-						urlParams={tableState.params}
 					/>
 				{/snippet}
 
@@ -277,12 +276,7 @@
 	{currency}
 />
 
-<TransferCreateModal
-	bind:open={transferCreateModalOpen}
-	{accountId}
-	{budgetId}
-	urlParams={tableState.params}
-/>
+<TransferCreateModal bind:open={transferCreateModalOpen} {accountId} {budgetId} />
 
 <TransferEditModal
 	bind:open={transferEditModalOpen}

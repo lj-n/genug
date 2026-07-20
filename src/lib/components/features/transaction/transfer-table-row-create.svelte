@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { TransactionsURLParams } from '$lib/schemas/transaction';
 	import type { Attachment } from 'svelte/attachments';
 
 	import { Button } from '$lib/components/ui/button';
@@ -23,8 +22,7 @@
 		budgetId,
 		class: className,
 		interactOutsideIgnore = null,
-		open = $bindable(false),
-		urlParams
+		open = $bindable(false)
 	}: {
 		accountId: string;
 		budgetId: string;
@@ -36,7 +34,6 @@
 		 */
 		interactOutsideIgnore?: HTMLElement | null;
 		open?: boolean;
-		urlParams: TransactionsURLParams;
 	} = $props();
 
 	const accounts = $derived(await getAccounts(budgetId));
@@ -55,7 +52,10 @@
 			open = false;
 		},
 		toast: {},
-		updates: () => [listTransactions({ accountId, ...urlParams })]
+		// A transfer writes a leg into each account, so refresh every live
+		// listTransactions instance (both legs' registers) rather than just the
+		// viewed account's — otherwise the counterpart stays stale until reload.
+		updates: () => [listTransactions]
 	});
 
 	const submitWithKeyboard: Attachment<HTMLFormElement> = (node) => {
