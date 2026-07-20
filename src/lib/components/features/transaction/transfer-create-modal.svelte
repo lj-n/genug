@@ -46,10 +46,17 @@
 		updates: () => [listTransactions({ accountId, ...urlParams })]
 	});
 
-	// The form mounts each time the sheet opens, so a mount-scoped attachment is
-	// the reliable reset point (bits-ui never fires onOpenChangeComplete(true)
-	// for static content, see transaction-table-row-create.svelte.test.ts).
-	const resetOnMount: Attachment<HTMLFormElement> = () => {
+	// The draft is scoped to one account (carried as the hidden accountId), so it
+	// is stale once the viewed account changes. Reset the fields when the form
+	// next mounts for a different account; reopening on the SAME account keeps the
+	// draft. This deliberately covers cross-budget and same-budget switches, and
+	// avoids the unreliable reset-on-open (bits-ui never fires
+	// onOpenChangeComplete(true) for static content).
+	let lastResetAccountId: string | undefined;
+
+	const resetOnAccountChange: Attachment<HTMLFormElement> = () => {
+		if (lastResetAccountId === accountId) return;
+		lastResetAccountId = accountId;
 		createTransfer.fields.set({
 			amount: 0,
 			counterpartAccountId: '',
@@ -74,7 +81,7 @@
 				aria-label={m.transactions_table_create_transfer()}
 				{...submit.attrs}
 				{@attach submit.anchor}
-				{@attach resetOnMount}
+				{@attach resetOnAccountChange}
 			>
 				<input {...createTransfer.fields.accountId.as('hidden', accountId)} />
 				<input {...createTransfer.fields.budgetId.as('hidden', budgetId)} />

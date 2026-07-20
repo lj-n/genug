@@ -71,7 +71,16 @@
 		return () => node.removeEventListener('keydown', handle);
 	};
 
-	const reset = () => {
+	// The draft is scoped to one account (carried as the hidden accountId), so it
+	// is stale once the viewed account changes. Reset the fields when the form
+	// next mounts for a different account; reopening on the SAME account keeps the
+	// draft. This replaces the old reset-on-open, which was dead code (bits-ui
+	// never fires onOpenChangeComplete(true) for static popover content).
+	let lastResetAccountId: string | undefined;
+
+	const resetOnAccountChange: Attachment<HTMLFormElement> = () => {
+		if (lastResetAccountId === accountId) return;
+		lastResetAccountId = accountId;
 		submitAndContinue = false;
 		createTransaction.fields.set({
 			amount: 0,
@@ -83,14 +92,7 @@
 	};
 </script>
 
-<Popover.Root
-	bind:open
-	onOpenChangeComplete={(isOpen) => {
-		if (isOpen) {
-			reset();
-		}
-	}}
->
+<Popover.Root bind:open>
 	<!-- Render the popover content ONTO the form via `child`: no wrapper div sits
 	     between the rowgroup and form[role="row"], so the table's a11y tree stays
 	     valid (a table/rowgroup may only own rows — an intermediate generic or
@@ -113,6 +115,7 @@
 				{...submit.attrs}
 				{@attach open && submitWithKeyboard}
 				{@attach submit.anchor}
+				{@attach resetOnAccountChange}
 			>
 				<input {...createTransaction.fields.accountId.as('hidden', accountId)} />
 				<input {...createTransaction.fields.budgetId.as('hidden', budgetId)} />
