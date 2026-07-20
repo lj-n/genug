@@ -37,7 +37,7 @@ The envelope-side running position of a category: the sum of its assignments plu
 _Avoid_: balance (account-side, see Balance), leftover, available
 
 **Unassigned**:
-Budget money outside every envelope, as seen from a Month: the lowest running position — income (transactions without a category) minus assignments, accumulated month by month — at the Month or any later month. Exactly: `Unassigned(M) = min over K ≥ M of (income≤K − assignments≤K)`. Like Remaining, the term is incomplete without a cutoff — it is month-scoped, not budget-lifetime, and comparisons are month-granular. Taking the minimum over future positions keeps the no-double-assignment guarantee (a future deficit reaches back as the intended negative "spending money you don't have" warning) while future income counts only from its own month onward — it can never fund an assignment in a month before it arrives (ADR-0007). Advisory only — never a thrown rule. Computed only in user-context.
+Budget money outside every envelope, as seen from a Month: the lowest running position — income (transactions without a category) minus assignments, accumulated month by month — at the Month or any later month. Exactly: `Unassigned(M) = min over K ≥ M of (income≤K − assignments≤K)`. Like Remaining, the term is incomplete without a cutoff — it is month-scoped, not budget-lifetime, and comparisons are month-granular. Taking the minimum over future positions keeps the no-double-assignment guarantee (a future deficit reaches back as the intended negative "spending money you don't have" warning) while future income counts only from its own month onward — it can never fund an assignment in a month before it arrives (ADR-0007). Advisory only — never a thrown rule. Computed only in user-context. Shown as "Unverteilt" in the German UI; the act of assigning money to a category is "verteilen".
 _Avoid_: available, to be budgeted, free money
 
 **Position**:
@@ -57,7 +57,7 @@ The net flow of a category within a Month: the signed sum of its transactions in
 _Avoid_: spend (display-side negation, not a separate quantity), gross outflow, monthly total
 
 **Balance**:
-The account-side sum of transactions in an account — what is physically there, split into validated and pending. Says nothing about envelopes; the envelope-side term is Remaining.
+The account-side sum of transactions in an account — what is physically there, split into validated and pending. Shown as "Kontostand" in the German UI, its two states rendered "Bestätigt" (validated) and "Ausstehend" (pending). Says nothing about envelopes; the envelope-side term is Remaining.
 _Avoid_: remaining (envelope-side), funds
 
 **Transfer**:
