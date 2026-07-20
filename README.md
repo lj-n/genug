@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
+    <img src="docs/logo-light.svg" width="320" alt="genug-da">
+  </picture>
+</p>
+
 # genug-da
 
 [![CI](https://github.com/lj-n/genug-da/actions/workflows/ci.yml/badge.svg)](https://github.com/lj-n/genug-da/actions/workflows/ci.yml)
@@ -27,12 +34,18 @@ The name is German — "genug da" roughly means "enough there".
 ## Screenshots
 
 <p align="center">
-  <img src="docs/screenshots/budget.png" width="70%" alt="The budget month view: categories with their assigned budget, activity, and remaining balance, with one category overspent."><br>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/budget-dark.png">
+    <img src="docs/screenshots/budget.png" width="70%" alt="The budget month view: categories with their assigned budget, activity, and remaining balance, with one category overspent.">
+  </picture><br>
   <sub>Assign each month's money to categories — targets fill up, overspending shows in red.</sub>
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/transactions.png" width="70%" alt="An account's transactions: a list with category, notes, date, and amount, each marked pending or validated."><br>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/transactions-dark.png">
+    <img src="docs/screenshots/transactions.png" width="70%" alt="An account's transactions: a list with category, notes, date, and amount, each marked pending or validated.">
+  </picture><br>
   <sub>Record transactions per account; edit category, date, notes, and amount inline; toggle each between pending and validated.</sub>
 </p>
 
