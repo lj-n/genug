@@ -16,8 +16,7 @@ database server.
 ## Container images
 
 Prebuilt images are published to the GitHub Container Registry at
-`ghcr.io/lj-n/genug-da` (see
-[ADR-0012](dev/adr/0012-calver-releases-and-stage-deploy.md)):
+`ghcr.io/lj-n/genug-da`:
 
 | Tag           | Built from      | Use                                                                         |
 | ------------- | --------------- | --------------------------------------------------------------------------- |
@@ -26,7 +25,7 @@ Prebuilt images are published to the GitHub Container Registry at
 | `stage`       | tip of `main`   | Testing — rolling build ahead of the last release.                          |
 | `sha-<short>` | a `main` commit | Testing — immutable pin to an exact commit.                                 |
 
-Stage builds show a dev-flavoured version beside the logo
+Stage builds show a dev-flavoured version in the navigation footer
 (`2026.07.0-dev+a1b2c3d`); release builds show the clean CalVer.
 
 While the repository (and image) is private, authenticate the host once with
@@ -81,27 +80,6 @@ URL users type into the browser (scheme and host, e.g.
 `https://budget.example.com`). SvelteKit checks form submissions against
 this origin for CSRF protection — with `ORIGIN` unset or wrong, logins and
 every other form fail.
-
-### Stage stack (optional)
-
-A second stack pulling `:stage` lets you try the tip of `main` before
-promoting it to production. Give it its own data volume, port, and origin so
-it never touches production data.
-
-```yml
-services:
-  genug-da-stage:
-    container_name: genug-da-stage
-    image: ghcr.io/lj-n/genug-da:stage
-    restart: unless-stopped
-    ports:
-      - '3003:3000'
-    volumes:
-      - ./data-stage:/app/data:rw
-    environment:
-      DATABASE_URL: '/app/data/genug.db'
-      ORIGIN: 'https://stage.your.domain'
-```
 
 ## Environment variables
 
@@ -170,10 +148,20 @@ across a migration.
 
 ## Password recovery
 
-There is no forgot-password flow and none is needed: recovery runs from the
-server shell. The reset CLI is bundled into every build as
+There is no self-service forgot-password flow, and none is needed. There are
+two ways to recover an account.
+
+**From the admin UI.** An administrator can reset any other user's password
+from the admin page: each user row has a reset action that generates a fresh
+random password and shows it once. Hand that password to the user; they log in
+and change it under Settings. This covers everyday resets without touching the
+server shell.
+
+**From the server shell.** The reset CLI is bundled into every build as
 `build/reset-password.js` (ADR-0015), so it is available inside the deployed
-container without a source checkout, email, or SMTP configuration.
+container without a source checkout, email, or SMTP configuration. Use it when
+no admin can reach the UI — including to reset the sole administrator's own
+password, which the admin UI deliberately cannot do.
 
 Reset any user's password by username:
 
