@@ -19,7 +19,7 @@ new code are defects, not taste.
   callback props otherwise.
 - Prefer attachments (`{@attach ...}` / `Attachment`) over `onMount` for
   element-scoped behavior.
-- Remote query consumption follows `docs/remote-functions.md` (ADR-0003):
+- Remote query consumption follows `docs/dev/remote-functions.md` (ADR-0003):
   `const x = $derived(await getX(...))` at script top level, never in markup.
 
 ## TypeScript idioms
@@ -45,7 +45,7 @@ new code are defects, not taste.
 - Module-level functions are `function` declarations; arrow functions are for
   callbacks, attachments, and inline handlers.
 - Named exports only in TS modules. Barrels exist per feature/ui directory
-  (`index.ts`); no root barrel (`docs/components.md`).
+  (`index.ts`); no root barrel (`docs/dev/components.md`).
 - Import order, object keys, and Tailwind class order are machine-enforced
   (eslint-plugin-perfectionist, prettier-plugin-tailwindcss) — don't fight
   the formatter.

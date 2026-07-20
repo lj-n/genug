@@ -24,7 +24,7 @@ export default defineConfig(
 	{
 		languageOptions: { globals: { ...globals.browser, ...globals.node } },
 		rules: {
-			// docs/code-style.md: `type` aliases, not `interface` (app.d.ts ambient
+			// docs/dev/code-style.md: `type` aliases, not `interface` (app.d.ts ambient
 			// declarations are the exception and use `interface` as SvelteKit requires).
 			'@typescript-eslint/consistent-type-definitions': ['error', 'type'],
 			'@typescript-eslint/no-unused-vars': [

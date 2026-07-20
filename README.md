@@ -111,7 +111,7 @@ git push --follow-tags
 ```
 
 Versions are CalVer (`YYYY.0M.MICRO`) and the changelog is hand-curated under
-`## [Unreleased]`; see [ADR-0012](docs/adr/0012-calver-releases-and-stage-deploy.md).
+`## [Unreleased]`; see [ADR-0012](docs/dev/adr/0012-calver-releases-and-stage-deploy.md).
 
 ## Contributing
 

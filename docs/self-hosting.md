@@ -17,7 +17,7 @@ database server.
 
 Prebuilt images are published to the GitHub Container Registry at
 `ghcr.io/lj-n/genug-da` (see
-[ADR-0012](adr/0012-calver-releases-and-stage-deploy.md)):
+[ADR-0012](dev/adr/0012-calver-releases-and-stage-deploy.md)):
 
 | Tag           | Built from      | Use                                                                         |
 | ------------- | --------------- | --------------------------------------------------------------------------- |

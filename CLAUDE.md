@@ -65,15 +65,15 @@ npm run test:e2e:ui
 
 ## Path-Specific Documentation
 
-Detailed conventions per domain live in `docs/`:
+Detailed conventions per domain live in `docs/dev/`:
 
-- `docs/code-style.md` — code-level style rules (runes, TypeScript, naming, errors/comments)
-- `docs/routes.md` — `src/routes/**`
-- `docs/remote-functions.md` — `src/lib/remote-functions/**`
-- `docs/database.md` — `src/lib/server/db/**` and server helpers
-- `docs/components.md` — `src/lib/components/**`
-- `docs/schemas.md` — `src/lib/schemas/**`
-- `docs/tests.md` — unit and Playwright tests
+- `docs/dev/code-style.md` — code-level style rules (runes, TypeScript, naming, errors/comments)
+- `docs/dev/routes.md` — `src/routes/**`
+- `docs/dev/remote-functions.md` — `src/lib/remote-functions/**`
+- `docs/dev/database.md` — `src/lib/server/db/**` and server helpers
+- `docs/dev/components.md` — `src/lib/components/**`
+- `docs/dev/schemas.md` — `src/lib/schemas/**`
+- `docs/dev/tests.md` — unit and Playwright tests
 
 When a domain-specific doc applies, follow both it and this file.
 
@@ -81,12 +81,12 @@ When a domain-specific doc applies, follow both it and this file.
 
 ### Issue tracker
 
-Issues live in GitHub Issues; external PRs are not a triage surface. See `docs/agents/issue-tracker.md`.
+Issues live in GitHub Issues; external PRs are not a triage surface. See `docs/dev/agents/issue-tracker.md`.
 
 ### Triage labels
 
-Default label vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+Default label vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/dev/agents/triage-labels.md`.
 
 ### Domain docs
 
-Single-context repo: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+Single-context repo: one `CONTEXT.md` + `docs/dev/adr/`. See `docs/dev/agents/domain.md`.

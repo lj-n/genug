@@ -203,7 +203,7 @@ async function tabToFocus(page: Page, target: Locator, max = 10) {
 
 // D5 (ADR-0016): the dense transaction create row is the one flow where keyboard
 // order genuinely breaks, so it gets an automated keyboard-only test; the simpler
-// flows are covered by the manual checklist in docs/a11y-keyboard-checklist.md.
+// flows are covered by the manual checklist in docs/dev/a11y-keyboard-checklist.md.
 test('Transaction create row is completable by keyboard alone', async ({ page, pages }) => {
 	const { accountName } = await seedBudget(pages);
 	await pages.account.goto(accountName);
