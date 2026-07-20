@@ -16,7 +16,8 @@ node_modules
 Thumbs.db
 
 # Env
-.env
+# .env is committed (non-secret shared defaults). Machine-specific overrides
+# and secrets go in .env.local / .env.*, which stay ignored.
 .env.*
 !.env.example
 !.env.test
