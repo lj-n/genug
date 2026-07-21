@@ -1,5 +1,5 @@
 {
-	"name": "genug-da",
+	"name": "genug",
 	"private": true,
 	"version": "2026.07.4",
 	"license": "AGPL-3.0-only",
@@ -28,7 +28,7 @@
 		"better-sqlite3": "^12.8.0",
 		"pino": "^10.3.1"
 	},
-	"//overrides": "Rationale and per-pin removal conditions: https://github.com/lj-n/genug-da/issues/213",
+	"//overrides": "Rationale and per-pin removal conditions: https://github.com/lj-n/genug/issues/213",
 	"overrides": {
 		"cookie": "^0.7.0",
 		"undici": "^7.28.0",

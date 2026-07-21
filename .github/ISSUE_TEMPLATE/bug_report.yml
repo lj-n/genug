@@ -1,5 +1,5 @@
 name: Bug report
-description: Something in genug-da doesn't work as expected.
+description: Something in genug doesn't work as expected.
 labels: ['bug', 'needs-triage']
 body:
   - type: textarea
@@ -7,7 +7,7 @@ body:
     attributes:
       label: What happened?
       description: What went wrong, and what did you expect to happen instead?
-      placeholder: When I ..., genug-da ... — I expected ...
+      placeholder: When I ..., genug ... — I expected ...
     validations:
       required: true
   - type: textarea

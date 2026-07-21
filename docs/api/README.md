@@ -1,7 +1,7 @@
 # API contract (`openapi.yaml`)
 
 `openapi.yaml` is the published OpenAPI 3.1 contract for the additive HTTP API
-(map [#190](https://github.com/lj-n/genug-da/issues/190)). It is **generated** —
+(map [#190](https://github.com/lj-n/genug/issues/190)). It is **generated** —
 do not edit it by hand. It feeds `swift-openapi-generator` in the iOS repo and is
 verified against the live server by a decode-contract test.
 

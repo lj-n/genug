@@ -1,6 +1,6 @@
 # Documentation
 
-Entry point for genug-da's documentation, split into three audiences.
+Entry point for genug's documentation, split into three audiences.
 
 ## Guide
 

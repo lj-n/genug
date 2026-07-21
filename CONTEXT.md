@@ -1,4 +1,4 @@
-# genug-da
+# genug
 
 Envelope budgeting: money in a budget is assigned to categories month by month, and spending is tracked against those assignments.
 

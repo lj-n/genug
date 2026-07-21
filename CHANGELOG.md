@@ -21,6 +21,10 @@ and dependency bumps get no entry.
 
 ### Changed
 
+- The project moved from `lj-n/genug-da` to `lj-n/genug`. Container images are
+  now published to `ghcr.io/lj-n/genug`; self-hosters should update their
+  `image:` reference, as new versions will no longer appear under the old
+  name. The in-app source-code link now points to the new repository.
 - New app logo: a pixel-art mark with a "genug" wordmark next to it, shown in
   the navigation and on the login screens. In the navigation, the version
   number and source-code link moved from the footer to sit under the wordmark.

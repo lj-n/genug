@@ -1,9 +1,9 @@
-# Using genug-da
+# Using genug
 
 A feature-oriented walkthrough of the app. For installing and operating an
 instance, see [self-hosting.md](self-hosting.md).
 
-genug-da is an [envelope budgeting](https://en.wikipedia.org/wiki/Envelope_system)
+genug is an [envelope budgeting](https://en.wikipedia.org/wiki/Envelope_system)
 app: money you receive lands in an unassigned pool, and you assign it to
 spending categories before you spend it. Each category's remaining balance
 tells you how much you can still spend in that area.

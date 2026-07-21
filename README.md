@@ -1,14 +1,14 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/header-dark.svg">
-    <img src="docs/header-light.svg" width="360" alt="genug-da">
+    <img src="docs/header-light.svg" width="360" alt="genug">
   </picture>
 </p>
 
 <p align="center">
-  <a href="https://github.com/lj-n/genug-da/actions/workflows/ci.yml"><img src="https://github.com/lj-n/genug-da/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
-  <a href="CHANGELOG.md"><img src="https://img.shields.io/github/v/tag/lj-n/genug-da?label=release" alt="Release"></a>
-  <a href="https://github.com/lj-n/genug-da/pkgs/container/genug-da"><img src="https://img.shields.io/badge/ghcr.io-lj--n%2Fgenug--da-blue?logo=docker&logoColor=white" alt="Container image"></a>
+  <a href="https://github.com/lj-n/genug/actions/workflows/ci.yml"><img src="https://github.com/lj-n/genug/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+  <a href="CHANGELOG.md"><img src="https://img.shields.io/github/v/tag/lj-n/genug?label=release" alt="Release"></a>
+  <a href="https://github.com/lj-n/genug/pkgs/container/genug"><img src="https://img.shields.io/badge/ghcr.io-lj--n%2Fgenug-blue?logo=docker&logoColor=white" alt="Container image"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0--only-blue" alt="License: AGPL-3.0-only"></a>
 </p>
 
@@ -65,13 +65,13 @@ The name is german — "genug" means "enough".
 Runs as a single Node.js container against one SQLite file — no external
 database, cache, or services.
 
-Prebuilt images are published to `ghcr.io/lj-n/genug-da`. A minimal Docker
+Prebuilt images are published to `ghcr.io/lj-n/genug`. A minimal Docker
 Compose stack:
 
 ```yml
 services:
-  genug-da:
-    image: ghcr.io/lj-n/genug-da:latest
+  genug:
+    image: ghcr.io/lj-n/genug:latest
     restart: unless-stopped
     ports:
       - '3000:3000'
@@ -129,6 +129,6 @@ See [CONTRIBUTING](.github/CONTRIBUTING.md).
 
 ## License
 
-genug-da is licensed under the [GNU Affero General Public License v3.0 only](LICENSE) (AGPL-3.0-only).
+genug is licensed under the [GNU Affero General Public License v3.0 only](LICENSE) (AGPL-3.0-only).
 
 Copyright (C) 2026 Linus Johannsen
