@@ -7,8 +7,6 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { Logo } from '$lib/components/ui/logo';
-	import { SourceLink } from '$lib/components/ui/source-link';
-	import { VersionLabel } from '$lib/components/ui/version-label';
 	import { m } from '$lib/paraglide/messages';
 	import { getAccounts } from '$lib/remote-functions/account.remote';
 	import { signout } from '$lib/remote-functions/auth.remote';
@@ -67,9 +65,7 @@
 	<Drawer.Content class="@container/drawer-content">
 		<Drawer.Header>
 			<Drawer.Title class="mx-auto">
-				<a href={resolve('/')} class="w-fit" aria-label={m.navigation_home()}>
-					<Logo class="h-10" />
-				</a>
+				<Logo href={resolve('/')} />
 			</Drawer.Title>
 			<Drawer.Close
 				aria-label={m.dialog_close()}
@@ -199,11 +195,6 @@
 						</form>
 					</li>
 				</ul>
-
-				<div class="mx-auto mb-4 flex items-center gap-2">
-					<VersionLabel />
-					<SourceLink />
-				</div>
 			</nav>
 		</Drawer.Body>
 	</Drawer.Content>

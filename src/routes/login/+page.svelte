@@ -14,7 +14,7 @@
 </script>
 
 <form class="mx-auto mt-20 grid w-full max-w-sm space-y-6" {...submit.attrs}>
-	<Logo class="mx-auto mt-auto w-52" aria-hidden />
+	<Logo class="mx-auto mt-auto" aria-hidden />
 
 	<div class="grid space-y-2 rounded-lg bg-muted/5 p-3">
 		<FormField field={login.fields.username} label={m.login_label_username()} hideLabel>
