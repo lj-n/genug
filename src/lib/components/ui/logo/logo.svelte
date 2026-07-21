@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { HTMLAttributes } from 'svelte/elements';
 
-	import logo from '$lib/assets/genug-logo.svg';
+	import logo from '$lib/assets/favicon.svg';
 	import { SourceLink } from '$lib/components/ui/source-link';
 	import { VersionLabel } from '$lib/components/ui/version-label';
 	import { cn } from 'tailwind-variants';

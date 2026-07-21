@@ -33,3 +33,31 @@ export function parseTheme(cookieValue?: null | string): Theme {
 export function resolveThemeClass(cookieValue?: null | string): null | ThemeClass {
 	return cookieValue === 'dark' || cookieValue === 'light' ? cookieValue : null;
 }
+
+/**
+ * The `--color-background` token per theme, mirrored from `src/routes/layout.css`.
+ * Drives the standalone `theme-color` status-bar/toolbar meta. Kept next to the
+ * theme constants so the coupling is visible: if those CSS tokens change, these
+ * must follow.
+ */
+export const THEME_BACKGROUND: Record<ThemeClass, string> = {
+	dark: '#191724',
+	light: '#fffcf8'
+};
+
+/**
+ * Build the `theme-color` meta tag(s) for the resolved theme override. An
+ * explicit `light`/`dark` override emits a single meta with that theme's
+ * background; `system`/absent (`null`) emits two media-queried metas so the OS
+ * `prefers-color-scheme` signal decides live.
+ */
+export function themeColorMeta(themeClass: null | ThemeClass): string {
+	if (themeClass) {
+		return `<meta name="theme-color" content="${THEME_BACKGROUND[themeClass]}" />`;
+	}
+
+	return (
+		`<meta name="theme-color" content="${THEME_BACKGROUND.light}" media="(prefers-color-scheme: light)" />` +
+		`<meta name="theme-color" content="${THEME_BACKGROUND.dark}" media="(prefers-color-scheme: dark)" />`
+	);
+}

@@ -1,35 +1,28 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
-    <img src="docs/logo-light.svg" width="320" alt="genug-da">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/header-dark.svg">
+    <img src="docs/header-light.svg" width="360" alt="genug-da">
   </picture>
 </p>
 
-# genug-da
+<p align="center">
+  <a href="https://github.com/lj-n/genug-da/actions/workflows/ci.yml"><img src="https://github.com/lj-n/genug-da/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="CHANGELOG.md"><img src="https://img.shields.io/github/v/tag/lj-n/genug-da?label=release" alt="Release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0--only-blue" alt="License: AGPL-3.0-only"></a>
+</p>
 
-[![CI](https://github.com/lj-n/genug-da/actions/workflows/ci.yml/badge.svg)](https://github.com/lj-n/genug-da/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/tag/lj-n/genug-da?label=release)](CHANGELOG.md)
-[![License: AGPL-3.0-only](https://img.shields.io/badge/license-AGPL--3.0--only-blue)](LICENSE)
+<p align="center">
+  <a href="docs/usage.md">Guide</a> ·
+  <a href="docs/self-hosting.md">How to Setup</a>
+</p>
 
-A self-hosted [envelope budgeting](https://en.wikipedia.org/wiki/Envelope_system) app you can share.
-
-## What is genug-da?
-
-You assign money to spending categories before you spend it — envelope
-budgeting. Self-hosted, single SQLite file, no external services: you own your
+You assign money to spending categories before you spend it — [envelope budgeting](https://en.wikipedia.org/wiki/Envelope_system). Self-hosted, single SQLite file, no external services: you own your
 data.
 
 Budgets are shareable: invite a partner, flatmates, or a business into the same
 budget, each managing their own login.
 
-The name is German — "genug da" roughly means "enough there".
-
-## Documentation
-
-- [Usage guide](docs/usage.md) — feature-by-feature walkthrough of the app.
-- [Self-hosting](docs/self-hosting.md) — run and operate your own instance.
-- [API](docs/api/README.md) — the published OpenAPI contract.
-- [Developer docs](docs/dev/README.md) — working on the codebase.
+The name is german — "genug" means "enough".
 
 ## Screenshots
 
