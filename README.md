@@ -6,8 +6,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/lj-n/genug-da/actions/workflows/ci.yml"><img src="https://github.com/lj-n/genug-da/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/lj-n/genug-da/actions/workflows/ci.yml"><img src="https://github.com/lj-n/genug-da/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
   <a href="CHANGELOG.md"><img src="https://img.shields.io/github/v/tag/lj-n/genug-da?label=release" alt="Release"></a>
+  <a href="https://github.com/lj-n/genug-da/pkgs/container/genug-da"><img src="https://img.shields.io/badge/ghcr.io-lj--n%2Fgenug--da-blue?logo=docker&logoColor=white" alt="Container image"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0--only-blue" alt="License: AGPL-3.0-only"></a>
 </p>
 
