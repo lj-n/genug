@@ -41,8 +41,10 @@
 </script>
 
 <Popover.Root>
+	<!-- relative + z on hover/focus: the outline must paint above the target
+	     progress bar that overlays the cell's bottom edge. -->
 	<Popover.Trigger
-		class="flex size-full cursor-pointer items-center px-2 text-left -outline-offset-2 hover:bg-surface hover:outline-2 hover:outline-interactive/60"
+		class="relative flex size-full cursor-pointer items-center px-2 text-left hover:z-10 hover:bg-surface hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50 focus-visible:z-10"
 		onpointerenter={prefetch}
 		onfocus={prefetch}
 	>

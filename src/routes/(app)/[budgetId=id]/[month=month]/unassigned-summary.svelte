@@ -71,13 +71,13 @@
 <Popover.Root bind:open>
 	<Popover.Trigger
 		class={cn(
-			'ml-auto flex h-11 w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 -outline-offset-2 hover:outline-2 hover:outline-interactive/60 @3xl/main:h-9 @3xl/main:w-auto @3xl/main:justify-start',
+			'ml-auto flex h-11 w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-2 hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50 @3xl/main:h-7 @3xl/main:w-auto @3xl/main:justify-start',
 			focusRing,
 			unassigned === 0
 				? 'bg-muted/10 text-muted'
 				: unassigned > 0
-					? 'border border-info/15 bg-info/10 text-info shadow-xs shadow-info/15'
-					: 'border border-error/60 bg-error/10 text-error'
+					? 'bg-info/10 text-info'
+					: 'bg-error/10 text-error'
 		)}
 		aria-label={m.unassigned_breakdown_trigger_label()}
 	>

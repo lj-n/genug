@@ -91,7 +91,7 @@
 	<div role="table">
 		<div role="rowgroup" class="hidden @3xl/main:block">
 			<div role="row" class="flex">
-				<BudgetTableHeader class="w-2/5 text-lg font-bold tracking-tight text-foreground">
+				<BudgetTableHeader class="w-2/5">
 					{m.budget_monthly_table_header_category()}
 				</BudgetTableHeader>
 				<BudgetTableHeader class="w-1/5">
@@ -109,11 +109,7 @@
 			</div>
 		</div>
 
-		<div
-			role="rowgroup"
-			class="grid overflow-hidden rounded-xs border border-muted/20"
-			{@attach categorySortable.attach}
-		>
+		<div role="rowgroup" class="grid gap-2" {@attach categorySortable.attach}>
 			<!-- The if narrows `month` for the row children; `categories` is empty when `month` is null. -->
 			{#if month !== null}
 				{#each categories as row (row.id)}
@@ -121,14 +117,14 @@
 						data-drag-item="category"
 						data-sortable-id={row.id}
 						role="row"
-						class="relative flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/3"
+						class="relative flex rounded-xs border border-muted/20 bg-surface hover:bg-muted/3"
 					>
 						<BudgetTableCell class="relative hidden w-2/5 p-0 @3xl/main:flex">
 							<CategoryPopover {currency} {month} {row} />
 							{#if row.targetBalance !== null}
 								<div class="absolute bottom-0 flex w-full">
 									<div
-										class="h-1 bg-success/60"
+										class="h-0.5 bg-success"
 										style="width: {getPercentage(row.targetBalance, row.remaining)}%"
 									></div>
 								</div>
@@ -167,9 +163,9 @@
 							/>
 						</BudgetTableCell>
 
-						<BudgetTableCell class="hidden w-9 border-0 last:p-2 @3xl/main:flex">
+						<BudgetTableCell class="hidden w-9 border-0 last:p-1 @3xl/main:flex">
 							<button
-								class="flex size-9 cursor-grab items-center justify-center text-muted hover:text-interactive"
+								class="flex size-7 cursor-grab items-center justify-center text-muted hover:text-interactive"
 								data-drag-handle="category"
 								aria-label={m.drag_handle_label()}
 							>
@@ -198,9 +194,9 @@
 								<div class="flex items-center px-4">
 									<span
 										class={cn(
-											'rounded-sm px-2 py-1 font-currency',
-											row.remaining > 0 && 'bg-success/10',
-											row.remaining < 0 && 'bg-error/10 text-error'
+											'font-currency',
+											row.remaining < 0 && 'text-error',
+											row.remaining === 0 && 'text-muted'
 										)}
 									>
 										{formatMoney({ currency, money: asMoney(row.remaining) })}

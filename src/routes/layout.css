@@ -6,6 +6,15 @@
 @plugin 'tailwindcss-animate';
 
 @theme {
+	/* Design language (#255): a single small radius token — every rounded-*
+	   step collapses to 4px so components keep their markup but share one
+	   corner radius. */
+	--radius-xs: 0.25rem;
+	--radius-sm: 0.25rem;
+	--radius-md: 0.25rem;
+	--radius-lg: 0.25rem;
+	--radius-xl: 0.25rem;
+
 	--color-surface: #fffefd;
 	--color-surface-high: #fffffe;
 	--color-background: #fffcf8;

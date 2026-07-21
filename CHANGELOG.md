@@ -10,6 +10,17 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Changed
+
+- The budget month view has a simplified, calmer look — the first screen on
+  the new design language: categories render as compact separated rows
+  without column lines, headers are small quiet labels, the Unallocated chip
+  is flat, and corners share a single small radius. Color now only marks
+  problems: Remaining amounts are plain until they go negative (red);
+  positive amounts are no longer tinted green. Hovering interactive cells
+  shows a thin neutral outline; the gold ring now exclusively marks keyboard
+  focus.
+
 ## [2026.07.5] - 2026-07-21
 
 ### Added

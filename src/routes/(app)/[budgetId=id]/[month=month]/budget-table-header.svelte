@@ -16,7 +16,7 @@
 	role="columnheader"
 	bind:this={ref}
 	class={cn(
-		'flex h-10 items-center justify-end px-2 whitespace-nowrap text-muted first:justify-start',
+		'flex h-8 items-center justify-end px-2 text-xs tracking-wider whitespace-nowrap text-muted uppercase first:justify-start',
 		className
 	)}
 	{...restProps}

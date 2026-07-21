@@ -61,7 +61,7 @@
 		<button
 			{...props}
 			class={cn(
-				'h-full w-full cursor-pointer p-1 text-right font-currency -outline-offset-2 hover:bg-surface hover:outline-2 hover:outline-interactive/60',
+				'h-full w-full cursor-pointer p-1 text-right font-currency hover:bg-surface hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50',
 				'aria-disabled:text-muted aria-disabled:hover:bg-transparent aria-disabled:hover:outline-none'
 			)}
 			disabled={remaining === 0}
@@ -71,8 +71,7 @@
 			<div
 				class={cn(
 					'flex size-full items-center justify-end rounded-sm px-1',
-					remaining > 0 && 'bg-success/10',
-					remaining < 0 && 'bg-error/10 text-error'
+					remaining < 0 && 'text-error'
 				)}
 			>
 				{formatMoney({ currency, money: asMoney(remaining) })}

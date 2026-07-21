@@ -50,7 +50,7 @@ button during flight; the optimistic-override feedback model stays untouched. --
 		<button
 			{...props}
 			class={cn(
-				'h-full w-full cursor-pointer p-2 text-right font-currency -outline-offset-2 hover:bg-surface hover:outline-2 hover:outline-interactive/60',
+				'h-full w-full cursor-pointer px-2 py-1 text-right font-currency hover:bg-surface hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50',
 				open && 'hidden'
 			)}
 			aria-label={m.budget_monthly_table_header_amount()}
