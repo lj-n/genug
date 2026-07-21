@@ -16,6 +16,8 @@ and dependency bumps get no entry.
   Android (Chrome) and iOS (Safari), via a web app manifest, home-screen
   icons, and iOS meta tags. The mobile status bar and toolbar follow the
   active theme, including an explicit light/dark override.
+- The browser-tab favicon is now the genug da brand mark, replacing the
+  default framework logo.
 
 ### Fixed
 
