@@ -1,4 +1,4 @@
-# genug-da — Agent Instructions
+# genug — Agent Instructions
 
 Persistent agent and workflow rules for this repository.
 

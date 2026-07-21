@@ -5,7 +5,7 @@ Status: accepted
 
 ## Context
 
-genug-da is a self-hosted app. Until now there was no way to tell which build
+genug is a self-hosted app. Until now there was no way to tell which build
 was live: `package.json` was stuck at `0.0.1`, there were zero git tags,
 deployment was a manual pull of an untagged image straight from `main`, and
 there was no changelog. When something broke the exact shipped code could not be
@@ -48,7 +48,7 @@ deep module) and ADR-0004 (isolating fiddly math behind one internal seam).
 **A stage lane via image tags, not a branch (Model A).** One long-lived branch
 (`main`); "stage" and "prod" are image tags, not branches. A push to `main`
 publishes a rolling `:stage` plus an immutable `:sha-<short>` to
-`ghcr.io/lj-n/genug-da`; a version tag publishes the frozen `:<version>` plus a
+`ghcr.io/lj-n/genug`; a version tag publishes the frozen `:<version>` plus a
 moving `:latest`. A deploy host runs two Compose stacks pulling `:stage` and
 `:latest`; rollback is pinning prod to a prior `:<version>`. A new `publish.yml`
 handles this, separate from `ci.yml` so the PR gate is untouched; it

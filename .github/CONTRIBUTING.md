@@ -1,13 +1,13 @@
-# Contributing to genug-da
+# Contributing to genug
 
-Thanks for your interest in genug-da. The project is source-available and
+Thanks for your interest in genug. The project is source-available and
 maintained by a single person, so contributions work a little differently
 than in larger projects.
 
 ## Issues: welcome
 
 Bug reports and feature requests are welcome — please use the
-[issue templates](https://github.com/lj-n/genug-da/issues/new/choose).
+[issue templates](https://github.com/lj-n/genug/issues/new/choose).
 For suspected security vulnerabilities, do **not** open a public issue; see
 [SECURITY.md](SECURITY.md).
 

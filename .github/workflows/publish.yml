@@ -4,8 +4,8 @@ name: Publish
 # gate is untouched. main is already green via the PR gate, so this workflow only
 # builds and pushes — it does not re-run the test suite.
 #
-#   push to main        → ghcr.io/lj-n/genug-da:stage + :sha-<short>
-#   push a version tag  → ghcr.io/lj-n/genug-da:<version> + :latest
+#   push to main        → ghcr.io/lj-n/genug:stage + :sha-<short>
+#   push a version tag  → ghcr.io/lj-n/genug:<version> + :latest
 #                          + a GitHub Release whose notes are the CHANGELOG section
 on:
   push:
@@ -23,7 +23,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  IMAGE: ghcr.io/lj-n/genug-da
+  IMAGE: ghcr.io/lj-n/genug
 
 jobs:
   # Tag pushes always publish. main pushes skip when only docs/markdown changed,

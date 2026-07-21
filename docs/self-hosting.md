@@ -1,9 +1,9 @@
 # Self-Hosting
 
-Operational guidance for running your own genug-da instance. For what the
+Operational guidance for running your own genug instance. For what the
 app does and how to use it, see [usage.md](usage.md).
 
-genug-da is a single Node.js process backed by a single SQLite database
+genug is a single Node.js process backed by a single SQLite database
 file. There are no external services: no mail server, no cache, no separate
 database server.
 
@@ -16,7 +16,7 @@ database server.
 ## Container images
 
 Prebuilt images are published to the GitHub Container Registry at
-`ghcr.io/lj-n/genug-da`:
+`ghcr.io/lj-n/genug`:
 
 | Tag           | Built from      | Use                                                                         |
 | ------------- | --------------- | --------------------------------------------------------------------------- |
@@ -42,9 +42,9 @@ roll back.
 
 ```yml
 services:
-  genug-da:
-    container_name: genug-da
-    image: ghcr.io/lj-n/genug-da:latest
+  genug:
+    container_name: genug
+    image: ghcr.io/lj-n/genug:latest
     restart: unless-stopped
     ports:
       - '3000:3000'
@@ -154,7 +154,7 @@ docker compose pull && docker compose up -d
 ```
 
 Database migrations run automatically at startup. To roll back, pin the
-previous version tag (`image: ghcr.io/lj-n/genug-da:<version>`) — but note
+previous version tag (`image: ghcr.io/lj-n/genug:<version>`) — but note
 that a newer release may have migrated the database beyond what an older
 build expects, so restore the matching database backup when rolling back
 across a migration.

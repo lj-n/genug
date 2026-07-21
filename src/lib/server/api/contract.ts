@@ -1,5 +1,5 @@
 /**
- * Hand-authored base of the genug-da OpenAPI contract (map #190, settled in
+ * Hand-authored base of the genug OpenAPI contract (map #190, settled in
  * #191).
  *
  * This module owns everything a machine cannot derive: the paths, parameters,
@@ -420,7 +420,7 @@ export const contract: OpenApiDocument = {
 			'additive-only (map decision 14).'
 		].join(' '),
 		license: { identifier: 'AGPL-3.0-only', name: 'AGPL-3.0-only' },
-		title: 'genug-da API',
+		title: 'genug API',
 		version: '0.0.0-draft.1'
 	},
 

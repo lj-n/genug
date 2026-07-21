@@ -3,7 +3,7 @@
 ## Reporting a vulnerability
 
 Please report suspected vulnerabilities privately via
-[GitHub private vulnerability reporting](https://github.com/lj-n/genug-da/security/advisories/new)
+[GitHub private vulnerability reporting](https://github.com/lj-n/genug/security/advisories/new)
 ("Report a vulnerability" on the repository's Security tab).
 
 Do **not** open a public issue for security problems — public issues are
