@@ -1,6 +1,10 @@
 name: CI
 
+# Runs on PRs (the merge gate) and on pushes to main. The main runs exist so
+# the README status badge reflects main itself rather than the latest PR branch.
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, ready_for_review]
@@ -11,7 +15,10 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  # PR runs supersede each other. Pushes to main get a per-commit group so
+  # back-to-back merges never cancel a run — a cancelled run on main would
+  # surface as a red README badge.
+  group: ci-${{ github.ref }}${{ github.event_name == 'push' && github.sha || '' }}
   cancel-in-progress: true
 
 # Runner routing: the CI_RUNNER repo variable overrides the runner label for
@@ -70,8 +77,9 @@ jobs:
         env:
           DATABASE_URL: ':memory:'
 
-  # Decide whether the (expensive) e2e suite should run for this PR.
-  # Skips drafts and changes that touch only docs/markdown.
+  # Decide whether the (expensive) e2e suite should run for this event.
+  # Skips draft PRs and changes that touch only docs/markdown. On pushes to
+  # main, paths-filter diffs against the commit before the push.
   gate:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     outputs:
