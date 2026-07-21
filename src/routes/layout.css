@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import '@fontsource-variable/inter';
+@import '@fontsource/zilla-slab/700.css';
+@import '@fontsource/instrument-serif';
 @plugin 'tailwindcss-animate';
 
 @theme {
@@ -15,6 +17,8 @@
 	--color-success: #497f4f;
 	--color-focus: #bf8339;
 	--font-sans: 'Inter Variable', sans-serif;
+	--font-slab: 'Zilla Slab', serif;
+	--font-serif: 'Instrument Serif', serif;
 
 	--container-8xl: 88rem; /* 1408px */
 	--container-9xl: 96rem; /* 1536px */

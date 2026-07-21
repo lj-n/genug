@@ -19,6 +19,12 @@ and dependency bumps get no entry.
 - The browser-tab favicon is now the genug da brand mark, replacing the
   default framework logo.
 
+### Changed
+
+- New app logo: a pixel-art mark with a "genug" wordmark next to it, shown in
+  the navigation and on the login screens. In the navigation, the version
+  number and source-code link moved from the footer to sit under the wordmark.
+
 ### Fixed
 
 - Creating a transfer now updates the counterpart account's register right
