@@ -5,7 +5,7 @@ import { validateApiToken } from '$db/auth/api-tokens';
 import { getTextDirection } from '$lib/paraglide/runtime';
 import { paraglideMiddleware } from '$lib/paraglide/server';
 import { logger } from '$lib/server/logger';
-import { resolveThemeClass, THEME_COOKIE_NAME } from '$lib/utils/theme';
+import { resolveThemeClass, THEME_COOKIE_NAME, themeColorMeta } from '$lib/utils/theme';
 import { createId } from '$server/utils/create-id';
 import { sequence } from '@sveltejs/kit/hooks';
 
@@ -67,7 +67,8 @@ const handleTheme: Handle = ({ event, resolve }) => {
 	const themeClass = resolveThemeClass(event.cookies.get(THEME_COOKIE_NAME));
 
 	return resolve(event, {
-		transformPageChunk: ({ html }) => html.replace('%theme%', themeClass ?? '')
+		transformPageChunk: ({ html }) =>
+			html.replace('%theme%', themeClass ?? '').replace('%theme-color%', themeColorMeta(themeClass))
 	});
 };
 

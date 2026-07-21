@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseTheme, resolveThemeClass, THEME_COOKIE_NAME } from './theme';
+import {
+	parseTheme,
+	resolveThemeClass,
+	THEME_BACKGROUND,
+	THEME_COOKIE_NAME,
+	themeColorMeta
+} from './theme';
 
 describe('resolveThemeClass', () => {
 	it('maps an explicit dark override to the dark class', () => {
@@ -45,5 +51,30 @@ describe('parseTheme', () => {
 describe('THEME_COOKIE_NAME', () => {
 	it('is the theme cookie key read by hooks and written by the client', () => {
 		expect(THEME_COOKIE_NAME).toBe('theme');
+	});
+});
+
+describe('themeColorMeta', () => {
+	it('emits a single meta with the light background for an explicit light override', () => {
+		expect(themeColorMeta('light')).toBe(
+			`<meta name="theme-color" content="${THEME_BACKGROUND.light}" />`
+		);
+	});
+
+	it('emits a single meta with the dark background for an explicit dark override', () => {
+		expect(themeColorMeta('dark')).toBe(
+			`<meta name="theme-color" content="${THEME_BACKGROUND.dark}" />`
+		);
+	});
+
+	it('emits two media-queried metas for system so the OS signal decides', () => {
+		expect(themeColorMeta(null)).toBe(
+			`<meta name="theme-color" content="${THEME_BACKGROUND.light}" media="(prefers-color-scheme: light)" />` +
+				`<meta name="theme-color" content="${THEME_BACKGROUND.dark}" media="(prefers-color-scheme: dark)" />`
+		);
+	});
+
+	it('mirrors the --color-background tokens from layout.css', () => {
+		expect(THEME_BACKGROUND).toEqual({ dark: '#191724', light: '#fffcf8' });
 	});
 });

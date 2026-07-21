@@ -10,6 +10,15 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Added
+
+- genug da can now be installed to the home screen as a standalone app on
+  Android (Chrome) and iOS (Safari), via a web app manifest, home-screen
+  icons, and iOS meta tags. The mobile status bar and toolbar follow the
+  active theme, including an explicit light/dark override.
+- The browser-tab favicon is now the genug da brand mark, replacing the
+  default framework logo.
+
 ### Fixed
 
 - Creating a transfer now updates the counterpart account's register right
