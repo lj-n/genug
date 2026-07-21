@@ -10,6 +10,8 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+## [2026.07.5] - 2026-07-21
+
 ### Added
 
 - genug da can now be installed to the home screen as a standalone app on
