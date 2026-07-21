@@ -545,6 +545,18 @@ Actions workflows using `GITHUB_TOKEN` will continue to have the same permission
 
 ---
 
+## Live State Verified (2026-07-21)
+
+Facts checked against the real repos/registry while resolving the wayfinder ticket, complementing the doc research above:
+
+- **`lj-n/genug` (prototype):** public, not archived, last push 2025-03-30. `lj-n/genug-da`: private.
+- **No `ghcr.io/lj-n/genug` package exists** — an anonymous registry probe (`GET https://ghcr.io/v2/lj-n/genug/tags/list` with a pull token) returns `404 NAME_UNKNOWN`. The prototype never published under that name, so the clean switch has no package-name collision.
+- **`publish.yml` hard-codes the image name** (`IMAGE: ghcr.io/lj-n/genug-da`, line 26). After the repo rename, CI keeps pushing to the *old* package name until the reference sweep updates it — sequence the sweep promptly after the rename.
+- **The publish workflow uses `docker/metadata-action@v5`**, which derives OCI labels (including `org.opencontainers.image.source`) from the repository context. Once the repo is renamed and `IMAGE` is updated, the first push to `ghcr.io/lj-n/genug` carries the correct source label automatically — no Dockerfile change needed for GITHUB_TOKEN permissions or repo linking.
+- **Local remote** for this clone is `git@github.com:lj-n/genug-da.git` (SSH form) — update with `git remote set-url origin git@github.com:lj-n/genug.git` after the rename.
+
+---
+
 ## References (Official Sources)
 
 1. [Renaming a repository - GitHub Docs](https://docs.github.com/en/repositories/creating-and-managing-repositories/renaming-a-repository)
