@@ -33,6 +33,16 @@ backgrounds (out of scope to change, must still sit well).
 
 <!-- appended per round: liked / disliked / slots replaced and why -->
 
+**Round 2 (rebuild on user feedback):** 5 fixed slots were too few — replaced
+the `?variant=a..e` slot model with the FULL tinted-theming catalog (330
+schemes, generated into `palette-prototype-catalog.ts` by
+`scratchpad/gen-catalog.mjs`). Light and dark schemes now picked independently
+(`?light=<slug>&dark=<slug>`, `current` = today's tokens), selects have a
+Popular optgroup (~48 curated slugs) above the full list; ←/→ cycles Popular
+for whichever mode is showing; `?` opens a token legend (token → slot →
+resolved hex → where it appears in the app). User also asked how tokens map —
+see legend + the ANSI note in it.
+
 ## Verdict
 
 <!-- winner, rationale, the personal adaptations, open questions -->
