@@ -54,6 +54,19 @@ too washed for "gold means keyboard". Authored personal variants
 `palette-prototype-schemes.ts`, per-slot rationale in comments) and added a
 "Personal" optgroup so upstream ↔ adapted can be A/B-ed in place.
 
+## Finding for #180/#187 (beyond this ticket)
+
+The strict `muted→base03` map breaks for arbitrary user-chosen schemes:
+catalog-wide audit (332 schemes, contrast vs base00): base03 ≥4.5:1 in only
+12%, ≥3:1 in 40%; base04 ≥4.5:1 in 66%. base16 designs base03 as faint editor
+comments, but genug uses `muted` for real text. Recommendation for the PRD
+(#187, amending #181's map): a resolve-time readability guard — `muted` =
+base04 if ≥~4.5:1 vs base00, else base03 if it passes, else derived by mixing
+base05 toward base00 to the target. Alternatives considered: scheme-faithful
+values + per-slot editor (terminals do this; gallery would look broken for
+most schemes), or contrast badges on gallery cards. The app-default scheme is
+unaffected (authored with readable base03 — the personal adaptation).
+
 ## Verdict
 
 <!-- winner, rationale, the personal adaptations, open questions -->
