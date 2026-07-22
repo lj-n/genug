@@ -2,9 +2,9 @@
 
 Locked detail-by-detail on the budget month view with live user feedback
 (#255). Later restyle sessions apply these rules instead of re-litigating
-taste. The Rosé Pine palette is unchanged for now (new palette is a separate
-ticket, judged against this simplified look); typography (type scale, fonts)
-is #261.
+taste. The default palette was locked in #256 (hand-tuned from One Light /
+Kanagawa Dragon starting points, token values in `src/routes/layout.css`);
+typography (type scale, fonts) is #261.
 
 ## Principles
 
