@@ -67,6 +67,14 @@ values + per-slot editor (terminals do this; gallery would look broken for
 most schemes), or contrast badges on gallery cards. The app-default scheme is
 unaffected (authored with readable base03 — the personal adaptation).
 
+**Round 4 (scope pivot, 2026-07-22):** owner cancelled the themes effort
+(#180 family closed via separate handoff) and re-scoped #256 + map #254: the
+deliverable is now a plain light/dark value set for the 10 semantic tokens —
+NO base16 authoring, slot mapping, or scheme asset. The base16 catalog
+browser stays as a picking aid; the "Finding for #180/#187" section above is
+now historical record only. The chosen palettes below become free-standing
+token values (slot references kept only as provenance).
+
 ## Verdict
 
 <!-- winner, rationale, the personal adaptations, open questions -->
