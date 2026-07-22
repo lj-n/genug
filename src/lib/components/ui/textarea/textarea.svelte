@@ -17,11 +17,7 @@
 <textarea
 	bind:this={ref}
 	data-slot={dataSlot}
-	class={cn(
-		inputVariants({ multiline: true }),
-		'flex disabled:cursor-not-allowed disabled:opacity-50',
-		className
-	)}
+	class={cn(inputVariants({ multiline: true }), 'flex', className)}
 	bind:value
 	{...restProps}
 ></textarea>

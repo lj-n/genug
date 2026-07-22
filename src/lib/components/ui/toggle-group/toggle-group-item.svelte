@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { focusRing } from '$lib/components/ui/focus-ring';
+	import { focusRing, hoverOutline } from '$lib/components/ui/focus-ring';
 	import { ToggleGroup as ToggleGroupPrimitive, type WithoutChild } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
 
@@ -16,7 +16,8 @@
 	data-slot="toggle-group-item"
 	class={cn(
 		focusRing,
-		"inline-flex items-center justify-center gap-1.5 rounded-sm px-3 py-1 text-sm font-medium whitespace-nowrap text-muted transition-colors outline-none select-none hover:text-foreground disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-interactive/10 data-[state=on]:text-interactive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+		hoverOutline,
+		"inline-flex items-center justify-center gap-1.5 rounded-sm px-3 py-1 text-sm font-medium whitespace-nowrap text-muted transition-colors outline-none select-none hover:text-foreground disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-foreground data-[state=on]:text-background [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 		className
 	)}
 	{...restProps}

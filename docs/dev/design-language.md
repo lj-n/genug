@@ -45,6 +45,34 @@ uppercase text-muted`, uniform — no loud bold header cells.
 - Match outline width and negative offset (1px ↔ `-outline-offset-1`) or the
   outline floats inside the edge.
 
+## Form-control family (#257)
+
+The primitives in `src/lib/components/ui` (button, button-group, input,
+input-group, input-money, input-password, textarea, label, checkbox, select,
+select-category, toggle-group, calendar, date-picker, form-field, form-body)
+apply the language as follows; reviewed control-by-control in both modes on
+a live gallery:
+
+- **Shared interaction constants** live in `src/lib/components/ui/focus-ring`:
+  `hoverOutline` (the P7 neutral hover outline, `not-disabled`-guarded) and
+  `invalidRing`/`invalidRingWithin` (error halo). Use these instead of
+  restating the classes.
+- **Selection is ink.** Checked/indeterminate checkboxes, the active
+  toggle-group item and the selected calendar day fill
+  `bg-foreground text-background`. Select/combobox item highlight is a
+  neutral `bg-muted/10` fill. Today in the calendar is a `border-muted/40`
+  frame.
+- **Buttons keep tinted variant fills at rest** (`bg-interactive/10` etc. —
+  the tint reads as affordance meaning under P1); hover adds only the
+  neutral outline, never a deeper tint. Ghost hovers `bg-muted/10`.
+- **Control chrome is flat**: `bg-surface` fill, `border-muted/20`, no
+  shadows (shadows stay overlay-only per P2).
+- **Focus beats the error halo.** Invalid controls always show
+  `border-error`; the soft `ring-3 ring-error/20` halo is suppressed while
+  the control (or, for wrapper chrome, its inner form control) is
+  focus-visible, so the gold ring stays unmistakable.
+- **Disabled is 50% opacity** everywhere; buttons also drop pointer events.
+
 ## Reference implementation
 
 The budget month view (`src/routes/(app)/[budgetId=id]/[month=month]/`) is

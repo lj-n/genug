@@ -12,6 +12,15 @@ and dependency bumps get no entry.
 
 ### Changed
 
+- All form controls now follow the new design language: buttons, inputs,
+  textareas, selects, the category picker, checkboxes, toggle groups, the
+  calendar and the date picker share flat surfaces, one border tone, and the
+  thin neutral hover outline. Selected states fill with ink (checked
+  checkboxes, the active toggle item, the picked calendar day) instead of
+  accent tints, and today is marked with a subtle frame. Invalid fields show
+  the red border plus a soft red halo on every control — and the halo now
+  steps aside while a field is focused so the gold focus ring stays visible.
+  Disabled controls consistently dim to half opacity.
 - The budget month view has a simplified, calmer look — the first screen on
   the new design language: categories render as compact separated rows
   without column lines, headers are small quiet labels, the Unallocated chip

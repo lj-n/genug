@@ -15,12 +15,7 @@
 	}: WithoutChildrenOrChild<CalendarPrimitive.YearSelectProps> = $props();
 </script>
 
-<span
-	class={cn(
-		`relative flex rounded-md border border-muted/20 shadow-xs ${focusRingWithin}`,
-		className
-	)}
->
+<span class={cn(`relative flex rounded-md border border-muted/20 ${focusRingWithin}`, className)}>
 	<CalendarPrimitive.YearSelect bind:ref class="absolute inset-0 opacity-0" {...restProps}>
 		{#snippet child({ props, selectedYearItem, yearItems })}
 			<select {...props} {value}>
