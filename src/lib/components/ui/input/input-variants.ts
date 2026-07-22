@@ -1,9 +1,9 @@
 import { tv, type VariantProps } from 'tailwind-variants';
 
-import { focusRingWithin } from '../focus-ring';
+import { focusRingWithin, hoverOutline, invalidRing, invalidRingWithin } from '../focus-ring';
 
 export const inputVariants = tv({
-	base: 'w-full outline-none placeholder:text-muted aria-invalid:border-error',
+	base: 'w-full outline-none placeholder:text-muted disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-error',
 	defaultVariants: {
 		multiline: false,
 		variant: 'default'
@@ -15,12 +15,17 @@ export const inputVariants = tv({
 		},
 		variant: {
 			container: [
-				'flex items-center rounded-lg border border-muted/30 bg-surface/70 focus-within:bg-surface/80',
-				focusRingWithin
+				'flex items-center rounded-lg border border-muted/20 bg-surface',
+				hoverOutline,
+				focusRingWithin,
+				invalidRingWithin
 			],
-			default:
-				'rounded-lg border border-muted/30 bg-surface/70 px-3 py-1 focus-visible:bg-surface/80',
-			ghost: 'px-3 py-1'
+			default: [
+				'rounded-lg border border-muted/20 bg-surface px-3 py-1',
+				hoverOutline,
+				invalidRing
+			],
+			ghost: ['px-3 py-1', invalidRing]
 		}
 	}
 });

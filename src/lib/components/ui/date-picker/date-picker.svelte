@@ -76,7 +76,7 @@
 				{disabled}
 				type="button"
 				class={cn(
-					'w-full justify-between border-muted/30 bg-surface/70 px-2 hover:cursor-text hover:bg-surface/70 aria-expanded:bg-surface/70 aria-expanded:ring-2 aria-expanded:ring-focus',
+					'w-full justify-between border-muted/20 bg-surface px-2 hover:cursor-text hover:bg-surface aria-expanded:outline-1 aria-expanded:-outline-offset-1 aria-expanded:outline-foreground/50',
 					className
 				)}
 				role="combobox"
@@ -106,7 +106,7 @@
 			{placeholder}
 			{locale}
 			onValueChange={closeAndFocusTrigger}
-			class="rounded-xl border border-muted/30 bg-surface-high shadow"
+			class="rounded-xl border border-muted/20 bg-surface-high shadow"
 		/>
 	</Popover.Content>
 </Popover.Root>

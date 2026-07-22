@@ -14,12 +14,7 @@
 	}: WithoutChildrenOrChild<CalendarPrimitive.MonthSelectProps> = $props();
 </script>
 
-<span
-	class={cn(
-		`relative flex rounded-md border border-muted/20 shadow-xs ${focusRingWithin}`,
-		className
-	)}
->
+<span class={cn(`relative flex rounded-md border border-muted/20 ${focusRingWithin}`, className)}>
 	<CalendarPrimitive.MonthSelect
 		bind:ref
 		class="absolute inset-0 bg-background opacity-0"
