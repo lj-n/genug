@@ -43,6 +43,29 @@ for whichever mode is showing; `?` opens a token legend (token → slot →
 resolved hex → where it appears in the app). User also asked how tokens map —
 see legend + the ANSI note in it.
 
+**Round 3 (winner pair + adaptation):** user picked **light = One Light,
+dark = Kanagawa Dragon**. Contrast audit of the upstream palettes against the
+10-token map found: muted (base03) unreadable as UI text in both (2.5:1 /
+2.8:1 vs today's ~5:1); One Light's success 3.1:1, info 4.0:1, interactive
+3.9:1 all below AA for their text uses; One Light's base01 slabs _darker_ than
+the page (inverted vs the app's paper look); Kanagawa Dragon's base09 focus
+too washed for "gold means keyboard". Authored personal variants
+`one-light-genug` / `kanagawa-dragon-genug` (see `personal` in
+`palette-prototype-schemes.ts`, per-slot rationale in comments) and added a
+"Personal" optgroup so upstream ↔ adapted can be A/B-ed in place.
+
 ## Verdict
 
 <!-- winner, rationale, the personal adaptations, open questions -->
+
+Pending user confirmation of the adapted pair:
+
+- **Base schemes:** One Light (light) + Kanagawa Dragon (dark), from
+  tinted-theming spec-0.11.
+- **Personal adaptation (light, `one-light-genug`):** base01 #fdfdfd, base02
+  #ffffff (slabs/overlays lighter than page, not darker); base03 #696c77
+  (muted readable, 5.0:1); base0B #448f43, base0C #01749f, base0D #2f63d8
+  (accent text AA-safe); base04 takes upstream's #a0a1a7.
+- **Personal adaptation (dark, `kanagawa-dragon-genug`):** base03 #8a847e
+  (muted readable, 4.9:1); base09 #d4a96f (gold focus ring, carpYellow-leaning).
+- Logo + wordmark verified on both backgrounds (screenshots in session).

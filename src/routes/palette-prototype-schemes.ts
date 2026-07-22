@@ -52,6 +52,59 @@ export function toTokens(scheme: CatalogScheme): Record<string, string> {
 	return Object.fromEntries(TOKEN_MAP.map(({ slot, token }) => [token, scheme.palette[slot]]));
 }
 
+/**
+ * Personal adaptations of the chosen pair (One Light / Kanagawa Dragon).
+ * Non-upstream slots are commented with the reason; everything else verbatim.
+ */
+export const personal: CatalogScheme[] = [
+	{
+		name: 'One Light (genug)',
+		palette: {
+			base0A: '#c18401',
+			base0B: '#448f43', // upstream #50a14f: 3.1:1 → 3.8:1 for progress bars + wordmark
+			base0C: '#01749f', // upstream #0184bc: 4.0:1 → 5.0:1, chip text AA
+			base0D: '#2f63d8', // upstream #4078f2: 3.9:1 → 5.2:1, link/button text AA
+			base0E: '#a626a4',
+			base0F: '#986801',
+			base00: '#fafafa',
+			base01: '#fdfdfd', // upstream #f0f0f1: slabs were darker than the page; lighter like today
+			base02: '#ffffff', // upstream #e5e5e6: overlays become the lightest step
+			base03: '#696c77', // upstream #a0a1a7: 2.5:1 → 5.0:1, muted is real text in the app
+			base04: '#a0a1a7', // upstream base03, kept in the ramp (reserved slot)
+			base05: '#383a42',
+			base06: '#202227',
+			base07: '#090a0b',
+			base08: '#ca1243',
+			base09: '#d75f00'
+		},
+		slug: 'one-light-genug',
+		variant: 'light'
+	},
+	{
+		name: 'Kanagawa Dragon (genug)',
+		palette: {
+			base0A: '#c4b28a',
+			base0B: '#8a9a7b',
+			base0C: '#8ea4a2',
+			base0D: '#8ba4b0',
+			base0E: '#a292a3',
+			base0F: '#b98d7b',
+			base00: '#181616',
+			base01: '#282727',
+			base02: '#393836',
+			base03: '#8a847e', // upstream #625e5a: 2.8:1 → 4.9:1, muted is real text in the app
+			base04: '#737c73',
+			base05: '#c5c9c5',
+			base06: '#c8c093',
+			base07: '#c5c9c5',
+			base08: '#c4746e',
+			base09: '#d4a96f' // upstream #b6927b: focus ring reads washed-out; carpYellow-leaning gold
+		},
+		slug: 'kanagawa-dragon-genug',
+		variant: 'dark'
+	}
+];
+
 /** Widely-used families, surfaced in their own optgroup. Order = cycle order. */
 const POPULAR_SLUGS = [
 	'rose-pine-dawn',
@@ -104,7 +157,11 @@ const POPULAR_SLUGS = [
 	'horizon-dark'
 ];
 
-const bySlug = new Map(schemes.map((s) => [s.slug, s]));
+const bySlug = new Map([...schemes, ...personal].map((s) => [s.slug, s]));
+
+export function personalOf(variant: 'dark' | 'light'): CatalogScheme[] {
+	return personal.filter((s) => s.variant === variant);
+}
 
 export function popularOf(variant: 'dark' | 'light'): CatalogScheme[] {
 	return POPULAR_SLUGS.map((slug) => bySlug.get(slug)).filter(

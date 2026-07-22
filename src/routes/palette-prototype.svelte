@@ -17,6 +17,7 @@
 
 	import {
 		currentTokens,
+		personalOf,
 		popularOf,
 		restOf,
 		schemeBySlug,
@@ -74,7 +75,11 @@
 
 	function cycle(dir: number) {
 		const side = effectiveMode();
-		const ring = ['current', ...popularOf(side).map((s) => s.slug)];
+		const ring = [
+			'current',
+			...personalOf(side).map((s) => s.slug),
+			...popularOf(side).map((s) => s.slug)
+		];
 		const slug = side === 'light' ? lightSlug : darkSlug;
 		const i = ring.indexOf(slug);
 		const next = ring[(Math.max(i, 0) + dir + ring.length) % ring.length];
@@ -185,6 +190,11 @@
 					}}
 				>
 					<option value="current">current tokens</option>
+					<optgroup label="Personal">
+						{#each personalOf(side) as s (s.slug)}
+							<option value={s.slug}>{s.name}</option>
+						{/each}
+					</optgroup>
 					<optgroup label="Popular">
 						{#each popularOf(side) as s (s.slug)}
 							<option value={s.slug}>{s.name}</option>
@@ -202,6 +212,7 @@
 		<button
 			type="button"
 			class="cursor-pointer rounded-full bg-zinc-700 px-2.5 py-0.5 text-xs uppercase hover:bg-zinc-600"
+			aria-label="Cycle color mode"
 			onclick={cycleMode}
 		>
 			{mode}
