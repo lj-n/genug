@@ -24,8 +24,6 @@
 	}
 </script>
 
-<!-- Quiet uppercase header floating above the framed grid (the frame wraps
-     only the data rows); the active sort caret is foreground ink, not accent. -->
 {#snippet sortIcon(column: SortColumn)}
 	{#if sort.column === column && sort.direction === 'asc'}
 		<CaretUpIcon class="size-4 cursor-pointer text-foreground" />

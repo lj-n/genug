@@ -184,7 +184,6 @@
 				{#if transaction.categoryName}
 					{transaction.categoryName}
 				{:else}
-					<!-- Same badge shape as the transfer badge, muted. -->
 					<span
 						class="inline-flex max-w-full min-w-0 items-center gap-1 rounded-sm bg-muted/10 px-1 py-0 text-sm text-muted"
 					>

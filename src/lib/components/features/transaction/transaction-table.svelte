@@ -128,8 +128,6 @@
 				onToggle={(column) => tableState.toggleSort(column)}
 			/>
 
-			<!-- The frame wraps only the data rows; header and pagination float
-			     outside it. -->
 			<TableBody
 				class="hidden rounded-xs border border-muted/20 bg-surface @3xl/main:grid"
 				data={transactions}
