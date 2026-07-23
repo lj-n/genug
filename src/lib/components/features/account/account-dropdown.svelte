@@ -92,7 +92,7 @@
 </DropdownMenu.Root>
 
 <Dialog.Root bind:open>
-	<Dialog.Content class="max-w-lg gap-6">
+	<Dialog.Content>
 		<Dialog.Header>
 			<Dialog.Title>{m.new_account_title()}</Dialog.Title>
 			<Dialog.Description class="grid gap-4">

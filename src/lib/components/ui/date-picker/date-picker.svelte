@@ -76,7 +76,7 @@
 				{disabled}
 				type="button"
 				class={cn(
-					'w-full justify-between border-muted/20 bg-surface px-2 hover:cursor-text hover:bg-surface aria-expanded:outline-1 aria-expanded:-outline-offset-1 aria-expanded:outline-foreground/50',
+					'w-full justify-between border-muted/20 bg-muted/5 px-2 hover:cursor-text hover:bg-muted/5 aria-expanded:outline-1 aria-expanded:-outline-offset-1 aria-expanded:outline-foreground/50',
 					className
 				)}
 				role="combobox"

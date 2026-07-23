@@ -149,7 +149,7 @@
 </AlertDialogForm>
 
 <Dialog.Root bind:open={openReveal}>
-	<Dialog.Content class="max-w-lg gap-6">
+	<Dialog.Content>
 		<Dialog.Header>
 			<Dialog.Title>{m.api_token_created_title()}</Dialog.Title>
 			<Dialog.Description>{m.api_token_created_description()}</Dialog.Description>

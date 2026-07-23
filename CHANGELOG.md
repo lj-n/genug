@@ -12,6 +12,36 @@ and dependency bumps get no entry.
 
 ### Changed
 
+- All overlays — dialogs, confirmation dialogs, drawers, popovers, dropdown
+  menus, selects and the command palette — now follow the design language:
+  they share the brightest surface tone, a hairline edge plus one soft
+  shadow, and a backdrop that washes the page out in the theme's own
+  background color instead of darkening it. Open/close animations are
+  unified into one quick, springy character (a short directional drop with
+  a slight overshoot, quick fades out); drawers keep their slide but snap
+  noticeably faster. Animations are disabled for reduced-motion users.
+- Form fields (inputs, textareas, selects, checkboxes, toggle groups, the
+  date picker) now use a translucent tint instead of a fixed surface color,
+  so they stay clearly recognizable on any background — including inside
+  dialogs and popovers.
+- Dialogs now have a sensible default width instead of stretching almost
+  full-screen when a caller forgot to cap them, and small phone screens
+  keep an edge margin around every dialog.
+- Drawer and confirmation-dialog buttons are laid out consistently with
+  dialogs: right-aligned in a row on wider screens, stacked full-width on
+  small ones. Destructive menu entries now show a faint red fill when
+  highlighted.
+- Dark mode's secondary text and error color are slightly lighter so text
+  keeps WCAG AA contrast on the brighter overlay surfaces.
+
+### Fixed
+
+- Dialogs and drawers no longer render their middle section empty in
+  Safari (including iOS home-screen installs) — content such as form
+  fields was collapsing to zero height.
+- The gold keyboard-focus ring and red invalid halo are no longer cut off
+  on fields that touch the edge of a dialog or drawer's scrollable area.
+
 - All form controls now follow the new design language: buttons, inputs,
   textareas, selects, the category picker, checkboxes, toggle groups, the
   calendar and the date picker share flat surfaces, one border tone, and the

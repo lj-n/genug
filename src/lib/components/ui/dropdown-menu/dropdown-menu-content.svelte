@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { ComponentProps, Snippet } from 'svelte';
 
+	import { floatingIn, floatingOut } from '$lib/components/ui/overlay-motion';
 	import { DropdownMenu as DropdownMenuPrimitive, type WithoutChildrenOrChild } from 'bits-ui';
-	import { fly } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
 
 	import DropdownMenuPortal from './dropdown-menu-portal.svelte';
@@ -36,10 +36,11 @@
 						bind:this={ref}
 						{...props}
 						class={cn(
-							'z-50 w-(--bits-dropdown-menu-anchor-width) min-w-32 overflow-x-hidden overflow-y-auto rounded-md bg-surface p-1 text-foreground shadow-md ring-1 ring-foreground/10 duration-100 outline-none data-closed:overflow-hidden',
+							'z-50 w-(--bits-dropdown-menu-anchor-width) min-w-32 overflow-x-hidden overflow-y-auto rounded-md bg-surface-high p-1 text-foreground shadow-md ring-1 ring-foreground/10 outline-none data-closed:overflow-hidden',
 							className
 						)}
-						transition:fly={{ duration: 150, x: 6 }}
+						in:floatingIn={{ side: props['data-side'] }}
+						out:floatingOut
 					>
 						{@render children?.()}
 					</div>

@@ -223,7 +223,11 @@
  * OS via the media query below; an explicit `.light`/`.dark` override wins by
  * source order (declared after the media block, equal specificity). These are
  * unlayered so they override the `@theme`-emitted `:root` values. Dark values
- * are a first pass, AA-verified in the accessibility pass (#128).
+ * are a first pass, AA-verified in the accessibility pass (#128). The muted
+ * and error values must keep ≥4.5:1 on the brightest overlay stacks
+ * (`surface-high`, plus `bg-muted/5` and `bg-error/10` tints over it) —
+ * overlays moved to `surface-high` in #258 and the a11y suite gates dialog
+ * text and the form-error case.
  */
 @media (prefers-color-scheme: dark) {
 	:root {
@@ -231,8 +235,8 @@
 		--color-surface-high: #393836;
 		--color-background: #181616;
 		--color-foreground: #c5c9c5;
-		--color-muted: #9c9692;
-		--color-error: #da8d87;
+		--color-muted: #aaa5a0;
+		--color-error: #e4a29c;
 		--color-info: #a97bbb;
 		--color-interactive: #6d9cb1;
 		--color-success: #7e9a65;
@@ -258,8 +262,8 @@
 	--color-surface-high: #393836;
 	--color-background: #181616;
 	--color-foreground: #c5c9c5;
-	--color-muted: #9c9692;
-	--color-error: #da8d87;
+	--color-muted: #aaa5a0;
+	--color-error: #e4a29c;
 	--color-info: #a97bbb;
 	--color-interactive: #6d9cb1;
 	--color-success: #7e9a65;
