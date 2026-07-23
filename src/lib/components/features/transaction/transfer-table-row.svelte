@@ -8,10 +8,10 @@
 	import { InputMoney } from '$lib/components/ui/input-money';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { m } from '$lib/paraglide/messages';
-	import { getCategories } from '$lib/remote-functions/category.remote';
+	import { getAccounts } from '$lib/remote-functions/account.remote';
 	import {
 		batchDeleteTransactions,
-		editTransaction,
+		editTransfer,
 		listTransactions
 	} from '$lib/remote-functions/transaction.remote';
 	import { clickOutside } from '$lib/utils/click-outside';
@@ -22,7 +22,6 @@
 	import { tick, untrack } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
-	import EmptyIcon from '~icons/ph/empty';
 	import TrashIcon from '~icons/ph/trash';
 
 	import {
@@ -35,7 +34,7 @@
 	} from './transaction-table-cols';
 	import RowErrors from './transaction-table-row-errors.svelte';
 	import ValidateToggle from './transaction-validate-toggle.svelte';
-	import ValidationCheckbox from './transaction-validation-checkbox.svelte';
+	import TransferBadge from './transfer-badge.svelte';
 
 	let {
 		budgetId,
@@ -53,22 +52,22 @@
 		transaction: ListTransaction;
 	} = $props();
 
-	type EditableField = 'amount' | 'category' | 'date' | 'notes';
+	type EditableField = 'amount' | 'counterpart' | 'date' | 'notes';
 
 	const id = $props.id();
-	const form = editTransaction.for(id);
+	const form = editTransfer.for(id);
 	const deleteForm = batchDeleteTransactions.for(id);
-	// One row, two modes: the read cells and the edit inputs live in the same
-	// cell divs so the geometry cannot shift, and the same DOM row lets the
-	// actions bar animate out on cancel (an if/else swap between separate
-	// read/edit components would overlap both branches during the outro). The
-	// row stays a <div> because the read-mode ValidateToggle owns its own
-	// <form>; the edit form is a hidden sibling and every edit control is
-	// associated via the `form` attribute (same pattern as the delete form).
+	// Same one-row-two-modes structure as transaction-table-row.svelte: the
+	// row stays a <div> (the read-mode ValidateToggle owns its own <form>),
+	// the edit form is a hidden sibling and the controls associate via the
+	// `form` attribute.
 	const editFormId = `eform-${id}`;
 	const deleteFormId = `dform-${id}`;
 
-	const categories = $derived(await getCategories({ budgetId }));
+	const accounts = $derived(await getAccounts(budgetId));
+	const counterpartAccounts = $derived(
+		accounts.filter((account) => account.id !== transaction.accountId)
+	);
 
 	// Row-scoped micro-form (ADR-0009): thrown errors go to the anchored toast,
 	// validation issues to the shared row error line below the fields.
@@ -78,8 +77,8 @@
 		updates: () => [listTransactions]
 	});
 
-	// No onSuccess: the refreshed list unmounts this row — that is the
-	// success signal.
+	// Deleting either leg removes the whole transfer server-side (ADR-0015); the
+	// refreshed list unmounts this row — that is the success signal.
 	const deleteSubmit = createFormSubmit(() => deleteForm, {
 		toast: {},
 		updates: () => [listTransactions]
@@ -87,7 +86,7 @@
 
 	const pending = $derived(submit.pending || deleteSubmit.pending);
 
-	let categoryInputRef = $state<HTMLInputElement | null>(null);
+	let counterpartInputRef = $state<HTMLInputElement | null>(null);
 	let notesRef = $state<HTMLInputElement | null>(null);
 	let dateRef = $state<HTMLButtonElement | null>(null);
 	let dateOpen = $state(false);
@@ -108,7 +107,7 @@
 	$effect(() => {
 		if (!isEditing) return;
 		untrack(() => {
-			form.fields.categoryId.set(transaction.categoryId ?? undefined);
+			form.fields.counterpartAccountId.set(transaction.counterpartAccountId ?? '');
 			form.fields.amount.set(transaction.amount);
 		});
 	});
@@ -124,9 +123,9 @@
 		const field = pendingFocus;
 		pendingFocus = null;
 		tick().then(() => {
-			if (field === 'category') {
-				categoryInputRef?.focus();
-				categoryInputRef?.select();
+			if (field === 'counterpart') {
+				counterpartInputRef?.focus();
+				counterpartInputRef?.select();
 			} else if (field === 'notes') {
 				notesRef?.focus();
 				notesRef?.select();
@@ -163,34 +162,27 @@
 			<SelectCategory
 				class={cn(editInputClass, editSelectClass)}
 				form={editFormId}
-				bind:inputRef={categoryInputRef}
-				name={form.fields.categoryId.as('select').name}
+				bind:inputRef={counterpartInputRef}
+				name={form.fields.counterpartAccountId.as('select').name}
 				bind:value={
-					() => form.fields.categoryId.value() ?? '', (v) => form.fields.categoryId.set(v)
+					() => form.fields.counterpartAccountId.value() ?? '',
+					(v) => form.fields.counterpartAccountId.set(v)
 				}
-				{categories}
-				nullable
-				ariaInvalid={form.fields.categoryId.issues()?.length ? true : undefined}
-				ariaLabel={m.transactions_table_header_category()}
-				ariaLabelTrigger={m.select_category_open()}
+				categories={counterpartAccounts}
+				ariaInvalid={form.fields.counterpartAccountId.issues()?.length ? true : undefined}
+				ariaLabel={m.transfer_counterpart_account_label()}
+				ariaLabelTrigger={m.select_account_open()}
+				placeholder={m.select_account_placeholder()}
+				textNotFound={m.select_account_not_found()}
 			/>
 		{:else}
 			<button
 				type="button"
 				class={cellTriggerClass}
 				aria-label={m.transactions_table_edit_category()}
-				onclick={() => startEditing('category')}
+				onclick={() => startEditing('counterpart')}
 			>
-				{#if transaction.categoryName}
-					{transaction.categoryName}
-				{:else}
-					<span
-						class="inline-flex max-w-full min-w-0 items-center gap-1 rounded-sm bg-muted/10 px-1 py-0 text-sm text-muted"
-					>
-						<EmptyIcon class="size-3.5 shrink-0" aria-hidden="true" />
-						<span class="truncate">{m.transaction_table_cell_category_empty()}</span>
-					</span>
-				{/if}
+				<TransferBadge {transaction} class="px-1 py-0 text-sm" />
 			</button>
 		{/if}
 	</div>
@@ -267,16 +259,11 @@
 		{/if}
 	</div>
 
-	<!-- Right-aligned like the column header; mr-1/pr-1 puts the size-6 icon
-	     inside its size-8 hit area at the same px-2 inset as the header seal. -->
-	<div role="cell" class={cn(cell, isEditing && 'items-center justify-end pr-1')}>
-		{#if isEditing}
-			<ValidationCheckbox
-				labelClass="size-8"
-				form={editFormId}
-				{...form.fields.validated.as('checkbox', transaction.validated)}
-			/>
-		{:else}
+	<!-- Validation is per-leg and display-mode only; in edit mode the cell
+	     stays as an empty spacer so the columns hold. Right-aligned like the
+	     column header. -->
+	<div role="cell" class={cell}>
+		{#if !isEditing}
 			<ValidateToggle {transaction} class="mr-1 ml-auto" />
 		{/if}
 	</div>
@@ -287,29 +274,33 @@
 		<div
 			role="cell"
 			transition:slide={{ duration: 150 }}
-			class="col-span-full flex items-center justify-end gap-1 p-1"
+			class="col-span-full flex items-center justify-between gap-1 p-1"
 		>
-			<Button type="button" size="xs" variant="ghost" disabled={pending} onclick={cancelEditing}>
-				{m.cancel()}
-			</Button>
+			<p class="px-1 text-sm text-muted">{m.transfer_amount_hint()}</p>
 
-			<Button
-				type="submit"
-				variant="destructive"
-				size="icon-xs"
-				form={deleteFormId}
-				name={deleteForm.fields.ids.as('select multiple').name}
-				value={[transaction.id]}
-				disabled={pending}
-				{@attach deleteSubmit.anchor}
-			>
-				<TrashIcon />
-				<span class="sr-only">{m.delete()}</span>
-			</Button>
+			<div class="flex items-center gap-1">
+				<Button type="button" size="xs" variant="ghost" disabled={pending} onclick={cancelEditing}>
+					{m.cancel()}
+				</Button>
 
-			<Button type="submit" size="xs" form={editFormId} disabled={pending}>
-				{m.save()}
-			</Button>
+				<Button
+					type="submit"
+					variant="destructive"
+					size="icon-xs"
+					form={deleteFormId}
+					name={deleteForm.fields.ids.as('select multiple').name}
+					value={[transaction.id]}
+					disabled={pending}
+					{@attach deleteSubmit.anchor}
+				>
+					<TrashIcon />
+					<span class="sr-only">{m.delete()}</span>
+				</Button>
+
+				<Button type="submit" size="xs" form={editFormId} disabled={pending}>
+					{m.save()}
+				</Button>
+			</div>
 		</div>
 	{/if}
 </div>
@@ -317,7 +308,7 @@
 {#if isEditing}
 	<form id={editFormId} class="hidden" {...submit.attrs}>
 		<input {...form.fields.accountId.as('hidden', transaction.accountId)} />
-		<input {...form.fields.transactionId.as('hidden', transaction.id)} />
+		<input {...form.fields.transferId.as('hidden', transaction.transferId ?? '')} />
 	</form>
 	<form id={deleteFormId} class="hidden" {...deleteSubmit.attrs}></form>
 {/if}

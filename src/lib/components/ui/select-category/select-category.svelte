@@ -19,7 +19,9 @@
 		class: className,
 		contentProps,
 		customItemRow,
+		form,
 		inputProps,
+		inputRef = $bindable(null),
 		name,
 		nullable = false,
 		open = $bindable(false),
@@ -35,7 +37,11 @@
 		class?: string;
 		contentProps?: WithoutChildrenOrChild<Combobox.ContentProps>;
 		customItemRow?: Snippet<[{ label: string; value: string }]>;
+		/** Form owner for the hidden value input, for callers outside a <form>. */
+		form?: string;
 		inputProps?: WithoutChildrenOrChild<Combobox.InputProps>;
+		/** The search input element, e.g. to move focus into the combobox. */
+		inputRef?: HTMLInputElement | null;
 		name?: string;
 		nullable?: boolean;
 		open?: boolean;
@@ -110,9 +116,10 @@
 	>
 		<Combobox.Input
 			{...inputProps}
+			bind:ref={inputRef}
 			aria-invalid={ariaInvalid}
 			aria-label={ariaLabel}
-			class="h-full flex-1 border-0 bg-transparent px-2 py-1 outline-none placeholder:text-muted focus-visible:ring-0"
+			class="h-full min-w-0 flex-1 border-0 bg-transparent px-2 py-1 outline-none placeholder:text-muted focus-visible:ring-0"
 			{placeholder}
 			oninput={handleInput}
 		/>
@@ -156,5 +163,5 @@
 </Combobox.Root>
 
 {#if name}
-	<input type="hidden" {name} {value} />
+	<input type="hidden" {name} {value} {form} />
 {/if}

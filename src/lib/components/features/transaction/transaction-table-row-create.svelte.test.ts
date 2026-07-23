@@ -152,7 +152,8 @@ describe('TableRowCreate', () => {
 		await user.keyboard('{Enter}');
 
 		expect(remote.onSubmit).toHaveBeenCalledTimes(1);
-		expect(screen.queryByRole('row')).not.toBeInTheDocument();
+		// The row slides out; it leaves the DOM once the outro finishes.
+		await waitFor(() => expect(screen.queryByRole('row')).not.toBeInTheDocument());
 	});
 
 	it('keeps the popover open when submitting with Shift+Enter', async () => {
@@ -195,7 +196,7 @@ describe('TableRowCreate', () => {
 		await user.click(screen.getByRole('button', { name: 'Save' }));
 
 		expect(remote.onSubmit).toHaveBeenCalledTimes(1);
-		expect(screen.queryByRole('row')).not.toBeInTheDocument();
+		await waitFor(() => expect(screen.queryByRole('row')).not.toBeInTheDocument());
 	});
 
 	it('keeps the popover open after save and continue', async () => {
@@ -226,7 +227,7 @@ describe('TableRowCreate', () => {
 		await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
 		expect(remote.onSubmit).not.toHaveBeenCalled();
-		expect(screen.queryByRole('row')).not.toBeInTheDocument();
+		await waitFor(() => expect(screen.queryByRole('row')).not.toBeInTheDocument());
 	});
 
 	// The draft is scoped to the viewed account: reopening on the SAME account

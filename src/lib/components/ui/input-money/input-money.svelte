@@ -102,7 +102,14 @@
 		// text, including the state writes driving it, is deferred to a
 		// microtask: late enough to see and carry over a full selection, early
 		// enough to land before the next keystroke.
+		//
+		// Both deferred blocks bail if focus has already moved on: they belong
+		// to a focused input, and in WebKit select() re-FOCUSES the input — if
+		// another focus manager (e.g. a popover's focus trap) just pulled
+		// focus away, an unguarded select() steals it back, the trap steals it
+		// again, and the two ping-pong in microtasks until the page hangs.
 		queueMicrotask(() => {
+			if (document.activeElement !== input) return;
 			const hadFullSelection =
 				input.selectionStart === 0 && input.selectionEnd === input.value.length;
 			editText = cents === 0 ? '' : centsToEditText(cents, decimalSeparatorFor(getLocale()));
@@ -115,7 +122,9 @@
 		if (selectOnFocus) {
 			// Deferred past the swap microtask; a synchronous select would also
 			// be collapsed by the caret the focusing click places afterwards.
-			tick().then(() => ref?.select());
+			tick().then(() => {
+				if (ref && document.activeElement === ref) ref.select();
+			});
 		}
 		onfocus?.(event);
 	}

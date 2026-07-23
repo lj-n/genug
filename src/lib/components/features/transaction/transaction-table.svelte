@@ -6,9 +6,6 @@
 	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import { EmptyState } from '$lib/components/ui/empty-state';
 	import { m } from '$lib/paraglide/messages';
-	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
-	import { asMoney, formatMoney } from '$lib/utils/money';
-	import { parseDate } from '@internationalized/date';
 	import ArrowsLeftRightIcon from '~icons/ph/arrows-left-right';
 	import FunnelIcon from '~icons/ph/funnel';
 	import PlusBoldIcon from '~icons/ph/plus-bold';
@@ -20,20 +17,16 @@
 	import TransactionEditModal from './transaction-edit-modal.svelte';
 	import TransactionListMobile from './transaction-list-mobile.svelte';
 	import TableBody from './transaction-table-body.svelte';
-	import TableCell from './transaction-table-cell.svelte';
 	import { colsClass } from './transaction-table-cols';
 	import TableFilter from './transaction-table-filter.svelte';
 	import TableHeader from './transaction-table-header.svelte';
 	import TablePagination from './transaction-table-pagination.svelte';
 	import TableRowCreate from './transaction-table-row-create.svelte';
-	import TableRowEdit from './transaction-table-row-edit.svelte';
 	import TableRow from './transaction-table-row.svelte';
-	import ValidateToggle from './transaction-validate-toggle.svelte';
-	import TransferBadge from './transfer-badge.svelte';
 	import TransferCreateModal from './transfer-create-modal.svelte';
 	import TransferEditModal from './transfer-edit-modal.svelte';
 	import TransferTableRowCreate from './transfer-table-row-create.svelte';
-	import TransferTableRowEdit from './transfer-table-row-edit.svelte';
+	import TransferTableRow from './transfer-table-row.svelte';
 
 	let {
 		accountId,
@@ -128,14 +121,17 @@
 	     state and pagination (which contains a nav and a menu button) sit outside
 	     it, since a table may only contain row/rowgroup children. -->
 	<div class="space-y-3">
-		<div role="table" class="space-y-3">
+		<div role="table">
 			<TableHeader
 				class="hidden @3xl/main:block"
 				sort={tableState.sort}
 				onToggle={(column) => tableState.toggleSort(column)}
 			/>
 
-			<TableBody class="hidden @3xl/main:grid" data={transactions}>
+			<TableBody
+				class="hidden rounded-xs border border-muted/20 bg-surface @3xl/main:grid"
+				data={transactions}
+			>
 				{#snippet createrow()}
 					<TableRowCreate
 						bind:open={openCreateRow}
@@ -155,50 +151,24 @@
 				{/snippet}
 
 				{#snippet row({ cancelEditing, isEditing, item, setEditing })}
-					{#if isEditing && item.transferId}
-						<TransferTableRowEdit transaction={item} {budgetId} {currency} {cancelEditing} />
-					{:else if isEditing}
-						<TableRowEdit transaction={item} {budgetId} {currency} {cancelEditing} />
+					{#if item.transferId}
+						<TransferTableRow
+							transaction={item}
+							{budgetId}
+							{currency}
+							{isEditing}
+							{cancelEditing}
+							{setEditing}
+						/>
 					{:else}
-						<TableRow>
-							<TableCell aria-label={m.transactions_table_edit_category()} onclick={setEditing}>
-								{#if item.transferId}
-									<TransferBadge transaction={item} />
-								{:else if item.categoryName}
-									{item.categoryName}
-								{:else}
-									<span class="text-muted">
-										{m.transaction_table_cell_category_empty()}
-									</span>
-								{/if}
-							</TableCell>
-
-							<TableCell aria-label={m.transactions_table_edit_notes()} onclick={setEditing}>
-								{item.notes ?? ''}
-							</TableCell>
-
-							<TableCell
-								aria-label={m.transactions_table_edit_date()}
-								onclick={setEditing}
-								class="justify-end"
-							>
-								{formatTransactionDate(parseDate(item.date))}
-							</TableCell>
-
-							<TableCell
-								aria-label={m.transactions_table_edit_amount()}
-								onclick={setEditing}
-								class="justify-end font-currency font-normal"
-							>
-								{formatMoney({ currency, money: asMoney(item.amount) })}
-							</TableCell>
-
-							<TableCell>
-								{#snippet child()}
-									<ValidateToggle transaction={item} />
-								{/snippet}
-							</TableCell>
-						</TableRow>
+						<TableRow
+							transaction={item}
+							{budgetId}
+							{currency}
+							{isEditing}
+							{cancelEditing}
+							{setEditing}
+						/>
 					{/if}
 				{/snippet}
 			</TableBody>
