@@ -28,8 +28,10 @@
 	data-active={isActive}
 	data-size={size}
 	class={cn(
-		buttonVariants({ size, variant: isActive ? 'info' : 'ghost' }),
-		'cn-pagination-link',
+		buttonVariants({ size, variant: 'ghost' }),
+		// Selection is ink (design language): the current page fills
+		// bg-foreground; the ghost hover fill must not wash it out.
+		'cn-pagination-link data-[active=true]:bg-foreground data-[active=true]:text-background data-[active=true]:hover:bg-foreground data-[active=true]:hover:text-background',
 		className
 	)}
 	{...restProps}
