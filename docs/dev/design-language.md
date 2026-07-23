@@ -157,6 +157,33 @@ border-muted/20 bg-surface` frame wraps the data rows ONLY; the quiet
 - **Amounts are `font-currency`** (medium tabular numerals) in every
   table; labels, dates and empty markers stay in the normal sans.
 
+## Data-display & feedback family (#259)
+
+table, pagination, empty-state, separator, collapsible, toaster,
+version-label, source-link — reviewed primitive-by-primitive in both modes
+on a live gallery (deleted after review; decision trail in the #259 PR):
+
+- **Generic `ui/table` wears the zebra open ledger** (P5): flush
+  transparent rows (`even:bg-muted/3`, `hover:bg-muted/5`), the
+  `bg-muted/3` + `border-b border-muted/30` header bar, compact `px-2 py-1`
+  cells under the P6 header treatment. `tfoot` is the symmetric bookend bar
+  (`bg-muted/3` + `border-t border-muted/30` + `font-medium`) — the table
+  closes the way it opens. The framed grid stays the register's signature
+  (P8); non-flagship tables default to the quiet ledger.
+- **Pagination selection is ink**: the current page fills
+  `bg-foreground text-background`; all other links are ghost buttons.
+  Prev/next keep their text labels beside the chevrons; the ellipsis
+  matches the `icon-sm` metrics (`size-8 text-muted`).
+- **Empty state is a hairline dashed frame**: `border-dashed
+border-muted/20`, `py-8`, muted icon over title/description with an
+  optional action row.
+- **Toasts wear the overlay chrome** (#258): `bg-surface-high`,
+  `shadow-md` + `ring-1 ring-foreground/10`; variant-colored text is state
+  feedback (P1) and the alternating sticker tilt stays.
+- **Separator is the `bg-muted/20` hairline; collapsible stays an
+  unstyled behavior primitive** (call sites own its trigger/content look);
+  version-label and source-link stay quiet `text-xs text-muted`.
+
 ## Reference implementation
 
 The budget month view (`src/routes/(app)/[budgetId=id]/[month=month]/`) is
