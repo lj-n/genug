@@ -11,6 +11,13 @@
 	}: WithElementRef<HTMLAttributes<HTMLTableRowElement>> = $props();
 </script>
 
-<tr bind:this={ref} data-slot="table-row" class={cn('group/table-row', className)} {...restProps}>
+<!-- Zebra open ledger (design language P5): transparent rows, even stripe.
+     Header/footer rows are unaffected (single odd child of their rowgroup). -->
+<tr
+	bind:this={ref}
+	data-slot="table-row"
+	class={cn('group/table-row even:bg-muted/3 hover:bg-muted/5', className)}
+	{...restProps}
+>
 	{@render children?.()}
 </tr>

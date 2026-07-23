@@ -24,6 +24,11 @@ and dependency bumps get no entry.
   the inputs fill their cells. Open edit and create rows are tinted like a
   form, marked with a light ring, use compact action buttons, and animate
   open and closed.
+- Data-display primitives now follow the design language: generic tables
+  use the month view's quiet zebra-striped look (striped rows, subtle
+  header and totals bars) instead of heavy borders, the current pagination
+  page is shown as a solid ink fill instead of a colored tint, and empty
+  states got a lighter dashed frame with tighter spacing.
 - All overlays — dialogs, confirmation dialogs, drawers, popovers, dropdown
   menus, selects and the command palette — now follow the design language:
   they share the brightest surface tone, a hairline edge plus one soft
