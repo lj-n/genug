@@ -13,6 +13,8 @@
 		ariaInvalid?: boolean;
 		class?: string;
 		disabled?: boolean;
+		/** Form owner for the hidden value input, for callers outside a <form>. */
+		form?: string;
 		formatDisplay?: (date: CalendarDate) => string;
 		label: string;
 		locale?: Locale;
@@ -29,6 +31,7 @@
 		ariaInvalid,
 		class: className,
 		disabled = false,
+		form,
 		formatDisplay,
 		label,
 		locale = getLocale(),
@@ -112,5 +115,5 @@
 </Popover.Root>
 
 {#if name && value !== undefined}
-	<input type="hidden" {name} value={value.toString()} />
+	<input type="hidden" {name} value={value.toString()} {form} />
 {/if}

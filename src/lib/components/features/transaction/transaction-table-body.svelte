@@ -20,7 +20,8 @@
 	let editRowId: null | string = $state(null);
 </script>
 
-<div role="rowgroup" class={cn('grid space-y-1.5', className)}>
+<!-- Flush rows: the framed grid carries the rhythm via cell hairlines. -->
+<div role="rowgroup" class={cn('grid', className)}>
 	{@render createrow?.()}
 
 	{#each data as item (item.id)}

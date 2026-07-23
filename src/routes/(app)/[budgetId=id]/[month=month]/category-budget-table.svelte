@@ -90,7 +90,7 @@
 {:else}
 	<div role="table">
 		<div role="rowgroup" class="hidden @3xl/main:block">
-			<div role="row" class="flex">
+			<div role="row" class="flex border-b border-muted/30 bg-muted/3">
 				<BudgetTableHeader class="w-2/5">
 					{m.budget_monthly_table_header_category()}
 				</BudgetTableHeader>
@@ -109,7 +109,9 @@
 			</div>
 		</div>
 
-		<div role="rowgroup" class="grid gap-2" {@attach categorySortable.attach}>
+		<!-- Zebra open ledger (design language P5) on the desktop table; the
+		     mobile cards keep the bordered slab look. -->
+		<div role="rowgroup" class="grid gap-2 @3xl/main:gap-0" {@attach categorySortable.attach}>
 			<!-- The if narrows `month` for the row children; `categories` is empty when `month` is null. -->
 			{#if month !== null}
 				{#each categories as row (row.id)}
@@ -117,7 +119,7 @@
 						data-drag-item="category"
 						data-sortable-id={row.id}
 						role="row"
-						class="relative flex rounded-xs border border-muted/20 bg-surface hover:bg-muted/3"
+						class="relative flex hover:bg-muted/5 @max-3xl/main:rounded-xs @max-3xl/main:border @max-3xl/main:border-muted/20 @max-3xl/main:bg-surface @3xl/main:even:bg-muted/3"
 					>
 						<BudgetTableCell class="relative hidden w-2/5 p-0 @3xl/main:flex">
 							<CategoryPopover {currency} {month} {row} />

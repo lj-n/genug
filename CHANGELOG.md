@@ -12,6 +12,18 @@ and dependency bumps get no entry.
 
 ### Changed
 
+- The budget month table dropped its bordered row slabs for a quiet open
+  ledger: rows sit directly on the page with subtle zebra stripes and a
+  filled header bar, keeping the compact density. Mobile category cards
+  keep their bordered look.
+- The transaction register has a new look on the design language, visually
+  distinct from the budget table: a framed spreadsheet-like grid with row and
+  column hairlines, a quiet floating header and a flat pagination line.
+  Clicking a cell now switches the row into edit mode with the clicked
+  field focused and preselected, while every value stays exactly in place —
+  the inputs fill their cells. Open edit and create rows are tinted like a
+  form, marked with a light ring, use compact action buttons, and animate
+  open and closed.
 - All overlays — dialogs, confirmation dialogs, drawers, popovers, dropdown
   menus, selects and the command palette — now follow the design language:
   they share the brightest surface tone, a hairline edge plus one soft

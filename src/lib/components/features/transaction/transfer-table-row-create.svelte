@@ -13,8 +13,15 @@
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { getLocalTimeZone, parseDate, today } from '@internationalized/date';
 	import { Popover } from 'bits-ui';
+	import { slide } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
 
+	import {
+		cellClass,
+		editInputClass,
+		editRowClass,
+		editSelectClass
+	} from './transaction-table-cols';
 	import RowErrors from './transaction-table-row-errors.svelte';
 
 	let {
@@ -71,129 +78,137 @@
 	};
 
 	// The draft is scoped to one account (carried as the hidden accountId), so it
-	// is stale once the viewed account changes. Reset the fields when the form
-	// next mounts for a different account; reopening on the SAME account keeps the
-	// draft. This replaces the old reset-on-open, which was dead code (bits-ui
-	// never fires onOpenChangeComplete(true) for static popover content).
+	// is stale once the viewed account changes. Reopening on the SAME account
+	// keeps the draft. A factory keyed on the accountId, so the attachment
+	// re-runs both on mount and when the account changes while the form stays
+	// mounted (a reversed close/open transition never unmounts it).
 	let lastResetAccountId: string | undefined;
 
-	const resetOnAccountChange: Attachment<HTMLFormElement> = () => {
-		if (lastResetAccountId === accountId) return;
-		lastResetAccountId = accountId;
-		createTransfer.fields.set({
-			amount: 0,
-			counterpartAccountId: '',
-			date: today(getLocalTimeZone()).toString(),
-			notes: undefined
-		});
-	};
+	const resetOnAccountChange =
+		(forAccountId: string): Attachment<HTMLFormElement> =>
+		() => {
+			if (lastResetAccountId === forAccountId) return;
+			lastResetAccountId = forAccountId;
+			createTransfer.fields.set({
+				amount: 0,
+				counterpartAccountId: '',
+				date: today(getLocalTimeZone()).toString(),
+				notes: undefined
+			});
+		};
 </script>
 
 <Popover.Root bind:open>
 	<!-- Render the popover content ONTO the form via `child`: see
 	     transaction-table-row-create — no wrapper div between the rowgroup and
-	     form[role="row"], keeping the table's a11y tree valid. -->
+	     form[role="row"], keeping the table's a11y tree valid. forceMount +
+	     {#if open} hands presence to Svelte so the whole row can slide in/out. -->
 	<Popover.ContentStatic
+		forceMount
 		onInteractOutside={(e) => {
 			if (interactOutsideIgnore?.contains(e.target as Node)) e.preventDefault();
 		}}
 	>
 		{#snippet child({ props })}
-			<form
-				{...props}
-				class={cn(
-					className,
-					'grid rounded-sm border border-interactive/30 bg-surface shadow shadow-interactive/15'
-				)}
-				role="row"
-				aria-label={m.transactions_table_create_transfer()}
-				bind:this={formElement}
-				{...submit.attrs}
-				{@attach open && submitWithKeyboard}
-				{@attach submit.anchor}
-				{@attach resetOnAccountChange}
-			>
-				<input {...createTransfer.fields.accountId.as('hidden', accountId)} />
-				<input {...createTransfer.fields.budgetId.as('hidden', budgetId)} />
-
-				<div role="cell" class="grid items-center bg-interactive/5 p-2">
-					<SelectCategory
-						name={createTransfer.fields.counterpartAccountId.as('select').name}
-						bind:value={
-							() => createTransfer.fields.counterpartAccountId.value() ?? '',
-							(v) => createTransfer.fields.counterpartAccountId.set(v)
-						}
-						categories={counterpartAccounts}
-						ariaInvalid={createTransfer.fields.counterpartAccountId.issues()?.length
-							? true
-							: undefined}
-						ariaLabel={m.transfer_counterpart_account_label()}
-						ariaLabelTrigger={m.select_account_open()}
-						placeholder={m.select_account_placeholder()}
-						textNotFound={m.select_account_not_found()}
-					/>
-				</div>
-
-				<div role="cell" class="grid items-center bg-interactive/5 p-2">
-					<Input class="px-2" aria-label="Notes" {...createTransfer.fields.notes.as('text')} />
-				</div>
-
-				<div role="cell" class="grid items-center bg-interactive/5 p-2">
-					<DatePicker
-						name={createTransfer.fields.date.as('date').name}
-						bind:value={
-							() => {
-								const d = createTransfer.fields.date.value();
-								return d ? parseDate(d) : today(getLocalTimeZone());
-							},
-							(v) => createTransfer.fields.date.set(v.toString())
-						}
-						ariaInvalid={createTransfer.fields.date.issues()?.length ? true : undefined}
-						class="justify-end"
-						label={m.transaction_table_cell_date_select()}
-					/>
-				</div>
-
-				<div role="cell" class="grid items-center bg-interactive/5 p-2">
-					<InputMoney
-						name={createTransfer.fields.amount.as('number').name}
-						aria-label={m.transactions_table_header_amount()}
-						bind:value={
-							() => createTransfer.fields.amount.value(), (v) => createTransfer.fields.amount.set(v)
-						}
-						currency={budget.currency}
-						class="px-2 text-right font-currency font-medium"
-					/>
-				</div>
-
-				<!-- Empty (transfer legs start pending) but sized like the validate
-			     checkbox of the transaction create row, so both rows line up. -->
-				<div role="cell" class="grid min-h-14 place-content-center bg-interactive/5 p-2"></div>
-
-				<RowErrors issues={createTransfer.fields.allIssues()} />
-
-				<div
-					role="cell"
-					class="col-span-full flex items-center justify-between gap-2 bg-interactive/5 p-2"
+			{#if open}
+				<form
+					{...props}
+					transition:slide={{ duration: 150 }}
+					class={cn(className, 'grid', editRowClass)}
+					role="row"
+					aria-label={m.transactions_table_create_transfer()}
+					bind:this={formElement}
+					{...submit.attrs}
+					{@attach submitWithKeyboard}
+					{@attach submit.anchor}
+					{@attach resetOnAccountChange(accountId)}
 				>
-					<p class="px-1 text-sm text-muted">{m.transfer_amount_hint()}</p>
+					<input {...createTransfer.fields.accountId.as('hidden', accountId)} />
+					<input {...createTransfer.fields.budgetId.as('hidden', budgetId)} />
 
-					<div class="flex items-center gap-2">
-						<Button
-							type="button"
-							variant="ghost"
-							disabled={submit.pending}
-							onclick={() => (open = false)}
-						>
-							{m.cancel()}
-						</Button>
-
-						<Button type="submit" disabled={submit.pending}>
-							{m.save()}
-						</Button>
+					<div role="cell" class={cellClass}>
+						<SelectCategory
+							class={cn(editInputClass, editSelectClass)}
+							name={createTransfer.fields.counterpartAccountId.as('select').name}
+							bind:value={
+								() => createTransfer.fields.counterpartAccountId.value() ?? '',
+								(v) => createTransfer.fields.counterpartAccountId.set(v)
+							}
+							categories={counterpartAccounts}
+							ariaInvalid={createTransfer.fields.counterpartAccountId.issues()?.length
+								? true
+								: undefined}
+							ariaLabel={m.transfer_counterpart_account_label()}
+							ariaLabelTrigger={m.select_account_open()}
+							placeholder={m.select_account_placeholder()}
+							textNotFound={m.select_account_not_found()}
+						/>
 					</div>
-				</div>
-			</form>
+
+					<div role="cell" class={cellClass}>
+						<Input
+							class={cn(editInputClass, 'text-sm')}
+							aria-label="Notes"
+							{...createTransfer.fields.notes.as('text')}
+						/>
+					</div>
+
+					<div role="cell" class={cellClass}>
+						<DatePicker
+							name={createTransfer.fields.date.as('date').name}
+							bind:value={
+								() => {
+									const d = createTransfer.fields.date.value();
+									return d ? parseDate(d) : today(getLocalTimeZone());
+								},
+								(v) => createTransfer.fields.date.set(v.toString())
+							}
+							ariaInvalid={createTransfer.fields.date.issues()?.length ? true : undefined}
+							class={cn(editInputClass, 'justify-end')}
+							label={m.transaction_table_cell_date_select()}
+						/>
+					</div>
+
+					<div role="cell" class={cellClass}>
+						<InputMoney
+							name={createTransfer.fields.amount.as('number').name}
+							aria-label={m.transactions_table_header_amount()}
+							bind:value={
+								() => createTransfer.fields.amount.value(),
+								(v) => createTransfer.fields.amount.set(v)
+							}
+							currency={budget.currency}
+							class={cn(editInputClass, 'text-right font-currency')}
+						/>
+					</div>
+
+					<!-- Empty (transfer legs start pending) but keeps the validated
+					     column so both create rows line up. -->
+					<div role="cell" class={cellClass}></div>
+
+					<RowErrors issues={createTransfer.fields.allIssues()} />
+
+					<div role="cell" class="col-span-full flex items-center justify-between gap-1 p-1">
+						<p class="px-1 text-sm text-muted">{m.transfer_amount_hint()}</p>
+
+						<div class="flex items-center gap-1">
+							<Button
+								type="button"
+								size="xs"
+								variant="ghost"
+								disabled={submit.pending}
+								onclick={() => (open = false)}
+							>
+								{m.cancel()}
+							</Button>
+
+							<Button type="submit" size="xs" disabled={submit.pending}>
+								{m.save()}
+							</Button>
+						</div>
+					</div>
+				</form>
+			{/if}
 		{/snippet}
 	</Popover.ContentStatic>
 </Popover.Root>

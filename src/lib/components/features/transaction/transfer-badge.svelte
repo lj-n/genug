@@ -2,10 +2,12 @@
 	import type { ListTransaction } from '$lib/server/db/user-context/transaction';
 
 	import { m } from '$lib/paraglide/messages';
+	import { cn } from 'tailwind-variants';
 	import ArrowLeftDuotoneIcon from '~icons/ph/arrow-left-duotone';
 	import ArrowRightDuotoneIcon from '~icons/ph/arrow-right-duotone';
 
-	let { transaction }: { transaction: ListTransaction } = $props();
+	let { class: className, transaction }: { class?: string; transaction: ListTransaction } =
+		$props();
 
 	// Register-relative direction: the outflow leg points at the account the
 	// money goes to, the inflow leg at the account it came from (ADR-0015).
@@ -13,7 +15,10 @@
 </script>
 
 <span
-	class="inline-flex max-w-full min-w-0 items-center gap-1 rounded-sm bg-info/10 px-1.5 py-0.5 text-info"
+	class={cn(
+		'inline-flex max-w-full min-w-0 items-center gap-1 rounded-sm bg-info/10 px-1.5 py-0.5 text-info',
+		className
+	)}
 >
 	{#if outflow}
 		<ArrowRightDuotoneIcon class="size-3.5 shrink-0" aria-hidden="true" />

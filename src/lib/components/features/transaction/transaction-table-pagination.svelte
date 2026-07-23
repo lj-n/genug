@@ -51,9 +51,8 @@
 	</Button>
 {/if}
 
-<div
-	class="hidden flex-wrap items-center justify-between gap-3 rounded-lg bg-muted/5 p-1.5 @3xl/main:flex"
->
+<!-- Quiet flat footer line floating below the framed grid, no pill chrome. -->
+<div class="hidden flex-wrap items-center justify-between gap-3 p-1 @3xl/main:flex">
 	<div class="flex items-center gap-2">
 		<Select.Root
 			type="single"

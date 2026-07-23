@@ -5,7 +5,8 @@
 </script>
 
 {#if issues?.length}
-	<div role="cell" class="col-span-full bg-interactive/5 px-4 pb-2">
+	<!-- No own background: the open edit/create row is tinted uniformly. -->
+	<div role="cell" class="col-span-full px-2 py-1">
 		<p role="alert" class="text-sm text-error">
 			{issues.map((issue) => issue.message).join(' · ')}
 		</p>
