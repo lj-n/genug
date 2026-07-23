@@ -81,7 +81,7 @@
 </script>
 
 <ResponsiveModal.Root bind:open onOpenChangeComplete={(isOpen) => !isOpen && (transaction = null)}>
-	<ResponsiveModal.Content class="max-w-lg">
+	<ResponsiveModal.Content>
 		{#if transaction !== null && form !== null && deleteForm !== null}
 			<ResponsiveModal.Header>
 				<ResponsiveModal.Title class="text-xl font-semibold tracking-tighter italic">

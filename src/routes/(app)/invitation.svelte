@@ -36,7 +36,7 @@
 		{/snippet}
 	</Dialog.Trigger>
 
-	<Dialog.Content class="max-w-md" interactOutsideBehavior="ignore">
+	<Dialog.Content class="sm:max-w-md" interactOutsideBehavior="ignore">
 		<Dialog.Header>
 			<Dialog.Title>{m.invitation_dialog_title()}</Dialog.Title>
 		</Dialog.Header>

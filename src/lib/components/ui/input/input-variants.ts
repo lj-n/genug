@@ -15,13 +15,13 @@ export const inputVariants = tv({
 		},
 		variant: {
 			container: [
-				'flex items-center rounded-lg border border-muted/20 bg-surface',
+				'flex items-center rounded-lg border border-muted/20 bg-muted/5',
 				hoverOutline,
 				focusRingWithin,
 				invalidRingWithin
 			],
 			default: [
-				'rounded-lg border border-muted/20 bg-surface px-3 py-1',
+				'rounded-lg border border-muted/20 bg-muted/5 px-3 py-1',
 				hoverOutline,
 				invalidRing
 			],
