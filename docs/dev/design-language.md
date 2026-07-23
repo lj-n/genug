@@ -22,17 +22,29 @@ typography (type scale, fonts) is #261.
    tokens carry the look. Don't introduce visually different corner radii.
 4. **Compact data, tight chrome.** Table rows ≈ 36px (`px-2 py-1` cells,
    `size-7` drag handle). Page chrome gaps are 16px (`gap-4`), not 24px.
-5. **Rows are slabs, columns are alignment.** The category table has no
-   outer frame and no column separators: each row is its own slab
-   (`rounded-xs border border-muted/20 bg-surface`) in a `grid gap-2`.
-   Column structure is carried by alignment alone.
+5. **Rows are zebra stripes on an open ledger.** (Revised in the #259
+   table sessions — the original #255 "rows are slabs" lock is retired.)
+   The category table has no outer frame, no row borders and no slabs:
+   rows sit transparent on the page background with an `even:bg-muted/3`
+   stripe and `hover:bg-muted/5`; column structure is carried by alignment
+   alone. Mobile cards keep the bordered `bg-surface` slab look — the
+   zebra revision applies to the desktop table.
 6. **Headers are quiet chrome.** Column headers: `h-8 text-xs tracking-wider
-uppercase text-muted`, uniform — no loud bold header cells.
+uppercase text-muted`, uniform — no loud bold header cells. On the zebra
+   open ledger the header row carries the contrast bar (`bg-muted/3` +
+   `border-b border-muted/30`); the register's floating header stays bare
+   (amended in #259).
 7. **Hover is neutral and crisp; gold means keyboard.** Hover feedback =
    `outline-1 -outline-offset-1 outline-foreground/50` flush with the
    element edge (+ `bg-surface` fill on table cell triggers). The solid 2px
    gold focus ring (`ring-focus`) appears only on `:focus-visible` — gold
    exclusively means "keyboard focus is here". No accent-colored hover.
+8. **The two main views are immediately distinguishable.** The budget
+   month table and the transaction register are the app's two flagship
+   surfaces and must never share an identity: the month view is the
+   _zebra open ledger_ (P5), the register is the _framed spreadsheet
+   grid_ (see Table family below). Don't blur them by reusing one idiom
+   on the other.
 
 ## Interaction-layer rules (found the hard way)
 
@@ -116,6 +128,34 @@ decision trail in the (deleted) gallery's NOTES survives in the #258 PR.
   select rule above); destructive items are the exception: focus fill
   `bg-error/5` under `text-error` — the fill itself carries the warning
   (P1).
+
+## Table family (#259 table sessions)
+
+The two flagship tables were nailed live on real data (session log:
+`src/routes/(app)/[budgetId=id]/[month=month]/NOTES.md` on branch
+`restyle-tables-259`); they implement the two identities of P8:
+
+- **Budget month table — zebra open ledger.** No outer frame, no row
+  borders: transparent rows with `even:bg-muted/3` stripes (desktop only;
+  mobile cards stay slabs), `hover:bg-muted/5`, compact ~36px density,
+  header bar `bg-muted/3` + `border-b border-muted/30`.
+- **Transaction register — framed spreadsheet grid.** `rounded-xs border
+border-muted/20 bg-surface` frame wraps the data rows ONLY; the quiet
+  header floats above (`mb-1 h-8`, no fill) and pagination is a flat line
+  below. Every cell carries `border-b border-l border-muted/10` hairlines
+  (`first-of-type:` drops the frame-adjacent left one, the last row its
+  bottom one). Sort carets: active = foreground ink, inactive = muted.
+- **Click-to-edit is structural, not class discipline.** Read row and edit
+  form are ONE component per row type; the cell divs persist across modes,
+  so geometry is pixel-locked by construction. The shared class idioms
+  (cells, triggers, borderless edit inputs, `minmax(0,…)` tracks) live in
+  `src/lib/components/features/transaction/transaction-table-cols.ts`.
+- **Open form rows** (edit/create): uniform `bg-interactive/5` wash +
+  `ring-1 ring-interactive/40` over the whole row (gold stays
+  keyboard-only), `xs`/`icon-xs` action buttons in a `p-1 gap-1` bar,
+  150ms `transition:slide`.
+- **Amounts are `font-currency`** (medium tabular numerals) in every
+  table; labels, dates and empty markers stay in the normal sans.
 
 ## Reference implementation
 

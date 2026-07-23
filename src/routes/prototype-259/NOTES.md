@@ -49,3 +49,19 @@ Open questions for review:
   to this session. Until then the ui/table slab first pass stays as a
   placeholder.
 - The four open questions from round 1 stay pending until the table hand-back.
+
+### Round 2 (table hand-back applied)
+
+The `restyle-tables-259` sessions locked two distinct identities (P8):
+month view = compact zebra open ledger (revising the #255 slab lock),
+register = framed spreadsheet grid. Recorded in design-language.md
+(P5/P6/P8 + Table family section). Applied here:
+
+- `origin/restyle` (now including #258 overlays) merged into this branch.
+- **ui/table** redone from slabs → **zebra open ledger**: flush rows with
+  `even:bg-muted/3` stripe + `hover:bg-muted/5`, header `bg-muted/3` +
+  `border-b border-muted/30` bar, footer as the symmetric bookend bar
+  (`bg-muted/3` + `border-t border-muted/30` + `font-medium`). Verified in
+  both modes on the gallery. Rationale: slabs are retired; the framed grid
+  is the register's flagship identity with its click-to-edit machinery —
+  the quiet ledger is the natural generic default. Pending user verdict.
