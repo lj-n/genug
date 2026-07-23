@@ -38,4 +38,14 @@ Open questions for review:
 
 ## Feedback rounds
 
-(appended as they happen)
+### Round 1 (user)
+
+- **Approved as-is:** pagination (ink active page), empty-state, separator,
+  collapsible, toaster, version-label, source-link — everything except the
+  table.
+- **Table:** not settled here. The canonical table treatment will be nailed
+  in separate /prototype sessions on the two real tables (budget month-view
+  table and transaction register), each in its own session, then handed back
+  to this session. Until then the ui/table slab first pass stays as a
+  placeholder.
+- The four open questions from round 1 stay pending until the table hand-back.
