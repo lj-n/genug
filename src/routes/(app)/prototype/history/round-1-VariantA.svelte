@@ -1,8 +1,8 @@
 <script lang="ts">
 	/* eslint-disable svelte/no-navigation-without-resolve */
-	// PROTOTYPE (#260) — Round 2, Variant A "Rail · color marker": the quiet
-	// rail with the smallest possible dose of color — the 2px left marker is
-	// info-colored, the label stays foreground ink. Delete with the prototype.
+	// PROTOTYPE (#260) — Variant A "Quiet rail": the sidebar stays, stripped to
+	// ink and hairlines. No colored actives, no colored icons; active = left ink
+	// marker + medium weight. Delete with the prototype.
 	import type { Snippet } from 'svelte';
 
 	import { resolve } from '$app/paths';
@@ -36,7 +36,7 @@
 		cn(
 			'flex items-center gap-2 border-l-2 border-transparent px-3 py-1.5 text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground',
 			sub && 'pl-6',
-			isActive && 'border-info bg-muted/5 font-medium text-foreground'
+			isActive && 'border-foreground bg-muted/5 font-medium text-foreground'
 		);
 </script>
 

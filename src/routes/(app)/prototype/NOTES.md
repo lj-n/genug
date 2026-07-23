@@ -38,4 +38,15 @@ idiom informs the drawer restyle afterwards.
 
 ## Feedback log
 
-_(appended per round)_
+### Round 1 → 2
+
+- User picked **A (Quiet rail)** as the direction; B (top bar) and C (inline
+  header) are out. Round-1 files snapshotted in `history/`.
+- Feedback: "I need at least some color to highlight the current location" —
+  pure-ink active state is too quiet.
+- Round 2 = three takes on the rail differing only in the active treatment
+  (all `info`-colored; hue is swappable):
+  - **A — color marker**: 2px left `border-info` marker, label stays ink.
+  - **B — tinted pill**: rounded `bg-info/10 text-info` fill (today's idiom,
+    strongest dose).
+  - **C — text + dot**: `text-info` label + small leading dot, no fills.

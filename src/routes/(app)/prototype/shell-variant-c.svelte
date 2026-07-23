@@ -1,22 +1,20 @@
 <script lang="ts">
-	// PROTOTYPE (#260) — Variant C "Inline header": the extreme-quiet take.
-	// No persistent chrome surface at all — a single breadcrumb line inside a
-	// narrow document column (wordmark / budget ▾ / account ▾, ⋯ menu right).
-	// Delete with the prototype.
+	/* eslint-disable svelte/no-navigation-without-resolve */
+	// PROTOTYPE (#260) — Round 2, Variant C "Rail · text + dot": the quiet rail
+	// where color lives in the typography — active item turns info-colored with
+	// a small leading dot, no fills, no bars. Delete with the prototype.
 	import type { Snippet } from 'svelte';
 
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import favicon from '$lib/assets/favicon.svg';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+	import { Logo } from '$lib/components/ui/logo';
 	import { m } from '$lib/paraglide/messages';
 	import { getAccounts } from '$lib/remote-functions/account.remote';
 	import { signout } from '$lib/remote-functions/auth.remote';
 	import { getBudgets } from '$lib/remote-functions/budget.remote';
 	import { getUser } from '$lib/remote-functions/user.remote';
+	import { isCurrentPage } from '$lib/utils/is-current-page';
 	import { cn } from 'tailwind-variants';
-	import CaretDownIcon from '~icons/ph/caret-down';
-	import DotsThreeIcon from '~icons/ph/dots-three';
 	import GearSixIcon from '~icons/ph/gear-six';
 	import PlusIcon from '~icons/ph/plus';
 	import SignOutIcon from '~icons/ph/sign-out';
@@ -24,144 +22,92 @@
 
 	let { children, invitations }: { children: Snippet; invitations: Snippet } = $props();
 
+	type RailItemProps = {
+		href: string;
+		isActive?: boolean;
+		label: string;
+		sub?: boolean;
+	};
+
 	const budgets = $derived(await getBudgets());
 	const user = $derived(await getUser());
 
-	const currentBudget = $derived(budgets.find((b) => b.id === page.params.budgetId));
-	const accounts = $derived(currentBudget ? await getAccounts(currentBudget.id) : []);
-	const currentAccount = $derived(accounts.find((a) => a.id === page.params.accountId));
-
-	const crumbTrigger =
-		'flex items-center gap-1 rounded-md px-1.5 py-1 transition-colors hover:cursor-pointer hover:bg-muted/5 hover:text-foreground';
+	const railItem = (isActive: boolean, sub: boolean) =>
+		cn(
+			'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground',
+			sub && 'pl-6',
+			isActive && 'font-medium text-info hover:text-info'
+		);
 </script>
 
-<div class="mx-auto flex w-full max-w-5xl grow flex-col">
-	<header class="hidden h-12 items-center gap-1 px-4 text-sm md:px-8 @7xl/main:flex">
-		<a href={resolve('/')} class="flex items-center gap-1.5 rounded-md px-1.5 py-1">
-			<img src={favicon} alt="" class="size-4 [image-rendering:pixelated]" />
-			<span class="font-slab leading-none font-bold text-success">genug</span>
-		</a>
+{#snippet navitem({ href, isActive = false, label, sub = false }: RailItemProps)}
+	<a {href} class={railItem(isActive, sub)}>
+		<span
+			class={cn('size-1.5 shrink-0 rounded-full', isActive ? 'bg-info' : 'bg-transparent')}
+			aria-hidden="true"
+		></span>
+		{label}
+	</a>
+{/snippet}
 
-		<span class="text-muted/40" aria-hidden="true">/</span>
+<div class="mx-auto flex w-full max-w-9xl grow gap-2">
+	<nav class="sticky top-8 hidden w-full max-w-56 flex-col self-start p-4 @7xl/main:flex">
+		<Logo href={resolve('/')} class="text-2xl" />
 
-		<DropdownMenu.Root>
-			<DropdownMenu.Trigger
-				class={cn(crumbTrigger, currentBudget ? 'font-medium text-foreground' : 'text-muted')}
-			>
-				{currentBudget?.name ?? 'Budgets'}
-				<CaretDownIcon class="size-3 text-muted" aria-hidden="true" />
-			</DropdownMenu.Trigger>
+		{@render invitations?.()}
 
-			<DropdownMenu.Content align="start" class="min-w-48">
+		<div class="mt-8 flex flex-col gap-5">
+			<div class="flex flex-col">
+				<span class="px-3 pb-1 text-xs tracking-wider text-muted uppercase">Budgets</span>
+
 				{#each budgets as budget (budget.id)}
-					<DropdownMenu.Item>
-						{#snippet child({ props })}
-							<a
-								href={resolve('/(app)/[budgetId=id]', { budgetId: budget.id })}
-								{...props}
-								class={cn(props.class as string, budget.id === currentBudget?.id && 'font-medium')}
-							>
-								{budget.name}
-							</a>
-						{/snippet}
-					</DropdownMenu.Item>
-				{/each}
+					{@render navitem({
+						href: resolve('/(app)/[budgetId=id]', { budgetId: budget.id }),
+						isActive: isCurrentPage(page, budget.id),
+						label: budget.name
+					})}
 
-				<DropdownMenu.Separator />
-
-				<DropdownMenu.Item>
-					{#snippet child({ props })}
-						<a href={resolve('/(app)/new')} {...props}>
-							<PlusIcon />
-							{m.budget_create_button()}
-						</a>
-					{/snippet}
-				</DropdownMenu.Item>
-			</DropdownMenu.Content>
-		</DropdownMenu.Root>
-
-		{#if currentBudget && accounts.length > 0}
-			<span class="text-muted/40" aria-hidden="true">/</span>
-
-			<DropdownMenu.Root>
-				<DropdownMenu.Trigger
-					class={cn(crumbTrigger, currentAccount ? 'font-medium text-foreground' : 'text-muted')}
-				>
-					{currentAccount?.name ?? m.budget_account_list_accounts_label()}
-					<CaretDownIcon class="size-3 text-muted" aria-hidden="true" />
-				</DropdownMenu.Trigger>
-
-				<DropdownMenu.Content align="start" class="min-w-48">
-					{#each accounts as account (account.id)}
-						<DropdownMenu.Item>
-							{#snippet child({ props })}
-								<a
-									href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', {
-										accountId: account.id,
-										budgetId: currentBudget.id
-									})}
-									{...props}
-									class={cn(
-										props.class as string,
-										account.id === currentAccount?.id && 'font-medium'
-									)}
-								>
-									{account.name}
-								</a>
-							{/snippet}
-						</DropdownMenu.Item>
+					{#each await getAccounts(budget.id) as account (account.id)}
+						{@render navitem({
+							href: resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', {
+								accountId: account.id,
+								budgetId: budget.id
+							}),
+							isActive: isCurrentPage(page, account.id),
+							label: account.name,
+							sub: true
+						})}
 					{/each}
-				</DropdownMenu.Content>
-			</DropdownMenu.Root>
-		{/if}
-
-		<div class="ml-auto">
-			<DropdownMenu.Root>
-				<DropdownMenu.Trigger
-					class={cn(crumbTrigger, 'text-muted')}
-					aria-label={m.settings_title()}
-				>
-					<DotsThreeIcon class="size-5" />
-				</DropdownMenu.Trigger>
-
-				<DropdownMenu.Content align="end" class="min-w-48">
-					<DropdownMenu.Item>
-						{#snippet child({ props })}
-							<a href={resolve('/(app)/settings')} {...props}>
-								<GearSixIcon />
-								{m.settings_title()}
-							</a>
-						{/snippet}
-					</DropdownMenu.Item>
-
-					{#if user.isAdmin}
-						<DropdownMenu.Item>
-							{#snippet child({ props })}
-								<a href={resolve('/(app)/admin')} {...props}>
-									<WrenchIcon />
-									{m.admin_settings_title()}
-								</a>
-							{/snippet}
-						</DropdownMenu.Item>
-					{/if}
-
-					<DropdownMenu.Separator />
-
-					<form {...signout.for('proto-shell-c')} class="contents">
-						<DropdownMenu.Item closeOnSelect={false}>
-							{#snippet child({ props })}
-								<button type="submit" {...props} class={cn(props.class as string, 'w-full')}>
-									<SignOutIcon />
-									{m.sign_out_button({ username: user.username })}
-								</button>
-							{/snippet}
-						</DropdownMenu.Item>
-					</form>
-				</DropdownMenu.Content>
-			</DropdownMenu.Root>
+				{/each}
+			</div>
 		</div>
-	</header>
 
-	<div class="empty:hidden">{@render invitations?.()}</div>
-	{@render children()}
+		<div class="mt-8 flex flex-col border-t border-muted/20 pt-3">
+			<a href={resolve('/(app)/new')} class={railItem(isCurrentPage(page, 'new'), false)}>
+				<PlusIcon class="size-4" aria-hidden="true" />
+				{m.budget_create_button()}
+			</a>
+
+			<a href={resolve('/(app)/settings')} class={railItem(isCurrentPage(page, 'settings'), false)}>
+				<GearSixIcon class="size-4" aria-hidden="true" />
+				{m.settings_title()}
+			</a>
+
+			{#if user.isAdmin}
+				<a href={resolve('/(app)/admin')} class={railItem(isCurrentPage(page, 'admin'), false)}>
+					<WrenchIcon class="size-4" aria-hidden="true" />
+					{m.admin_settings_title()}
+				</a>
+			{/if}
+
+			<form {...signout.for('proto-shell-c')} class="contents">
+				<button type="submit" class={cn(railItem(false, false), 'hover:cursor-pointer')}>
+					<SignOutIcon class="size-4" aria-hidden="true" />
+					{m.sign_out_button({ username: user.username })}
+				</button>
+			</form>
+		</div>
+	</nav>
+
+	<div class="flex grow flex-col border-muted/20 @7xl/main:border-l">{@render children()}</div>
 </div>
