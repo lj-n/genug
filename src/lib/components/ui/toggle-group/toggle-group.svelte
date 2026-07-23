@@ -13,7 +13,7 @@
 	bind:value={value as never}
 	data-slot="toggle-group"
 	class={cn(
-		'inline-flex w-fit items-center gap-0.5 rounded-md border border-muted/20 bg-surface p-0.5',
+		'inline-flex w-fit items-center gap-0.5 rounded-md border border-muted/20 bg-muted/5 p-0.5',
 		className
 	)}
 	{...restProps}

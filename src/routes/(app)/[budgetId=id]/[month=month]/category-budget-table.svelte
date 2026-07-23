@@ -238,7 +238,7 @@
 {/if}
 
 <Dialog.Root bind:open={createDialogOpen}>
-	<Dialog.Content class="max-w-lg gap-6">
+	<Dialog.Content>
 		<Dialog.Header>
 			<Dialog.Title>{m.new_category_title()}</Dialog.Title>
 			<Dialog.Description class="grid gap-4">

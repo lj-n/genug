@@ -65,13 +65,57 @@ a live gallery:
 - **Buttons keep tinted variant fills at rest** (`bg-interactive/10` etc. —
   the tint reads as affordance meaning under P1); hover adds only the
   neutral outline, never a deeper tint. Ghost hovers `bg-muted/10`.
-- **Control chrome is flat**: `bg-surface` fill, `border-muted/20`, no
-  shadows (shadows stay overlay-only per P2).
+- **Control chrome is flat**: adaptive `bg-muted/5` fill (amended in #258 —
+  was `bg-surface`, which vanished on same-colored overlay surfaces; the
+  translucent tint keeps fields one step darker than any host),
+  `border-muted/20`, no shadows (shadows stay overlay-only per P2).
 - **Focus beats the error halo.** Invalid controls always show
   `border-error`; the soft `ring-3 ring-error/20` halo is suppressed while
   the control (or, for wrapper chrome, its inner form control) is
   focus-visible, so the gold ring stays unmistakable.
 - **Disabled is 50% opacity** everywhere; buttons also drop pointer events.
+
+## Overlay family (#258)
+
+Dialog, dialog-form, alert-dialog(-form), drawer, responsive-modal, popover
+(-form), dropdown-menu, select, command. Reviewed live in both modes;
+decision trail in the (deleted) gallery's NOTES survives in the #258 PR.
+
+- **One surface: `bg-surface-high`.** The top layer gets the top token —
+  every overlay panel (modals, drawer, menus, popover, select, command)
+  fills `bg-surface-high`. Calendar keeps its in-popover transparency.
+- **Chrome: hairline + one shadow.** Panels carry `ring-1 ring-foreground/10`
+  (the drawer its directional `border-muted/20` edge) plus `shadow-md` —
+  the single overlay shadow step (P2: shadows are overlay-only; the inline
+  command palette is in-page and therefore shadowless).
+- **Scrim is a veil, not a dimmer:** `bg-background/75` +
+  `supports-backdrop-filter:backdrop-blur-xs` on dialog/alert-dialog/drawer
+  overlays — the page washes out into the theme's own background token
+  (the token-veil idiom, not a black scrim).
+- **Motion lives in `src/lib/components/ui/overlay-motion/`** ("slingshot
+  light"): entries drop in from the anchor side with a slight backOut
+  overshoot (modals 12px/240ms, floating 8px/200ms), exits are quick fades
+  (130/100ms), scrim fades 200ms. All overlays use bits-ui's `forceMount` +
+  `child` snippet with `in:`/`out:` directives — the asymmetry is
+  load-bearing (spring curves look wrong reversed). Drawer motion belongs
+  to vaul, forced to 300ms via `!duration-300`, no overshoot.
+  `prefers-reduced-motion` collapses durations to 0; the check guards
+  `window.matchMedia` because jsdom lacks it entirely.
+- **Body seam breathing room.** `Dialog.Body`/`Drawer.Body` are the scroll
+  seam (ADR-0013) with `-m-1 p-1` so the overflow clip sits 4px outside the
+  content — edge-flush fields keep their focus ring and error halo. They
+  must not be `flex-1` (WebKit resolves flex-basis 0 to zero intrinsic
+  height and Safari collapses the body).
+- **Footers converge:** right-aligned button row from `sm` up, full-width
+  `flex-col-reverse` stack below (drawer + alert-dialog; plain dialog
+  footers are a wrapping right-aligned row).
+- **Dialog width is a component default** (`sm:max-w-lg`, mobile capped to
+  `calc(100% - 2rem)`); callers override only for intentional sizes
+  (`sm:max-w-md`, `sm:max-w-4xl`).
+- **Menu highlight stays neutral** (`bg-muted/10`-family fills, per the
+  select rule above); destructive items are the exception: focus fill
+  `bg-error/5` under `text-error` — the fill itself carries the warning
+  (P1).
 
 ## Reference implementation
 
@@ -87,9 +131,10 @@ tokens in `src/routes/layout.css`.
 - Other screens still use the old idiom (colored hover accents, tinted
   positive pills, mixed spacing); migrate them screen by screen against this
   document.
-- Overlay internals (e.g. the reassignment combobox's balance pills, tinted
-  `bg-success/20`) still show positive-state color; apply principle 1 when
-  those surfaces are touched.
+- Overlay _content_ on some screens (e.g. the reassignment combobox's
+  balance pills, tinted `bg-success/20`) still shows positive-state color;
+  apply principle 1 when those surfaces are touched (#258 restyled the
+  overlay chrome, not every screen's overlay content).
 - The `Page.Root`/`Page.Content` `gap-6` defaults still hold app-wide; the
   month view overrides to `gap-4` at the call site. Generalize when a second
   screen adopts the language.

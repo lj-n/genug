@@ -39,7 +39,7 @@
 		{/snippet}
 	</Dialog.Trigger>
 
-	<Dialog.Content class="max-w-lg gap-0" interactOutsideBehavior="ignore">
+	<Dialog.Content class="gap-0" interactOutsideBehavior="ignore">
 		<Dialog.Header>
 			<Dialog.Title>{m.budget_users_dialog_title()}</Dialog.Title>
 			<Dialog.Description class="grid gap-4">

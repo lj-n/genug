@@ -179,7 +179,7 @@
 </AlertDialogForm>
 
 <Dialog.Root bind:open={openDialog}>
-	<Dialog.Content class="max-w-lg">
+	<Dialog.Content>
 		<Dialog.Header>
 			<Dialog.Title>{m.admin_generated_password_title()}</Dialog.Title>
 			<Dialog.Description>{m.admin_generated_password_description()}</Dialog.Description>

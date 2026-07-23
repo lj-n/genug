@@ -67,7 +67,7 @@
 </script>
 
 <ResponsiveModal.Root bind:open>
-	<ResponsiveModal.Content class="max-w-lg">
+	<ResponsiveModal.Content>
 		<ResponsiveModal.Header>
 			<ResponsiveModal.Title class="text-xl font-semibold tracking-tighter italic">
 				{m.transactions_table_create_transaction()}

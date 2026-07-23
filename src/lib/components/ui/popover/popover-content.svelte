@@ -1,12 +1,12 @@
 <script lang="ts">
 	import type { ComponentProps } from 'svelte';
 
+	import { floatingIn, floatingOut } from '$lib/components/ui/overlay-motion';
 	import {
 		Popover as PopoverPrimitive,
 		type WithChildren,
 		type WithoutChildrenOrChild
 	} from 'bits-ui';
-	import { fly } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
 
 	import PopoverPortal from './popover-portal.svelte';
@@ -42,7 +42,8 @@
 							'z-50 flex w-72 origin-(--transform-origin) flex-col gap-4 rounded-md bg-surface-high p-4 text-sm shadow-md ring-1 ring-foreground/10 outline-hidden',
 							className
 						)}
-						transition:fly={{ duration: 150, x: 6 }}
+						in:floatingIn={{ side: props['data-side'] }}
+						out:floatingOut
 					>
 						{@render children?.()}
 					</div>

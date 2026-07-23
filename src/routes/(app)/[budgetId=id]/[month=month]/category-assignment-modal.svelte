@@ -55,7 +55,7 @@
 </script>
 
 <ResponsiveModal.Root bind:open onOpenChangeComplete={(isOpen) => !isOpen && (category = null)}>
-	<ResponsiveModal.Content class="max-w-lg">
+	<ResponsiveModal.Content>
 		{#if category !== null && form !== null}
 			<ResponsiveModal.Header>
 				<ResponsiveModal.Title class="text-xl font-semibold tracking-tighter italic">

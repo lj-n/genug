@@ -9,7 +9,6 @@
 		type EnhancedForm,
 		type FormSubmitTarget
 	} from '$lib/utils/form-submit.svelte';
-	import { cn } from 'tailwind-variants';
 
 	let {
 		contentClass = '',
@@ -67,7 +66,7 @@
 		{/snippet}
 	</Dialog.Trigger>
 
-	<Dialog.Content class={cn('max-w-lg gap-6', contentClass)} {interactOutsideBehavior}>
+	<Dialog.Content class={contentClass} {interactOutsideBehavior}>
 		<Dialog.Header>
 			{@render header()}
 		</Dialog.Header>

@@ -15,12 +15,16 @@
 <!--
 	The scrollable middle of the drawer. `min-h-0` lets it shrink below its
 	content inside the flex column so the drag handle and any header/footer stay
-	in view and only this region scrolls past the drawer's max height.
+	in view and only this region scrolls past the drawer's max height. Must not
+	be `flex-1`: WebKit resolves a flex-basis of 0 to zero intrinsic height
+	under the drawer's `h-auto`, collapsing the body entirely in Safari.
+	`-m-1 p-1` keeps the layout identical but moves the overflow clip edge 4px
+	out, so focus rings and error halos on edge-flush fields aren't cut off.
 -->
 <div
 	bind:this={ref}
 	data-slot="drawer-body"
-	class={cn('min-h-0 flex-1 overflow-y-auto', className)}
+	class={cn('-m-1 min-h-0 shrink overflow-y-auto p-1', className)}
 	{...restProps}
 >
 	{@render children?.()}

@@ -18,7 +18,7 @@
 	bind:ref
 	data-slot="checkbox"
 	class={cn(
-		'peer relative flex size-4 shrink-0 items-center justify-center rounded-xs border bg-surface outline-none group-has-disabled/field:opacity-50 after:absolute after:-inset-x-3 after:-inset-y-2 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-error data-[state=indeterminate]:border-foreground data-[state=indeterminate]:bg-foreground data-[state=indeterminate]:text-background data-checked:border-foreground data-checked:bg-foreground data-checked:text-background',
+		'peer relative flex size-4 shrink-0 items-center justify-center rounded-xs border bg-muted/5 outline-none group-has-disabled/field:opacity-50 after:absolute after:-inset-x-3 after:-inset-y-2 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-error data-[state=indeterminate]:border-foreground data-[state=indeterminate]:bg-foreground data-[state=indeterminate]:text-background data-checked:border-foreground data-checked:bg-foreground data-checked:text-background',
 		hoverOutline,
 		invalidRing,
 		className

@@ -38,7 +38,7 @@
 </Button>
 
 <Dialog.Root bind:open>
-	<Dialog.Content class="max-w-4xl">
+	<Dialog.Content class="sm:max-w-4xl">
 		<Dialog.Header>
 			<Dialog.Title>{m.account_settings_title()}</Dialog.Title>
 			<Dialog.Description>{m.account_set_name_description()}</Dialog.Description>
