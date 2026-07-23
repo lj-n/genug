@@ -15,7 +15,7 @@
 <caption
 	bind:this={ref}
 	data-slot="table-caption"
-	class={cn('mt-4 text-sm text-muted', className)}
+	class={cn('mt-2 text-sm text-muted', className)}
 	{...restProps}
 >
 	{@render children?.()}

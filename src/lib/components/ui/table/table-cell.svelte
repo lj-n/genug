@@ -15,7 +15,7 @@
 <td
 	bind:this={ref}
 	data-slot="table-cell"
-	class={cn('align-middle whitespace-nowrap', className)}
+	class={cn('px-2 py-1 align-middle whitespace-nowrap', className)}
 	{...restProps}
 >
 	{@render children?.()}
