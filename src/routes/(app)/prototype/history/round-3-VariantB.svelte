@@ -1,8 +1,9 @@
 <script lang="ts">
 	/* eslint-disable svelte/no-navigation-without-resolve */
-	// PROTOTYPE (#260) — Round 4, Variant A "C · no label": the round-3 C rail
-	// (dot + arrows) with the "Budgets" section label removed — group gaps and
-	// the arrow connectors carry the structure alone. Delete with the prototype.
+	// PROTOTYPE (#260) — Round 3, Variant B "Rail · tinted pill + slabs":
+	// each budget and its accounts sit together on a bordered bg-surface slab
+	// (the drawer idiom); active = tinted bg-info/10 pill; drag handles reveal
+	// on hover. Delete with the prototype.
 	import type { Snippet } from 'svelte';
 
 	import { resolve } from '$app/paths';
@@ -15,7 +16,6 @@
 	import { getUser } from '$lib/remote-functions/user.remote';
 	import { isCurrentPage } from '$lib/utils/is-current-page';
 	import { cn } from 'tailwind-variants';
-	import ArrowBendDownRightBoldIcon from '~icons/ph/arrow-bend-down-right-bold';
 	import DotsSixVerticalIcon from '~icons/ph/dots-six-vertical';
 	import GearSixIcon from '~icons/ph/gear-six';
 	import PlusIcon from '~icons/ph/plus';
@@ -37,8 +37,8 @@
 	const railRow = (isActive: boolean, sub: boolean) =>
 		cn(
 			'group flex items-center rounded-md text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground',
-			sub && 'ml-4',
-			isActive && 'font-medium text-info hover:text-info'
+			sub && 'ml-2',
+			isActive && 'bg-info/10 font-medium text-info hover:bg-info/10 hover:text-info'
 		);
 
 	const utilItem =
@@ -47,20 +47,7 @@
 
 {#snippet navitem({ href, isActive = false, label, sub = false }: RailItemProps)}
 	<div class={railRow(isActive, sub)}>
-		<a {href} class="flex min-w-0 grow items-center gap-2 px-3 py-1.5">
-			{#if sub}
-				<ArrowBendDownRightBoldIcon
-					class={cn('size-3 shrink-0', isActive ? 'text-info' : 'text-muted')}
-					aria-hidden="true"
-				/>
-			{:else}
-				<span
-					class={cn('size-1.5 shrink-0 rounded-full', isActive ? 'bg-info' : 'bg-transparent')}
-					aria-hidden="true"
-				></span>
-			{/if}
-			<span class="truncate">{label}</span>
-		</a>
+		<a {href} class="min-w-0 grow truncate px-3 py-1.5">{label}</a>
 
 		<!-- Visual-only in the prototype: shows where reorder lives. -->
 		<button
@@ -80,9 +67,11 @@
 
 		{@render invitations?.()}
 
-		<div class="mt-8 flex flex-col gap-3">
+		<div class="mt-8 flex flex-col gap-2">
+			<span class="px-3 text-xs tracking-wider text-muted uppercase">Budgets</span>
+
 			{#each budgets as budget (budget.id)}
-				<div class="flex flex-col">
+				<div class="flex flex-col gap-0.5 rounded-md border border-muted/20 bg-surface p-1">
 					{@render navitem({
 						href: resolve('/(app)/[budgetId=id]', { budgetId: budget.id }),
 						isActive: isCurrentPage(page, budget.id),
@@ -104,10 +93,10 @@
 			{/each}
 		</div>
 
-		<div class="mt-8 flex flex-col border-t border-muted/20 pt-3">
+		<div class="mt-8 flex flex-col gap-0.5 border-t border-muted/20 pt-3">
 			<a
 				href={resolve('/(app)/new')}
-				class={cn(utilItem, isCurrentPage(page, 'new') && 'font-medium text-info')}
+				class={cn(utilItem, isCurrentPage(page, 'new') && 'bg-info/10 font-medium text-info')}
 			>
 				<PlusIcon class="size-4" aria-hidden="true" />
 				{m.budget_create_button()}
@@ -115,7 +104,7 @@
 
 			<a
 				href={resolve('/(app)/settings')}
-				class={cn(utilItem, isCurrentPage(page, 'settings') && 'font-medium text-info')}
+				class={cn(utilItem, isCurrentPage(page, 'settings') && 'bg-info/10 font-medium text-info')}
 			>
 				<GearSixIcon class="size-4" aria-hidden="true" />
 				{m.settings_title()}
@@ -124,14 +113,14 @@
 			{#if user.isAdmin}
 				<a
 					href={resolve('/(app)/admin')}
-					class={cn(utilItem, isCurrentPage(page, 'admin') && 'font-medium text-info')}
+					class={cn(utilItem, isCurrentPage(page, 'admin') && 'bg-info/10 font-medium text-info')}
 				>
 					<WrenchIcon class="size-4" aria-hidden="true" />
 					{m.admin_settings_title()}
 				</a>
 			{/if}
 
-			<form {...signout.for('proto-shell-a')} class="contents">
+			<form {...signout.for('proto-shell-b')} class="contents">
 				<button type="submit" class={cn(utilItem, 'hover:cursor-pointer')}>
 					<SignOutIcon class="size-4" aria-hidden="true" />
 					{m.sign_out_button({ username: user.username })}

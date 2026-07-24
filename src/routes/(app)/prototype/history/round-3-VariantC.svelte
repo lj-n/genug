@@ -1,8 +1,9 @@
 <script lang="ts">
 	/* eslint-disable svelte/no-navigation-without-resolve */
-	// PROTOTYPE (#260) — Round 4, Variant A "C · no label": the round-3 C rail
-	// (dot + arrows) with the "Budgets" section label removed — group gaps and
-	// the arrow connectors carry the structure alone. Delete with the prototype.
+	// PROTOTYPE (#260) — Round 3, Variant C "Rail · text + dot + arrows":
+	// active = info text with a leading dot; accounts announce themselves with
+	// the bend-arrow connector (today's idiom); drag handles reveal on hover.
+	// Delete with the prototype.
 	import type { Snippet } from 'svelte';
 
 	import { resolve } from '$app/paths';
@@ -81,6 +82,8 @@
 		{@render invitations?.()}
 
 		<div class="mt-8 flex flex-col gap-3">
+			<span class="px-3 text-xs tracking-wider text-muted uppercase">Budgets</span>
+
 			{#each budgets as budget (budget.id)}
 				<div class="flex flex-col">
 					{@render navitem({
@@ -131,7 +134,7 @@
 				</a>
 			{/if}
 
-			<form {...signout.for('proto-shell-a')} class="contents">
+			<form {...signout.for('proto-shell-c')} class="contents">
 				<button type="submit" class={cn(utilItem, 'hover:cursor-pointer')}>
 					<SignOutIcon class="size-4" aria-hidden="true" />
 					{m.sign_out_button({ username: user.username })}

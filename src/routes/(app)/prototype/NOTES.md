@@ -65,3 +65,14 @@ idiom informs the drawer restyle afterwards.
   - **B**: budget + accounts share a bordered `bg-surface` slab (the mobile
     drawer idiom).
   - **C**: accounts lead with the bend-arrow connector (today's idiom).
+
+### Round 3 → 4
+
+- **C (dot + arrows) wins round 3** — grouping via bend-arrow connectors.
+  A (tree guide) and B (slabs) are out; round-3 files in `history/`.
+- Open question from the user: is the "Budgets" section label needed?
+- Round 4 = C in three label treatments; C itself unchanged as control:
+  - **A — no label**: label deleted, gaps + arrows carry structure alone.
+  - **B — no label, ink budgets**: label deleted, budget rows anchored at
+    rest in `text-foreground font-medium` (accounts stay muted).
+  - **C — with label**: round-3 C untouched.

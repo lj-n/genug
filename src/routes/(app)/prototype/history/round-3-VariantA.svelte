@@ -1,8 +1,9 @@
 <script lang="ts">
 	/* eslint-disable svelte/no-navigation-without-resolve */
-	// PROTOTYPE (#260) — Round 4, Variant A "C · no label": the round-3 C rail
-	// (dot + arrows) with the "Budgets" section label removed — group gaps and
-	// the arrow connectors carry the structure alone. Delete with the prototype.
+	// PROTOTYPE (#260) — Round 3, Variant A "Rail · color marker + tree guide":
+	// info left marker for the active item; accounts hang off a vertical
+	// hairline guide under their budget; drag handles reveal on hover.
+	// Delete with the prototype.
 	import type { Snippet } from 'svelte';
 
 	import { resolve } from '$app/paths';
@@ -15,7 +16,6 @@
 	import { getUser } from '$lib/remote-functions/user.remote';
 	import { isCurrentPage } from '$lib/utils/is-current-page';
 	import { cn } from 'tailwind-variants';
-	import ArrowBendDownRightBoldIcon from '~icons/ph/arrow-bend-down-right-bold';
 	import DotsSixVerticalIcon from '~icons/ph/dots-six-vertical';
 	import GearSixIcon from '~icons/ph/gear-six';
 	import PlusIcon from '~icons/ph/plus';
@@ -28,39 +28,24 @@
 		href: string;
 		isActive?: boolean;
 		label: string;
-		sub?: boolean;
 	};
 
 	const budgets = $derived(await getBudgets());
 	const user = $derived(await getUser());
 
-	const railRow = (isActive: boolean, sub: boolean) =>
+	const railRow = (isActive: boolean) =>
 		cn(
-			'group flex items-center rounded-md text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground',
-			sub && 'ml-4',
-			isActive && 'font-medium text-info hover:text-info'
+			'group flex items-center border-l-2 border-transparent text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground',
+			isActive && 'border-info bg-muted/5 font-medium text-foreground'
 		);
 
 	const utilItem =
-		'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground';
+		'flex items-center gap-2 border-l-2 border-transparent px-3 py-1.5 text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground';
 </script>
 
-{#snippet navitem({ href, isActive = false, label, sub = false }: RailItemProps)}
-	<div class={railRow(isActive, sub)}>
-		<a {href} class="flex min-w-0 grow items-center gap-2 px-3 py-1.5">
-			{#if sub}
-				<ArrowBendDownRightBoldIcon
-					class={cn('size-3 shrink-0', isActive ? 'text-info' : 'text-muted')}
-					aria-hidden="true"
-				/>
-			{:else}
-				<span
-					class={cn('size-1.5 shrink-0 rounded-full', isActive ? 'bg-info' : 'bg-transparent')}
-					aria-hidden="true"
-				></span>
-			{/if}
-			<span class="truncate">{label}</span>
-		</a>
+{#snippet navitem({ href, isActive = false, label }: RailItemProps)}
+	<div class={railRow(isActive)}>
+		<a {href} class="min-w-0 grow truncate px-3 py-1.5">{label}</a>
 
 		<!-- Visual-only in the prototype: shows where reorder lives. -->
 		<button
@@ -81,6 +66,8 @@
 		{@render invitations?.()}
 
 		<div class="mt-8 flex flex-col gap-3">
+			<span class="px-3 text-xs tracking-wider text-muted uppercase">Budgets</span>
+
 			{#each budgets as budget (budget.id)}
 				<div class="flex flex-col">
 					{@render navitem({
@@ -89,17 +76,18 @@
 						label: budget.name
 					})}
 
-					{#each await getAccounts(budget.id) as account (account.id)}
-						{@render navitem({
-							href: resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', {
-								accountId: account.id,
-								budgetId: budget.id
-							}),
-							isActive: isCurrentPage(page, account.id),
-							label: account.name,
-							sub: true
-						})}
-					{/each}
+					<div class="ml-3 flex flex-col border-l border-muted/20">
+						{#each await getAccounts(budget.id) as account (account.id)}
+							{@render navitem({
+								href: resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', {
+									accountId: account.id,
+									budgetId: budget.id
+								}),
+								isActive: isCurrentPage(page, account.id),
+								label: account.name
+							})}
+						{/each}
+					</div>
 				</div>
 			{/each}
 		</div>
@@ -107,7 +95,10 @@
 		<div class="mt-8 flex flex-col border-t border-muted/20 pt-3">
 			<a
 				href={resolve('/(app)/new')}
-				class={cn(utilItem, isCurrentPage(page, 'new') && 'font-medium text-info')}
+				class={cn(
+					utilItem,
+					isCurrentPage(page, 'new') && 'border-info bg-muted/5 font-medium text-foreground'
+				)}
 			>
 				<PlusIcon class="size-4" aria-hidden="true" />
 				{m.budget_create_button()}
@@ -115,7 +106,10 @@
 
 			<a
 				href={resolve('/(app)/settings')}
-				class={cn(utilItem, isCurrentPage(page, 'settings') && 'font-medium text-info')}
+				class={cn(
+					utilItem,
+					isCurrentPage(page, 'settings') && 'border-info bg-muted/5 font-medium text-foreground'
+				)}
 			>
 				<GearSixIcon class="size-4" aria-hidden="true" />
 				{m.settings_title()}
@@ -124,7 +118,10 @@
 			{#if user.isAdmin}
 				<a
 					href={resolve('/(app)/admin')}
-					class={cn(utilItem, isCurrentPage(page, 'admin') && 'font-medium text-info')}
+					class={cn(
+						utilItem,
+						isCurrentPage(page, 'admin') && 'border-info bg-muted/5 font-medium text-foreground'
+					)}
 				>
 					<WrenchIcon class="size-4" aria-hidden="true" />
 					{m.admin_settings_title()}
