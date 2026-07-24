@@ -12,6 +12,6 @@
 	}: WithElementRef<HTMLAttributes<HTMLHeadElement>> = $props();
 </script>
 
-<header bind:this={ref} class={cn('flex flex-col gap-6', className)} {...restProps}>
+<header bind:this={ref} class={cn('flex flex-col gap-4', className)} {...restProps}>
 	{@render children?.()}
 </header>
