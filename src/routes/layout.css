@@ -1,8 +1,9 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
-@import '@fontsource-variable/inter';
-@import '@fontsource/zilla-slab/700.css';
-@import '@fontsource/instrument-serif';
+@import '@fontsource-variable/ibm-plex-sans';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+@import '@fontsource-variable/lora';
 @plugin 'tailwindcss-animate';
 
 @theme {
@@ -25,9 +26,12 @@
 	--color-interactive: #442c73;
 	--color-success: #3d823d;
 	--color-focus: #d75f00;
-	--font-sans: 'Inter Variable', sans-serif;
-	--font-slab: 'Zilla Slab', serif;
-	--font-serif: 'Instrument Serif', serif;
+	/* Typography roles (#261): Plex Sans carries all UI text, Plex Mono all
+	   money (via `font-currency`), Lora is the single display voice — page
+	   titles, section titles, table headers, brand block. */
+	--font-sans: 'IBM Plex Sans Variable', sans-serif;
+	--font-display: 'Lora Variable', serif;
+	--font-mono: 'IBM Plex Mono', monospace;
 
 	--container-8xl: 88rem; /* 1408px */
 	--container-9xl: 96rem; /* 1536px */
@@ -199,8 +203,11 @@
 	}
 }
 
+/* Money role (#261): Plex Mono, regular weight (the mono texture already
+   carries emphasis), em-based size so amounts scale with their context.
+   Emphasized figures (chips) add `font-medium` on top. */
 @utility font-currency {
-	@apply font-medium tabular-nums;
+	@apply font-mono text-[0.9375em] font-normal tabular-nums;
 }
 
 @layer base {
@@ -210,6 +217,13 @@
 	html {
 		@apply font-sans;
 		scrollbar-gutter: stable;
+	}
+	/* Headings speak in the display face (#261); weight/size stay per-site
+	   utilities (page title 700/text-3xl, section titles 600). */
+	h1,
+	h2,
+	h3 {
+		@apply font-display;
 	}
 	body {
 		@apply flex min-h-screen flex-col bg-background text-foreground;

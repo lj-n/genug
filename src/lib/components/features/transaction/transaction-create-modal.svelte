@@ -69,7 +69,7 @@
 <ResponsiveModal.Root bind:open>
 	<ResponsiveModal.Content>
 		<ResponsiveModal.Header>
-			<ResponsiveModal.Title class="text-xl font-semibold tracking-tighter italic">
+			<ResponsiveModal.Title class="text-xl font-semibold italic">
 				{m.transactions_table_create_transaction()}
 			</ResponsiveModal.Title>
 		</ResponsiveModal.Header>
@@ -136,7 +136,7 @@
 							(v) => createTransaction.fields.amount.set(v)
 						}
 						currency={budget.currency}
-						class="text-right font-currency font-medium"
+						class="text-right font-currency"
 					/>
 				</div>
 

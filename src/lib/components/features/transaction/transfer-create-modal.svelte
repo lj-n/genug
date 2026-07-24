@@ -69,7 +69,7 @@
 <ResponsiveModal.Root bind:open>
 	<ResponsiveModal.Content>
 		<ResponsiveModal.Header>
-			<ResponsiveModal.Title class="text-xl font-semibold tracking-tighter italic">
+			<ResponsiveModal.Title class="text-xl font-semibold italic">
 				{m.transactions_table_create_transfer()}
 			</ResponsiveModal.Title>
 		</ResponsiveModal.Header>
@@ -138,7 +138,7 @@
 							() => createTransfer.fields.amount.value(), (v) => createTransfer.fields.amount.set(v)
 						}
 						currency={budget.currency}
-						class="text-right font-currency font-medium"
+						class="text-right font-currency"
 					/>
 					<p class="text-sm text-muted">{m.transfer_amount_hint()}</p>
 				</div>

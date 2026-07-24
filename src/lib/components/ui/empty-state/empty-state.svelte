@@ -26,7 +26,7 @@
 	)}
 >
 	<Icon class="size-8 text-muted" aria-hidden="true" />
-	<p class="mt-2 font-semibold">{title}</p>
+	<p class="mt-2 font-display font-semibold">{title}</p>
 	{#if description}
 		<p class="max-w-md text-sm text-muted">{description}</p>
 	{/if}

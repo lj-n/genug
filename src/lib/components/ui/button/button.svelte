@@ -9,7 +9,7 @@
 
 	export const variants = tv({
 		base: [
-			"hover:cursor-pointer aria-invalid:border-error rounded-md border border-transparent bg-clip-padding active:not-aria-[haspopup]:translate-y-px [&_svg:not([class*='size-'])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+			"hover:cursor-pointer aria-invalid:border-error rounded-md border border-transparent bg-clip-padding active:not-aria-[haspopup]:translate-y-px [&_svg:not([class*='size-'])]:size-4 group/button inline-flex shrink-0 items-center justify-center text-sm font-medium whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
 			invalidRing
 		],
 		defaultVariants: {

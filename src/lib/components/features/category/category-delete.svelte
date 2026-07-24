@@ -47,7 +47,7 @@
 				<div>
 					<ParaglideMessage message={m.category_not_deletable_balance} inputs={{}}>
 						{#snippet sum()}
-							<span class="font-semibold tabular-nums">
+							<span class="font-currency font-medium">
 								{formatMoney({
 									currency,
 									money: asMoney(deletability.remainingBalance)
@@ -56,7 +56,7 @@
 						{/snippet}
 
 						{#snippet required()}
-							<span class="font-semibold tabular-nums">
+							<span class="font-currency font-medium">
 								{formatMoney({ currency, money: asMoney(0) })}
 							</span>
 						{/snippet}

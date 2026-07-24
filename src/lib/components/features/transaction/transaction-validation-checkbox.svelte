@@ -17,7 +17,7 @@
 
 <Label
 	class={buttonVariants({
-		class: `relative cursor-pointer rounded-xs hover:bg-transparent ${focusRingWithin} ${labelClass ?? ''}`,
+		class: `relative cursor-pointer rounded-xs pl-0 hover:bg-transparent ${focusRingWithin} ${labelClass ?? ''}`,
 		size: 'icon-lg',
 		variant: 'ghost'
 	})}

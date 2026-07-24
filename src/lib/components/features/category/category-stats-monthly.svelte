@@ -56,7 +56,7 @@
 
 <div class="grid grid-cols-2 gap-2">
 	<div class="rounded-md border border-info/20 bg-info/10 p-2 text-center">
-		<div class="text-xl font-bold tabular-nums">
+		<div class="font-currency text-xl">
 			{stats.trailingAverageSpend === null
 				? '—'
 				: formatMoney({ currency, money: asMoney(stats.trailingAverageSpend) })}
@@ -65,7 +65,7 @@
 	</div>
 
 	<div class="rounded-md border border-info/20 bg-info/10 p-2 text-center">
-		<div class="text-xl font-bold tabular-nums">
+		<div class="font-currency text-xl">
 			{stats.spendDelta > 0 ? '+' : ''}{formatMoney({
 				currency,
 				money: asMoney(stats.spendDelta)
@@ -79,7 +79,7 @@
 				})
 			})}
 		</div>
-		<div class="text-xs text-foreground/60 tabular-nums">
+		<div class="font-currency text-xs text-foreground/60">
 			{m.category_stats_delta_breakdown({
 				currentSpend: formatMoney({ currency, money: asMoney(stats.monthSpend) }),
 				previousSpend: formatMoney({ currency, money: asMoney(stats.previousMonthSpend) })
@@ -92,7 +92,7 @@
 		<div class="relative col-span-2 rounded-md border border-success/40 p-2 text-center">
 			<div class="absolute inset-0 bg-success/20" style="width: {clamped}%"></div>
 
-			<div class="text-xl font-bold tabular-nums">
+			<div class="font-currency text-xl">
 				{stats.currentTargetPercentage}%
 			</div>
 			<div class="text-sm">{m.category_stats_target_percentage()}</div>

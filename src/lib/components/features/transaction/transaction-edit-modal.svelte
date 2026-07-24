@@ -83,7 +83,7 @@
 	<ResponsiveModal.Content>
 		{#if transaction !== null && form !== null && deleteForm !== null}
 			<ResponsiveModal.Header>
-				<ResponsiveModal.Title class="text-xl font-semibold tracking-tighter italic">
+				<ResponsiveModal.Title class="text-xl font-semibold italic">
 					{m.transaction_edit_title()}
 				</ResponsiveModal.Title>
 			</ResponsiveModal.Header>
@@ -143,7 +143,7 @@
 							aria-label={m.transactions_table_header_amount()}
 							bind:value={() => form!.fields.amount.value(), (v) => form!.fields.amount.set(v)}
 							{currency}
-							class="text-right font-currency font-medium"
+							class="text-right font-currency"
 						/>
 					</div>
 

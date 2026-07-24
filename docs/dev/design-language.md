@@ -4,7 +4,8 @@ Locked detail-by-detail on the budget month view with live user feedback
 (#255). Later restyle sessions apply these rules instead of re-litigating
 taste. The default palette was locked in #256 (hand-tuned from One Light /
 Kanagawa Dragon starting points, token values in `src/routes/layout.css`);
-typography (type scale, fonts) is #261.
+typography (fonts, roles, hierarchy) was locked in #261 (see Typography
+below).
 
 ## Principles
 
@@ -30,7 +31,9 @@ typography (type scale, fonts) is #261.
    alone. Mobile cards keep the bordered `bg-surface` slab look — the
    zebra revision applies to the desktop table.
 6. **Headers are quiet chrome.** Column headers: `h-8 text-xs tracking-wider
-uppercase text-muted`, uniform — no loud bold header cells. On the zebra
+uppercase text-muted`, uniform — no loud bold header cells (amended in
+   #261: plus `font-display font-medium` — Lora caps need 500 to hold
+   their own at 12px). On the zebra
    open ledger the header row carries the contrast bar (`bg-muted/3` +
    `border-b border-muted/30`); the register's floating header stays bare
    (amended in #259).
@@ -154,8 +157,9 @@ border-muted/20 bg-surface` frame wraps the data rows ONLY; the quiet
   `ring-1 ring-interactive/40` over the whole row (gold stays
   keyboard-only), `xs`/`icon-xs` action buttons in a `p-1 gap-1` bar,
   150ms `transition:slide`.
-- **Amounts are `font-currency`** (medium tabular numerals) in every
-  table; labels, dates and empty markers stay in the normal sans.
+- **Amounts are `font-currency`** in every table (amended in #261:
+  regular-weight IBM Plex Mono tabular numerals at `0.9375em`); labels,
+  dates and empty markers stay in the normal sans.
 
 ## Data-display & feedback family (#259)
 
@@ -219,6 +223,46 @@ focus-visible:opacity-100` — reorder stays discoverable without
 - **Page chrome gaps are 16px by default now**: `Page.Root` and
   `Page.Header` ship `gap-4`, `Page.Content` its grid's `gap-y-4` (P4
   generalized); the month view's call-site overrides are gone.
+
+## Typography (#261)
+
+Locked in a live session on the real app: first the families on a per-role
+mixing board (10 roles × ~30 candidate fonts), then the hierarchy
+detail-by-detail as lettered options; reviewed in both modes. Three
+families, loaded via Fontsource in `layout.css`:
+
+- **IBM Plex Sans** (`--font-sans`, variable) — every piece of UI text:
+  body, navigation, buttons, labels, hints, toasts.
+- **IBM Plex Mono** (`--font-mono`, 400 + 500) — money and only money,
+  applied via the `font-currency` utility.
+- **Lora** (`--font-display`, variable) — the single display voice:
+  wordmark, page titles, section titles, table column headers, brand
+  small print. Inter, Zilla Slab and Instrument Serif are retired.
+
+Hierarchy rules:
+
+- **Page title**: `text-3xl font-bold` at natural letter spacing — no
+  `tracking-tighter` on the serif (Inter's tight tracking crushes it).
+  `h1`–`h3` get `font-display` from the base layer in `layout.css`;
+  weight and size stay per-site utilities.
+- **Section titles** (dialog/drawer/alert titles, empty-state titles,
+  `h2`/`h3`): `font-display font-semibold` — 600 has authority without
+  competing with the 700 page title.
+- **Table column headers**: the P6 quiet chrome plus `font-display
+font-medium` (see the amended P6).
+- **Form labels — one spec**: `pl-1.5 text-sm font-semibold
+tracking-tight`, shared by `ui/label` and `ui/form-field` (the old
+  `font-medium tracking-tighter` variant and the missing left padding are
+  gone).
+- **Buttons**: `text-sm font-medium` in the `buttonVariants` base. Table
+  cell triggers are bare buttons and inherit their surrounding data text —
+  never give data cells button chrome typography. `xs` keeps `text-xs`;
+  the month button keeps `text-base font-bold`.
+- **Money**: `font-currency` = `font-mono text-[0.9375em] font-normal
+tabular-nums` — em-based so amounts scale with their context, regular
+  weight because the mono texture already carries emphasis. Emphasized
+  figures (the Unallocated chip, archive/delete summaries) add
+  `font-medium`; never semibold or bold on amounts.
 
 ## Reference implementation
 
