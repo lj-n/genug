@@ -64,7 +64,7 @@
 {#snippet row(term: string, amount: string)}
 	<div class="flex items-baseline justify-between gap-6">
 		<dt>{term}</dt>
-		<dd class="font-currency tabular-nums">{amount}</dd>
+		<dd class="font-currency">{amount}</dd>
 	</div>
 {/snippet}
 
@@ -88,7 +88,7 @@
 		</span>
 
 		{#if unassigned !== 0}
-			<div class="font-semibold text-foreground tabular-nums">
+			<div class="font-currency font-medium text-foreground">
 				{formatMoney({ currency, money: asMoney(unassigned) })}
 			</div>
 		{/if}
@@ -138,7 +138,7 @@
 							})}</a
 						>)
 					</dt>
-					<dd class="font-currency tabular-nums">{signedMoney(-breakdown.reserved)}</dd>
+					<dd class="font-currency">{signedMoney(-breakdown.reserved)}</dd>
 				</div>
 			{/if}
 
@@ -146,7 +146,7 @@
 				class="flex items-baseline justify-between gap-6 border-t border-foreground/10 pt-1 font-semibold"
 			>
 				<dt>{m.unassigned_breakdown_total()}</dt>
-				<dd class="font-currency tabular-nums">
+				<dd class="font-currency">
 					{formatMoney({ currency, money: asMoney(unassigned) })}
 				</dd>
 			</div>

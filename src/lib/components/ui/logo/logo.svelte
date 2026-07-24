@@ -21,18 +21,18 @@
 			<!-- eslint-disable svelte/no-navigation-without-resolve -- href is passed pre-resolved by callers -->
 			<a
 				{href}
-				class="font-slab leading-none font-bold text-success underline-offset-4 hover:underline"
+				class="font-display leading-none font-bold text-success underline-offset-4 hover:underline"
 			>
 				genug
 			</a>
 			<!-- eslint-enable svelte/no-navigation-without-resolve -->
 			<span class="flex items-center gap-1">
-				<VersionLabel class="font-serif font-semibold" />
+				<VersionLabel class="font-display font-semibold" />
 				<span class="text-xs text-muted" aria-hidden="true">·</span>
-				<SourceLink class="font-serif font-semibold" />
+				<SourceLink class="font-display font-semibold" />
 			</span>
 		</span>
 	{:else}
-		<span class="font-slab leading-none font-bold text-success">genug</span>
+		<span class="font-display leading-none font-bold text-success">genug</span>
 	{/if}
 </span>

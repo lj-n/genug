@@ -52,7 +52,7 @@
 				<div>
 					<ParaglideMessage message={m.account_not_archivable_balance} inputs={{}}>
 						{#snippet sum()}
-							<span class="font-semibold tabular-nums">
+							<span class="font-currency font-medium">
 								{formatMoney({
 									currency,
 									money: asMoney(archivability.balance)
@@ -61,7 +61,7 @@
 						{/snippet}
 
 						{#snippet required()}
-							<span class="font-semibold tabular-nums">
+							<span class="font-currency font-medium">
 								{formatMoney({ currency, money: asMoney(0) })}
 							</span>
 						{/snippet}

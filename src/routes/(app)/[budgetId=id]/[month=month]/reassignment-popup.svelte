@@ -136,7 +136,7 @@
 			aria-label={m.reassignment_amount()}
 			bind:value={() => form.fields.amount.value(), (v) => form.fields.amount.set(v)}
 			currency={budget.currency}
-			class="px-2 text-right font-currency font-medium"
+			class="px-2 text-right font-currency"
 			selectOnFocus
 		/>
 
@@ -164,7 +164,7 @@
 		<div>{item.label}</div>
 		<div
 			class={cn(
-				'rounded-sm p-0.5 px-2 text-xs font-currency text-foreground',
+				'rounded-sm p-0.5 px-2 font-currency text-xs text-foreground',
 				item.balance > 0 && 'bg-success/20',
 				item.balance < 0 && 'bg-error/20 text-error'
 			)}

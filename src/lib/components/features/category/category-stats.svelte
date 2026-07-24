@@ -36,14 +36,14 @@
 
 	<div class="grid grid-cols-2 gap-2">
 		<div class="rounded-md border border-info/20 bg-info/10 p-2 text-center">
-			<div class="text-xl font-bold tabular-nums">
+			<div class="font-currency text-xl">
 				{formatMoney({ currency, money: asMoney(stats.totalRelatedTransactionSum) })}
 			</div>
 			<div class="text-sm">{m.category_stats_spent()}</div>
 		</div>
 
 		<div class="rounded-md border border-info/20 bg-info/10 p-2 text-center">
-			<div class="text-xl font-bold tabular-nums">{stats.totalRelatedTransactionCount}</div>
+			<div class="font-currency text-xl">{stats.totalRelatedTransactionCount}</div>
 			<div class="text-sm">{m.category_stats_transaction_count()}</div>
 		</div>
 

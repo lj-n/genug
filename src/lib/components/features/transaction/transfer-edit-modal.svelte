@@ -146,7 +146,7 @@
 							aria-label={m.transactions_table_header_amount()}
 							bind:value={() => form!.fields.amount.value(), (v) => form!.fields.amount.set(v)}
 							{currency}
-							class="text-right font-currency font-medium"
+							class="text-right font-currency"
 						/>
 						<p class="text-sm text-muted">{m.transfer_amount_hint()}</p>
 					</div>

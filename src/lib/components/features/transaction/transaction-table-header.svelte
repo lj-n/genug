@@ -39,7 +39,7 @@
 		<div
 			role="columnheader"
 			aria-sort={ariaSort('category')}
-			class="flex items-center gap-1 px-2 text-xs tracking-wider text-muted uppercase"
+			class="flex items-center gap-1 px-2 font-display text-xs font-medium tracking-wider text-muted uppercase"
 		>
 			{m.transactions_table_header_category()}
 			<button
@@ -49,13 +49,16 @@
 				{@render sortIcon('category')}
 			</button>
 		</div>
-		<div role="columnheader" class="px-2 text-xs tracking-wider text-muted uppercase">
+		<div
+			role="columnheader"
+			class="px-2 font-display text-xs font-medium tracking-wider text-muted uppercase"
+		>
 			{m.transactions_table_header_notes()}
 		</div>
 		<div
 			role="columnheader"
 			aria-sort={ariaSort('date')}
-			class="flex items-center justify-end gap-1 px-2 text-xs tracking-wider text-muted uppercase"
+			class="flex items-center justify-end gap-1 px-2 font-display text-xs font-medium tracking-wider text-muted uppercase"
 		>
 			<button onclick={() => onToggle('date')} aria-label={m.transactions_table_sort_date()}>
 				{@render sortIcon('date')}
@@ -65,7 +68,7 @@
 		<div
 			role="columnheader"
 			aria-sort={ariaSort('amount')}
-			class="flex items-center justify-end gap-1 px-2 text-xs tracking-wider text-muted uppercase"
+			class="flex items-center justify-end gap-1 px-2 font-display text-xs font-medium tracking-wider text-muted uppercase"
 		>
 			<button onclick={() => onToggle('amount')} aria-label={m.transactions_table_sort_amount()}>
 				{@render sortIcon('amount')}
@@ -75,7 +78,7 @@
 		<div
 			role="columnheader"
 			aria-sort={ariaSort('validated')}
-			class="flex items-center justify-end gap-1 px-2 text-xs tracking-wider text-muted uppercase"
+			class="flex items-center justify-end gap-1 px-2 font-display text-xs font-medium tracking-wider text-muted uppercase"
 		>
 			<button
 				onclick={() => onToggle('validated')}

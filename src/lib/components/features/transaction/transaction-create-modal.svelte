@@ -136,7 +136,7 @@
 							(v) => createTransaction.fields.amount.set(v)
 						}
 						currency={budget.currency}
-						class="text-right font-currency font-medium"
+						class="text-right font-currency"
 					/>
 				</div>
 

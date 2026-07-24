@@ -138,7 +138,7 @@
 							() => createTransfer.fields.amount.value(), (v) => createTransfer.fields.amount.set(v)
 						}
 						currency={budget.currency}
-						class="text-right font-currency font-medium"
+						class="text-right font-currency"
 					/>
 					<p class="text-sm text-muted">{m.transfer_amount_hint()}</p>
 				</div>
