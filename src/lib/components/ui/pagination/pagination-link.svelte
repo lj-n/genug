@@ -28,10 +28,10 @@
 	data-active={isActive}
 	data-size={size}
 	class={cn(
-		buttonVariants({ size, variant: 'ghost' }),
-		// Selection is ink (design language): the current page fills
-		// bg-foreground; the ghost hover fill must not wash it out.
-		'cn-pagination-link data-[active=true]:bg-foreground data-[active=true]:text-background data-[active=true]:hover:bg-foreground data-[active=true]:hover:text-background',
+		// The current page wears the interactive tint (amends the #259
+		// selection-is-ink lock for pagination); other pages stay ghosts.
+		buttonVariants({ size, variant: isActive ? 'default' : 'ghost' }),
+		'cn-pagination-link',
 		className
 	)}
 	{...restProps}

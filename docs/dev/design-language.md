@@ -170,8 +170,10 @@ on a live gallery (deleted after review; decision trail in the #259 PR):
   (`bg-muted/3` + `border-t border-muted/30` + `font-medium`) — the table
   closes the way it opens. The framed grid stays the register's signature
   (P8); non-flagship tables default to the quiet ledger.
-- **Pagination selection is ink**: the current page fills
-  `bg-foreground text-background`; all other links are ghost buttons.
+- **Pagination's current page wears the interactive tint** (the default
+  button variant, `bg-interactive/10 text-interactive`; amended in #260 —
+  the #259 solid-ink fill read as misplaced black); all other links are
+  ghost buttons.
   Prev/next keep their text labels beside the chevrons; the ellipsis
   matches the `icon-sm` metrics (`size-8 text-muted`).
 - **Empty state is a hairline dashed frame**: `border-dashed
