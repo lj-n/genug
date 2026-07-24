@@ -69,7 +69,7 @@
 <ResponsiveModal.Root bind:open>
 	<ResponsiveModal.Content>
 		<ResponsiveModal.Header>
-			<ResponsiveModal.Title class="text-xl font-semibold tracking-tighter italic">
+			<ResponsiveModal.Title class="text-xl font-semibold italic">
 				{m.transactions_table_create_transfer()}
 			</ResponsiveModal.Title>
 		</ResponsiveModal.Header>

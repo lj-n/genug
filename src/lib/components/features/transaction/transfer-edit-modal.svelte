@@ -84,7 +84,7 @@
 	<ResponsiveModal.Content>
 		{#if transaction !== null && form !== null && deleteForm !== null}
 			<ResponsiveModal.Header>
-				<ResponsiveModal.Title class="text-xl font-semibold tracking-tighter italic">
+				<ResponsiveModal.Title class="text-xl font-semibold italic">
 					{m.transfer_edit_title()}
 				</ResponsiveModal.Title>
 			</ResponsiveModal.Header>

@@ -58,7 +58,7 @@
 	<ResponsiveModal.Content>
 		{#if category !== null && form !== null}
 			<ResponsiveModal.Header>
-				<ResponsiveModal.Title class="text-xl font-semibold tracking-tighter italic">
+				<ResponsiveModal.Title class="text-xl font-semibold italic">
 					{m.budget_assignment_title({ name: category.name })}
 				</ResponsiveModal.Title>
 			</ResponsiveModal.Header>
