@@ -1,9 +1,10 @@
 <script lang="ts">
 	/* eslint-disable svelte/no-navigation-without-resolve */
-	// PROTOTYPE (#260) — Round 5, Variant A "B · gutter dot": round-4 B (no
-	// label, ink budgets) tightened to table density; the active dot floats in
-	// the nav's left gutter so row text sits flush at px-2. Delete with the
-	// prototype.
+	// PROTOTYPE (#260) — Round 4, Variant B "C · no label, ink budgets": the
+	// round-3 C rail without the "Budgets" label, but budget rows anchor their
+	// group in foreground ink + medium weight at rest (accounts stay muted) —
+	// tests whether the hierarchy needs a stronger anchor once the label is
+	// gone. Delete with the prototype.
 	import type { Snippet } from 'svelte';
 
 	import { resolve } from '$app/paths';
@@ -37,28 +38,28 @@
 
 	const railRow = (isActive: boolean, sub: boolean) =>
 		cn(
-			'group relative flex items-center rounded-md text-sm transition-colors hover:bg-muted/5',
-			sub ? 'ml-3 text-muted hover:text-foreground' : 'font-medium text-foreground',
+			'group flex items-center rounded-md text-sm transition-colors hover:bg-muted/5',
+			sub ? 'ml-4 text-muted hover:text-foreground' : 'font-medium text-foreground',
 			isActive && 'text-info hover:text-info'
 		);
 
 	const utilItem =
-		'flex items-center gap-2 rounded-md px-2 py-1 text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground';
+		'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground';
 </script>
 
 {#snippet navitem({ href, isActive = false, label, sub = false }: RailItemProps)}
 	<div class={railRow(isActive, sub)}>
-		{#if isActive}
-			<span class="absolute -left-2.5 size-1.5 shrink-0 rounded-full bg-info" aria-hidden="true"
-			></span>
-		{/if}
-
-		<a {href} class="flex min-w-0 grow items-center gap-1.5 px-2 py-1">
+		<a {href} class="flex min-w-0 grow items-center gap-2 px-3 py-1.5">
 			{#if sub}
 				<ArrowBendDownRightBoldIcon
 					class={cn('size-3 shrink-0', isActive ? 'text-info' : 'text-muted')}
 					aria-hidden="true"
 				/>
+			{:else}
+				<span
+					class={cn('size-1.5 shrink-0 rounded-full', isActive ? 'bg-info' : 'bg-transparent')}
+					aria-hidden="true"
+				></span>
 			{/if}
 			<span class="truncate">{label}</span>
 		</a>
@@ -81,7 +82,7 @@
 
 		{@render invitations?.()}
 
-		<div class="mt-6 flex flex-col gap-2">
+		<div class="mt-8 flex flex-col gap-3">
 			{#each budgets as budget (budget.id)}
 				<div class="flex flex-col">
 					{@render navitem({
@@ -105,7 +106,7 @@
 			{/each}
 		</div>
 
-		<div class="mt-6 flex flex-col border-t border-muted/20 pt-2">
+		<div class="mt-8 flex flex-col border-t border-muted/20 pt-3">
 			<a
 				href={resolve('/(app)/new')}
 				class={cn(utilItem, isCurrentPage(page, 'new') && 'font-medium text-info')}
@@ -132,7 +133,7 @@
 				</a>
 			{/if}
 
-			<form {...signout.for('proto-shell-a')} class="contents">
+			<form {...signout.for('proto-shell-b')} class="contents">
 				<button type="submit" class={cn(utilItem, 'hover:cursor-pointer')}>
 					<SignOutIcon class="size-4" aria-hidden="true" />
 					{m.sign_out_button({ username: user.username })}

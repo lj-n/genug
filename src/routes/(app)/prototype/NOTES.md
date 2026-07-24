@@ -76,3 +76,18 @@ idiom informs the drawer restyle afterwards.
   - **B — no label, ink budgets**: label deleted, budget rows anchored at
     rest in `text-foreground font-medium` (accounts stay muted).
   - **C — with label**: round-3 C untouched.
+
+### Round 4 → 5
+
+- **B (no label, ink budgets) wins round 4** — the label goes; budget rows
+  anchored in resting ink + medium weight. Round-4 files in `history/`.
+- Feedback: left padding too big; the rail feels spacious next to the
+  compact main views (budget table / register).
+- Round 5 = three density steps on B, all at `px-2 py-1` table-density rows
+  with `gap-1.5` link internals, `mt-6` sections, tightened group gaps:
+  - **A — gutter dot**: active dot floats in the nav's left gutter
+    (absolute, outside the row), text flush at px-2; accounts `ml-3`.
+  - **B — tight**: inline dot slot kept (budget text inset by dot+gap);
+    accounts `ml-3`.
+  - **C — flush, no dot**: no dot anywhere — active is color+weight only;
+    accounts indent by their arrow alone (no margin), group gap 1.5.

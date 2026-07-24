@@ -1,8 +1,8 @@
 <script lang="ts">
 	/* eslint-disable svelte/no-navigation-without-resolve */
-	// PROTOTYPE (#260) — Round 3, Variant C "Rail · text + dot + arrows":
-	// active = info text with a leading dot; accounts announce themselves with
-	// the bend-arrow connector (today's idiom); drag handles reveal on hover.
+	// PROTOTYPE (#260) — Round 5, Variant C "B · flush, no dot": the tightest
+	// take on round-4 B — no dot at all (color + weight alone mark the active
+	// item), accounts indent only by their arrow, everything at table density.
 	// Delete with the prototype.
 	import type { Snippet } from 'svelte';
 
@@ -37,28 +37,23 @@
 
 	const railRow = (isActive: boolean, sub: boolean) =>
 		cn(
-			'group flex items-center rounded-md text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground',
-			sub && 'ml-4',
-			isActive && 'font-medium text-info hover:text-info'
+			'group flex items-center rounded-md text-sm transition-colors hover:bg-muted/5',
+			sub ? 'text-muted hover:text-foreground' : 'font-medium text-foreground',
+			isActive && 'text-info hover:text-info'
 		);
 
 	const utilItem =
-		'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground';
+		'flex items-center gap-2 rounded-md px-2 py-1 text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground';
 </script>
 
 {#snippet navitem({ href, isActive = false, label, sub = false }: RailItemProps)}
 	<div class={railRow(isActive, sub)}>
-		<a {href} class="flex min-w-0 grow items-center gap-2 px-3 py-1.5">
+		<a {href} class="flex min-w-0 grow items-center gap-1.5 px-2 py-1">
 			{#if sub}
 				<ArrowBendDownRightBoldIcon
 					class={cn('size-3 shrink-0', isActive ? 'text-info' : 'text-muted')}
 					aria-hidden="true"
 				/>
-			{:else}
-				<span
-					class={cn('size-1.5 shrink-0 rounded-full', isActive ? 'bg-info' : 'bg-transparent')}
-					aria-hidden="true"
-				></span>
 			{/if}
 			<span class="truncate">{label}</span>
 		</a>
@@ -81,9 +76,7 @@
 
 		{@render invitations?.()}
 
-		<div class="mt-8 flex flex-col gap-3">
-			<span class="px-3 text-xs tracking-wider text-muted uppercase">Budgets</span>
-
+		<div class="mt-6 flex flex-col gap-1.5">
 			{#each budgets as budget (budget.id)}
 				<div class="flex flex-col">
 					{@render navitem({
@@ -107,7 +100,7 @@
 			{/each}
 		</div>
 
-		<div class="mt-8 flex flex-col border-t border-muted/20 pt-3">
+		<div class="mt-6 flex flex-col border-t border-muted/20 pt-2">
 			<a
 				href={resolve('/(app)/new')}
 				class={cn(utilItem, isCurrentPage(page, 'new') && 'font-medium text-info')}
