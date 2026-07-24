@@ -170,8 +170,10 @@ on a live gallery (deleted after review; decision trail in the #259 PR):
   (`bg-muted/3` + `border-t border-muted/30` + `font-medium`) — the table
   closes the way it opens. The framed grid stays the register's signature
   (P8); non-flagship tables default to the quiet ledger.
-- **Pagination selection is ink**: the current page fills
-  `bg-foreground text-background`; all other links are ghost buttons.
+- **Pagination's current page wears the interactive tint** (the default
+  button variant, `bg-interactive/10 text-interactive`; amended in #260 —
+  the #259 solid-ink fill read as misplaced black); all other links are
+  ghost buttons.
   Prev/next keep their text labels beside the chevrons; the ellipsis
   matches the `icon-sm` metrics (`size-8 text-muted`).
 - **Empty state is a hairline dashed frame**: `border-dashed
@@ -183,6 +185,40 @@ border-muted/20`, `py-8`, muted icon over title/description with an
 - **Separator is the `bg-muted/20` hairline; collapsible stays an
   unstyled behavior primitive** (call sites own its trigger/content look);
   version-label and source-link stay quiet `text-xs text-muted`.
+
+## Navigation shell (#260)
+
+Locked in a live prototype session (five keep-and-replace rounds on real
+data, both modes; decision trail in the #260 PR). The desktop rail keeps
+its left-sidebar placement but goes quiet at table density; `info` is the
+"you are here" hue.
+
+- **Quiet rail, 224px** (`max-w-56`), rows at table density (`px-2 py-1
+text-sm`), section seams `mt-6`, no "Budgets" section label — group gaps
+  and connectors carry the structure.
+- **Budgets anchor their group in resting ink**: `font-medium
+text-foreground` at rest; accounts are `text-muted` sub-items indented
+  `ml-3` behind the bend-arrow connector (`ArrowBendDownRightBold`,
+  `size-3`). No slabs, no tree guides on desktop.
+- **Active location is `info` text, not a fill**: the current budget or
+  account turns `text-info` (budget rows additionally fill their inline
+  `size-1.5` dot slot `bg-info`; the account's arrow turns `text-info`).
+  No `bg-info/10` tints, no marker bars — the old colored-active idiom is
+  retired. Hover stays neutral (`bg-muted/5`, P7).
+- **Utilities sit behind a hairline** (`border-t border-muted/20`) at the
+  rail's foot: muted `size-4` icons + labels, active = `font-medium
+text-info`. No per-action accent colors (P1).
+- **Drag handles are quiet and hover-revealed**: `size-4 text-muted`
+  six-dot grip at the row's right edge, `opacity-0 group-hover:opacity-100
+focus-visible:opacity-100` — reorder stays discoverable without
+  furnishing the rail.
+- **The mobile drawer keeps slabs, drops shadows**: budget + accounts and
+  the utility list sit on `rounded-md border border-muted/20 bg-surface`
+  cards (flat per P2 — the drawer panel owns the overlay shadow), touch
+  paddings retained, same ink/`info` active idiom as the rail.
+- **Page chrome gaps are 16px by default now**: `Page.Root` and
+  `Page.Header` ship `gap-4`, `Page.Content` its grid's `gap-y-4` (P4
+  generalized); the month view's call-site overrides are gone.
 
 ## Reference implementation
 
@@ -202,8 +238,5 @@ tokens in `src/routes/layout.css`.
   balance pills, tinted `bg-success/20`) still shows positive-state color;
   apply principle 1 when those surfaces are touched (#258 restyled the
   overlay chrome, not every screen's overlay content).
-- The `Page.Root`/`Page.Content` `gap-6` defaults still hold app-wide; the
-  month view overrides to `gap-4` at the call site. Generalize when a second
-  screen adopts the language.
 - `--radius-*` collapse means `rounded-xs`…`rounded-xl` are aliases; a later
   cleanup can normalize class usage to one step.

@@ -12,6 +12,14 @@ and dependency bumps get no entry.
 
 ### Changed
 
+- The navigation sidebar follows the design language now: a narrower, quieter
+  rail at the tables' compact density. The "Budgets" heading is gone — budget
+  names anchor their accounts in ink, and the current budget or account is
+  marked in color (a small dot for budgets, the tinted arrow for accounts)
+  instead of a filled highlight. Create/settings/sign-out moved behind a
+  hairline with small muted icons, and the reorder grips are now subtle
+  hover-revealed handles. The mobile navigation drawer uses the same idiom
+  on flat bordered cards, and page sections sit a step tighter everywhere.
 - The budget month table dropped its bordered row slabs for a quiet open
   ledger: rows sit directly on the page with subtle zebra stripes and a
   filled header bar, keeping the compact density. Mobile category cards
@@ -27,7 +35,7 @@ and dependency bumps get no entry.
 - Data-display primitives now follow the design language: generic tables
   use the month view's quiet zebra-striped look (striped rows, subtle
   header and totals bars) instead of heavy borders, the current pagination
-  page is shown as a solid ink fill instead of a colored tint, and empty
+  page is highlighted with the standard interactive button tint, and empty
   states got a lighter dashed frame with tighter spacing.
 - All overlays — dialogs, confirmation dialogs, drawers, popovers, dropdown
   menus, selects and the command palette — now follow the design language:

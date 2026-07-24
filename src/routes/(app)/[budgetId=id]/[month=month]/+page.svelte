@@ -40,7 +40,7 @@
 	const archivedCategories = $derived(await getArchivedCategories({ budgetId: budgetId() }));
 </script>
 
-<Page.Root class="gap-4">
+<Page.Root>
 	<Page.Header class="flex-row flex-wrap justify-between gap-4">
 		<Page.Title>
 			{budget.name}
@@ -55,7 +55,7 @@
 		</ButtonGroup.Root>
 	</Page.Header>
 
-	<Page.Content class="gap-y-4">
+	<Page.Content>
 		{#if month !== null}
 			<TutorialCard {month} />
 
