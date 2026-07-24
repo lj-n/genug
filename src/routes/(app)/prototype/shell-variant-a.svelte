@@ -1,8 +1,9 @@
 <script lang="ts">
 	/* eslint-disable svelte/no-navigation-without-resolve */
-	// PROTOTYPE (#260) — Round 2, Variant A "Rail · color marker": the quiet
-	// rail with the smallest possible dose of color — the 2px left marker is
-	// info-colored, the label stays foreground ink. Delete with the prototype.
+	// PROTOTYPE (#260) — Round 3, Variant A "Rail · color marker + tree guide":
+	// info left marker for the active item; accounts hang off a vertical
+	// hairline guide under their budget; drag handles reveal on hover.
+	// Delete with the prototype.
 	import type { Snippet } from 'svelte';
 
 	import { resolve } from '$app/paths';
@@ -15,6 +16,7 @@
 	import { getUser } from '$lib/remote-functions/user.remote';
 	import { isCurrentPage } from '$lib/utils/is-current-page';
 	import { cn } from 'tailwind-variants';
+	import DotsSixVerticalIcon from '~icons/ph/dots-six-vertical';
 	import GearSixIcon from '~icons/ph/gear-six';
 	import PlusIcon from '~icons/ph/plus';
 	import SignOutIcon from '~icons/ph/sign-out';
@@ -26,22 +28,35 @@
 		href: string;
 		isActive?: boolean;
 		label: string;
-		sub?: boolean;
 	};
 
 	const budgets = $derived(await getBudgets());
 	const user = $derived(await getUser());
 
-	const railItem = (isActive: boolean, sub: boolean) =>
+	const railRow = (isActive: boolean) =>
 		cn(
-			'flex items-center gap-2 border-l-2 border-transparent px-3 py-1.5 text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground',
-			sub && 'pl-6',
+			'group flex items-center border-l-2 border-transparent text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground',
 			isActive && 'border-info bg-muted/5 font-medium text-foreground'
 		);
+
+	const utilItem =
+		'flex items-center gap-2 border-l-2 border-transparent px-3 py-1.5 text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground';
 </script>
 
-{#snippet navitem({ href, isActive = false, label, sub = false }: RailItemProps)}
-	<a {href} class={railItem(isActive, sub)}>{label}</a>
+{#snippet navitem({ href, isActive = false, label }: RailItemProps)}
+	<div class={railRow(isActive)}>
+		<a {href} class="min-w-0 grow truncate px-3 py-1.5">{label}</a>
+
+		<!-- Visual-only in the prototype: shows where reorder lives. -->
+		<button
+			type="button"
+			aria-label={m.drag_handle_label()}
+			title={m.drag_handle_label()}
+			class="mr-1 shrink-0 cursor-grab rounded-sm p-0.5 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+		>
+			<DotsSixVerticalIcon class="size-4 text-muted" />
+		</button>
+	</div>
 {/snippet}
 
 <div class="mx-auto flex w-full max-w-9xl grow gap-2">
@@ -50,52 +65,71 @@
 
 		{@render invitations?.()}
 
-		<div class="mt-8 flex flex-col gap-5">
-			<div class="flex flex-col">
-				<span class="px-3 pb-1 text-xs tracking-wider text-muted uppercase">Budgets</span>
+		<div class="mt-8 flex flex-col gap-3">
+			<span class="px-3 text-xs tracking-wider text-muted uppercase">Budgets</span>
 
-				{#each budgets as budget (budget.id)}
+			{#each budgets as budget (budget.id)}
+				<div class="flex flex-col">
 					{@render navitem({
 						href: resolve('/(app)/[budgetId=id]', { budgetId: budget.id }),
 						isActive: isCurrentPage(page, budget.id),
 						label: budget.name
 					})}
 
-					{#each await getAccounts(budget.id) as account (account.id)}
-						{@render navitem({
-							href: resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', {
-								accountId: account.id,
-								budgetId: budget.id
-							}),
-							isActive: isCurrentPage(page, account.id),
-							label: account.name,
-							sub: true
-						})}
-					{/each}
-				{/each}
-			</div>
+					<div class="ml-3 flex flex-col border-l border-muted/20">
+						{#each await getAccounts(budget.id) as account (account.id)}
+							{@render navitem({
+								href: resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', {
+									accountId: account.id,
+									budgetId: budget.id
+								}),
+								isActive: isCurrentPage(page, account.id),
+								label: account.name
+							})}
+						{/each}
+					</div>
+				</div>
+			{/each}
 		</div>
 
 		<div class="mt-8 flex flex-col border-t border-muted/20 pt-3">
-			<a href={resolve('/(app)/new')} class={railItem(isCurrentPage(page, 'new'), false)}>
+			<a
+				href={resolve('/(app)/new')}
+				class={cn(
+					utilItem,
+					isCurrentPage(page, 'new') && 'border-info bg-muted/5 font-medium text-foreground'
+				)}
+			>
 				<PlusIcon class="size-4" aria-hidden="true" />
 				{m.budget_create_button()}
 			</a>
 
-			<a href={resolve('/(app)/settings')} class={railItem(isCurrentPage(page, 'settings'), false)}>
+			<a
+				href={resolve('/(app)/settings')}
+				class={cn(
+					utilItem,
+					isCurrentPage(page, 'settings') && 'border-info bg-muted/5 font-medium text-foreground'
+				)}
+			>
 				<GearSixIcon class="size-4" aria-hidden="true" />
 				{m.settings_title()}
 			</a>
 
 			{#if user.isAdmin}
-				<a href={resolve('/(app)/admin')} class={railItem(isCurrentPage(page, 'admin'), false)}>
+				<a
+					href={resolve('/(app)/admin')}
+					class={cn(
+						utilItem,
+						isCurrentPage(page, 'admin') && 'border-info bg-muted/5 font-medium text-foreground'
+					)}
+				>
 					<WrenchIcon class="size-4" aria-hidden="true" />
 					{m.admin_settings_title()}
 				</a>
 			{/if}
 
 			<form {...signout.for('proto-shell-a')} class="contents">
-				<button type="submit" class={cn(railItem(false, false), 'hover:cursor-pointer')}>
+				<button type="submit" class={cn(utilItem, 'hover:cursor-pointer')}>
 					<SignOutIcon class="size-4" aria-hidden="true" />
 					{m.sign_out_button({ username: user.username })}
 				</button>

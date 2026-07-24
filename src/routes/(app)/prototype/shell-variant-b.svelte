@@ -1,9 +1,9 @@
 <script lang="ts">
 	/* eslint-disable svelte/no-navigation-without-resolve */
-	// PROTOTYPE (#260) — Round 2, Variant B "Rail · tinted pill": the quiet
-	// rail with today's active idiom carried over — a rounded bg-info/10 pill
-	// with info-colored text. The strongest color dose of the round. Delete
-	// with the prototype.
+	// PROTOTYPE (#260) — Round 3, Variant B "Rail · tinted pill + slabs":
+	// each budget and its accounts sit together on a bordered bg-surface slab
+	// (the drawer idiom); active = tinted bg-info/10 pill; drag handles reveal
+	// on hover. Delete with the prototype.
 	import type { Snippet } from 'svelte';
 
 	import { resolve } from '$app/paths';
@@ -16,6 +16,7 @@
 	import { getUser } from '$lib/remote-functions/user.remote';
 	import { isCurrentPage } from '$lib/utils/is-current-page';
 	import { cn } from 'tailwind-variants';
+	import DotsSixVerticalIcon from '~icons/ph/dots-six-vertical';
 	import GearSixIcon from '~icons/ph/gear-six';
 	import PlusIcon from '~icons/ph/plus';
 	import SignOutIcon from '~icons/ph/sign-out';
@@ -33,16 +34,31 @@
 	const budgets = $derived(await getBudgets());
 	const user = $derived(await getUser());
 
-	const railItem = (isActive: boolean, sub: boolean) =>
+	const railRow = (isActive: boolean, sub: boolean) =>
 		cn(
-			'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground',
-			sub && 'ml-3',
+			'group flex items-center rounded-md text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground',
+			sub && 'ml-2',
 			isActive && 'bg-info/10 font-medium text-info hover:bg-info/10 hover:text-info'
 		);
+
+	const utilItem =
+		'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm text-muted transition-colors hover:bg-muted/5 hover:text-foreground';
 </script>
 
 {#snippet navitem({ href, isActive = false, label, sub = false }: RailItemProps)}
-	<a {href} class={railItem(isActive, sub)}>{label}</a>
+	<div class={railRow(isActive, sub)}>
+		<a {href} class="min-w-0 grow truncate px-3 py-1.5">{label}</a>
+
+		<!-- Visual-only in the prototype: shows where reorder lives. -->
+		<button
+			type="button"
+			aria-label={m.drag_handle_label()}
+			title={m.drag_handle_label()}
+			class="mr-1 shrink-0 cursor-grab rounded-sm p-0.5 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+		>
+			<DotsSixVerticalIcon class="size-4 text-muted" />
+		</button>
+	</div>
 {/snippet}
 
 <div class="mx-auto flex w-full max-w-9xl grow gap-2">
@@ -51,11 +67,11 @@
 
 		{@render invitations?.()}
 
-		<div class="mt-8 flex flex-col gap-5">
-			<div class="flex flex-col gap-0.5">
-				<span class="px-3 pb-1 text-xs tracking-wider text-muted uppercase">Budgets</span>
+		<div class="mt-8 flex flex-col gap-2">
+			<span class="px-3 text-xs tracking-wider text-muted uppercase">Budgets</span>
 
-				{#each budgets as budget (budget.id)}
+			{#each budgets as budget (budget.id)}
+				<div class="flex flex-col gap-0.5 rounded-md border border-muted/20 bg-surface p-1">
 					{@render navitem({
 						href: resolve('/(app)/[budgetId=id]', { budgetId: budget.id }),
 						isActive: isCurrentPage(page, budget.id),
@@ -73,30 +89,39 @@
 							sub: true
 						})}
 					{/each}
-				{/each}
-			</div>
+				</div>
+			{/each}
 		</div>
 
 		<div class="mt-8 flex flex-col gap-0.5 border-t border-muted/20 pt-3">
-			<a href={resolve('/(app)/new')} class={railItem(isCurrentPage(page, 'new'), false)}>
+			<a
+				href={resolve('/(app)/new')}
+				class={cn(utilItem, isCurrentPage(page, 'new') && 'bg-info/10 font-medium text-info')}
+			>
 				<PlusIcon class="size-4" aria-hidden="true" />
 				{m.budget_create_button()}
 			</a>
 
-			<a href={resolve('/(app)/settings')} class={railItem(isCurrentPage(page, 'settings'), false)}>
+			<a
+				href={resolve('/(app)/settings')}
+				class={cn(utilItem, isCurrentPage(page, 'settings') && 'bg-info/10 font-medium text-info')}
+			>
 				<GearSixIcon class="size-4" aria-hidden="true" />
 				{m.settings_title()}
 			</a>
 
 			{#if user.isAdmin}
-				<a href={resolve('/(app)/admin')} class={railItem(isCurrentPage(page, 'admin'), false)}>
+				<a
+					href={resolve('/(app)/admin')}
+					class={cn(utilItem, isCurrentPage(page, 'admin') && 'bg-info/10 font-medium text-info')}
+				>
 					<WrenchIcon class="size-4" aria-hidden="true" />
 					{m.admin_settings_title()}
 				</a>
 			{/if}
 
 			<form {...signout.for('proto-shell-b')} class="contents">
-				<button type="submit" class={cn(railItem(false, false), 'hover:cursor-pointer')}>
+				<button type="submit" class={cn(utilItem, 'hover:cursor-pointer')}>
 					<SignOutIcon class="size-4" aria-hidden="true" />
 					{m.sign_out_button({ username: user.username })}
 				</button>

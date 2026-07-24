@@ -50,3 +50,18 @@ idiom informs the drawer restyle afterwards.
   - **B — tinted pill**: rounded `bg-info/10 text-info` fill (today's idiom,
     strongest dose).
   - **C — text + dot**: `text-info` label + small leading dot, no fills.
+
+### Round 2 → 3
+
+- Feedback: indentation alone doesn't say "these are accounts of this
+  budget"; a second budget + accounts is needed to judge grouping; the
+  budget/account drag handles disappeared and must stay visible somehow.
+- Seeded a second budget ("Travel", 3 accounts) directly into the worktree's
+  dev-DB copy.
+- All three slots keep their round-2 active treatment and gain hover-reveal
+  drag handles (visual-only — reorder stays unwired in the prototype) plus a
+  per-variant grouping idiom:
+  - **A**: accounts hang off a vertical hairline tree guide under the budget.
+  - **B**: budget + accounts share a bordered `bg-surface` slab (the mobile
+    drawer idiom).
+  - **C**: accounts lead with the bend-arrow connector (today's idiom).

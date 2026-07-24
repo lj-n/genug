@@ -23,9 +23,9 @@
 	// effect so hydration matches the server render. Dev-only.
 	const shellVariants = [
 		{ key: 'current', name: 'Current shell' },
-		{ key: 'A', name: 'Rail · color marker' },
-		{ key: 'B', name: 'Rail · tinted pill' },
-		{ key: 'C', name: 'Rail · text + dot' }
+		{ key: 'A', name: 'Rail · marker + tree' },
+		{ key: 'B', name: 'Rail · pill + slab' },
+		{ key: 'C', name: 'Rail · dot + arrows' }
 	];
 	const variantParam = $derived(page.url.searchParams.get('variant'));
 	let storedVariant = $state<null | string>(null);
