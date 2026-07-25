@@ -71,6 +71,7 @@
 			<div
 				class={cn(
 					'flex size-full items-center justify-end rounded-sm px-1',
+					remaining !== 0 && 'font-semibold',
 					remaining < 0 && 'text-error'
 				)}
 			>
