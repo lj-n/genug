@@ -8,13 +8,15 @@
 	import { EmptyState } from '$lib/components/ui/empty-state';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget, getMonthly } from '$lib/remote-functions/budget.remote';
-	import { reorderCategories } from '$lib/remote-functions/category.remote';
+	import { getArchivedCategories, reorderCategories } from '$lib/remote-functions/category.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { clamp } from '$lib/utils/clamp';
 	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
 	import { cn } from 'tailwind-variants';
+	import ArchiveIcon from '~icons/ph/archive';
 	import PhDotsSixVerticalBold from '~icons/ph/dots-six-vertical-bold';
+	import PlusIcon from '~icons/ph/plus';
 	import StackIcon from '~icons/ph/stack';
 
 	import BudgetTableCell from './budget-table-cell.svelte';
@@ -31,6 +33,19 @@
 	} = $props();
 
 	const budgetId = getBudgetId();
+
+	// Create + archived live in the Category column header (desktop) and a mobile
+	// action row above the cards; the archived link only shows when there is
+	// something archived to reach.
+	const archivedCategories = $derived(await getArchivedCategories({ budgetId: budgetId() }));
+	const archivedHref = $derived(
+		resolve('/(app)/[budgetId=id]/categories/archived', { budgetId: budgetId() })
+	);
+	// Mobile create routes to the standalone form page rather than the inline
+	// dialog (mirrors the previous quick-actions behaviour below the breakpoint).
+	const createHref = $derived(
+		resolve('/(app)/[budgetId=id]/categories/new', { budgetId: budgetId() })
+	);
 
 	const { currency } = $derived(await getBudget(budgetId()));
 	// `month` can transiently be null while navigating away from this route —
@@ -91,8 +106,30 @@
 	<div role="table">
 		<div role="rowgroup" class="hidden @3xl/main:block">
 			<div role="row" class="flex border-b border-muted/30 bg-muted/3">
-				<BudgetTableHeader class="w-2/5">
-					{m.budget_monthly_table_header_category()}
+				<!-- aria-label keeps the columnheader's accessible name as just the column
+				     title; the create/archived controls inside carry their own names. -->
+				<BudgetTableHeader class="w-2/5" aria-label={m.budget_monthly_table_header_category()}>
+					<span class="flex items-center gap-1">
+						{m.budget_monthly_table_header_category()}
+						<Button
+							size="xs"
+							class="ml-1"
+							aria-label={m.category_create_button()}
+							onclick={() => (createDialogOpen = true)}
+						>
+							<PlusIcon class="size-4" />
+						</Button>
+						{#if archivedCategories.length > 0}
+							<Button
+								variant="ghost"
+								size="xs"
+								href={archivedHref}
+								aria-label={m.category_archived_link({ amount: archivedCategories.length })}
+							>
+								<ArchiveIcon class="size-4" />
+							</Button>
+						{/if}
+					</span>
 				</BudgetTableHeader>
 				<BudgetTableHeader class="w-1/5">
 					{m.budget_monthly_table_header_amount()}
@@ -107,6 +144,21 @@
 					<span class="sr-only">{m.budget_monthly_table_header_actions()}</span>
 				</BudgetTableHeader>
 			</div>
+		</div>
+
+		<!-- The desktop column header carries create + archived, but it is hidden
+		     below @3xl — surface the same actions as a row above the cards. -->
+		<div class="mb-2 flex flex-wrap gap-0.5 @3xl/main:hidden">
+			<Button href={createHref} class="h-11">
+				<PlusIcon class="size-6" />
+				{m.category_create_button()}
+			</Button>
+			{#if archivedCategories.length > 0}
+				<Button variant="ghost" class="h-11" href={archivedHref}>
+					<ArchiveIcon class="size-6" />
+					{m.category_archived_link({ amount: archivedCategories.length })}
+				</Button>
+			{/if}
 		</div>
 
 		<!-- Zebra open ledger (design language P5) on the desktop table; the

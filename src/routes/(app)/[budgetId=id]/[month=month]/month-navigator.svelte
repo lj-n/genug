@@ -47,7 +47,7 @@
 
 <div>
 	{#snippet monthStepButton(ariaLabel: string, icon: Snippet, onClick: () => void)}
-		<Button aria-label={ariaLabel} size="icon" class="@max-3xl/main:size-11" onclick={onClick}>
+		<Button aria-label={ariaLabel} size="icon-sm" class="@max-3xl/main:size-11" onclick={onClick}>
 			{@render icon()}
 		</Button>
 	{/snippet}
@@ -84,7 +84,8 @@
 				{#snippet child({ props })}
 					<Button
 						{...props}
-						class="min-w-26 text-base font-bold text-foreground @max-3xl/main:h-11"
+						size="sm"
+						class="min-w-20 text-sm font-semibold text-foreground @max-3xl/main:h-11"
 					>
 						{formatMonth({ month: selectedMonth, options: { month: 'short', year: '2-digit' } })}
 					</Button>
