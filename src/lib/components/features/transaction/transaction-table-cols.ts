@@ -14,16 +14,20 @@ export const cellClass =
 	'grid min-h-9 border-b border-l border-muted/10 p-0 first-of-type:border-l-0';
 
 // Read-mode click-to-edit trigger: fills the cell so hover/focus feedback
-// sits at the cell edge (design-language interaction-layer rules).
+// sits at the cell edge (design-language interaction-layer rules). Focus
+// lifts one level above hover (z-20 vs z-10) so a hovered neighbour's surface
+// fill never paints over the focused cell's gold outline where the ring
+// overlaps the shared cell edge (#275).
 export const cellTriggerClass =
-	'relative flex size-full cursor-pointer items-center justify-start px-2 text-left hover:z-10 hover:bg-surface hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50 focus-visible:z-10';
+	'relative flex size-full cursor-pointer items-center justify-start px-2 text-left hover:z-10 hover:bg-surface hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50 focus-visible:z-20';
 
 // Edit-mode control: borderless, fills the whole cell, keeps the trigger's
 // px-2 so the text does not move when the row switches read ⇄ edit. Hover
 // mirrors the read triggers (surface fill + neutral outline) so every edit
-// cell reacts the same way the date trigger does.
+// cell reacts the same way the date trigger does. Focus lifts above hover
+// (z-20 vs z-10) so a hovered neighbour never clips the focus outline (#275).
 export const editInputClass =
-	'h-full w-full justify-start rounded-none border-0 bg-transparent px-2 shadow-none hover:z-10 hover:bg-surface hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50 focus-visible:z-10';
+	'h-full w-full justify-start rounded-none border-0 bg-transparent px-2 shadow-none hover:z-10 hover:bg-surface hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50 focus-visible:z-20';
 
 // SelectCategory extras: the container already wraps a px-2 input, so it goes
 // px-0 itself; min-w-0 on container and input stops the trigger caret from
