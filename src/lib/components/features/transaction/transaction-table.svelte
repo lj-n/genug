@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ListTransaction } from '$lib/server/db/user-context/transaction';
 	import type { CURRENCIES } from '$lib/utils/currencies';
+	import type { Snippet } from 'svelte';
 
 	import { Button } from '$lib/components/ui/button';
 	import * as ButtonGroup from '$lib/components/ui/button-group';
@@ -29,6 +30,7 @@
 	import TransferTableRow from './transfer-table-row.svelte';
 
 	let {
+		accountBalances,
 		accountId,
 		budgetId,
 		currency,
@@ -36,6 +38,7 @@
 		tableState,
 		transactions
 	}: {
+		accountBalances?: Snippet;
 		accountId: string;
 		budgetId: string;
 		currency: (typeof CURRENCIES)[number];
@@ -71,13 +74,14 @@
 	<TableFilter
 		{budgetId}
 		filter={tableState.filter}
+		leading={accountBalances}
 		onSetFilter={(type, value) => tableState.setFilter(type, value)}
 		onClearFilter={(type) => tableState.clearFilter(type)}
 		onClearAllFilters={() => tableState.clearAllFilters()}
 	>
 		<!-- One create group per affordance (ADR-0014): the inline popover rows at
 		     @3xl and up, the bottom sheets below. Only one group is ever visible. -->
-		<ButtonGroup.Root class="ml-auto hidden @3xl/main:flex" bind:ref={createTriggerGroup}>
+		<ButtonGroup.Root class="hidden @3xl/main:flex" bind:ref={createTriggerGroup}>
 			<Button
 				aria-expanded={openCreateRow}
 				onclick={() => {
@@ -101,7 +105,7 @@
 			</Button>
 		</ButtonGroup.Root>
 
-		<ButtonGroup.Root class="ml-auto flex @3xl/main:hidden">
+		<ButtonGroup.Root class="flex @3xl/main:hidden">
 			<Button class="h-11" onclick={() => (createModalOpen = true)}>
 				<PlusBoldIcon />
 				{m.transactions_table_create_transaction()}

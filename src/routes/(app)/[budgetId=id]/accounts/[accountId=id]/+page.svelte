@@ -108,11 +108,11 @@
 	</Page.Header>
 
 	<Page.Content>
-		<AccountBalances {balances} currency={budget.currency} />
-
-		<Separator orientation="horizontal" />
-
 		{#if account.archivedAt}
+			<AccountBalances {balances} currency={budget.currency} />
+
+			<Separator orientation="horizontal" />
+
 			<AccountArchivedNotice accountId={accountId()} />
 		{:else}
 			<TransactionTable
@@ -126,7 +126,11 @@
 				}}
 				{tableState}
 				transactions={result.transactions}
-			/>
+			>
+				{#snippet accountBalances()}
+					<AccountBalances {balances} currency={budget.currency} />
+				{/snippet}
+			</TransactionTable>
 		{/if}
 	</Page.Content>
 </Page.Root>
