@@ -29,14 +29,14 @@
 	const month = $derived(parseMonth(params.month));
 
 	// Shared with the category table (same query, no extra round-trip): the
-	// month navigator, quick actions, and unassigned summary only appear once
-	// the budget has a category — before that the tutorial card and the
-	// table's empty state are the whole view.
+	// month navigator and unassigned summary only appear once the budget has a
+	// category — before that the tutorial card and the table's empty state are
+	// the whole view. Create + archived live in the table's Category header.
 	const categories = $derived(
 		await (month === null ? Promise.resolve([]) : getMonthly({ budgetId: budgetId(), month }))
 	);
-	// Already loaded by the quick actions (cached): with no active category
-	// left, the archived link must still be reachable below.
+	// With no active category left, the archived link must still be reachable
+	// below (the table — and its header actions — is replaced by an empty state).
 	const archivedCategories = $derived(await getArchivedCategories({ budgetId: budgetId() }));
 </script>
 
@@ -63,11 +63,7 @@
 				<!-- Prominent-stack below @3xl (ADR-0014): navigator row first, then the
 				     unassigned summary as a full-width band. -->
 				<div class="flex flex-col gap-3 @3xl/main:flex-row @3xl/main:items-end">
-					<div class="flex flex-wrap items-end gap-3">
-						<MonthNavigator {month} />
-
-						<CategoryQuickActions />
-					</div>
+					<MonthNavigator {month} />
 
 					<UnassignedSummary {month} />
 				</div>
