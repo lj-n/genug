@@ -36,13 +36,16 @@ test('Category name cell opens the monthly-stats popover on wide viewports', asy
 	// off screen.
 	await expect(popover).toBeInViewport();
 
-	// Month label (the viewed month — what the stats are scoped to), the
-	// Settings link to the detail page, and the monthly stats body.
+	// The popover's heading repeats the category name (the panel opens over the
+	// name cell); the viewed month — what the stats are scoped to — sits beside
+	// it in short form. Plus the Settings link and the monthly stats body.
+	await expect(popover.getByRole('heading', { name: categoryName })).toBeVisible();
 	const monthLabel = new Intl.DateTimeFormat('en', {
-		month: 'long',
+		month: 'short',
 		year: 'numeric'
 	}).format(new Date());
-	await expect(popover.getByRole('heading', { name: monthLabel })).toBeVisible();
+	// exact: the sparkline's SVG <title> also contains the month ("Jul 2026: €…").
+	await expect(popover.getByText(monthLabel, { exact: true })).toBeVisible();
 	await expect(popover.getByRole('link', { name: 'Settings' })).toBeVisible();
 	await expect(popover.getByText('Average Monthly Spend')).toBeVisible();
 });
