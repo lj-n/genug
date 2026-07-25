@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { m } from '$lib/paraglide/messages';
 	import { type Snippet, tick } from 'svelte';
@@ -15,6 +16,7 @@
 		budgetId,
 		children,
 		filter,
+		leading,
 		onClearAllFilters,
 		onClearFilter,
 		onSetFilter
@@ -22,6 +24,7 @@
 		budgetId: string;
 		children?: Snippet;
 		filter: TransactionFilter;
+		leading?: Snippet;
 		onClearAllFilters: () => void;
 		onClearFilter: (type: FilterType) => void;
 		onSetFilter: (type: FilterType, value: string | string[]) => void;
@@ -52,36 +55,40 @@
 </script>
 
 <div class="flex w-full flex-col gap-2">
-	<div class="flex gap-1.5">
-		<!-- Filtering is desktop-only; on the phone the register keeps only the create affordance. -->
-		<div class="hidden gap-1.5 @3xl/main:flex">
-			<DropdownMenu.Root>
-				<DropdownMenu.Trigger disabled={allActive}>
-					{#snippet child({ props })}
-						<Button {...props}>
-							<FunnelBoldIcon />
-							{m.transaction_filter_title()}
-						</Button>
-					{/snippet}
-				</DropdownMenu.Trigger>
+	<div class="flex flex-wrap items-end gap-3">
+		<!-- Balances (or nothing) sit to the left; every control clusters on the right. -->
+		{@render leading?.()}
+		<div class="ml-auto flex gap-1.5">
+			<!-- Filtering is desktop-only; on the phone the register keeps only the create affordance.
+			     The filter trigger and clear-all form their own group, separate from the create actions. -->
+			<ButtonGroup.Root class="hidden @3xl/main:flex">
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger disabled={allActive}>
+						{#snippet child({ props })}
+							<Button {...props} size="icon" aria-label={m.transaction_filter_title()}>
+								<FunnelBoldIcon />
+							</Button>
+						{/snippet}
+					</DropdownMenu.Trigger>
 
-				<DropdownMenu.Content class="w-fit">
-					{#each availableFilters as f (f.type)}
-						<DropdownMenu.Item onSelect={() => addAndFocus(f.type)}>
-							{filter.getConfig(f.type).label()}
-						</DropdownMenu.Item>
-					{/each}
-				</DropdownMenu.Content>
-			</DropdownMenu.Root>
+					<DropdownMenu.Content class="w-fit">
+						{#each availableFilters as f (f.type)}
+							<DropdownMenu.Item onSelect={() => addAndFocus(f.type)}>
+								{filter.getConfig(f.type).label()}
+							</DropdownMenu.Item>
+						{/each}
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
 
-			{#if anyActive}
-				<Button variant="destructive" size="icon" onclick={() => onClearAllFilters()}>
-					<XIcon />
-				</Button>
-			{/if}
+				{#if anyActive}
+					<Button variant="destructive" size="icon" onclick={() => onClearAllFilters()}>
+						<XIcon />
+					</Button>
+				{/if}
+			</ButtonGroup.Root>
+
+			{@render children?.()}
 		</div>
-
-		{@render children?.()}
 	</div>
 
 	{#each filter.items as f (f.type)}
