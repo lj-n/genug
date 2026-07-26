@@ -26,14 +26,14 @@
 			<Button
 				{...props}
 				variant="ghost"
-				size="icon-lg"
+				size="icon"
 				aria-label={m.budget_users_dialog_title()}
 				class="bg-muted/10 hover:bg-muted/20"
 			>
 				{#if budgetUsers.length > 1}
-					<UsersThreeIcon class="size-5" />
+					<UsersThreeIcon />
 				{:else}
-					<UserCirclePlusIcon class="size-5" />
+					<UserCirclePlusIcon />
 				{/if}
 			</Button>
 		{/snippet}

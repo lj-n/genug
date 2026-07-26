@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { AccountDropdown } from '$lib/components/features/account';
 	import { BudgetSettings } from '$lib/components/features/budget-settings';
 	import { BudgetUserManager } from '$lib/components/features/budget-user-manager';
 	import * as ButtonGroup from '$lib/components/ui/button-group';
@@ -48,8 +47,6 @@
 
 		<ButtonGroup.Root>
 			<BudgetSettings />
-
-			<AccountDropdown />
 
 			<BudgetUserManager />
 		</ButtonGroup.Root>
