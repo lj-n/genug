@@ -62,6 +62,10 @@ and dependency bumps get no entry.
   highlighted.
 - Dark mode's secondary text and error color are slightly lighter so text
   keeps WCAG AA contrast on the brighter overlay surfaces.
+- The admin screen follows the design language now: the same calm section
+  rhythm as the settings page, and each user's reset-password and delete
+  actions moved from hover-only icons into an always-visible overflow menu,
+  so they stay reachable on touch.
 
 ### Fixed
 
