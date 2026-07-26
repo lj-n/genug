@@ -12,6 +12,10 @@ and dependency bumps get no entry.
 
 ### Changed
 
+- The settings page dropped its stacked tinted panels for a calmer layout:
+  each section sits directly on the page, separated by hairline dividers that
+  hug the heading they introduce. Dialogs now use a slightly darker surface so
+  they no longer read as too bright in dark mode.
 - The navigation sidebar follows the design language now: a narrower, quieter
   rail at the tables' compact density. The "Budgets" heading is gone — budget
   names anchor their accounts in ink, and the current budget or account is
