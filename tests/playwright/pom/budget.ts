@@ -30,23 +30,29 @@ export class BudgetPage extends BasePage {
 	}
 
 	async createAccount(name: string, startingBalance = '0') {
-		await this.page.getByRole('button', { name: 'Show Accounts' }).click();
-		await this.page.getByRole('menuitem', { name: 'Add Account' }).click();
-		await expect(this.page.getByRole('heading', { name: 'Add New Account' })).toBeVisible();
+		// Accounts live in the Budget Settings dialog now (#273): open it, expand
+		// the inline Add Account form, and submit.
+		await this.page.getByRole('button', { name: 'Budget Settings' }).click();
+		const dialog = this.page.getByRole('dialog');
+		await dialog.getByRole('button', { name: 'Add Account' }).click();
 
-		await this.page.getByRole('textbox', { name: 'Account Name' }).fill(name);
-		await this.page
+		await dialog.getByRole('textbox', { name: 'Account Name' }).fill(name);
+		await dialog
 			.getByRole('textbox', { name: 'What is the current balance?' })
 			.fill(startingBalance);
 
-		await this.page.getByRole('button', { name: 'Create Account' }).click();
+		await dialog.getByRole('button', { name: 'Create Account' }).click();
 
-		// The server redirects to the new account page after creation.
-		// Wait for the heading to confirm the navigation completed, then capture the URL.
+		// The inline form creates in place (no redirect): the new account joins
+		// the dialog's account list. Open its link to reach the account page and
+		// capture the URL, then return to the budget page so subsequent
+		// createCategory / assignAmount calls work.
+		const accountLink = dialog.getByRole('link', { name });
+		await expect(accountLink).toBeVisible();
+		await accountLink.click();
 		await expect(this.page.getByRole('heading', { name })).toBeVisible();
 		this.ctx.accounts.set(name, this.page.url());
 
-		// Return to the budget page so subsequent createCategory / assignAmount calls work.
 		if (this.ctx.budgetUrl) {
 			await this.page.goto(this.ctx.budgetUrl);
 		}
@@ -58,17 +64,17 @@ export class BudgetPage extends BasePage {
 	 * stays open (no redirect to a new account page).
 	 */
 	async createAccountExpectingError(name: string) {
-		await this.page.getByRole('button', { name: 'Show Accounts' }).click();
-		await this.page.getByRole('menuitem', { name: 'Add Account' }).click();
+		await this.page.getByRole('button', { name: 'Budget Settings' }).click();
 
 		const dialog = this.page.getByRole('dialog');
-		await expect(dialog.getByRole('heading', { name: 'Add New Account' })).toBeVisible();
+		await dialog.getByRole('button', { name: 'Add Account' }).click();
 
 		await dialog.getByRole('textbox', { name: 'Account Name' }).fill(name);
 		await dialog.getByRole('button', { name: 'Create Account' }).click();
 
 		await expect(dialog.getByText(`${name} already exists.`)).toBeVisible();
-		// The error keeps the dialog open — a successful create would redirect away.
+		// The field error keeps the dialog open — a successful create would clear
+		// the form and add the account to the list instead.
 		await expect(dialog).toBeVisible();
 	}
 

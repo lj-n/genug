@@ -7,7 +7,9 @@ export class AdminPage extends BasePage {
 		await this.page.goto('/admin');
 
 		const row = this.page.getByRole('listitem').filter({ hasText: username });
-		await row.getByRole('button', { name: 'Remove User' }).click();
+		// Row actions live behind a ⋮ overflow menu now (#279).
+		await row.getByRole('button', { name: 'User actions' }).click();
+		await this.page.getByRole('menuitem', { name: 'Delete' }).click();
 
 		// The delete is confirmed through the app's own alert dialog.
 		const dialog = this.page.getByRole('alertdialog');
