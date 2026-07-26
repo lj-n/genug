@@ -49,8 +49,14 @@ export class CategoryPage extends BasePage {
 		await input.press('Enter');
 
 		await expect(this.page.getByText(`${name} already exists.`)).toBeVisible();
-		// A successful create navigates back to the budget page; the error keeps us here.
-		await expect(this.page).toHaveURL(/\/categories\/new$/);
+		// A successful create navigates back to the budget page; the error keeps us
+		// on the create page. Match the pathname only: this page is reached by a
+		// direct goto (desktop creates via a dialog instead), so a submit fired
+		// before the remote form has enhanced falls back to a native POST that
+		// leaves the action query (`?/remote=.../createCategory`) on the URL. The
+		// contract — "no navigation away from the create page" — holds either way,
+		// and the strict `$` anchor made this assertion flaky on that fallback.
+		await expect(this.page).toHaveURL(/\/categories\/new(\?|$)/);
 	}
 
 	/**
