@@ -1,22 +1,24 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import { m } from '$lib/paraglide/messages';
+	// Persistent hidden reset-password form, one per user row. It lives in the
+	// row (not inside the dropdown's portalled content, which unmounts on
+	// select), so its submit lifecycle survives the menu closing. The kebab
+	// menu item triggers it by id via requestSubmit; the keyed form instance
+	// (`.for(userId)`) owns its own `result`, surfaced up through `onReset`.
 	import { resetUserPassword } from '$lib/remote-functions/admin.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
-	import ArrowCounterClockwiseIcon from '~icons/ph/arrow-counter-clockwise';
 
-	let { userId }: { userId: string } = $props();
+	let { onReset, userId }: { onReset: (newPassword: string) => void; userId: string } = $props();
 
 	const form = $derived(resetUserPassword.for(userId));
-
-	const submit = createFormSubmit(() => form, { toast: {} });
+	const submit = createFormSubmit(() => form, {
+		onSuccess: () => {
+			if (form.result?.newPassword) onReset(form.result.newPassword);
+		},
+		toast: {}
+	});
 </script>
 
-<form {...submit.attrs} class="contents">
+<form id="reset-password-{userId}" {...submit.attrs} class="hidden">
 	<input {...form.fields.userId.as('hidden', userId)} />
-	<!-- Row-scoped micro-form: disabled during flight, deliberately no spinner. -->
-	<Button size="icon-sm" type="submit" disabled={submit.pending} {@attach submit.anchor}>
-		<ArrowCounterClockwiseIcon />
-		<span class="sr-only">{m.admin_reset_password_sr()}</span>
-	</Button>
+	<button type="submit" {@attach submit.anchor} aria-hidden="true" tabindex="-1"></button>
 </form>

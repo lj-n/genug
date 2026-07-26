@@ -220,7 +220,7 @@
 	"admin_user_you_indicator": "(You)",
 	"admin_role_admin_label": "Admin",
 	"admin_reset_password_sr": "Reset Password",
-	"admin_remove_user_sr": "Remove User",
+	"admin_user_actions_sr": "User actions",
 	"admin_delete_user_confirm_title": "Are you absolutely sure?",
 	"admin_delete_user_confirm_description": "This action cannot be undone. The user and all their data will be deleted.",
 	"admin_reset_database_confirm_title": "Reset the entire instance?",

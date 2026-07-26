@@ -220,7 +220,7 @@
 	"admin_user_you_indicator": "(Du)",
 	"admin_role_admin_label": "Admin",
 	"admin_reset_password_sr": "Passwort zurücksetzen",
-	"admin_remove_user_sr": "Benutzer entfernen",
+	"admin_user_actions_sr": "Benutzeraktionen",
 	"admin_delete_user_confirm_title": "Bist du dir ganz sicher?",
 	"admin_delete_user_confirm_description": "Diese Aktion kann nicht rückgängig gemacht werden. Der Benutzer und all seine Daten werden gelöscht werden.",
 	"admin_reset_database_confirm_title": "Gesamte Instanz zurücksetzen?",
