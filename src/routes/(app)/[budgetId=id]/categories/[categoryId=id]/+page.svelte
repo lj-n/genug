@@ -8,6 +8,7 @@
 		CategoryStats
 	} from '$lib/components/features/category';
 	import * as Page from '$lib/components/ui/page';
+	import { Separator } from '$lib/components/ui/separator';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategoryById } from '$lib/remote-functions/category.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
@@ -36,6 +37,14 @@
 			goto(resolve('/(app)/[budgetId=id]/categories/archived', { budgetId: budgetId() }));
 		}
 	});
+
+	const onDeleted = () =>
+		goto(
+			resolve('/(app)/[budgetId=id]/[month=month]', {
+				budgetId: budgetId(),
+				month: toParam(currentMonth())
+			})
+		);
 </script>
 
 <Page.Root>
@@ -45,29 +54,23 @@
 		</Page.Title>
 	</Page.Header>
 
-	<Page.Content>
-		<!-- The tiles' @3xl breakpoint used to resolve against the dialog body's
-		     unnamed container — the page provides its own. -->
-		<div class="@container">
-			<div class="grid gap-6 @3xl:grid-cols-2">
-				<CategoryEdit {category} currency={budget.currency} />
+	<!-- A single quiet vertical list of titled sections, split by hairline
+	     dividers on the /settings rhythm (restyle #280). -->
+	<Page.Content class="max-w-xl">
+		<div class="space-y-3">
+			<CategoryEdit {category} currency={budget.currency} />
 
-				<CategoryStats {category} currency={budget.currency} {month} />
+			<Separator class="mt-6 mb-3" />
 
-				<CategoryArchive {category} currency={budget.currency} />
+			<CategoryStats {category} currency={budget.currency} {month} />
 
-				<CategoryDelete
-					{category}
-					currency={budget.currency}
-					onDeleted={() =>
-						goto(
-							resolve('/(app)/[budgetId=id]/[month=month]', {
-								budgetId: budgetId(),
-								month: toParam(currentMonth())
-							})
-						)}
-				/>
-			</div>
+			<Separator class="mt-6 mb-3" />
+
+			<CategoryArchive {category} currency={budget.currency} />
+
+			<Separator class="mt-6 mb-3" />
+
+			<CategoryDelete {category} currency={budget.currency} {onDeleted} />
 		</div>
 	</Page.Content>
 </Page.Root>

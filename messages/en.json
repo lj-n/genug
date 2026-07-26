@@ -24,6 +24,7 @@
 	"category_placeholder_name": "Groceries, Rent, etc.",
 	"category_placeholder_notes": "Add some notes...",
 	"category_label_targetbalance": "Set a Target Balance for this Category",
+	"category_section_title_edit": "Details",
 	"category_section_title_archive": "Archive Category",
 	"category_section_title_stats": "Stats",
 	"category_archive_button": "Archive",

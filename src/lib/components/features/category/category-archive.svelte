@@ -30,8 +30,8 @@
 	let archivable = $derived(archivability.archivable);
 </script>
 
-<section class="flex flex-col gap-3 rounded-md border border-muted/20 bg-background p-3 shadow-xs">
-	<h2 class="text-lg font-semibold">
+<section class="flex flex-col gap-3">
+	<h2 class="font-semibold">
 		{m.category_section_title_archive()}
 	</h2>
 
