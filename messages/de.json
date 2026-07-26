@@ -269,7 +269,7 @@
 	"api_token_revoke_confirm_title": "Token widerrufen",
 	"api_token_revoke_confirm_description": "Das Token verliert sofort den Zugriff. Damit verbundene Apps müssen neu verbunden werden.",
 	"budget_settings_title": "Budgeteinstellungen",
-	"budget_settings_description": "Hier kannst du Namen und Währung des Budgetplans ändern.",
+	"budget_settings_description": "Ändere Namen und Währung des Budgetplans und verwalte seine Konten.",
 	"budget_settings_label_currency": "Währung",
 	"budget_settings_available_currencies": "Verfügbare Währungen",
 	"error_page_unexpected": "Ein unerwarteter Fehler ist aufgetreten.",

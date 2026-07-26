@@ -269,7 +269,7 @@
 	"api_token_revoke_confirm_title": "Revoke Token",
 	"api_token_revoke_confirm_description": "The token immediately loses access. Apps connected with it must be reconnected.",
 	"budget_settings_title": "Budget Settings",
-	"budget_settings_description": "Here you can change the name and currency of your budget.",
+	"budget_settings_description": "Change your budget's name and currency, and manage its accounts.",
 	"budget_settings_label_currency": "Currency",
 	"budget_settings_available_currencies": "Available Currencies",
 	"error_page_unexpected": "An unexpected error occurred.",

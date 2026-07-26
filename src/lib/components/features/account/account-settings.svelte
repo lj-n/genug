@@ -29,11 +29,11 @@
 
 <Button
 	variant="ghost"
-	size="icon-lg"
+	size="icon"
 	class="bg-muted/10 hover:bg-muted/20"
 	onclick={() => (open = true)}
 >
-	<PencilIcon class="size-5" />
+	<PencilIcon />
 	<span class="sr-only">{m.account_settings_title()}</span>
 </Button>
 
