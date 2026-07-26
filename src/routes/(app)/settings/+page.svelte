@@ -7,6 +7,7 @@
 	import { InputPassword } from '$lib/components/ui/input-password';
 	import * as Page from '$lib/components/ui/page';
 	import * as Select from '$lib/components/ui/select';
+	import { Separator } from '$lib/components/ui/separator';
 	import { m } from '$lib/paraglide/messages';
 	import { getLocale, type Locale, locales, setLocale } from '$lib/paraglide/runtime';
 	import { changePassword, changeUsername, getUser } from '$lib/remote-functions/user.remote';
@@ -36,7 +37,7 @@
 	</Page.Header>
 
 	<Page.Content class="max-w-xl">
-		<form {...usernameSubmit.attrs} class="grid gap-3 rounded-lg bg-muted/5 p-3">
+		<form {...usernameSubmit.attrs} class="grid gap-3">
 			<h2 class="font-semibold">{m.settings_change_display_name()}</h2>
 
 			<FormField
@@ -59,7 +60,9 @@
 			</Button>
 		</form>
 
-		<form {...passwordSubmit.attrs} class="grid gap-3 rounded-lg bg-muted/5 p-3">
+		<Separator class="mt-4 -mb-2.5" />
+
+		<form {...passwordSubmit.attrs} class="grid gap-3">
 			<h2 class="font-semibold">{m.settings_change_password()}</h2>
 
 			<FormField
@@ -87,20 +90,26 @@
 			</Button>
 		</form>
 
-		<div class="grid gap-3 rounded-lg bg-muted/5 p-3">
+		<Separator class="mt-4 -mb-2.5" />
+
+		<div class="grid gap-3">
 			<h2 class="font-semibold">{m.settings_theme()}</h2>
 
 			<ThemeControl theme={data.theme} />
 		</div>
 
-		<div class="grid gap-3 rounded-lg bg-muted/5 p-3">
+		<Separator class="mt-4 -mb-2.5" />
+
+		<div class="grid gap-3">
 			<h2 class="font-semibold">{m.settings_api_tokens()}</h2>
 
 			<ApiTokenManager />
 		</div>
 
-		<div class="grid rounded-lg bg-muted/5 p-3">
-			<h2 class="mb-6 font-semibold">{m.settings_language()}</h2>
+		<Separator class="mt-4 -mb-2.5" />
+
+		<div class="grid gap-3">
+			<h2 class="font-semibold">{m.settings_language()}</h2>
 
 			<Select.Root
 				type="single"

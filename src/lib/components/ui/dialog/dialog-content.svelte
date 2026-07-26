@@ -44,7 +44,7 @@
 					bind:this={ref}
 					{...props}
 					class={cn(
-						'fixed inset-0 z-50 m-auto flex h-fit max-h-[calc(100dvh-2rem)] w-full max-w-[calc(100%-2rem)] flex-col gap-6 overflow-hidden rounded-md bg-surface-high p-6 text-sm shadow-md ring-1 ring-foreground/10 outline-none sm:max-w-lg',
+						'fixed inset-0 z-50 m-auto flex h-fit max-h-[calc(100dvh-2rem)] w-full max-w-[calc(100%-2rem)] flex-col gap-6 overflow-hidden rounded-md bg-surface p-6 text-sm shadow-md ring-1 ring-foreground/10 outline-none sm:max-w-lg',
 						className
 					)}
 					in:modalIn
