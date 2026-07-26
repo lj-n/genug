@@ -13,20 +13,20 @@
 		createUser,
 		getUsers,
 		removeUser,
-		resetDatabase,
-		resetUserPassword
+		resetDatabase
 	} from '$lib/remote-functions/admin.remote';
 	import { getUser } from '$lib/remote-functions/user.remote';
 	import { copyToClipboard } from '$lib/utils/copy-to-clipboard';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { slide } from 'svelte/transition';
+	import ArrowCounterClockwiseIcon from '~icons/ph/arrow-counter-clockwise';
 	import CopySimpleIcon from '~icons/ph/copy-simple';
 	import DotsThreeIcon from '~icons/ph/dots-three-vertical';
 	import TrashIcon from '~icons/ph/trash';
 	import UserCircleIcon from '~icons/ph/user-circle';
 	import UserCirclePlusIcon from '~icons/ph/user-circle-plus';
 
-	import ResetPasswordMenuItem from './reset-password-menu-item.svelte';
+	import ResetPasswordForm from './reset-password-form.svelte';
 
 	const admin = $derived(await getUser());
 
@@ -38,15 +38,17 @@
 	let openDialog = $state(false);
 	let openAlertDialog = $state(false);
 	let selectedUserId = $state('');
-	let generatedPassword = $derived(
-		createUser.result?.password ?? resetUserPassword.result?.newPassword
-	);
+	let resetPassword = $state<string>();
+	let generatedPassword = $derived(createUser.result?.password ?? resetPassword);
 
 	$effect(() => {
 		if (generatedPassword) {
 			openDialog = true;
 		}
 	});
+
+	const resetForm = (userId: string) =>
+		document.getElementById(`reset-password-${userId}`) as HTMLFormElement | null;
 </script>
 
 <Page.Root>
@@ -111,6 +113,13 @@
 									{m.admin_role_admin_label()}
 								</div>
 							{:else}
+								<!-- Persistent form outside the portalled menu, so its submit
+								     lifecycle survives the menu closing on select. -->
+								<ResetPasswordForm
+									userId={user.id}
+									onReset={(newPassword) => (resetPassword = newPassword)}
+								/>
+
 								<DropdownMenu.Root>
 									<DropdownMenu.Trigger
 										class={buttonVariants({ size: 'icon-sm', variant: 'ghost' }) +
@@ -121,7 +130,10 @@
 									</DropdownMenu.Trigger>
 
 									<DropdownMenu.Content align="end" class="w-fit">
-										<ResetPasswordMenuItem userId={user.id} />
+										<DropdownMenu.Item onSelect={() => resetForm(user.id)?.requestSubmit()}>
+											<ArrowCounterClockwiseIcon />
+											{m.admin_reset_password_sr()}
+										</DropdownMenu.Item>
 										<DropdownMenu.Separator />
 										<DropdownMenu.Item
 											class="text-error data-highlighted:bg-error/10 data-highlighted:text-error"
