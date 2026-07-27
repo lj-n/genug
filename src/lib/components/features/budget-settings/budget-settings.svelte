@@ -4,10 +4,10 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { Collapsible, CollapsibleContent } from '$lib/components/ui/collapsible';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import * as InputGroup from '$lib/components/ui/input-group';
+	import { FormField } from '$lib/components/ui/form-field';
+	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select';
-	import { Separator } from '$lib/components/ui/separator';
 	import { m } from '$lib/paraglide/messages';
 	import { getAccounts, getArchivedAccounts } from '$lib/remote-functions/account.remote';
 	import { editBudget, getBudget } from '$lib/remote-functions/budget.remote';
@@ -30,6 +30,12 @@
 
 	let open = $state(false);
 	let addOpen = $state(false);
+
+	// Collapse the add-account form when the dialog closes, so reopening starts
+	// from the "Add Account" button rather than a half-filled form.
+	$effect(() => {
+		if (!open) addOpen = false;
+	});
 </script>
 
 <Dialog.Root bind:open>
@@ -49,20 +55,16 @@
 		</Dialog.Header>
 
 		<Dialog.Body class="flex flex-col gap-6">
-			<form {...submit.attrs} class="grid gap-2 rounded-lg bg-muted/5 p-3">
+			<form {...submit.attrs} class="grid gap-2">
 				<input {...editBudget.fields.budgetId.as('hidden', budgetId())} />
 
-				<div class="grid gap-2">
-					<Label>{m.budget_label_name()}</Label>
-					<InputGroup.Root>
-						<InputGroup.Input
-							{...editBudget.fields.name.as('text', budget.name)}
-							aria-label={m.budget_label_name()}
-						/>
-					</InputGroup.Root>
-				</div>
+				<FormField field={editBudget.fields.name} label={m.budget_label_name()}>
+					{#snippet input(field)}
+						<Input {...field.as('text', budget.name)} />
+					{/snippet}
+				</FormField>
 
-				<div class="grid gap-2">
+				<div class="grid gap-0.5">
 					<Label>{m.budget_settings_label_currency()}</Label>
 					<Select.Root
 						type="single"
@@ -92,8 +94,6 @@
 					{m.save()}
 				</Button>
 			</form>
-
-			<Separator />
 
 			<div class="grid gap-2">
 				<div class="font-display text-base font-semibold">
@@ -126,7 +126,7 @@
 						<Button
 							variant="ghost"
 							size="sm"
-							class="w-full justify-start bg-muted/5 hover:bg-muted/15"
+							class="w-full justify-start hover:bg-muted/10"
 							onclick={() => (addOpen = true)}
 						>
 							<PlusIcon />
@@ -134,9 +134,7 @@
 						</Button>
 					{/if}
 					<CollapsibleContent>
-						<div class="grid gap-2 rounded-lg bg-muted/5 p-3">
-							<AccountCreate currency={budget.currency} onSuccess={() => (addOpen = false)} />
-						</div>
+						<AccountCreate currency={budget.currency} onSuccess={() => (addOpen = false)} />
 					</CollapsibleContent>
 				</Collapsible>
 

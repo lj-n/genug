@@ -33,8 +33,8 @@ test('Empty-state guidance — canonical first-run path', async ({ page, pages }
 	await expect(page.getByRole('button', { name: 'Explain the unallocated amount' })).toHaveCount(0);
 	await expect(page.getByRole('link', { name: '0 archived' })).toHaveCount(0);
 
-	// The account dropdown carries the no-accounts hint.
-	await page.getByRole('button', { name: 'Show Accounts' }).click();
+	// The Budget Settings dialog's accounts section carries the no-accounts hint.
+	await page.getByRole('button', { name: 'Budget Settings' }).click();
 	await expect(page.getByText('No accounts yet — add one below.')).toBeVisible();
 	await page.keyboard.press('Escape');
 
@@ -45,7 +45,7 @@ test('Empty-state guidance — canonical first-run path', async ({ page, pages }
 	await expect(page.getByText('Archived categories will show up here.')).toBeVisible();
 	await pages.budget.goto(budgetName);
 
-	// Step 1: creating the account checks the step, removes the dropdown hint,
+	// Step 1: creating the account checks the step, removes the dialog hint,
 	// and turns the footer phrase into a link.
 	const accountName = uniqueName(faker.finance.accountName());
 	await pages.budget.createAccountViaTutorial(accountName);
@@ -54,11 +54,12 @@ test('Empty-state guidance — canonical first-run path', async ({ page, pages }
 	await expect(pages.budget.tutorialStepAction('account')).toHaveCount(0);
 	await expect(pages.budget.tutorialStepAction('category')).toBeVisible();
 
-	await page.getByRole('button', { name: 'Show Accounts' }).click();
-	await expect(page.getByRole('menuitem', { name: accountName })).toBeVisible();
-	await expect(page.getByText('No accounts yet — add one below.')).toHaveCount(0);
-	// With no archived accounts the dropdown omits the "0 archived" link (#171).
-	await expect(page.getByRole('menuitem', { name: '0 archived' })).toHaveCount(0);
+	await page.getByRole('button', { name: 'Budget Settings' }).click();
+	const settingsDialog = page.getByRole('dialog');
+	await expect(settingsDialog.getByRole('link', { name: accountName })).toBeVisible();
+	await expect(settingsDialog.getByText('No accounts yet — add one below.')).toHaveCount(0);
+	// With no archived accounts the dialog omits the archived link (#171).
+	await expect(settingsDialog.getByRole('link', { name: /archived/i })).toHaveCount(0);
 	await page.keyboard.press('Escape');
 
 	// The footer link — now carrying the account's name — leads to the

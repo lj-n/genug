@@ -134,10 +134,11 @@ for (const theme of THEMES) {
 			await page.keyboard.press('Escape');
 			await expect(categoryDialog).not.toBeVisible();
 
-			// Add account: the create-account dialog from the accounts dropdown.
-			await page.getByRole('button', { name: 'Show Accounts' }).click();
-			await page.getByRole('menuitem', { name: 'Add Account' }).click();
-			await expect(page.getByRole('heading', { name: 'Add New Account' })).toBeVisible();
+			// Add account: the inline create-account form in the Budget Settings dialog.
+			await page.getByRole('button', { name: 'Budget Settings' }).click();
+			const accountsDialog = page.getByRole('dialog');
+			await accountsDialog.getByRole('button', { name: 'Add Account' }).click();
+			await expect(accountsDialog.getByRole('textbox', { name: 'Account Name' })).toBeVisible();
 			await expectAxeClean(page);
 		});
 

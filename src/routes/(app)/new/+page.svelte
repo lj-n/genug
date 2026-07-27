@@ -9,7 +9,6 @@
 	import { createBudget, getBudgets } from '$lib/remote-functions/budget.remote';
 	import { CURRENCIES } from '$lib/utils/currencies';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
-	import PhScales from '~icons/ph/scales';
 
 	const budgets = $derived(await getBudgets());
 	const isFirstBudget = $derived(budgets.length === 0);
@@ -24,43 +23,44 @@
 			{isFirstBudget ? m.new_first_budget_title() : m.new_budget_title()}
 		</Page.Title>
 		<Page.Description>
-			<PhScales class="mr-2 inline size-8 align-bottom" />
 			{m.new_budget_description()}
 		</Page.Description>
 	</Page.Header>
 
 	<Page.Content>
-		<form {...submit.attrs} class="grid gap-2 rounded-md border border-muted/20 bg-surface p-2">
-			<FormField field={createBudget.fields.name} label={m.budget_label_name()}>
-				{#snippet input(field)}
-					<Input {...field.as('text')} placeholder={m.budget_placeholder_name()} />
-				{/snippet}
-			</FormField>
+		<form {...submit.attrs} class="grid gap-2">
+			<div class="flex items-end gap-2">
+				<FormField field={createBudget.fields.name} label={m.budget_label_name()} class="flex-1">
+					{#snippet input(field)}
+						<Input {...field.as('text')} placeholder={m.budget_placeholder_name()} />
+					{/snippet}
+				</FormField>
 
-			<div class="grid gap-2">
-				<Label>{m.budget_settings_label_currency()}</Label>
-				<Select.Root
-					type="single"
-					name={createBudget.fields.currency.as('select').name}
-					bind:value={
-						() => createBudget.fields.currency.value() ?? CURRENCIES[0],
-						(v) => createBudget.fields.currency.set(v)
-					}
-				>
-					<Select.Trigger class="font-semibold">
-						{createBudget.fields.currency.value() ?? CURRENCIES[0]}
-					</Select.Trigger>
-					<Select.Content>
-						<Select.Group>
-							<Select.Label>{m.budget_settings_available_currencies()}</Select.Label>
-							{#each CURRENCIES as currency (currency)}
-								<Select.Item value={currency} label={currency} class="font-semibold">
-									{currency}
-								</Select.Item>
-							{/each}
-						</Select.Group>
-					</Select.Content>
-				</Select.Root>
+				<div class="grid gap-2">
+					<Label>{m.budget_settings_label_currency()}</Label>
+					<Select.Root
+						type="single"
+						name={createBudget.fields.currency.as('select').name}
+						bind:value={
+							() => createBudget.fields.currency.value() ?? CURRENCIES[0],
+							(v) => createBudget.fields.currency.set(v)
+						}
+					>
+						<Select.Trigger class="font-semibold">
+							{createBudget.fields.currency.value() ?? CURRENCIES[0]}
+						</Select.Trigger>
+						<Select.Content>
+							<Select.Group>
+								<Select.Label>{m.budget_settings_available_currencies()}</Select.Label>
+								{#each CURRENCIES as currency (currency)}
+									<Select.Item value={currency} label={currency} class="font-semibold">
+										{currency}
+									</Select.Item>
+								{/each}
+							</Select.Group>
+						</Select.Content>
+					</Select.Root>
+				</div>
 			</div>
 
 			<Button type="submit" class="ml-auto" loading={submit.pending} {@attach submit.anchor}>
