@@ -31,8 +31,8 @@
 	let open = $state(false);
 	let addOpen = $state(false);
 
-	// Collapse the add-account form when the dialog closes, so reopening starts
-	// from the "Add Account" button rather than a half-filled form.
+	// Close the Add Account dialog whenever Budget Settings closes, so it never
+	// lingers over a dismissed parent and reopening starts fresh.
 	$effect(() => {
 		if (!open) addOpen = false;
 	});
@@ -151,15 +151,40 @@
 						{/if}
 					</ul>
 				{/if}
-
-				{#if addOpen}
-					<AccountCreate currency={budget.currency} onSuccess={() => (addOpen = false)} />
-				{/if}
 			</div>
 		</Dialog.Body>
 
 		<Dialog.Footer>
 			<Dialog.Close class={buttonVariants({ variant: 'ghost' })}>{m.dialog_close()}</Dialog.Close>
 		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>
+
+<!--
+	Create Account is its own dialog stacked over Budget Settings, opened by the
+	`+` button above. It's a sibling root (not nested inside the settings
+	`Dialog.Content`) on purpose: our `Dialog.Content` renders its children through
+	a snippet, so a nested `Dialog.Root` would be instantiated in this component's
+	context — outside bits' content context — and never open. As an independent
+	root its own focus trap also fixes the old focus jump to the Budget Name input.
+-->
+<Dialog.Root bind:open={addOpen}>
+	<!--
+		Lighter scrim (`bg-background/30`) so the settings dialog stays present behind
+		instead of receding under a second full scrim. Flat form (`AccountCreate`'s
+		card chrome dropped) so the fields sit on the dialog surface like the budget
+		form above.
+	-->
+	<Dialog.Content class="sm:max-w-md" overlayClass="bg-background/30">
+		<Dialog.Header>
+			<Dialog.Title>{m.new_account_title()}</Dialog.Title>
+		</Dialog.Header>
+		<Dialog.Body>
+			<AccountCreate
+				currency={budget.currency}
+				onSuccess={() => (addOpen = false)}
+				class="rounded-none bg-transparent p-0"
+			/>
+		</Dialog.Body>
 	</Dialog.Content>
 </Dialog.Root>
