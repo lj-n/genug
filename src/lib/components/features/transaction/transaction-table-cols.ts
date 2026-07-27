@@ -10,8 +10,12 @@ export const colsClass =
 // (first-of-type drops the frame-adjacent left one — hidden form inputs may
 // precede the cells, hence -of-type). The border sits inside the min-h-9
 // border-box in both modes, so text centers identically read ⇄ edit.
+// Touch band (#297): in the nav-hidden band (@3xl→@max-7xl) rows grow to a
+// 44px min so cells are comfortably tappable; ≥7xl (sidebar back = pointer)
+// snaps to the resting min-h-9. Both read + edit cells share this const, so
+// the pixel-lock holds at every width.
 export const cellClass =
-	'grid min-h-9 border-b border-l border-muted/10 p-0 first-of-type:border-l-0';
+	'grid min-h-9 border-b border-l border-muted/10 p-0 first-of-type:border-l-0 @3xl/main:min-h-11 @7xl/main:min-h-9';
 
 // Read-mode click-to-edit trigger: fills the cell so hover/focus feedback
 // sits at the cell edge (design-language interaction-layer rules). Focus
@@ -28,6 +32,14 @@ export const cellTriggerClass =
 // (z-20 vs z-10) so a hovered neighbour never clips the focus outline (#275).
 export const editInputClass =
 	'h-full w-full justify-start rounded-none border-0 bg-transparent px-2 shadow-none hover:z-10 hover:bg-surface hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50 focus-visible:z-20';
+
+// Touch band (#297): the open-row footer actions (Cancel / Save / Save &
+// continue, on both the transaction and transfer create + edit rows) rest at
+// `size="xs"` (24px) — too small to tap. In the nav-hidden band (@3xl→@max-7xl)
+// they grow to a 44px touch target; ≥7xl (pointer) they snap back to the xs
+// resting geometry. Applied via `class` alongside `size="xs"`.
+export const footerButtonTouchClass =
+	'@3xl/main:h-11 @3xl/main:gap-1.5 @3xl/main:px-4 @3xl/main:text-sm @7xl/main:h-6 @7xl/main:gap-1 @7xl/main:px-2 @7xl/main:text-xs';
 
 // SelectCategory extras: the container already wraps a px-2 input, so it goes
 // px-0 itself; min-w-0 on container and input stops the trigger caret from

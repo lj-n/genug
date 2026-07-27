@@ -20,7 +20,8 @@
 		cellClass,
 		editInputClass,
 		editRowClass,
-		editSelectClass
+		editSelectClass,
+		footerButtonTouchClass
 	} from './transaction-table-cols';
 	import RowErrors from './transaction-table-row-errors.svelte';
 
@@ -195,6 +196,7 @@
 							<Button
 								type="button"
 								size="xs"
+								class={footerButtonTouchClass}
 								variant="ghost"
 								disabled={submit.pending}
 								onclick={() => (open = false)}
@@ -202,7 +204,12 @@
 								{m.cancel()}
 							</Button>
 
-							<Button type="submit" size="xs" disabled={submit.pending}>
+							<Button
+								type="submit"
+								size="xs"
+								class={footerButtonTouchClass}
+								disabled={submit.pending}
+							>
 								{m.save()}
 							</Button>
 						</div>

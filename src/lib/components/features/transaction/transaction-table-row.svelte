@@ -31,7 +31,8 @@
 		colsClass,
 		editInputClass,
 		editRowClass,
-		editSelectClass
+		editSelectClass,
+		footerButtonTouchClass
 	} from './transaction-table-cols';
 	import RowErrors from './transaction-table-row-errors.svelte';
 	import ValidateToggle from './transaction-validate-toggle.svelte';
@@ -289,7 +290,14 @@
 			transition:slide={{ duration: 150 }}
 			class="col-span-full flex items-center justify-end gap-1 p-1"
 		>
-			<Button type="button" size="xs" variant="ghost" disabled={pending} onclick={cancelEditing}>
+			<Button
+				type="button"
+				size="xs"
+				class={footerButtonTouchClass}
+				variant="ghost"
+				disabled={pending}
+				onclick={cancelEditing}
+			>
 				{m.cancel()}
 			</Button>
 
@@ -297,6 +305,7 @@
 				type="submit"
 				variant="destructive"
 				size="icon-xs"
+				class="@3xl/main:size-11 @7xl/main:size-6"
 				form={deleteFormId}
 				name={deleteForm.fields.ids.as('select multiple').name}
 				value={[transaction.id]}
@@ -307,7 +316,13 @@
 				<span class="sr-only">{m.delete()}</span>
 			</Button>
 
-			<Button type="submit" size="xs" form={editFormId} disabled={pending}>
+			<Button
+				type="submit"
+				size="xs"
+				class={footerButtonTouchClass}
+				form={editFormId}
+				disabled={pending}
+			>
 				{m.save()}
 			</Button>
 		</div>
