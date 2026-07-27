@@ -65,7 +65,12 @@
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger disabled={allActive}>
 						{#snippet child({ props })}
-							<Button {...props} size="icon" aria-label={m.transaction_filter_title()}>
+							<Button
+								{...props}
+								size="icon"
+								class="@3xl/main:size-11 @7xl/main:size-9"
+								aria-label={m.transaction_filter_title()}
+							>
 								<FunnelBoldIcon />
 							</Button>
 						{/snippet}
@@ -81,7 +86,12 @@
 				</DropdownMenu.Root>
 
 				{#if anyActive}
-					<Button variant="destructive" size="icon" onclick={() => onClearAllFilters()}>
+					<Button
+						variant="destructive"
+						size="icon"
+						class="@3xl/main:size-11 @7xl/main:size-9"
+						onclick={() => onClearAllFilters()}
+					>
 						<XIcon />
 					</Button>
 				{/if}

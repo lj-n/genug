@@ -81,8 +81,12 @@
 	>
 		<!-- One create group per affordance (ADR-0014): the inline popover rows at
 		     @3xl and up, the bottom sheets below. Only one group is ever visible. -->
+		<!-- Touch band (#297): the action cluster grows to 44px targets in the
+		     nav-hidden band (@3xl→@max-7xl); ≥7xl (pointer) it resets to the
+		     resting h-9/size-9. -->
 		<ButtonGroup.Root class="hidden @3xl/main:flex" bind:ref={createTriggerGroup}>
 			<Button
+				class="@3xl/main:h-11 @7xl/main:h-9"
 				aria-expanded={openCreateRow}
 				onclick={() => {
 					openTransferCreateRow = false;
@@ -94,6 +98,7 @@
 			</Button>
 			<Button
 				size="icon"
+				class="@3xl/main:size-11 @7xl/main:size-9"
 				aria-label={m.transactions_table_create_transfer()}
 				aria-expanded={openTransferCreateRow}
 				onclick={() => {

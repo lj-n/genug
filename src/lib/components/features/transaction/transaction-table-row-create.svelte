@@ -21,7 +21,8 @@
 		cellClass,
 		editInputClass,
 		editRowClass,
-		editSelectClass
+		editSelectClass,
+		footerButtonTouchClass
 	} from './transaction-table-cols';
 	import RowErrors from './transaction-table-row-errors.svelte';
 	import ValidationCheckbox from './transaction-validation-checkbox.svelte';
@@ -196,6 +197,7 @@
 						<Button
 							type="button"
 							size="xs"
+							class={footerButtonTouchClass}
 							variant="ghost"
 							disabled={submit.pending}
 							onclick={() => (open = false)}
@@ -206,6 +208,7 @@
 						<Button
 							type="submit"
 							size="xs"
+							class={footerButtonTouchClass}
 							disabled={submit.pending}
 							onclick={() => (submitAndContinue = false)}
 						>
@@ -215,6 +218,7 @@
 						<Button
 							type="submit"
 							size="xs"
+							class={footerButtonTouchClass}
 							disabled={submit.pending}
 							onclick={() => (submitAndContinue = true)}
 						>

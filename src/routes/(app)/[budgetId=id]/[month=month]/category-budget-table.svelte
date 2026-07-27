@@ -171,7 +171,7 @@
 						data-drag-item="category"
 						data-sortable-id={row.id}
 						role="row"
-						class="relative flex hover:bg-muted/5 @max-3xl/main:rounded-xs @max-3xl/main:border @max-3xl/main:border-muted/20 @max-3xl/main:bg-surface @3xl/main:even:bg-muted/3"
+						class="relative flex hover:bg-muted/5 @max-3xl/main:rounded-xs @max-3xl/main:border @max-3xl/main:border-muted/20 @max-3xl/main:bg-surface @3xl/main:min-h-11 @3xl/main:even:bg-muted/3 @7xl/main:min-h-0"
 					>
 						<BudgetTableCell class="relative hidden w-2/5 p-0 @3xl/main:flex">
 							<CategoryPopover {currency} {month} {row} />
