@@ -44,7 +44,8 @@ test('Category name cell opens the monthly-stats popover on wide viewports', asy
 		month: 'short',
 		year: 'numeric'
 	}).format(new Date());
-	// exact: the sparkline's SVG <title> also contains the month ("Jul 2026: €…").
+	// exact: the "Spend vs." row names the previous month, so an inexact match
+	// would risk colliding with a neighbouring month label.
 	await expect(popover.getByText(monthLabel, { exact: true })).toBeVisible();
 	await expect(popover.getByRole('link', { name: 'Settings' })).toBeVisible();
 	await expect(popover.getByText('Average Monthly Spend')).toBeVisible();

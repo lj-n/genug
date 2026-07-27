@@ -8,7 +8,7 @@
 	import type { Month } from '$lib/utils/month';
 
 	import { resolve } from '$app/paths';
-	import { CategoryStatsMonthly } from '$lib/components/features/category';
+	import { CategoryStatsLedger } from '$lib/components/features/category';
 	import { Button } from '$lib/components/ui/button';
 	import * as Popover from '$lib/components/ui/popover';
 	import { m } from '$lib/paraglide/messages';
@@ -73,7 +73,7 @@
 		align="start"
 		sideOffset={-cellHeight}
 		motion="fade"
-		class="w-(--bits-popover-anchor-width) gap-0 overflow-hidden rounded-xs p-0 shadow-sm ring-1 ring-muted/30"
+		class="w-(--bits-popover-anchor-width) gap-0 overflow-hidden rounded-xs bg-surface p-0 shadow-sm ring-1 ring-muted/30"
 	>
 		<!-- Title strip mirrors the cell: same px-2 inset and height, and the name
 		     repeats the cell's exact font (Plex Sans 16px/400/24) so it stays put —
@@ -98,10 +98,8 @@
 			</Button>
 		</div>
 
-		<!-- flex-gap so the sparkline and the stat tiles don't touch (the two are
-		     bare siblings out of CategoryStatsMonthly). -->
-		<div class="flex flex-col gap-3 p-3">
-			<CategoryStatsMonthly categoryId={row.id} {currency} {month} />
+		<div class="p-2">
+			<CategoryStatsLedger categoryId={row.id} {currency} {month} />
 		</div>
 	</Popover.Content>
 </Popover.Root>

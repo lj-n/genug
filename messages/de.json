@@ -45,6 +45,7 @@
 	"category_delete_confirm_action": "Löschen",
 	"category_stats_spent": "Bis jetzt ausgegeben",
 	"category_stats_target_percentage": "des Zielbetrags erreicht",
+	"category_stats_target_amount": "{saved} von {target}",
 	"category_stats_transaction_count": "Anzahl Transaktionen",
 	"category_stats_group_all_time": "Gesamter Zeitraum",
 	"category_stats_average": "Durchschnittliche Ausgaben pro Monat",

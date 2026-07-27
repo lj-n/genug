@@ -107,7 +107,7 @@
 		align="end"
 		sideOffset={-cellHeight}
 		motion="fade"
-		class="w-80 gap-0 overflow-hidden rounded-xs p-0 shadow-sm ring-1 ring-muted/30"
+		class="w-80 gap-0 overflow-hidden rounded-xs bg-surface p-0 shadow-sm ring-1 ring-muted/30"
 	>
 		<!-- Header mirrors the cell: label left, amount right (px-2 inset + cell
 		     font), sized to the cell's height so the amount lands where it was.

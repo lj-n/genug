@@ -41,6 +41,7 @@
 	"category_delete_confirm_action": "Delete",
 	"category_stats_spent": "Spent so far",
 	"category_stats_target_percentage": "Of Target Amount Reached",
+	"category_stats_target_amount": "{saved} of {target}",
 	"category_stats_transaction_count": "Number of Transactions",
 	"category_stats_group_all_time": "All Time",
 	"category_stats_average": "Average Monthly Spend",

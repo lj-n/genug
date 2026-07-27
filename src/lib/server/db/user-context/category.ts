@@ -117,8 +117,14 @@ export const queries = (userId: string, db: Database = database) => ({
 						WHEN ${tables.categories.targetBalance} IS NULL THEN NULL
 						ELSE coalesce(${bal.remaining}, 0) * 100 / ${tables.categories.targetBalance}
 					END`,
+				// The target amount and the balance saved toward it in the viewed
+				// month — the two figures a target progress reads out (the popover
+				// shows "saved of target", not just the bare percentage). Saved is
+				// the same viewed-month remaining the percentage divides.
+				currentTargetSaved: sql<number>`coalesce(${bal.remaining}, 0)`,
 				lastActivityDate: sql<null | string>`${bal.lastTransactionDate}`,
 				pendingTransactionCount: sql<number>`coalesce(${bal.pendingCount}, 0)`,
+				targetBalance: sql<null | number>`${tables.categories.targetBalance}`,
 				totalAssignedBudgetCount: sql<number>`coalesce(${bal.assignCount}, 0)`,
 				totalAssignedBudgetSum: sql<number>`coalesce(${bal.allTimeAssignmentSum}, 0)`,
 				totalRelatedTransactionCount: sql<number>`coalesce(${bal.txCount}, 0)`,
