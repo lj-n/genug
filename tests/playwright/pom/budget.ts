@@ -30,24 +30,26 @@ export class BudgetPage extends BasePage {
 	}
 
 	async createAccount(name: string, startingBalance = '0') {
-		// Accounts live in the Budget Settings dialog now (#273): open it, expand
-		// the inline Add Account form, and submit.
+		// Accounts live in the Budget Settings dialog now (#273); the Add Account
+		// form is a nested dialog stacked over it (#294). Open settings, open the
+		// account dialog, fill and submit.
 		await this.page.getByRole('button', { name: 'Budget Settings' }).click();
-		const dialog = this.page.getByRole('dialog');
-		await dialog.getByRole('button', { name: 'Add Account' }).click();
+		const settings = this.page.getByRole('dialog', { name: 'Budget Settings' });
+		await settings.getByRole('button', { name: 'Add Account' }).click();
 
-		await dialog.getByRole('textbox', { name: 'Account Name' }).fill(name);
-		await dialog
+		const addDialog = this.page.getByRole('dialog', { name: 'Add New Account' });
+		await addDialog.getByRole('textbox', { name: 'Account Name' }).fill(name);
+		await addDialog
 			.getByRole('textbox', { name: 'What is the current balance?' })
 			.fill(startingBalance);
 
-		await dialog.getByRole('button', { name: 'Create Account' }).click();
+		await addDialog.getByRole('button', { name: 'Create Account' }).click();
 
-		// The inline form creates in place (no redirect): the new account joins
-		// the dialog's account list. Open its link to reach the account page and
-		// capture the URL, then return to the budget page so subsequent
+		// Creates in place (no redirect): the account dialog closes and the new
+		// account joins the settings list. Open its link to reach the account page
+		// and capture the URL, then return to the budget page so subsequent
 		// createCategory / assignAmount calls work.
-		const accountLink = dialog.getByRole('link', { name });
+		const accountLink = settings.getByRole('link', { name });
 		await expect(accountLink).toBeVisible();
 		await accountLink.click();
 		await expect(this.page.getByRole('heading', { name })).toBeVisible();
@@ -66,16 +68,17 @@ export class BudgetPage extends BasePage {
 	async createAccountExpectingError(name: string) {
 		await this.page.getByRole('button', { name: 'Budget Settings' }).click();
 
-		const dialog = this.page.getByRole('dialog');
-		await dialog.getByRole('button', { name: 'Add Account' }).click();
+		const settings = this.page.getByRole('dialog', { name: 'Budget Settings' });
+		await settings.getByRole('button', { name: 'Add Account' }).click();
 
-		await dialog.getByRole('textbox', { name: 'Account Name' }).fill(name);
-		await dialog.getByRole('button', { name: 'Create Account' }).click();
+		const addDialog = this.page.getByRole('dialog', { name: 'Add New Account' });
+		await addDialog.getByRole('textbox', { name: 'Account Name' }).fill(name);
+		await addDialog.getByRole('button', { name: 'Create Account' }).click();
 
-		await expect(dialog.getByText(`${name} already exists.`)).toBeVisible();
-		// The field error keeps the dialog open — a successful create would clear
-		// the form and add the account to the list instead.
-		await expect(dialog).toBeVisible();
+		await expect(addDialog.getByText(`${name} already exists.`)).toBeVisible();
+		// The field error keeps the account dialog open — a successful create would
+		// close it and add the account to the settings list instead.
+		await expect(addDialog).toBeVisible();
 	}
 
 	/**

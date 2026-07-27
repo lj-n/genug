@@ -15,19 +15,25 @@
 	let {
 		children,
 		class: className,
+		overlayClass,
 		portalProps,
 		ref = $bindable(null),
 		showCloseButton = true,
 		...restProps
 	}: WithoutChildrenOrChild<DialogPrimitive.ContentProps> & {
 		children: Snippet;
+		// Override the scrim: a class merged onto the overlay, or `null` to drop the
+		// overlay entirely (e.g. a dialog stacked over another that already dims).
+		overlayClass?: null | string;
 		portalProps?: WithoutChildrenOrChild<ComponentProps<typeof DialogPortal>>;
 		showCloseButton?: boolean;
 	} = $props();
 </script>
 
 <DialogPortal {...portalProps}>
-	<Dialog.Overlay />
+	{#if overlayClass !== null}
+		<Dialog.Overlay class={overlayClass ?? undefined} />
+	{/if}
 	<DialogPrimitive.Content
 		data-slot="dialog-content"
 		{...restProps}

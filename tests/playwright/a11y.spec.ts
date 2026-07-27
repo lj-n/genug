@@ -134,11 +134,13 @@ for (const theme of THEMES) {
 			await page.keyboard.press('Escape');
 			await expect(categoryDialog).not.toBeVisible();
 
-			// Add account: the inline create-account form in the Budget Settings dialog.
+			// Add account: the create-account form is a nested dialog stacked over
+			// the Budget Settings dialog (#294). Scan both surfaces together.
 			await page.getByRole('button', { name: 'Budget Settings' }).click();
-			const accountsDialog = page.getByRole('dialog');
-			await accountsDialog.getByRole('button', { name: 'Add Account' }).click();
-			await expect(accountsDialog.getByRole('textbox', { name: 'Account Name' })).toBeVisible();
+			const settingsDialog = page.getByRole('dialog', { name: 'Budget Settings' });
+			await settingsDialog.getByRole('button', { name: 'Add Account' }).click();
+			const addAccountDialog = page.getByRole('dialog', { name: 'Add New Account' });
+			await expect(addAccountDialog.getByRole('textbox', { name: 'Account Name' })).toBeVisible();
 			await expectAxeClean(page);
 		});
 
