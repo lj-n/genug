@@ -22,19 +22,32 @@ const remote = vi.hoisted(() => {
 		const onSubmit = vi.fn();
 		const updatedQueries: unknown[] = [];
 
-		const field = (name: string) => ({
-			as: (type: string, value?: unknown) => {
-				if (type === 'hidden') return { name, type, value };
-				if (type === 'checkbox') return { checked: value, name, type };
-				if (type === 'text') return { name, type, value };
-				return { name };
-			},
-			issues: () => undefined,
-			set: (value: unknown) => {
-				fieldState[name] = value;
-			},
-			value: () => fieldState[name]
-		});
+		const field = (name: string): Record<string, unknown> =>
+			new Proxy(
+				{
+					as: (type: string, value?: unknown) => {
+						if (type === 'hidden') return { name, type, value };
+						if (type === 'checkbox') return { checked: value, name, type };
+						if (type === 'text') return { name, type, value };
+						return { name };
+					},
+					issues: () => undefined,
+					set: (value: unknown) => {
+						fieldState[name] = value;
+					},
+					value: () => fieldState[name]
+				},
+				{
+					// Mirror SvelteKit's field proxy: numeric index yields the
+					// nested array-element accessor (e.g. `fields.ids[0]`).
+					get(target, prop) {
+						if (typeof prop === 'string' && /^\d+$/.test(prop)) {
+							return field(`${name}[${prop}]`);
+						}
+						return Reflect.get(target, prop);
+					}
+				}
+			);
 
 		const form = {
 			enhance: (callback: (instance: unknown) => Promise<void>) => ({
@@ -226,7 +239,7 @@ describe('TableRowEdit — delete', () => {
 		const user = userEvent.setup();
 		await renderRow();
 
-		expect(deleteButton()).toHaveAttribute('name', 'ids');
+		expect(deleteButton()).toHaveAttribute('name', 'ids[0]');
 		expect(deleteButton()).toHaveValue('tx-1');
 
 		await user.click(deleteButton());

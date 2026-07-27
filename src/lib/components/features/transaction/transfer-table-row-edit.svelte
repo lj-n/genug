@@ -160,8 +160,8 @@
 				variant="destructive"
 				size="icon"
 				form={deleteFormId}
-				name={deleteForm.fields.ids.as('select multiple').name}
-				value={[transaction.id]}
+				name={deleteForm.fields.ids[0].as('submit', transaction.id).name}
+				value={transaction.id}
 				disabled={pending}
 				{@attach deleteSubmit.anchor}
 			>

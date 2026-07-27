@@ -43,8 +43,8 @@
 
 	<Button
 		type="submit"
-		name={form.fields.ids.as('select multiple').name}
-		value={[transaction.id]}
+		name={form.fields.ids[0].as('submit', transaction.id).name}
+		value={transaction.id}
 		size="icon-lg"
 		variant="ghost"
 		disabled={submit.pending}
