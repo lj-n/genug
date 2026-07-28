@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import * as Dialog from '$lib/components/ui/dialog';
+	import * as ResponsiveModal from '$lib/components/ui/responsive-modal';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudgetUsers } from '$lib/remote-functions/budget.remote';
 	import { getUser } from '$lib/remote-functions/user.remote';
@@ -20,8 +20,8 @@
 	const members = $derived(budgetUsers.filter((f) => f.role !== 'INVITEE'));
 </script>
 
-<Dialog.Root>
-	<Dialog.Trigger>
+<ResponsiveModal.Root dismissible={false}>
+	<ResponsiveModal.Trigger>
 		{#snippet child({ props })}
 			<Button
 				{...props}
@@ -37,26 +37,30 @@
 				{/if}
 			</Button>
 		{/snippet}
-	</Dialog.Trigger>
+	</ResponsiveModal.Trigger>
 
-	<Dialog.Content class="gap-0" interactOutsideBehavior="ignore">
-		<Dialog.Header>
-			<Dialog.Title>{m.budget_users_dialog_title()}</Dialog.Title>
-			<Dialog.Description class="grid gap-4">
+	<ResponsiveModal.Content class="gap-0">
+		<ResponsiveModal.Header>
+			<ResponsiveModal.Title>{m.budget_users_dialog_title()}</ResponsiveModal.Title>
+			<ResponsiveModal.Description class="grid gap-4">
 				<div>
 					{m.budget_users_dialog_description()}
 				</div>
-			</Dialog.Description>
-		</Dialog.Header>
+			</ResponsiveModal.Description>
+		</ResponsiveModal.Header>
 
-		<UserList {isOwner} title={m.budget_users_with_access_title()} users={members} />
+		<ResponsiveModal.Body>
+			<UserList {isOwner} title={m.budget_users_with_access_title()} users={members} />
 
-		<UserList {isOwner} title={m.budget_users_invited_title()} users={invited} />
+			<UserList {isOwner} title={m.budget_users_invited_title()} users={invited} />
 
-		<UserInvitation />
+			<UserInvitation />
+		</ResponsiveModal.Body>
 
-		<Dialog.Footer class="mt-6">
-			<Dialog.Close class={buttonVariants({ variant: 'ghost' })}>{m.dialog_close()}</Dialog.Close>
-		</Dialog.Footer>
-	</Dialog.Content>
-</Dialog.Root>
+		<ResponsiveModal.Footer class="mt-6">
+			<ResponsiveModal.Close class={buttonVariants({ variant: 'ghost' })}>
+				{m.dialog_close()}
+			</ResponsiveModal.Close>
+		</ResponsiveModal.Footer>
+	</ResponsiveModal.Content>
+</ResponsiveModal.Root>
