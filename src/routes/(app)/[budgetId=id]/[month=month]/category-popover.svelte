@@ -42,10 +42,8 @@
 		void getCategoryStats({ categoryId: row.id, month });
 	}
 
-	// The panel overlaps its trigger cell exactly: a negative main-axis offset
-	// equal to the cell's own height pulls the panel back over the cell (in both
-	// flip directions), hiding it. Measured live so it tracks the row density —
-	// the same height sizes the panel's title strip, so the name stays put.
+	// Cell height measured live so the overlap offset tracks the row density;
+	// the same height sizes the panel's title strip so the name stays put.
 	let triggerEl = $state<HTMLElement | null>(null);
 	let cellHeight = $state(0);
 	$effect(() => {
@@ -75,10 +73,8 @@
 		motion="fade"
 		class="w-(--bits-popover-anchor-width) gap-0 overflow-hidden rounded-xs bg-surface p-0 shadow-sm ring-1 ring-muted/30"
 	>
-		<!-- Title strip mirrors the cell: same px-2 inset and height, and the name
-		     repeats the cell's exact font (Plex Sans 16px/400/24) so it stays put —
-		     no size flicker — when the panel opens over the cell. The muted fill +
-		     hairline divider keep this "cell zone" distinct from the stats below. -->
+		<!-- Title strip mirrors the cell — same inset, height, and font — so the
+		     name doesn't shift when the panel opens over it. -->
 		<div
 			class="flex items-center justify-between gap-2 border-b border-muted/20 bg-muted/5 px-2"
 			style="min-height: {cellHeight}px"

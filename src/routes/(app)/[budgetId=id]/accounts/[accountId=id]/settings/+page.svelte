@@ -45,9 +45,6 @@
 		</Page.Title>
 	</Page.Header>
 
-	<!-- A single quiet vertical list of titled sections, split by hairline
-	     dividers on the /settings rhythm (restyle #280, matching the category
-	     settings page). -->
 	<Page.Content class="max-w-xl">
 		<div class="space-y-3">
 			<AccountEdit {account} />

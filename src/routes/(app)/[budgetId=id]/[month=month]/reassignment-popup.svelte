@@ -1,9 +1,6 @@
-<!-- Desktop transfer surface for a category's Remaining cell. Like the category
-     detail popover, the panel sits directly on top of its cell (a negative
-     offset equal to the cell's height overlaps it exactly) and grows from
-     there. The header mirrors the cell: the move/cover label on the left, the
-     remaining amount pinned on the right in the cell's own font so it stays
-     put — no flicker — when the panel opens over it. The form follows below. -->
+<!-- Desktop transfer surface for a category's Remaining cell. The panel
+     overlaps the cell exactly (see category-popover) and its header mirrors
+     the cell so the amount stays put when it opens. -->
 <script lang="ts">
 	import type { Month } from '$lib/utils/month';
 
@@ -66,10 +63,8 @@
 		if (!open) submit.reset();
 	});
 
-	// The panel overlaps its trigger cell exactly (see category-popover): a
-	// negative main-axis offset equal to the cell's height pulls it back over the
-	// cell in both flip directions, and the same height sizes the header strip so
-	// the amount stays put.
+	// Cell height measured live — it both offsets the panel over the cell and
+	// sizes the header strip (see category-popover).
 	let triggerEl = $state<HTMLElement | null>(null);
 	let cellHeight = $state(0);
 	$effect(() => {
@@ -109,9 +104,6 @@
 		motion="fade"
 		class="w-80 gap-0 overflow-hidden rounded-xs bg-surface p-0 shadow-sm ring-1 ring-muted/30"
 	>
-		<!-- Header mirrors the cell: label left, amount right (px-2 inset + cell
-		     font), sized to the cell's height so the amount lands where it was.
-		     The muted fill + hairline divider match the category popover's header. -->
 		<div
 			class="flex items-center justify-between gap-2 border-b border-muted/20 bg-muted/5 px-2"
 			style="min-height: {cellHeight}px"
@@ -125,8 +117,7 @@
 
 			<!-- The popover base is text-sm, but the cell renders font-currency in a
 			     text-base (16px) context, so its 0.9375em lands at 15px. Restore that
-			     16px em-context here so the amount matches the cell exactly — neither
-			     shrinks nor grows when the panel opens over it. -->
+			     em-context so the amount matches the cell exactly. -->
 			<span class="text-base leading-6">
 				<span class={cn('font-currency font-medium', remaining < 0 && 'text-error')}>
 					{formatMoney({ currency, money: asMoney(remaining) })}
