@@ -91,3 +91,9 @@ Open questions (not yet prototyped):
 - Account side on mobile checked as-is: budget settings renders as a drawer, and the stacked
   archive **dialog** over it reads fine at 390px — open question for the user whether it should
   become a (nested) drawer for consistency.
+
+### Round 7 (2026-07-29)
+
+- **Mobile round 1 locked.** Archived categories on mobile = bottom drawer
+  (`prototype-archive-drawer.svelte`); archived accounts on mobile stay in the stacked dialog
+  over the settings drawer, as shown.
