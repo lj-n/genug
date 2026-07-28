@@ -86,9 +86,9 @@
 			{@render invitations?.()}
 
 			<nav class="mx-auto grid w-full max-w-md gap-6" {@attach closeDrawerAttachment}>
-				<ul class="space-y-4 text-lg">
+				<ul class="space-y-2 text-lg">
 					{#each await getBudgets() as budget (budget.id)}
-						<li class="flex flex-col gap-1 rounded-md border border-muted/20 bg-surface p-1.5">
+						<li class="flex flex-col gap-1">
 							<a
 								href={resolve('/(app)/[budgetId=id]', { budgetId: budget.id })}
 								class={cn(
@@ -96,6 +96,13 @@
 									isCurrentPage(page, budget.id) && 'text-info'
 								)}
 							>
+								<span
+									class={cn(
+										'size-1.5 shrink-0 rounded-full',
+										isCurrentPage(page, budget.id) ? 'bg-info' : 'bg-transparent'
+									)}
+									aria-hidden="true"
+								></span>
 								{budget.name}
 							</a>
 
@@ -130,7 +137,7 @@
 					{/each}
 				</ul>
 
-				<ul class="flex flex-col gap-1 rounded-md border border-muted/20 bg-surface p-1.5 text-lg">
+				<ul class="flex flex-col border-t border-muted/20 pt-2 text-lg">
 					<li class="flex">
 						<a
 							href={resolve('/(app)/new')}

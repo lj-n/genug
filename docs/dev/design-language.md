@@ -216,10 +216,14 @@ text-info`. No per-action accent colors (P1).
   six-dot grip at the row's right edge, `opacity-0 group-hover:opacity-100
 focus-visible:opacity-100` — reorder stays discoverable without
   furnishing the rail.
-- **The mobile drawer keeps slabs, drops shadows**: budget + accounts and
-  the utility list sit on `rounded-md border border-muted/20 bg-surface`
-  cards (flat per P2 — the drawer panel owns the overlay shadow), touch
-  paddings retained, same ink/`info` active idiom as the rail.
+- **The mobile drawer mirrors the rail, flat, at touch density** (#301):
+  the slab cards are gone — budgets and their indented accounts flow as one
+  group and the utility list sits behind the same `border-t border-muted/20`
+  hairline as the rail. Same idiom as desktop: active budget in `info` ink
+  with its inline `size-1.5` dot (transparent slot on the rest so labels
+  align), accounts as `text-muted` sub-items behind the `size-3` bend-arrow,
+  neutral `bg-muted/5` hover. Only the scale differs for touch — `text-lg`
+  rows, `p-2` tap targets, `size-6` utility icons.
 - **Page chrome gaps are 16px by default now**: `Page.Root` and
   `Page.Header` ship `gap-4`, `Page.Content` its grid's `gap-y-4` (P4
   generalized); the month view's call-site overrides are gone.
