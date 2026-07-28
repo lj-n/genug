@@ -12,6 +12,9 @@ and dependency bumps get no entry.
 
 ### Changed
 
+- The budget table's remaining amounts now render in a medium weight rather
+  than semibold, so the figure still anchors each row without dominating the
+  quieter secondary numbers.
 - The settings page dropped its stacked tinted panels for a calmer layout:
   each section sits directly on the page, separated by hairline dividers that
   hug the heading they introduce. Dialogs now use a slightly darker surface so

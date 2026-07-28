@@ -248,7 +248,7 @@
 								<div class="flex items-center px-4">
 									<span
 										class={cn(
-											'font-currency',
+											'font-currency font-medium',
 											row.remaining < 0 && 'text-error',
 											row.remaining === 0 && 'text-muted'
 										)}
