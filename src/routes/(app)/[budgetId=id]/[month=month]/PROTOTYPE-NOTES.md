@@ -109,3 +109,10 @@ Open questions (not yet prototyped):
     `AccountArchivedNotice`.
   - Restore-in-place verified: submitting refreshes the page query and the full detail view
     returns without navigation.
+
+### Final lock (2026-07-29)
+
+- **All rounds locked.** The complete archive UX prototype: desktop category popover (round-4 C),
+  accounts stacked dialog, mobile categories bottom drawer, disclaimer-only archived detail
+  pages, zero-state auto-hide everywhere, live restore into the owning views.
+- Prototyping phase closed; this branch is the primary source for the implementation pass.
