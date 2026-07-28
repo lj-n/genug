@@ -24,6 +24,8 @@
 	import CategoryAssignmentForm from './category-assignment-form.svelte';
 	import CategoryAssignmentModal from './category-assignment-modal.svelte';
 	import CategoryPopover from './category-popover.svelte';
+	// PROTOTYPE (#334): replaces the archived-page link in the desktop header.
+	import PrototypeArchivePopover from './prototype-archive-popover.svelte';
 	import ReassignmentPopup from './reassignment-popup.svelte';
 
 	let {
@@ -114,16 +116,7 @@
 						>
 							<PlusIcon class="size-4" />
 						</Button>
-						{#if archivedCategories.length > 0}
-							<Button
-								variant="ghost"
-								size="xs"
-								href={archivedHref}
-								aria-label={m.category_archived_link({ amount: archivedCategories.length })}
-							>
-								<ArchiveIcon class="size-4" />
-							</Button>
-						{/if}
+						<PrototypeArchivePopover />
 					</span>
 				</BudgetTableHeader>
 				<BudgetTableHeader class="w-1/5">

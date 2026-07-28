@@ -1,0 +1,26 @@
+<script lang="ts">
+	// PROTOTYPE (#334) — Variant C "Row action": the whole row is the restore
+	// button — hover/focus swaps the archived date for a Restore label.
+	import type { getArchivedCategories } from '$lib/remote-functions/category.remote';
+
+	import * as Popover from '$lib/components/ui/popover';
+	import { m } from '$lib/paraglide/messages';
+	import { flip } from 'svelte/animate';
+
+	import PrototypeRestoreForm from './prototype-restore-form.svelte';
+
+	let { categories }: { categories: Awaited<ReturnType<typeof getArchivedCategories>> } = $props();
+</script>
+
+<Popover.Content side="right" align="start" class="w-72 gap-1 p-2">
+	<p class="px-2 pt-1 text-xs text-muted">
+		{m.category_archived_link({ amount: categories.length })}
+	</p>
+	<ul class="flex max-h-72 flex-col overflow-y-auto">
+		{#each categories as category (category.id)}
+			<li animate:flip={{ duration: 200 }}>
+				<PrototypeRestoreForm {category} style="row" />
+			</li>
+		{/each}
+	</ul>
+</Popover.Content>

@@ -13,6 +13,8 @@
 	import CategoryBudgetTable from './category-budget-table.svelte';
 	import CategoryQuickActions from './category-quick-actions.svelte';
 	import MonthNavigator from './month-navigator.svelte';
+	// PROTOTYPE (#334): floating variant switcher for the archive popover.
+	import PrototypeArchiveSwitcher from './prototype-archive-switcher.svelte';
 	import TutorialCard from './tutorial-card.svelte';
 	import UnassignedSummary from './unassigned-summary.svelte';
 
@@ -74,3 +76,5 @@
 		{/if}
 	</Page.Content>
 </Page.Root>
+
+<PrototypeArchiveSwitcher />
