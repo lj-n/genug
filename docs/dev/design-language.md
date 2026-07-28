@@ -89,8 +89,10 @@ Dialog, dialog-form, alert-dialog(-form), drawer, responsive-modal, popover
 (-form), dropdown-menu, select, command:
 
 - **One surface: `bg-surface-high`.** The top layer gets the top token —
-  every overlay panel (modals, drawer, menus, popover, select, command)
-  fills `bg-surface-high`. Calendar keeps its in-popover transparency.
+  every overlay panel (drawer, alert-dialog, menus, popover, select,
+  command, toast) fills `bg-surface-high`, except the plain `Dialog`, which
+  fills `bg-surface` (inherited by `dialog-form` and the desktop face of
+  `responsive-modal`). Calendar keeps its in-popover transparency.
 - **Chrome: hairline + one shadow.** Panels carry `ring-1 ring-foreground/10`
   (the drawer its directional `border-muted/20` edge) plus `shadow-md` —
   the single overlay shadow step (P2: shadows are overlay-only; the inline
