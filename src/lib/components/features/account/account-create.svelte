@@ -31,8 +31,6 @@
 		onSuccess,
 		updates
 	}: {
-		// Override the form-body chrome — e.g. flatten the tinted card when the form
-		// already sits on a dialog surface.
 		class?: string;
 		currency: (typeof CURRENCIES)[number];
 		onSuccess?: () => void;
