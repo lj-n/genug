@@ -1,11 +1,8 @@
 # Design Language
 
-Locked detail-by-detail on the budget month view with live user feedback
-(#255). Later restyle sessions apply these rules instead of re-litigating
-taste. The default palette was locked in #256 (hand-tuned from One Light /
-Kanagawa Dragon starting points, token values in `src/routes/layout.css`);
-typography (fonts, roles, hierarchy) was locked in #261 (see Typography
-below).
+The locked visual rules for the app. Later work applies these instead of
+re-litigating taste. Palette token values live in `src/routes/layout.css`
+(`@theme`); typography is defined under Typography below.
 
 ## Principles
 
@@ -19,24 +16,21 @@ below).
    combos. State chips are flat tints (`bg-<state>/10`, no border). Shadows
    are reserved for overlays (popovers, dialogs).
 3. **One radius token: 4px.** All `--radius-*` steps collapse to `0.25rem`
-   in `layout.css` `@theme`. Markup keeps its `rounded-*` classes; the
-   tokens carry the look. Don't introduce visually different corner radii.
+   in `layout.css` `@theme`, so `rounded-xs`…`rounded-xl` are interchangeable
+   aliases — markup keeps its `rounded-*` classes and the tokens carry the
+   look. Don't introduce visually different corner radii.
 4. **Compact data, tight chrome.** Table rows ≈ 36px (`px-2 py-1` cells,
    `size-7` drag handle). Page chrome gaps are 16px (`gap-4`), not 24px.
-5. **Rows are zebra stripes on an open ledger.** (Revised in the #259
-   table sessions — the original #255 "rows are slabs" lock is retired.)
-   The category table has no outer frame, no row borders and no slabs:
-   rows sit transparent on the page background with an `even:bg-muted/3`
-   stripe and `hover:bg-muted/5`; column structure is carried by alignment
-   alone. Mobile cards keep the bordered `bg-surface` slab look — the
-   zebra revision applies to the desktop table.
+5. **Rows are zebra stripes on an open ledger.** The category table has no
+   outer frame, no row borders and no slabs: rows sit transparent on the page
+   background with an `even:bg-muted/3` stripe and `hover:bg-muted/5`; column
+   structure is carried by alignment alone. Mobile cards keep the bordered
+   `bg-surface` slab look — the zebra treatment applies to the desktop table.
 6. **Headers are quiet chrome.** Column headers: `h-8 text-xs tracking-wider
-uppercase text-muted`, uniform — no loud bold header cells (amended in
-   #261: plus `font-display font-medium` — Lora caps need 500 to hold
-   their own at 12px). On the zebra
+uppercase text-muted font-display font-medium`, uniform — no loud bold
+   header cells (Lora caps need 500 to hold their own at 12px). On the zebra
    open ledger the header row carries the contrast bar (`bg-muted/3` +
-   `border-b border-muted/30`); the register's floating header stays bare
-   (amended in #259).
+   `border-b border-muted/30`); the register's floating header stays bare.
 7. **Hover is neutral and crisp; gold means keyboard.** Hover feedback =
    `outline-1 -outline-offset-1 outline-foreground/50` flush with the
    element edge (+ `bg-surface` fill on table cell triggers). The solid 2px
@@ -49,7 +43,7 @@ uppercase text-muted`, uniform — no loud bold header cells (amended in
    grid_ (see Table family below). Don't blur them by reusing one idiom
    on the other.
 
-## Interaction-layer rules (found the hard way)
+## Interaction-layer rules
 
 - Interactive table cells stay `p-0`; their fill-height triggers must reach
   the cell border so the hover/focus outline sits at the row edge, never
@@ -60,13 +54,12 @@ uppercase text-muted`, uniform — no loud bold header cells (amended in
 - Match outline width and negative offset (1px ↔ `-outline-offset-1`) or the
   outline floats inside the edge.
 
-## Form-control family (#257)
+## Form-control family
 
 The primitives in `src/lib/components/ui` (button, button-group, input,
 input-group, input-money, input-password, textarea, label, checkbox, select,
 select-category, toggle-group, calendar, date-picker, form-field, form-body)
-apply the language as follows; reviewed control-by-control in both modes on
-a live gallery:
+apply the language as follows:
 
 - **Shared interaction constants** live in `src/lib/components/ui/focus-ring`:
   `hoverOutline` (the P7 neutral hover outline, `not-disabled`-guarded) and
@@ -80,25 +73,26 @@ a live gallery:
 - **Buttons keep tinted variant fills at rest** (`bg-interactive/10` etc. —
   the tint reads as affordance meaning under P1); hover adds only the
   neutral outline, never a deeper tint. Ghost hovers `bg-muted/10`.
-- **Control chrome is flat**: adaptive `bg-muted/5` fill (amended in #258 —
-  was `bg-surface`, which vanished on same-colored overlay surfaces; the
-  translucent tint keeps fields one step darker than any host),
-  `border-muted/20`, no shadows (shadows stay overlay-only per P2).
+- **Control chrome is flat**: adaptive `bg-muted/5` fill (a translucent tint
+  keeps fields one step darker than any host surface — a solid `bg-surface`
+  vanishes on same-colored overlays), `border-muted/20`, no shadows (shadows
+  stay overlay-only per P2).
 - **Focus beats the error halo.** Invalid controls always show
   `border-error`; the soft `ring-3 ring-error/20` halo is suppressed while
   the control (or, for wrapper chrome, its inner form control) is
   focus-visible, so the gold ring stays unmistakable.
 - **Disabled is 50% opacity** everywhere; buttons also drop pointer events.
 
-## Overlay family (#258)
+## Overlay family
 
 Dialog, dialog-form, alert-dialog(-form), drawer, responsive-modal, popover
-(-form), dropdown-menu, select, command. Reviewed live in both modes;
-decision trail in the (deleted) gallery's NOTES survives in the #258 PR.
+(-form), dropdown-menu, select, command:
 
 - **One surface: `bg-surface-high`.** The top layer gets the top token —
-  every overlay panel (modals, drawer, menus, popover, select, command)
-  fills `bg-surface-high`. Calendar keeps its in-popover transparency.
+  every overlay panel (drawer, alert-dialog, menus, popover, select,
+  command, toast) fills `bg-surface-high`, except the plain `Dialog`, which
+  fills `bg-surface` (inherited by `dialog-form` and the desktop face of
+  `responsive-modal`). Calendar keeps its in-popover transparency.
 - **Chrome: hairline + one shadow.** Panels carry `ring-1 ring-foreground/10`
   (the drawer its directional `border-muted/20` edge) plus `shadow-md` —
   the single overlay shadow step (P2: shadows are overlay-only; the inline
@@ -132,16 +126,13 @@ decision trail in the (deleted) gallery's NOTES survives in the #258 PR.
   `bg-error/5` under `text-error` — the fill itself carries the warning
   (P1).
 
-## Table family (#259 table sessions)
+## Table family
 
-The two flagship tables were nailed live on real data (session log:
-`src/routes/(app)/[budgetId=id]/[month=month]/NOTES.md` on branch
-`restyle-tables-259`); they implement the two identities of P8:
+The two flagship tables implement the two identities of P8:
 
-- **Budget month table — zebra open ledger.** No outer frame, no row
-  borders: transparent rows with `even:bg-muted/3` stripes (desktop only;
-  mobile cards stay slabs), `hover:bg-muted/5`, compact ~36px density,
-  header bar `bg-muted/3` + `border-b border-muted/30`.
+- **Budget month table — zebra open ledger.** The P5 zebra treatment at P4
+  density: transparent rows, `even:bg-muted/3` stripes (desktop only; mobile
+  cards stay slabs), `hover:bg-muted/5`, header bar per P6.
 - **Transaction register — framed spreadsheet grid.** `rounded-xs border
 border-muted/20 bg-surface` frame wraps the data rows ONLY; the quiet
   header floats above (`mb-1 h-8`, no fill) and pagination is a flat line
@@ -157,45 +148,37 @@ border-muted/20 bg-surface` frame wraps the data rows ONLY; the quiet
   `ring-1 ring-interactive/40` over the whole row (gold stays
   keyboard-only), `xs`/`icon-xs` action buttons in a `p-1 gap-1` bar,
   150ms `transition:slide`.
-- **Amounts are `font-currency`** in every table (amended in #261:
-  regular-weight IBM Plex Mono tabular numerals at `0.9375em`); labels,
-  dates and empty markers stay in the normal sans.
+- **Amounts are `font-currency`** in every table (see Money under
+  Typography); labels, dates and empty markers stay in the normal sans.
 
-## Data-display & feedback family (#259)
+## Data-display & feedback family
 
 table, pagination, empty-state, separator, collapsible, toaster,
-version-label, source-link — reviewed primitive-by-primitive in both modes
-on a live gallery (deleted after review; decision trail in the #259 PR):
+version-label, source-link:
 
-- **Generic `ui/table` wears the zebra open ledger** (P5): flush
-  transparent rows (`even:bg-muted/3`, `hover:bg-muted/5`), the
-  `bg-muted/3` + `border-b border-muted/30` header bar, compact `px-2 py-1`
-  cells under the P6 header treatment. `tfoot` is the symmetric bookend bar
-  (`bg-muted/3` + `border-t border-muted/30` + `font-medium`) — the table
-  closes the way it opens. The framed grid stays the register's signature
-  (P8); non-flagship tables default to the quiet ledger.
+- **Generic `ui/table` wears the zebra open ledger** (P5/P6) at P4 density.
+  `tfoot` is the symmetric bookend bar (`bg-muted/3` + `border-t
+border-muted/30` + `font-medium`) — the table closes the way it opens. The
+  framed grid stays the register's signature (P8); non-flagship tables
+  default to the quiet ledger.
 - **Pagination's current page wears the interactive tint** (the default
-  button variant, `bg-interactive/10 text-interactive`; amended in #260 —
-  the #259 solid-ink fill read as misplaced black); all other links are
-  ghost buttons.
-  Prev/next keep their text labels beside the chevrons; the ellipsis
-  matches the `icon-sm` metrics (`size-8 text-muted`).
+  button variant, `bg-interactive/10 text-interactive`); all other links are
+  ghost buttons. Prev/next keep their text labels beside the chevrons; the
+  ellipsis matches the `icon-sm` metrics (`size-8 text-muted`).
 - **Empty state is a hairline dashed frame**: `border-dashed
 border-muted/20`, `py-8`, muted icon over title/description with an
   optional action row.
-- **Toasts wear the overlay chrome** (#258): `bg-surface-high`,
-  `shadow-md` + `ring-1 ring-foreground/10`; variant-colored text is state
-  feedback (P1) and the alternating sticker tilt stays.
+- **Toasts wear the overlay chrome**: `bg-surface-high`, `shadow-md` +
+  `ring-1 ring-foreground/10`; variant-colored text is state feedback (P1)
+  and the alternating sticker tilt stays.
 - **Separator is the `bg-muted/20` hairline; collapsible stays an
   unstyled behavior primitive** (call sites own its trigger/content look);
   version-label and source-link stay quiet `text-xs text-muted`.
 
-## Navigation shell (#260)
+## Navigation shell
 
-Locked in a live prototype session (five keep-and-replace rounds on real
-data, both modes; decision trail in the #260 PR). The desktop rail keeps
-its left-sidebar placement but goes quiet at table density; `info` is the
-"you are here" hue.
+The desktop rail keeps its left-sidebar placement but goes quiet at table
+density; `info` is the "you are here" hue.
 
 - **Quiet rail, 224px** (`max-w-56`), rows at table density (`px-2 py-1
 text-sm`), section seams `mt-6`, no "Budgets" section label — group gaps
@@ -207,8 +190,8 @@ text-foreground` at rest; accounts are `text-muted` sub-items indented
 - **Active location is `info` text, not a fill**: the current budget or
   account turns `text-info` (budget rows additionally fill their inline
   `size-1.5` dot slot `bg-info`; the account's arrow turns `text-info`).
-  No `bg-info/10` tints, no marker bars — the old colored-active idiom is
-  retired. Hover stays neutral (`bg-muted/5`, P7).
+  No `bg-info/10` tints, no marker bars. Hover stays neutral (`bg-muted/5`,
+  P7).
 - **Utilities sit behind a hairline** (`border-t border-muted/20`) at the
   rail's foot: muted `size-4` icons + labels, active = `font-medium
 text-info`. No per-action accent colors (P1).
@@ -216,24 +199,20 @@ text-info`. No per-action accent colors (P1).
   six-dot grip at the row's right edge, `opacity-0 group-hover:opacity-100
 focus-visible:opacity-100` — reorder stays discoverable without
   furnishing the rail.
-- **The mobile drawer mirrors the rail, flat, at touch density** (#301):
-  the slab cards are gone — budgets and their indented accounts flow as one
-  group and the utility list sits behind the same `border-t border-muted/20`
-  hairline as the rail. Same idiom as desktop: active budget in `info` ink
-  with its inline `size-1.5` dot (transparent slot on the rest so labels
-  align), accounts as `text-muted` sub-items behind the `size-3` bend-arrow,
-  neutral `bg-muted/5` hover. Only the scale differs for touch — `text-lg`
-  rows, `p-2` tap targets, `size-6` utility icons.
-- **Page chrome gaps are 16px by default now**: `Page.Root` and
-  `Page.Header` ship `gap-4`, `Page.Content` its grid's `gap-y-4` (P4
-  generalized); the month view's call-site overrides are gone.
+- **The mobile drawer mirrors the rail, flat, at touch density**: budgets
+  and their indented accounts flow as one group and the utility list sits
+  behind the same `border-t border-muted/20` hairline as the rail. Same
+  idiom as desktop: active budget in `info` ink with its inline `size-1.5`
+  dot (transparent slot on the rest so labels align), accounts as
+  `text-muted` sub-items behind the `size-3` bend-arrow, neutral
+  `bg-muted/5` hover. Only the scale differs for touch — `text-lg` rows,
+  `p-2` tap targets, `size-6` utility icons.
+- **Page chrome gaps are 16px by default**: `Page.Root` and `Page.Header`
+  ship `gap-4`, `Page.Content` its grid's `gap-y-4` (P4 generalized).
 
-## Typography (#261)
+## Typography
 
-Locked in a live session on the real app: first the families on a per-role
-mixing board (10 roles × ~30 candidate fonts), then the hierarchy
-detail-by-detail as lettered options; reviewed in both modes. Three
-families, loaded via Fontsource in `layout.css`:
+Three families, loaded via Fontsource in `layout.css`:
 
 - **IBM Plex Sans** (`--font-sans`, variable) — every piece of UI text:
   body, navigation, buttons, labels, hints, toasts.
@@ -241,30 +220,29 @@ families, loaded via Fontsource in `layout.css`:
   applied via the `font-currency` utility.
 - **Lora** (`--font-display`, variable) — the single display voice:
   wordmark, page titles, section titles, table column headers, brand
-  small print. Inter, Zilla Slab and Instrument Serif are retired.
+  small print.
 
 Hierarchy rules:
 
 - **Page title**: `text-3xl font-bold` at natural letter spacing — no
-  `tracking-tighter` on the serif (Inter's tight tracking crushes it).
-  `h1`–`h3` get `font-display` from the base layer in `layout.css`;
-  weight and size stay per-site utilities.
+  `tracking-tighter` on the serif (tight tracking crushes it). `h1`–`h3`
+  get `font-display` from the base layer in `layout.css`; weight and size
+  stay per-site utilities.
 - **Modal titles** (dialog/drawer/alert titles): `font-display text-lg
-font-semibold` — 18px, one step above section titles (#299, amends #261).
-  Modals nest section titles (the "Accounts" heading in Budget Settings), so
-  the modal title needs its own tier to avoid colliding with them. All three
-  modal faces share the size so a responsive modal reads the same on desktop
+font-semibold` — 18px, one step above section titles. Modals nest section
+  titles (e.g. the "Accounts" heading in Budget Settings), so the modal
+  title needs its own tier to avoid colliding with them. All three modal
+  faces share the size so a responsive modal reads the same on desktop
   (dialog) and mobile (drawer). Applied in the shared `ui/dialog`,
   `ui/drawer`, `ui/alert-dialog` title primitives — every modal inherits it.
 - **Section titles** (empty-state titles, section headings inside a surface,
-  `h2`/`h3`): `font-display font-semibold` at the base 16px — 600 has authority
-  without competing with the 700 page title or the 18px modal title above it.
+  `h2`/`h3`): `font-display font-semibold` at the base 16px — 600 has
+  authority without competing with the 700 page title or the 18px modal
+  title above it.
 - **Table column headers**: the P6 quiet chrome plus `font-display
-font-medium` (see the amended P6).
-- **Form labels — one spec**: `pl-1.5 text-sm font-semibold
-tracking-tight`, shared by `ui/label` and `ui/form-field` (the old
-  `font-medium tracking-tighter` variant and the missing left padding are
-  gone).
+font-medium`.
+- **Form labels — one spec**: `pl-1.5 text-sm font-semibold tracking-tight`,
+  shared by `ui/label` and `ui/form-field`.
 - **Buttons**: `text-sm font-medium` in the `buttonVariants` base. Table
   cell triggers are bare buttons and inherit their surrounding data text —
   never give data cells button chrome typography. `xs` keeps `text-xs`;
@@ -283,15 +261,3 @@ the reference screen: `category-budget-table.svelte`,
 `reassignment-popup.svelte`, `category-assignment-form.svelte`,
 `category-popover.svelte`, `unassigned-summary.svelte`, plus the radius
 tokens in `src/routes/layout.css`.
-
-## Known follow-ups (not blocking)
-
-- Other screens still use the old idiom (colored hover accents, tinted
-  positive pills, mixed spacing); migrate them screen by screen against this
-  document.
-- Overlay _content_ on some screens (e.g. the reassignment combobox's
-  balance pills, tinted `bg-success/20`) still shows positive-state color;
-  apply principle 1 when those surfaces are touched (#258 restyled the
-  overlay chrome, not every screen's overlay content).
-- `--radius-*` collapse means `rounded-xs`…`rounded-xl` are aliases; a later
-  cleanup can normalize class usage to one step.
