@@ -1,9 +1,9 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
 	import { FormField } from '$lib/components/ui/form-field';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import { Logo } from '$lib/components/ui/logo';
-	import { SourceLink } from '$lib/components/ui/source-link';
 	import { m } from '$lib/paraglide/messages';
 	import { register } from '$lib/remote-functions/auth.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
@@ -32,11 +32,8 @@
 	</InputGroup.Button>
 {/snippet}
 
-<form
-	class="mx-auto mt-20 grid w-full max-w-sm space-y-6 rounded-lg bg-muted/5 p-3 py-6"
-	{...submit.attrs}
->
-	<Logo class="mx-auto mt-auto" aria-hidden />
+<form class="mx-auto mt-20 grid w-full max-w-sm space-y-6 px-4" {...submit.attrs}>
+	<Logo class="mx-auto" href={resolve('/')} />
 
 	<p class="text-center">
 		{m.login_admin_introduction()}
@@ -71,7 +68,7 @@
 			{/snippet}
 		</FormField>
 
-		<p class="mt-3 rounded-md bg-info/5 p-2 text-center text-base text-info">
+		<p class="mt-3 text-center text-base text-muted">
 			{m.login_admin_credentials_info()}
 		</p>
 	</div>
@@ -80,5 +77,3 @@
 		{m.login_admin_button()}
 	</Button>
 </form>
-
-<SourceLink class="mx-auto mt-6 block w-fit" />
