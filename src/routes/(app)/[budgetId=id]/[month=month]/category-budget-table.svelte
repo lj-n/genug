@@ -14,7 +14,6 @@
 	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
 	import { cn } from 'tailwind-variants';
-	import ArchiveIcon from '~icons/ph/archive';
 	import PhDotsSixVerticalBold from '~icons/ph/dots-six-vertical-bold';
 	import PlusIcon from '~icons/ph/plus';
 	import StackIcon from '~icons/ph/stack';
@@ -24,7 +23,9 @@
 	import CategoryAssignmentForm from './category-assignment-form.svelte';
 	import CategoryAssignmentModal from './category-assignment-modal.svelte';
 	import CategoryPopover from './category-popover.svelte';
-	// PROTOTYPE (#334): replaces the archived-page link in the desktop header.
+	// PROTOTYPE (#334): replaces the archived-page links — popover in the
+	// desktop header, bottom drawer in the mobile action row.
+	import PrototypeArchiveDrawer from './prototype-archive-drawer.svelte';
 	import PrototypeArchivePopover from './prototype-archive-popover.svelte';
 	import ReassignmentPopup from './reassignment-popup.svelte';
 
@@ -37,9 +38,6 @@
 	const budgetId = getBudgetId();
 
 	const archivedCategories = $derived(await getArchivedCategories({ budgetId: budgetId() }));
-	const archivedHref = $derived(
-		resolve('/(app)/[budgetId=id]/categories/archived', { budgetId: budgetId() })
-	);
 	const createHref = $derived(
 		resolve('/(app)/[budgetId=id]/categories/new', { budgetId: budgetId() })
 	);
@@ -141,12 +139,7 @@
 				<PlusIcon class="size-6" />
 				{m.category_create_button()}
 			</Button>
-			{#if archivedCategories.length > 0}
-				<Button variant="ghost" class="h-11" href={archivedHref}>
-					<ArchiveIcon class="size-6" />
-					{m.category_archived_link({ amount: archivedCategories.length })}
-				</Button>
-			{/if}
+			<PrototypeArchiveDrawer categories={archivedCategories} />
 		</div>
 
 		<div role="rowgroup" class="grid gap-2 @3xl/main:gap-0" {@attach categorySortable.attach}>
