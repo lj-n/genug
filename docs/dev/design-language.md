@@ -249,9 +249,16 @@ Hierarchy rules:
   `tracking-tighter` on the serif (Inter's tight tracking crushes it).
   `h1`–`h3` get `font-display` from the base layer in `layout.css`;
   weight and size stay per-site utilities.
-- **Section titles** (dialog/drawer/alert titles, empty-state titles,
-  `h2`/`h3`): `font-display font-semibold` — 600 has authority without
-  competing with the 700 page title.
+- **Modal titles** (dialog/drawer/alert titles): `font-display text-lg
+font-semibold` — 18px, one step above section titles (#299, amends #261).
+  Modals nest section titles (the "Accounts" heading in Budget Settings), so
+  the modal title needs its own tier to avoid colliding with them. All three
+  modal faces share the size so a responsive modal reads the same on desktop
+  (dialog) and mobile (drawer). Applied in the shared `ui/dialog`,
+  `ui/drawer`, `ui/alert-dialog` title primitives — every modal inherits it.
+- **Section titles** (empty-state titles, section headings inside a surface,
+  `h2`/`h3`): `font-display font-semibold` at the base 16px — 600 has authority
+  without competing with the 700 page title or the 18px modal title above it.
 - **Table column headers**: the P6 quiet chrome plus `font-display
 font-medium` (see the amended P6).
 - **Form labels — one spec**: `pl-1.5 text-sm font-semibold
