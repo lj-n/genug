@@ -85,18 +85,17 @@ apply the language as follows:
 
 ## Overlay family
 
-Dialog, dialog-form, alert-dialog(-form), drawer, responsive-modal, popover
-(-form), dropdown-menu, select, command:
+Dialog, alert-dialog(-form), drawer, responsive-modal, popover
+(-form), dropdown-menu, select:
 
 - **One surface: `bg-surface-high`.** The top layer gets the top token —
   every overlay panel (drawer, alert-dialog, menus, popover, select,
-  command, toast) fills `bg-surface-high`, except the plain `Dialog`, which
-  fills `bg-surface` (inherited by `dialog-form` and the desktop face of
+  toast) fills `bg-surface-high`, except the plain `Dialog`, which
+  fills `bg-surface` (inherited by the desktop face of
   `responsive-modal`). Calendar keeps its in-popover transparency.
 - **Chrome: hairline + one shadow.** Panels carry `ring-1 ring-foreground/10`
   (the drawer its directional `border-muted/20` edge) plus `shadow-md` —
-  the single overlay shadow step (P2: shadows are overlay-only; the inline
-  command palette is in-page and therefore shadowless).
+  the single overlay shadow step (P2: shadows are overlay-only).
 - **Scrim is a veil, not a dimmer:** `bg-background/75` +
   `supports-backdrop-filter:backdrop-blur-xs` on dialog/alert-dialog/drawer
   overlays — the page washes out into the theme's own background token
@@ -156,7 +155,7 @@ border-muted/20 bg-surface` frame wraps the data rows ONLY; the quiet
 table, pagination, empty-state, separator, collapsible, toaster,
 version-label, source-link:
 
-- **Generic `ui/table` wears the zebra open ledger** (P5/P6) at P4 density.
+- **Tables wear the zebra open ledger** (P5/P6) at P4 density.
   `tfoot` is the symmetric bookend bar (`bg-muted/3` + `border-t
 border-muted/30` + `font-medium`) — the table closes the way it opens. The
   framed grid stays the register's signature (P8); non-flagship tables
