@@ -18,6 +18,12 @@
 		accounts: Awaited<ReturnType<typeof getArchivedAccounts>>;
 		open?: boolean;
 	} = $props();
+
+	// Restoring the last account removes the trigger button; the open dialog
+	// must vanish with it instead of lingering as an empty "0" shell.
+	$effect(() => {
+		if (accounts.length === 0) open = false;
+	});
 </script>
 
 <Dialog.Root bind:open>
