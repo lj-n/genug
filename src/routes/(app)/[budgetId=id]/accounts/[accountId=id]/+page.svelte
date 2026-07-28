@@ -4,22 +4,20 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import {
-		AccountArchivedNotice,
-		AccountBalances,
-		AccountSettings
-	} from '$lib/components/features/account';
+	import { AccountArchivedNotice, AccountBalances } from '$lib/components/features/account';
 	import { TableState, TransactionTable } from '$lib/components/features/transaction';
+	import { Button } from '$lib/components/ui/button';
 	import * as Page from '$lib/components/ui/page';
 	import { Separator } from '$lib/components/ui/separator';
+	import { m } from '$lib/paraglide/messages';
 	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { listTransactions } from '$lib/remote-functions/transaction.remote';
 	import { TransactionsURLParamsSchema } from '$lib/schemas/transaction';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
-	import { currentMonth, toParam } from '$lib/utils/month';
 	import { stickyParam } from '$lib/utils/sticky-param';
 	import * as v from 'valibot';
+	import GearSixIcon from '~icons/ph/gear-six';
 
 	import type { PageProps } from './$types';
 
@@ -92,18 +90,18 @@
 		</Page.Title>
 
 		{#if !account.archivedAt}
-			<AccountSettings
-				accountId={accountId()}
-				onArchived={() =>
-					goto(resolve('/(app)/[budgetId=id]/accounts/archived', { budgetId: budgetId() }))}
-				onDeleted={() =>
-					goto(
-						resolve('/(app)/[budgetId=id]/[month=month]', {
-							budgetId: budgetId(),
-							month: toParam(currentMonth())
-						})
-					)}
-			/>
+			<Button
+				variant="ghost"
+				size="icon"
+				class="bg-muted/10 hover:bg-muted/20"
+				href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/settings', {
+					accountId: accountId(),
+					budgetId: budgetId()
+				})}
+			>
+				<GearSixIcon />
+				<span class="sr-only">{m.account_settings_title()}</span>
+			</Button>
 		{/if}
 	</Page.Header>
 
