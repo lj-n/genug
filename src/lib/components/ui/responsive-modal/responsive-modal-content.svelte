@@ -22,7 +22,11 @@
 </script>
 
 {#if ctx.isDesktop}
-	<Dialog.Content class={className} {showCloseButton}>
+	<Dialog.Content
+		class={className}
+		{showCloseButton}
+		interactOutsideBehavior={ctx.dismissible ? undefined : 'ignore'}
+	>
 		{@render children()}
 	</Dialog.Content>
 {:else}

@@ -2,11 +2,11 @@
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { AlertDialogForm } from '$lib/components/ui/alert-dialog-form';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import * as Dialog from '$lib/components/ui/dialog';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { FormField } from '$lib/components/ui/form-field';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import * as Page from '$lib/components/ui/page';
+	import * as ResponsiveModal from '$lib/components/ui/responsive-modal';
 	import { Separator } from '$lib/components/ui/separator';
 	import { m } from '$lib/paraglide/messages';
 	import {
@@ -197,22 +197,28 @@
 	{/snippet}
 </AlertDialogForm>
 
-<Dialog.Root bind:open={openDialog}>
-	<Dialog.Content>
-		<Dialog.Header>
-			<Dialog.Title>{m.admin_generated_password_title()}</Dialog.Title>
-			<Dialog.Description>{m.admin_generated_password_description()}</Dialog.Description>
-		</Dialog.Header>
+<ResponsiveModal.Root bind:open={openDialog}>
+	<ResponsiveModal.Content>
+		<ResponsiveModal.Header>
+			<ResponsiveModal.Title>{m.admin_generated_password_title()}</ResponsiveModal.Title>
+			<ResponsiveModal.Description
+				>{m.admin_generated_password_description()}</ResponsiveModal.Description
+			>
+		</ResponsiveModal.Header>
 
-		<div class="flex items-center justify-between gap-4 rounded-lg bg-muted/5 p-2">
-			<div class="p-3 text-lg text-info" aria-label="generated-password">{generatedPassword}</div>
-			<Button size="icon" {@attach copyToClipboard(generatedPassword)}>
-				<CopySimpleIcon />
-			</Button>
-		</div>
+		<ResponsiveModal.Body>
+			<div class="flex items-center justify-between gap-4 rounded-lg bg-muted/5 p-2">
+				<div class="p-3 text-lg text-info" aria-label="generated-password">{generatedPassword}</div>
+				<Button size="icon" {@attach copyToClipboard(generatedPassword)}>
+					<CopySimpleIcon />
+				</Button>
+			</div>
+		</ResponsiveModal.Body>
 
-		<Dialog.Footer>
-			<Dialog.Close class={buttonVariants({ variant: 'default' })}>{m.dialog_close()}</Dialog.Close>
-		</Dialog.Footer>
-	</Dialog.Content>
-</Dialog.Root>
+		<ResponsiveModal.Footer>
+			<ResponsiveModal.Close class={buttonVariants({ variant: 'default' })}>
+				{m.dialog_close()}
+			</ResponsiveModal.Close>
+		</ResponsiveModal.Footer>
+	</ResponsiveModal.Content>
+</ResponsiveModal.Root>

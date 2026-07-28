@@ -2,7 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { CategoryCreate } from '$lib/components/features/category';
 	import { Button } from '$lib/components/ui/button';
-	import * as Dialog from '$lib/components/ui/dialog';
+	import * as ResponsiveModal from '$lib/components/ui/responsive-modal';
 	import { m } from '$lib/paraglide/messages';
 	import { getArchivedCategories } from '$lib/remote-functions/category.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
@@ -49,15 +49,17 @@
 	{/if}
 </div>
 
-<Dialog.Root bind:open>
-	<Dialog.Content>
-		<Dialog.Header>
-			<Dialog.Title>{m.new_category_title()}</Dialog.Title>
-			<Dialog.Description class="grid gap-4">
+<ResponsiveModal.Root bind:open>
+	<ResponsiveModal.Content>
+		<ResponsiveModal.Header>
+			<ResponsiveModal.Title>{m.new_category_title()}</ResponsiveModal.Title>
+			<ResponsiveModal.Description class="grid gap-4">
 				<p>{m.new_category_description()}</p>
-			</Dialog.Description>
-		</Dialog.Header>
+			</ResponsiveModal.Description>
+		</ResponsiveModal.Header>
 
-		<CategoryCreate onSuccess={() => (open = false)} />
-	</Dialog.Content>
-</Dialog.Root>
+		<ResponsiveModal.Body>
+			<CategoryCreate onSuccess={() => (open = false)} />
+		</ResponsiveModal.Body>
+	</ResponsiveModal.Content>
+</ResponsiveModal.Root>

@@ -6,6 +6,7 @@
 	import { FormField } from '$lib/components/ui/form-field';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import * as ResponsiveModal from '$lib/components/ui/responsive-modal';
 	import * as Select from '$lib/components/ui/select';
 	import { m } from '$lib/paraglide/messages';
 	import { getAccounts, getArchivedAccounts } from '$lib/remote-functions/account.remote';
@@ -38,23 +39,23 @@
 	});
 </script>
 
-<Dialog.Root bind:open>
-	<Dialog.Trigger>
+<ResponsiveModal.Root bind:open>
+	<ResponsiveModal.Trigger>
 		{#snippet child({ props })}
 			<Button {...props} variant="ghost" size="icon" class="bg-muted/10 hover:bg-muted/20">
 				<PencilIcon />
 				<span class="sr-only">{m.budget_settings_title()}</span>
 			</Button>
 		{/snippet}
-	</Dialog.Trigger>
+	</ResponsiveModal.Trigger>
 
-	<Dialog.Content>
-		<Dialog.Header>
-			<Dialog.Title>{m.budget_settings_title()}</Dialog.Title>
-			<Dialog.Description>{m.budget_settings_description()}</Dialog.Description>
-		</Dialog.Header>
+	<ResponsiveModal.Content>
+		<ResponsiveModal.Header>
+			<ResponsiveModal.Title>{m.budget_settings_title()}</ResponsiveModal.Title>
+			<ResponsiveModal.Description>{m.budget_settings_description()}</ResponsiveModal.Description>
+		</ResponsiveModal.Header>
 
-		<Dialog.Body class="flex flex-col gap-6">
+		<ResponsiveModal.Body class="flex flex-col gap-6">
 			<form {...submit.attrs} class="grid gap-2">
 				<input {...editBudget.fields.budgetId.as('hidden', budgetId())} />
 
@@ -152,13 +153,15 @@
 					</ul>
 				{/if}
 			</div>
-		</Dialog.Body>
+		</ResponsiveModal.Body>
 
-		<Dialog.Footer>
-			<Dialog.Close class={buttonVariants({ variant: 'ghost' })}>{m.dialog_close()}</Dialog.Close>
-		</Dialog.Footer>
-	</Dialog.Content>
-</Dialog.Root>
+		<ResponsiveModal.Footer>
+			<ResponsiveModal.Close class={buttonVariants({ variant: 'ghost' })}>
+				{m.dialog_close()}
+			</ResponsiveModal.Close>
+		</ResponsiveModal.Footer>
+	</ResponsiveModal.Content>
+</ResponsiveModal.Root>
 
 <!--
 	Create Account is its own dialog stacked over Budget Settings, opened by the

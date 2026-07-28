@@ -6,6 +6,11 @@ export const DESKTOP_QUERY = '(min-width: 640px)';
 const CONTEXT_KEY = Symbol('responsive-modal');
 
 export type ResponsiveModalContext = {
+	/**
+	 * When `false`, interacting outside the modal does not close it — the Dialog
+	 * variant ignores outside clicks, the Drawer variant is non-dismissible.
+	 */
+	readonly dismissible: boolean;
 	/** `true` renders the Dialog variant, `false` the Drawer variant. Reactive. */
 	readonly isDesktop: boolean;
 };
