@@ -34,15 +34,10 @@
 
 	const budgetId = getBudgetId();
 
-	// Create + archived live in the Category column header (desktop) and a mobile
-	// action row above the cards; the archived link only shows when there is
-	// something archived to reach.
 	const archivedCategories = $derived(await getArchivedCategories({ budgetId: budgetId() }));
 	const archivedHref = $derived(
 		resolve('/(app)/[budgetId=id]/categories/archived', { budgetId: budgetId() })
 	);
-	// Mobile create routes to the standalone form page rather than the inline
-	// dialog (mirrors the previous quick-actions behaviour below the breakpoint).
 	const createHref = $derived(
 		resolve('/(app)/[budgetId=id]/categories/new', { budgetId: budgetId() })
 	);
@@ -161,8 +156,6 @@
 			{/if}
 		</div>
 
-		<!-- Zebra open ledger (design language P5) on the desktop table; the
-		     mobile cards keep the bordered slab look. -->
 		<div role="rowgroup" class="grid gap-2 @3xl/main:gap-0" {@attach categorySortable.attach}>
 			<!-- The if narrows `month` for the row children; `categories` is empty when `month` is null. -->
 			{#if month !== null}

@@ -1,9 +1,7 @@
 <script lang="ts">
-	// Persistent hidden reset-password form, one per user row. It lives in the
-	// row (not inside the dropdown's portalled content, which unmounts on
-	// select), so its submit lifecycle survives the menu closing. The kebab
-	// menu item triggers it by id via requestSubmit; the keyed form instance
-	// (`.for(userId)`) owns its own `result`, surfaced up through `onReset`.
+	// Hidden form, one per user row, triggered by the row's kebab menu via
+	// requestSubmit; it lives in the row rather than the menu's portalled
+	// content (which unmounts on select) so the submit survives the menu closing.
 	import { resetUserPassword } from '$lib/remote-functions/admin.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 

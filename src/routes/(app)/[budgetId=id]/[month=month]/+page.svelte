@@ -30,7 +30,7 @@
 	// Shared with the category table (same query, no extra round-trip): the
 	// month navigator and unassigned summary only appear once the budget has a
 	// category — before that the tutorial card and the table's empty state are
-	// the whole view. Create + archived live in the table's Category header.
+	// the whole view.
 	const categories = $derived(
 		await (month === null ? Promise.resolve([]) : getMonthly({ budgetId: budgetId(), month }))
 	);
