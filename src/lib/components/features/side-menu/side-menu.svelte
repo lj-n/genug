@@ -61,8 +61,7 @@
 					aria-hidden="true"
 				/>
 			{:else}
-				<!-- The inline dot marks the current budget; the slot keeps budget
-				     labels aligned whether or not they are active. -->
+				<!-- Transparent when inactive so budget labels stay aligned. -->
 				<span
 					class={cn('size-1.5 shrink-0 rounded-full', isActive ? 'bg-info' : 'bg-transparent')}
 					aria-hidden="true"

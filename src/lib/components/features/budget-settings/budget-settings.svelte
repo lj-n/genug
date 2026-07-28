@@ -25,15 +25,14 @@
 	const archivedAccounts = $derived(await getArchivedAccounts(budgetId()));
 
 	const form = $derived(editBudget.for(budgetId()));
-	// Toast-confirms the save without closing the dialog — accounts live here too,
-	// so renaming the budget shouldn't dismiss the surface mid-task.
+	// The save toast-confirms without closing the dialog — accounts live here
+	// too, so renaming the budget shouldn't dismiss the surface mid-task.
 	const submit = createFormSubmit(() => form, { toast: {} });
 
 	let open = $state(false);
 	let addOpen = $state(false);
 
-	// Close the Add Account dialog whenever Budget Settings closes, so it never
-	// lingers over a dismissed parent and reopening starts fresh.
+	// The Add Account dialog must never outlive its dismissed parent.
 	$effect(() => {
 		if (!open) addOpen = false;
 	});
@@ -164,20 +163,15 @@
 </ResponsiveModal.Root>
 
 <!--
-	Create Account is its own dialog stacked over Budget Settings, opened by the
-	`+` button above. It's a sibling root (not nested inside the settings
-	`Dialog.Content`) on purpose: our `Dialog.Content` renders its children through
-	a snippet, so a nested `Dialog.Root` would be instantiated in this component's
-	context — outside bits' content context — and never open. As an independent
-	root its own focus trap also fixes the old focus jump to the Budget Name input.
+	Create Account stacks over Budget Settings as a sibling root, not nested
+	inside the settings `Dialog.Content`: our `Dialog.Content` renders its
+	children through a snippet, so a nested `Dialog.Root` would be instantiated
+	outside bits' content context and never open.
 -->
 <Dialog.Root bind:open={addOpen}>
-	<!--
-		Lighter scrim (`bg-background/30`) so the settings dialog stays present behind
-		instead of receding under a second full scrim. Flat form (`AccountCreate`'s
-		card chrome dropped) so the fields sit on the dialog surface like the budget
-		form above.
-	-->
+	<!-- Lighter scrim so the settings dialog stays present behind; the `class`
+	     drops AccountCreate's card chrome so the fields sit flat on the dialog
+	     surface. -->
 	<Dialog.Content class="sm:max-w-md" overlayClass="bg-background/30">
 		<Dialog.Header>
 			<Dialog.Title>{m.new_account_title()}</Dialog.Title>

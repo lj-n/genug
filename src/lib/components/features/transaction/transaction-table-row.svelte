@@ -59,13 +59,9 @@
 	const id = $props.id();
 	const form = editTransaction.for(id);
 	const deleteForm = batchDeleteTransactions.for(id);
-	// One row, two modes: the read cells and the edit inputs live in the same
-	// cell divs so the geometry cannot shift, and the same DOM row lets the
-	// actions bar animate out on cancel (an if/else swap between separate
-	// read/edit components would overlap both branches during the outro). The
-	// row stays a <div> because the read-mode ValidateToggle owns its own
-	// <form>; the edit form is a hidden sibling and every edit control is
-	// associated via the `form` attribute (same pattern as the delete form).
+	// The row stays a <div> because the read-mode ValidateToggle owns its own
+	// <form>; the edit and delete forms are hidden siblings and their controls
+	// associate via the `form` attribute.
 	const editFormId = `eform-${id}`;
 	const deleteFormId = `dform-${id}`;
 
@@ -79,8 +75,7 @@
 		updates: () => [listTransactions]
 	});
 
-	// No onSuccess: the refreshed list unmounts this row — that is the
-	// success signal.
+	// No onSuccess: the refreshed list unmounting this row is the success signal.
 	const deleteSubmit = createFormSubmit(() => deleteForm, {
 		toast: {},
 		updates: () => [listTransactions]
@@ -94,8 +89,7 @@
 	let dateOpen = $state(false);
 	let amountRef = $state<HTMLInputElement | null>(null);
 
-	// Which cell was clicked to enter edit mode; consumed by the focus effect
-	// below. Deliberately non-reactive — the isEditing flip drives the effect.
+	// Deliberately non-reactive — the isEditing flip drives the focus effect.
 	let pendingFocus: EditableField | null = null;
 
 	function startEditing(field: EditableField) {
@@ -103,9 +97,8 @@
 		setEditing();
 	}
 
-	// Seed the two fields whose inputs bind to field state instead of an
-	// `as(...)` default — on every entry into edit mode, untracked so a list
-	// refresh mid-edit cannot clobber the user's changes.
+	// Seed the fields that bind to field state instead of an `as(...)` default;
+	// untracked so a list refresh mid-edit cannot clobber the user's changes.
 	$effect(() => {
 		if (!isEditing) return;
 		untrack(() => {
@@ -114,12 +107,8 @@
 		});
 	});
 
-	// Focus the input of the clicked cell. Deferred past the flush with tick():
-	// the refs bind through child components and are not yet set when this
-	// effect first runs. Text inputs also select; the date cell opens its
-	// picker popover (which moves focus into the calendar), and the amount
-	// input selects itself via selectOnFocus (its value swap is deferred
-	// past focus).
+	// tick(): the refs bind through child components and are not yet set when
+	// this effect first runs.
 	$effect(() => {
 		if (!isEditing || pendingFocus === null) return;
 		const field = pendingFocus;
@@ -144,8 +133,8 @@
 	const cell = $derived(cn(cellClass, !isEditing && 'group-last-of-type/row:border-b-0'));
 </script>
 
-<!-- The keydown only listens for Escape bubbling out of the edit inputs;
-     the row itself is never a focus target. -->
+<!-- The keydown only catches Escape bubbling out of the edit inputs; the row
+     itself is never a focus target. -->
 <!-- svelte-ignore a11y_interactive_supports_focus -->
 <div
 	role="row"

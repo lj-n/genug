@@ -79,11 +79,10 @@
 		return () => node.removeEventListener('keydown', handle);
 	};
 
-	// The draft is scoped to one account (carried as the hidden accountId), so it
-	// is stale once the viewed account changes. Reopening on the SAME account
-	// keeps the draft. A factory keyed on the accountId, so the attachment
-	// re-runs both on mount and when the account changes while the form stays
-	// mounted (a reversed close/open transition never unmounts it).
+	// Reopening on the same account keeps the draft; switching accounts resets
+	// it. The factory keys the attachment on accountId so it re-runs when the
+	// account changes while the form stays mounted (a reversed close/open
+	// transition never unmounts it).
 	let lastResetAccountId: string | undefined;
 
 	const resetOnAccountChange =

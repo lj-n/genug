@@ -20,8 +20,7 @@
 		currency: (typeof CURRENCIES)[number];
 	} = $props();
 
-	// The account visibly moving to the archive is the success signal — no toast.
-	// The settings page redirects to the archive once `archivedAt` populates.
+	// The redirect to the archive is the success signal — no toast.
 	const submit = createFormSubmit(() => archiveAccount, { toast: {} });
 
 	const archivability = $derived(await getAccountArchivability({ accountId: account.id }));

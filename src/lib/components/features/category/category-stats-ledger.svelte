@@ -1,9 +1,7 @@
-<!-- Chrome-less month stats ledger for the budget table's category popover: the
-     same flat zebra "open ledger" rows the category detail page wears (#280), so
-     the glance surface and the detail page read the same. Just the viewed
-     month's rows — Average, Spend-vs, Target — since the popover header already
-     names the category and month, and the glance stays quick. The target row
-     reads out the saved-of-target amounts, not just the bare percentage. -->
+<!-- Month stats ledger for the budget table's category popover: the same rows
+     the category detail page wears, so glance surface and detail page read the
+     same. Only the viewed month's rows — the popover header already names the
+     category and month. -->
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
 	import { getCategoryStats } from '$lib/remote-functions/category.remote';
@@ -24,8 +22,7 @@
 
 	const stats = $derived(await getCategoryStats({ categoryId, month }));
 
-	// Same row chrome as the detail page's stats ledger (#280): no dividers, an
-	// even-row tint for scanability (P5's zebra idiom), a touch of inset padding.
+	// Same row chrome as the detail page's stats ledger.
 	const rowChrome = 'rounded px-2 py-1.5 even:bg-muted/3';
 </script>
 
@@ -66,9 +63,8 @@
 
 	{#if stats.currentTargetPercentage !== null && stats.targetBalance !== null}
 		{@const clamped = clamp(stats.currentTargetPercentage, 0, 100)}
-		<!-- The target row reads out the saved-of-target amounts above a full-width
-		     bar — so the glance shows how much is set aside toward the target, not
-		     just a bare percentage. -->
+		<!-- Saved-of-target amounts above the bar: the glance shows how much is
+		     set aside, not just a bare percentage. -->
 		<div class="{rowChrome} flex flex-col gap-1">
 			<div class="flex items-baseline justify-between">
 				<dt class="text-sm text-muted">{m.category_stats_target_percentage()}</dt>

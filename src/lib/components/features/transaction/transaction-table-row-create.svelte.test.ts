@@ -152,7 +152,6 @@ describe('TableRowCreate', () => {
 		await user.keyboard('{Enter}');
 
 		expect(remote.onSubmit).toHaveBeenCalledTimes(1);
-		// The row slides out; it leaves the DOM once the outro finishes.
 		await waitFor(() => expect(screen.queryByRole('row')).not.toBeInTheDocument());
 	});
 

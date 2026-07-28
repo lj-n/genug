@@ -56,11 +56,9 @@
 
 <div class="flex w-full flex-col gap-2">
 	<div class="flex flex-wrap items-end gap-3">
-		<!-- Balances (or nothing) sit to the left; every control clusters on the right. -->
 		{@render leading?.()}
 		<div class="ml-auto flex gap-1.5">
-			<!-- Filtering is desktop-only; on the phone the register keeps only the create affordance.
-			     The filter trigger and clear-all form their own group, separate from the create actions. -->
+			<!-- Filtering is desktop-only; the phone register keeps only the create affordance. -->
 			<ButtonGroup.Root class="hidden @3xl/main:flex">
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger disabled={allActive}>

@@ -20,12 +20,9 @@
 
 	const stats = $derived(await getCategoryStats({ categoryId: category.id, month }));
 
-	// The tallest bar spans the full sparkline height; the floor of 1 avoids
-	// dividing by zero when every month is empty.
+	// The floor of 1 avoids dividing by zero when every month is empty.
 	const maxSpend = $derived(Math.max(...stats.sparkline.map((b) => b.spend), 1));
 
-	// Stats read as an open ledger of label/value rows: no dividers, an even-row
-	// tint for scanability (P5's zebra idiom), a touch of inset padding.
 	const rowChrome = 'rounded px-2 py-1.5 even:bg-muted/3';
 </script>
 
