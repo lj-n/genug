@@ -54,6 +54,8 @@
 	"category_archive_title": "Archived Categories",
 	"category_archive_description": "Here you can find all your archived categories. You can restore them at any time to show them again in your budget overview and assign budgets to them.",
 	"category_archive_restore_button": "Restore",
+	"category_archived_notice_title": "This category is archived",
+	"category_archived_notice_description": "Its history is kept but it can't receive budget or new transactions. Restore it to use the category again.",
 	"category_archive_empty": "Archived categories will show up here.",
 	"category_table_empty_title": "No categories yet",
 	"category_table_empty_description": "Categories are the envelopes you assign money to. Create one to plan your spending.",

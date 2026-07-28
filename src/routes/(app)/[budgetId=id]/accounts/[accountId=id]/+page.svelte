@@ -8,7 +8,6 @@
 	import { TableState, TransactionTable } from '$lib/components/features/transaction';
 	import { Button } from '$lib/components/ui/button';
 	import * as Page from '$lib/components/ui/page';
-	import { Separator } from '$lib/components/ui/separator';
 	import { m } from '$lib/paraglide/messages';
 	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
@@ -107,10 +106,8 @@
 
 	<Page.Content>
 		{#if account.archivedAt}
-			<AccountBalances {balances} currency={budget.currency} />
-
-			<Separator orientation="horizontal" />
-
+			<!-- PROTOTYPE (#334): an archived account's page is nothing but the
+			     disclaimer + restore (balances dropped). -->
 			<AccountArchivedNotice accountId={accountId()} />
 		{:else}
 			<TransactionTable

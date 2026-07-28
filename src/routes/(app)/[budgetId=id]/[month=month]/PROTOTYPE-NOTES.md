@@ -97,3 +97,15 @@ Open questions (not yet prototyped):
 - **Mobile round 1 locked.** Archived categories on mobile = bottom drawer
   (`prototype-archive-drawer.svelte`); archived accounts on mobile stay in the stacked dialog
   over the settings drawer, as shown.
+
+### Round 8 (2026-07-29)
+
+- **Archived detail pages** (last piece of the original spec): both pages now show nothing but
+  a disclaimer + restore.
+  - Category: the redirect-to-archived-list `$effect` is gone; the page renders
+    `prototype-category-archived-notice.svelte` (mirrors `account-archived-notice.svelte`) when
+    `archivedAt` is set. New messages `category_archived_notice_title/description` (en + de).
+  - Account: the archived branch drops `AccountBalances` + separator and keeps only
+    `AccountArchivedNotice`.
+  - Restore-in-place verified: submitting refreshes the page query and the full detail view
+    returns without navigation.

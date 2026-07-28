@@ -17,6 +17,9 @@
 
 	import type { PageProps } from './$types';
 
+	// PROTOTYPE (#334): disclaimer + restore replaces the archived redirect.
+	import PrototypeCategoryArchivedNotice from './prototype-category-archived-notice.svelte';
+
 	let { params }: PageProps = $props();
 
 	const budgetId = getBudgetId();
@@ -28,15 +31,6 @@
 	// The page's stats are always scoped to the current month — there is no
 	// month in this URL.
 	const month = currentMonth();
-
-	// Archived categories are managed through the archived list's restore flow,
-	// not this page. Archiving here trips the same redirect: the submit
-	// refreshes getCategoryById, populating archivedAt.
-	$effect(() => {
-		if (category.archivedAt !== null) {
-			goto(resolve('/(app)/[budgetId=id]/categories/archived', { budgetId: budgetId() }));
-		}
-	});
 
 	const onDeleted = () =>
 		goto(
@@ -55,20 +49,26 @@
 	</Page.Header>
 
 	<Page.Content class="max-w-xl">
-		<div class="space-y-3">
-			<CategoryEdit {category} currency={budget.currency} />
+		<!-- PROTOTYPE (#334): an archived category's page is nothing but the
+		     disclaimer + restore (was: redirect to the archived-list page). -->
+		{#if category.archivedAt !== null}
+			<PrototypeCategoryArchivedNotice categoryId={categoryId()} />
+		{:else}
+			<div class="space-y-3">
+				<CategoryEdit {category} currency={budget.currency} />
 
-			<Separator class="mt-6 mb-3" />
+				<Separator class="mt-6 mb-3" />
 
-			<CategoryStats {category} currency={budget.currency} {month} />
+				<CategoryStats {category} currency={budget.currency} {month} />
 
-			<Separator class="mt-6 mb-3" />
+				<Separator class="mt-6 mb-3" />
 
-			<CategoryArchive {category} currency={budget.currency} />
+				<CategoryArchive {category} currency={budget.currency} />
 
-			<Separator class="mt-6 mb-3" />
+				<Separator class="mt-6 mb-3" />
 
-			<CategoryDelete {category} currency={budget.currency} {onDeleted} />
-		</div>
+				<CategoryDelete {category} currency={budget.currency} {onDeleted} />
+			</div>
+		{/if}
 	</Page.Content>
 </Page.Root>

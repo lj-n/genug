@@ -58,6 +58,8 @@
 	"category_archive_title": "Archivierte Kategorien",
 	"category_archive_description": "Hier findest du alle deine archivierten Kategorien. Du kannst sie jederzeit wiederherstellen, um sie erneut in deinem Budgetplan anzuzeigen und wieder Geld auf sie verteilen zu können.",
 	"category_archive_restore_button": "Wiederherstellen",
+	"category_archived_notice_title": "Diese Kategorie ist archiviert",
+	"category_archived_notice_description": "Der Verlauf bleibt erhalten, aber sie kann kein Budget und keine neuen Transaktionen erhalten. Stelle die Kategorie wieder her, um sie erneut zu nutzen.",
 	"category_archive_empty": "Archivierte Kategorien erscheinen hier.",
 	"category_table_empty_title": "Noch keine Kategorien",
 	"category_table_empty_description": "Kategorien sind die Umschläge, auf die du dein Geld verteilst. Erstelle eine, um deine Ausgaben zu planen.",
