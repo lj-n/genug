@@ -1,10 +1,10 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
 	import { FormField } from '$lib/components/ui/form-field';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import { InputPassword } from '$lib/components/ui/input-password';
 	import { Logo } from '$lib/components/ui/logo';
-	import { SourceLink } from '$lib/components/ui/source-link';
 	import { m } from '$lib/paraglide/messages';
 	import { login } from '$lib/remote-functions/auth.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
@@ -13,10 +13,10 @@
 	const submit = createFormSubmit(() => login, { toast: {} });
 </script>
 
-<form class="mx-auto mt-20 grid w-full max-w-sm space-y-6" {...submit.attrs}>
-	<Logo class="mx-auto mt-auto" aria-hidden />
+<form class="mx-auto mt-20 grid w-full max-w-sm space-y-6 px-4" {...submit.attrs}>
+	<Logo class="mx-auto" href={resolve('/')} />
 
-	<div class="grid space-y-2 rounded-lg bg-muted/5 p-3">
+	<div class="grid space-y-2">
 		<FormField field={login.fields.username} label={m.login_label_username()} hideLabel>
 			{#snippet input(field)}
 				<InputGroup.Root>
@@ -46,5 +46,3 @@
 		</Button>
 	</div>
 </form>
-
-<SourceLink class="mx-auto mt-6 block w-fit" />
