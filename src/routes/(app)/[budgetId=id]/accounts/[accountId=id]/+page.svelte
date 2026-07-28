@@ -8,7 +8,6 @@
 	import { TableState, TransactionTable } from '$lib/components/features/transaction';
 	import { Button } from '$lib/components/ui/button';
 	import * as Page from '$lib/components/ui/page';
-	import { Separator } from '$lib/components/ui/separator';
 	import { m } from '$lib/paraglide/messages';
 	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
@@ -70,6 +69,16 @@
 
 	const result = $derived(await listTransactions({ accountId: accountId(), ...tableState.params }));
 
+	// The archived⇄active branch decision reads the register's queries through
+	// this one object, so restoring in place never introduces a first-time
+	// await mid-update — that leaves the fragment permanently blank in
+	// production builds.
+	const view = $derived({
+		archived: account.archivedAt !== null,
+		balances,
+		result
+	});
+
 	$effect(() => {
 		const nextQuery = buildSearch(tableState.params);
 		if (nextQuery === page.url.searchParams.toString()) return;
@@ -106,11 +115,9 @@
 	</Page.Header>
 
 	<Page.Content>
-		{#if account.archivedAt}
-			<AccountBalances {balances} currency={budget.currency} />
-
-			<Separator orientation="horizontal" />
-
+		{#if view.archived}
+			<!-- An archived account's page is nothing but the disclaimer +
+			     restore — no balances, no register. -->
 			<AccountArchivedNotice accountId={accountId()} />
 		{:else}
 			<TransactionTable
@@ -118,15 +125,15 @@
 				budgetId={budgetId()}
 				currency={budget.currency}
 				pagination={{
-					page: result.pagination.page,
-					pageSize: result.pagination.pageSize,
-					total: result.pagination.totalTransactionCount
+					page: view.result.pagination.page,
+					pageSize: view.result.pagination.pageSize,
+					total: view.result.pagination.totalTransactionCount
 				}}
 				{tableState}
-				transactions={result.transactions}
+				transactions={view.result.transactions}
 			>
 				{#snippet accountBalances()}
-					<AccountBalances {balances} currency={budget.currency} />
+					<AccountBalances balances={view.balances} currency={budget.currency} />
 				{/snippet}
 			</TransactionTable>
 		{/if}

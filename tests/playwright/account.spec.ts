@@ -55,6 +55,11 @@ test('Account archive redirects, makes the account read-only, and restores in pl
 	// Reopening the archived account must not allow adding transactions.
 	await pages.account.openArchivedAccountAndVerifyReadOnly(accountName);
 	await pages.account.restoreFromDetail();
+
+	// Archive again and restore through the budget-settings archive dialog.
+	await pages.account.archive(accountName);
+	await pages.budget.goto(budgetName);
+	await pages.account.restoreFromArchiveDialog(accountName);
 });
 
 test('Account rename shows a field error for a duplicate name', async ({ pages }) => {

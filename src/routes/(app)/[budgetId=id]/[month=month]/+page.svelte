@@ -10,8 +10,9 @@
 
 	import type { PageProps } from './$types';
 
+	import CategoryArchiveDrawer from './category-archive-drawer.svelte';
+	import CategoryArchivePopover from './category-archive-popover.svelte';
 	import CategoryBudgetTable from './category-budget-table.svelte';
-	import CategoryQuickActions from './category-quick-actions.svelte';
 	import MonthNavigator from './month-navigator.svelte';
 	import TutorialCard from './tutorial-card.svelte';
 	import UnassignedSummary from './unassigned-summary.svelte';
@@ -67,7 +68,12 @@
 			{:else if archivedCategories.length > 0}
 				<!-- The last category was archived: keep the archive reachable, but
 				     without navigator, create button, or unassigned summary. -->
-				<CategoryQuickActions showCreate={false} />
+				<div class="hidden @3xl/main:block">
+					<CategoryArchivePopover />
+				</div>
+				<div class="@3xl/main:hidden">
+					<CategoryArchiveDrawer />
+				</div>
 			{/if}
 
 			<CategoryBudgetTable {month} />

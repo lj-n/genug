@@ -19,6 +19,8 @@
 	import PencilIcon from '~icons/ph/pencil';
 	import PlusIcon from '~icons/ph/plus';
 
+	import AccountArchiveDialog from './account-archive-dialog.svelte';
+
 	const budgetId = getBudgetId();
 	const budget = $derived(await getBudget(budgetId()));
 	const accounts = $derived(await getAccounts(budgetId()));
@@ -31,10 +33,14 @@
 
 	let open = $state(false);
 	let addOpen = $state(false);
+	let archiveOpen = $state(false);
 
-	// The Add Account dialog must never outlive its dismissed parent.
+	// The stacked dialogs must never outlive their dismissed parent.
 	$effect(() => {
-		if (!open) addOpen = false;
+		if (!open) {
+			addOpen = false;
+			archiveOpen = false;
+		}
 	});
 </script>
 
@@ -115,11 +121,21 @@
 					>
 						<PlusIcon class="size-4" />
 					</Button>
+					{#if archivedAccounts.length > 0}
+						<Button
+							variant="ghost"
+							size="xs"
+							aria-label={m.account_archived_link({ amount: archivedAccounts.length })}
+							onclick={() => (archiveOpen = true)}
+						>
+							<ArchiveIcon class="size-4" />
+						</Button>
+					{/if}
 				</div>
 
 				{#if accounts.length === 0 && archivedAccounts.length === 0}
 					<p class="px-1 text-sm text-muted">{m.account_dropdown_empty_hint()}</p>
-				{:else}
+				{:else if accounts.length > 0}
 					<ul class="grid list-disc gap-1 pl-6 text-sm marker:text-muted/50">
 						{#each accounts as account (account.id)}
 							<li>
@@ -135,20 +151,6 @@
 								</a>
 							</li>
 						{/each}
-						{#if archivedAccounts.length > 0}
-							<li>
-								<a
-									href={resolve('/(app)/[budgetId=id]/accounts/archived', {
-										budgetId: budgetId()
-									})}
-									onclick={() => (open = false)}
-									class="inline-flex items-center gap-1.5 text-muted underline-offset-3 hover:text-foreground hover:underline"
-								>
-									<ArchiveIcon class="size-3.5" />
-									{m.account_archived_link({ amount: archivedAccounts.length })}
-								</a>
-							</li>
-						{/if}
 					</ul>
 				{/if}
 			</div>
@@ -185,3 +187,5 @@
 		</Dialog.Body>
 	</Dialog.Content>
 </Dialog.Root>
+
+<AccountArchiveDialog accounts={archivedAccounts} bind:open={archiveOpen} />
