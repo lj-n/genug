@@ -75,3 +75,19 @@ Open questions (not yet prototyped):
     settings account list live.
 - Seed data: 3 extra archived accounts fabricated (`PROTOACCT*`); categories re-archived after
   live restores emptied the archive.
+
+### Round 6 (2026-07-29)
+
+- **Post-lock fix:** restoring the last archived account left the account archive dialog open as
+  an empty "0" shell (the `length > 0` guard only wrapped the trigger). The dialog now closes
+  itself via `$effect` when the list empties; the new mobile drawer ships with the same guard
+  from day one.
+- **Mobile round 1** (user: "simple list there, maybe in drawer"): the `@max-3xl` action-row
+  link to the old archived page is replaced by `prototype-archive-drawer.svelte` — a bottom
+  `Drawer` (vaul) triggered by the same ghost "N archived" button. Centered drawer title =
+  ArchiveIcon + "Archived Categories" + muted count; body = the C-style simple rows with
+  text-link Restore, drawer-native scroll. Restore verified live at 390px (count updates,
+  category reappears in the card list behind).
+- Account side on mobile checked as-is: budget settings renders as a drawer, and the stacked
+  archive **dialog** over it reads fine at 390px — open question for the user whether it should
+  become a (nested) drawer for consistency.
