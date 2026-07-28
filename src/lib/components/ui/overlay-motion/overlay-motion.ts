@@ -3,18 +3,14 @@
  * `forceMount` + `child` snippets (the pattern bits-ui recommends for
  * transitions).
  *
- * Character ("slingshot light", picked live in #258): surfaces enter with
- * a short directional travel and a slight overshoot past their resting
- * point (backOut), and always exit with a quick plain fade — spring
- * curves look wrong played backwards, hence the `in:`/`out:` split
- * instead of `transition:`. Scrims plain-fade both ways.
- *
- * The drawer is exempt: vaul-svelte owns its slide/drag motion (its
- * timing is tightened via a `duration` override in `drawer-content`).
+ * Surfaces enter with a short directional travel and a slight overshoot
+ * (backOut), and always exit with a quick plain fade — spring curves look
+ * wrong played backwards, hence the `in:`/`out:` split instead of
+ * `transition:`. The drawer is exempt: vaul-svelte owns its slide/drag
+ * motion.
  */
 import { fade, type TransitionConfig } from 'svelte/transition';
 
-/** How far past the resting point the overshoot swings. */
 const OVERSHOOT = 2;
 
 /** Unit direction a floating surface travels in from, per bits-ui `data-side`. */
@@ -26,9 +22,9 @@ const SLIDE_DIRS: Record<string, { x: number; y: number }> = {
 };
 
 /**
- * Anchored floating surfaces (popover, menus, select) entering: 8px
- * travel from the anchor side. Pass bits-ui's `props['data-side']` as
- * `side`; anything else falls back to the `bottom` behavior.
+ * Anchored floating surfaces (popover, menus, select) entering. Pass
+ * bits-ui's `props['data-side']` as `side`; anything else falls back to
+ * the `bottom` behavior.
  */
 export function floatingIn(node: Element, { side }: { side?: unknown } = {}): TransitionConfig {
 	const dir = (typeof side === 'string' && SLIDE_DIRS[side]) || SLIDE_DIRS.bottom;
@@ -40,12 +36,11 @@ export function floatingIn(node: Element, { side }: { side?: unknown } = {}): Tr
 	};
 }
 
-/** Floating surfaces exit with a quick fade. */
 export function floatingOut(node: Element): TransitionConfig {
 	return fade(node, { duration: duration(100) });
 }
 
-/** Centered modal surfaces (dialog, alert-dialog) entering: 12px drop-in. */
+/** Centered modal surfaces (dialog, alert-dialog) entering. */
 export function modalIn(_node: Element): TransitionConfig {
 	const ease = backOut(OVERSHOOT);
 	return {
@@ -54,12 +49,11 @@ export function modalIn(_node: Element): TransitionConfig {
 	};
 }
 
-/** Modal surfaces exit with a quick fade. */
 export function modalOut(node: Element): TransitionConfig {
 	return fade(node, { duration: duration(130) });
 }
 
-/** Scrim behind modal surfaces: plain fade both ways. */
+/** Scrim behind modal surfaces. */
 export function scrimFade(node: Element): TransitionConfig {
 	return fade(node, { duration: duration(200) });
 }

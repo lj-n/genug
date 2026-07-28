@@ -17,7 +17,6 @@
 		/**
 		 * When `false`, interacting outside the modal does not close it — the Dialog
 		 * variant ignores outside clicks, the Drawer variant is non-dismissible.
-		 * Mirrors the plain `Dialog.Content interactOutsideBehavior="ignore"` intent.
 		 */
 		dismissible?: boolean;
 		/**
