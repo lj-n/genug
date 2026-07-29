@@ -12,6 +12,9 @@ and dependency bumps get no entry.
 
 ### Changed
 
+- The error page dropped its tinted panel for a plain poster layout: the
+  status code stands directly on the page as a large serif numeral, with the
+  error message, log ID, and home link beneath it.
 - Archived categories and accounts moved out of their dedicated pages into
   lightweight surfaces with inline restore: categories open in a popover next
   to the budget table's create button (a bottom drawer on small screens), and
