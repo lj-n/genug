@@ -18,7 +18,7 @@
 >
 	<ArchiveIcon class="size-10 text-muted" />
 
-	<h2 class="text-lg font-semibold">{m.category_archived_notice_title()}</h2>
+	<h2 class="font-semibold">{m.category_archived_notice_title()}</h2>
 
 	<p class="max-w-prose text-muted">{m.category_archived_notice_description()}</p>
 
