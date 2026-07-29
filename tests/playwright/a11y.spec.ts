@@ -62,6 +62,35 @@ async function seedBudget(pages: Pages) {
  */
 const THEMES = ['light', 'dark'] as const;
 
+/** sRGB alpha-composite of `fgHex` at `alpha` over `bgHex` — a 10% tint chip. */
+function composite(fgHexRaw: string, alpha: number, bgHexRaw: string): string {
+	const [fgHex, bgHex] = [expandHex(fgHexRaw), expandHex(bgHexRaw)];
+	const channel = (i: number) =>
+		Math.round(
+			parseInt(fgHex.slice(i, i + 2), 16) * alpha +
+				parseInt(bgHex.slice(i, i + 2), 16) * (1 - alpha)
+		);
+	return '#' + [1, 3, 5].map((i) => channel(i).toString(16).padStart(2, '0')).join('');
+}
+
+/** WCAG relative-luminance contrast between two sRGB hex colors. */
+function contrastRatio(fgHex: string, bgHex: string): number {
+	const luminance = (rawHex: string) => {
+		const hex = expandHex(rawHex);
+		const [r, g, b] = [1, 3, 5]
+			.map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+			.map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+		return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+	};
+	const [hi, lo] = [luminance(fgHex), luminance(bgHex)].sort((a, b) => b - a);
+	return (hi + 0.05) / (lo + 0.05);
+}
+
+/** Expands `#abc` shorthand (the minifier emits it in production CSS) to `#aabbcc`. */
+function expandHex(hex: string): string {
+	return hex.length === 4 ? '#' + [...hex.slice(1)].map((c) => c + c).join('') : hex;
+}
+
 async function setTheme(page: Page, theme: (typeof THEMES)[number]) {
 	await page
 		.context()
@@ -71,6 +100,41 @@ async function setTheme(page: Page, theme: (typeof THEMES)[number]) {
 for (const theme of THEMES) {
 	test.describe(`${theme} theme`, () => {
 		test.beforeEach(async ({ page }) => setTheme(page, theme));
+
+		// axe cannot judge text over `/10` tint chips (it reports them "incomplete"),
+		// so the accent tokens are gated by direct token math (#354): accent text must
+		// keep AA on `surface-high` and inside its own `/10` chip over either surface —
+		// the default button variant in dialogs is the live worst case.
+		test('Accent tokens keep AA on elevated surfaces and tint chips', async ({ page, pages }) => {
+			await pages.auth.createUserAndLogin();
+			const tokens = await page.evaluate(() => {
+				const style = getComputedStyle(document.documentElement);
+				const read = (name: string) => style.getPropertyValue(name).trim();
+				return {
+					accents: {
+						info: read('--color-info'),
+						interactive: read('--color-interactive'),
+						success: read('--color-success')
+					},
+					surface: read('--color-surface'),
+					surfaceHigh: read('--color-surface-high')
+				};
+			});
+
+			for (const [name, accent] of Object.entries(tokens.accents)) {
+				expect(accent, `--color-${name} should resolve to a hex color`).toMatch(
+					/^#([0-9a-f]{3}|[0-9a-f]{6})$/i
+				);
+				const pairs: [string, string][] = [
+					[`${name} on surface-high`, tokens.surfaceHigh],
+					[`${name}/10 chip over surface`, composite(accent, 0.1, tokens.surface)],
+					[`${name}/10 chip over surface-high`, composite(accent, 0.1, tokens.surfaceHigh)]
+				];
+				for (const [pair, background] of pairs) {
+					expect(contrastRatio(accent, background), pair).toBeGreaterThanOrEqual(4.5);
+				}
+			}
+		});
 
 		test('Login page is axe-clean', async ({ page, pages }) => {
 			// A registered user exists, so `/login` renders the returning-user form
