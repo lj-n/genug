@@ -33,12 +33,14 @@
 			onclick={() => (type = type === 'password' ? 'text' : 'password')}
 			class="size-6 p-0 text-foreground [&_svg:not([class*='size-'])]:size-4"
 		>
+			<!-- The label names the action, not the state: while masked, pressing
+			     shows the value. -->
 			{#if type === 'password'}
 				<EyeClosedIcon />
-				<span class="sr-only">{m.login_hide_password()}</span>
+				<span class="sr-only">{m.login_show_password()}</span>
 			{:else}
 				<EyeIcon />
-				<span class="sr-only">{m.login_show_password()}</span>
+				<span class="sr-only">{m.login_hide_password()}</span>
 			{/if}
 		</InputGroup.Button>
 	</InputGroup.Addon>

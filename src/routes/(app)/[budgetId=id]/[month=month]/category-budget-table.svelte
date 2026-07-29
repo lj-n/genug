@@ -95,6 +95,17 @@
 		</EmptyState>
 	{/if}
 {:else}
+	<!-- The desktop column header carries create + archived, but it is hidden
+	     below @3xl — surface the same actions above the cards. Outside the
+	     role="table" element: a bare toolbar is not valid table content. -->
+	<div class="mb-2 flex flex-wrap gap-0.5 @3xl/main:hidden">
+		<Button href={createHref} class="h-11">
+			<PlusIcon class="size-6" />
+			{m.category_create_button()}
+		</Button>
+		<CategoryArchiveDrawer />
+	</div>
+
 	<div role="table">
 		<div role="rowgroup" class="hidden @3xl/main:block">
 			<div role="row" class="flex border-b border-muted/30 bg-muted/3">
@@ -127,16 +138,6 @@
 					<span class="sr-only">{m.budget_monthly_table_header_actions()}</span>
 				</BudgetTableHeader>
 			</div>
-		</div>
-
-		<!-- The desktop column header carries create + archived, but it is hidden
-		     below @3xl — surface the same actions as a row above the cards. -->
-		<div class="mb-2 flex flex-wrap gap-0.5 @3xl/main:hidden">
-			<Button href={createHref} class="h-11">
-				<PlusIcon class="size-6" />
-				{m.category_create_button()}
-			</Button>
-			<CategoryArchiveDrawer />
 		</div>
 
 		<div role="rowgroup" class="grid gap-2 @3xl/main:gap-0" {@attach categorySortable.attach}>

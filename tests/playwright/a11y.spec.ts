@@ -259,6 +259,64 @@ for (const theme of THEMES) {
 	});
 }
 
+/**
+ * ARIA structure & control wiring (#356) is mode-independent, so these states
+ * scan once outside the theme loop. They cover what the themed flows above
+ * never reach: the mobile table markup, the stats definition lists, and the
+ * expanded combobox / date-picker popups.
+ */
+test.describe('ARIA structure', () => {
+	test('Month view on a mobile viewport is axe-clean', async ({ page, pages }) => {
+		const { budgetName } = await seedBudget(pages);
+		await pages.budget.goto(budgetName);
+
+		await page.setViewportSize({ height: 720, width: 390 });
+		// The mobile toolbar replaces the desktop column header below @3xl; it
+		// must sit outside the role="table" element to be valid table content.
+		await expect(page.getByRole('link', { name: 'Create Category' })).toBeVisible();
+		await expectAxeClean(page);
+	});
+
+	test('Category stats popover and detail page are axe-clean', async ({ page, pages }) => {
+		const { budgetName, categoryName } = await seedBudget(pages);
+		await pages.budget.goto(budgetName);
+
+		// The monthly-stats popover: its ledger is a <dl> with grouped rows.
+		await pages.category.openPopover(categoryName);
+		await expect(pages.category.popover().getByText('Average Monthly Spend')).toBeVisible();
+		await expectAxeClean(page);
+
+		// The detail page repeats the same dl rows plus the all-time group.
+		await pages.category.popover().getByRole('link', { name: 'Settings' }).click();
+		await expect(page.getByRole('heading', { name: categoryName })).toBeVisible();
+		await expectAxeClean(page);
+	});
+
+	test('Expanded category combobox and date picker are axe-clean', async ({ page, pages }) => {
+		const { accountName } = await seedBudget(pages);
+		await pages.account.goto(accountName);
+
+		await page.getByRole('button', { name: 'New Transaction' }).click();
+		const createRow = page.getByRole('row', { name: 'New Transaction' });
+		await expect(createRow).toBeVisible();
+
+		// Expanded combobox: the listbox needs an accessible name and the input
+		// needs aria-controls — neither fires while collapsed.
+		await createRow.getByRole('button', { name: 'Open category dropdown' }).click();
+		await expect(page.getByRole('listbox', { name: 'Category' })).toBeVisible();
+		await expectAxeClean(page);
+		await page.keyboard.press('Escape');
+
+		// Expanded date picker: the trigger is a role="combobox" button that
+		// needs aria-controls while open. Its accessible name is the selected
+		// date, so target the row's only combobox *button* (the category
+		// combobox is an input).
+		await createRow.locator('button[role="combobox"]').click();
+		await expect(page.getByRole('grid')).toBeVisible();
+		await expectAxeClean(page);
+	});
+});
+
 /** Tabs forward until the given locator holds focus, or throws after `max` hops. */
 async function tabToFocus(page: Page, target: Locator, max = 10) {
 	for (let i = 0; i < max; i++) {
