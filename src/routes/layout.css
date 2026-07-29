@@ -24,7 +24,7 @@
 	--color-error: #bc1a3f;
 	--color-info: #06506f;
 	--color-interactive: #442c73;
-	--color-success: #3d823d;
+	--color-success: #347935;
 	--color-focus: #d75f00;
 	/* Typography roles (#261): Plex Sans carries all UI text, Plex Mono all
 	   money (via `font-currency`), Lora is the single display voice — page
@@ -236,12 +236,14 @@
  * the tokens carry the theme. `system` emits no class on <html> and follows the
  * OS via the media query below; an explicit `.light`/`.dark` override wins by
  * source order (declared after the media block, equal specificity). These are
- * unlayered so they override the `@theme`-emitted `:root` values. Dark values
- * are a first pass, AA-verified in the accessibility pass (#128). The muted
+ * unlayered so they override the `@theme`-emitted `:root` values. The muted
  * and error values must keep ≥4.5:1 on the brightest overlay stacks
  * (`surface-high`, plus `bg-muted/5` and `bg-error/10` tints over it) —
  * overlays moved to `surface-high` in #258 and the a11y suite gates dialog
- * text and the form-error case.
+ * text and the form-error case. The info/interactive/success values must keep
+ * ≥4.5:1 as text on `surface-high` and inside their own `/10` tint chips over
+ * either surface (the default button variant in dialogs is the worst case) —
+ * gated in the a11y suite.
  */
 @media (prefers-color-scheme: dark) {
 	:root {
@@ -251,9 +253,9 @@
 		--color-foreground: #c5c9c5;
 		--color-muted: #aaa5a0;
 		--color-error: #e4a29c;
-		--color-info: #a97bbb;
-		--color-interactive: #6d9cb1;
-		--color-success: #7e9a65;
+		--color-info: #d6ace6;
+		--color-interactive: #98c1d4;
+		--color-success: #a9c394;
 		--color-focus: #d4a96f;
 	}
 }
@@ -267,7 +269,7 @@
 	--color-error: #bc1a3f;
 	--color-info: #06506f;
 	--color-interactive: #442c73;
-	--color-success: #3d823d;
+	--color-success: #347935;
 	--color-focus: #d75f00;
 }
 
@@ -278,9 +280,9 @@
 	--color-foreground: #c5c9c5;
 	--color-muted: #aaa5a0;
 	--color-error: #e4a29c;
-	--color-info: #a97bbb;
-	--color-interactive: #6d9cb1;
-	--color-success: #7e9a65;
+	--color-info: #d6ace6;
+	--color-interactive: #98c1d4;
+	--color-success: #a9c394;
 	--color-focus: #d4a96f;
 }
 
