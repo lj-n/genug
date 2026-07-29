@@ -183,13 +183,12 @@
 	<Combobox.Item
 		value={item.id}
 		label={item.label}
-		class="flex w-full cursor-default items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-highlighted:bg-info/5 data-highlighted:text-info data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+		class="flex w-full cursor-default items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-highlighted:bg-muted/10 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
 	>
 		<div>{item.label}</div>
 		<div
 			class={cn(
 				'rounded-sm p-0.5 px-2 font-currency text-xs text-foreground',
-				item.balance > 0 && 'bg-success/20',
 				item.balance < 0 && 'bg-error/20 text-error'
 			)}
 		>

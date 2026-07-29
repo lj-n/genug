@@ -102,7 +102,6 @@
 			<Button
 				variant="ghost"
 				size="icon"
-				class="bg-muted/10 hover:bg-muted/20"
 				href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/settings', {
 					accountId: accountId(),
 					budgetId: budgetId()
