@@ -51,3 +51,20 @@ describe('DatePicker — aria-invalid contract', () => {
 		expect(button).not.toHaveAttribute('aria-invalid');
 	});
 });
+
+describe('DatePicker — combobox wiring contract (#356)', () => {
+	it('links the expanded trigger to the calendar popover via aria-controls', async () => {
+		const { button } = renderDatePicker({ open: true });
+
+		await vi.waitFor(() => {
+			expect(button).toHaveAttribute('aria-controls');
+		});
+		const contentId = button.getAttribute('aria-controls')!;
+		expect(document.getElementById(contentId)).not.toBeNull();
+	});
+
+	it('does not set aria-controls while collapsed', () => {
+		const { button } = renderDatePicker();
+		expect(button).not.toHaveAttribute('aria-controls');
+	});
+});

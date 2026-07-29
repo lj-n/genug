@@ -61,6 +61,19 @@
 
 	const displayValue = $derived(value ? displayFormatter(value) : label);
 
+	// The trigger is a role="combobox" button, which ARIA requires to carry
+	// aria-controls while expanded. bits-ui derives that from the content
+	// node's id, but its id prop never reaches the floating element (every
+	// popper layer destructures it away) — so stamp the id on the node and
+	// wire the trigger by hand.
+	const uid = $props.id();
+	const contentId = `${uid}-content`;
+	let contentRef = $state<HTMLElement | null>(null);
+
+	$effect(() => {
+		if (contentRef) contentRef.id = contentId;
+	});
+
 	function closeAndFocusTrigger() {
 		open = false;
 		tick().then(() => {
@@ -83,6 +96,7 @@
 					className
 				)}
 				role="combobox"
+				aria-controls={open ? contentId : undefined}
 				aria-expanded={open}
 				aria-invalid={ariaInvalid}
 				aria-label={value ? displayFormatter(value) : label}
@@ -93,6 +107,7 @@
 	</Popover.Trigger>
 
 	<Popover.Content
+		bind:ref={contentRef}
 		class="w-full p-0"
 		sideOffset={4}
 		onkeydown={(ev) => {

@@ -77,29 +77,30 @@
 				: formatMoney({ currency, money: asMoney(stats.trailingAverageSpend) })
 		)}
 
-		<div class="{rowChrome} flex flex-col gap-0.5">
-			<div class="flex items-baseline justify-between">
-				<dt class="text-sm text-muted">
-					{m.category_stats_delta({
-						month: formatMonth({
-							month: addMonths(month, -1),
-							options: { month: 'short', year: 'numeric' }
-						})
-					})}
-				</dt>
-				<dd class="font-currency">
-					{stats.spendDelta > 0 ? '+' : ''}{formatMoney({
-						currency,
-						money: asMoney(stats.spendDelta)
-					})}
-				</dd>
-			</div>
-			<div class="font-currency text-xs text-muted">
+		<!-- Grid, not nested row divs: a dl group allows only the one div wrapper
+		     around its dt/dd, so the breakdown line is a second dd spanning both
+		     columns. -->
+		<div class="{rowChrome} grid grid-cols-[auto_auto] items-baseline justify-between gap-y-0.5">
+			<dt class="text-sm text-muted">
+				{m.category_stats_delta({
+					month: formatMonth({
+						month: addMonths(month, -1),
+						options: { month: 'short', year: 'numeric' }
+					})
+				})}
+			</dt>
+			<dd class="font-currency">
+				{stats.spendDelta > 0 ? '+' : ''}{formatMoney({
+					currency,
+					money: asMoney(stats.spendDelta)
+				})}
+			</dd>
+			<dd class="col-span-2 font-currency text-xs text-muted">
 				{m.category_stats_delta_breakdown({
 					currentSpend: formatMoney({ currency, money: asMoney(stats.monthSpend) }),
 					previousSpend: formatMoney({ currency, money: asMoney(stats.previousMonthSpend) })
 				})}
-			</div>
+			</dd>
 		</div>
 
 		{#if stats.currentTargetPercentage !== null}

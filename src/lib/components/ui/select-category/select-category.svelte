@@ -53,6 +53,18 @@
 
 	let searchValue = $state('');
 	let containerRef = $state<HTMLDivElement | null>(null);
+	let contentRef = $state<HTMLElement | null>(null);
+
+	// bits-ui does not link the combobox input to its listbox, so the input
+	// fails ARIA's required aria-controls while expanded — wire it by hand.
+	const uid = $props.id();
+	const listboxId = `${uid}-listbox`;
+
+	// The id prop never reaches the floating listbox element (every popper
+	// layer destructures it away), so stamp it on the node itself.
+	$effect(() => {
+		if (contentRef) contentRef.id = listboxId;
+	});
 
 	const items = $derived(categories.map((c) => ({ label: c.name, value: c.id })));
 
@@ -117,6 +129,7 @@
 		<Combobox.Input
 			{...inputProps}
 			bind:ref={inputRef}
+			aria-controls={open ? listboxId : undefined}
 			aria-invalid={ariaInvalid}
 			aria-label={ariaLabel}
 			class="h-full min-w-0 flex-1 border-0 bg-transparent px-2 py-1 outline-none placeholder:text-muted focus-visible:ring-0"
@@ -133,6 +146,8 @@
 
 	<Combobox.Content
 		{...contentProps}
+		bind:ref={contentRef}
+		aria-label={ariaLabel ?? placeholder}
 		customAnchor={containerRef}
 		sideOffset={6}
 		class={cn(
