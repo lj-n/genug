@@ -109,7 +109,7 @@
 			{placeholder}
 			{locale}
 			onValueChange={closeAndFocusTrigger}
-			class="rounded-xl border border-muted/20 bg-surface-high shadow"
+			class="rounded-xl bg-surface-high shadow-md ring-1 ring-foreground/10"
 		/>
 	</Popover.Content>
 </Popover.Root>

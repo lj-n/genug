@@ -136,7 +136,7 @@
 		customAnchor={containerRef}
 		sideOffset={6}
 		class={cn(
-			'w-(--bits-combobox-anchor-width) overflow-hidden rounded-md bg-surface-high p-1 shadow-md ring-1 ring-muted/20',
+			'w-(--bits-combobox-anchor-width) overflow-hidden rounded-md bg-surface-high p-1 shadow-md ring-1 ring-foreground/10',
 			contentProps?.class
 		)}
 	>

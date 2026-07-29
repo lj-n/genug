@@ -12,6 +12,11 @@ and dependency bumps get no entry.
 
 ### Changed
 
+- Floating panels now share one consistent chrome: the date-picker calendar,
+  select menus, and the budget table's assignment error flyout wear the same
+  hairline outline and shadow as every other overlay, and the mobile
+  navigation button casts the standard overlay shadow instead of a heavier
+  one.
 - The error page dropped its tinted panel for a plain poster layout: the
   status code stands directly on the page as a large serif numeral, with the
   error message, log ID, and home link beneath it.

@@ -38,7 +38,7 @@
 						bind:this={ref}
 						{...props}
 						class={cn(
-							'relative isolate z-50 min-w-36 overflow-x-hidden overflow-y-auto rounded-md bg-surface-high shadow-md ring-1 ring-muted/20',
+							'relative isolate z-50 min-w-36 overflow-x-hidden overflow-y-auto rounded-md bg-surface-high shadow-md ring-1 ring-foreground/10',
 							className
 						)}
 						in:floatingIn={{ side: props['data-side'] }}

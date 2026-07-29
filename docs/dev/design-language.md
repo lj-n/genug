@@ -96,6 +96,12 @@ Dialog, alert-dialog(-form), drawer, responsive-modal, popover
 - **Chrome: hairline + one shadow.** Panels carry `ring-1 ring-foreground/10`
   (the drawer its directional `border-muted/20` edge) plus `shadow-md` —
   the single overlay shadow step (P2: shadows are overlay-only).
+- **Anchored cell overlays are the exception.** Popovers that unfold a
+  ledger cell or header in place (`category-popover`, `reassignment-popup`,
+  `category-archive-popover` in the month view) wear
+  `rounded-xs bg-surface p-0 shadow-sm ring-1 ring-muted/30` with
+  anchor-matched width — a cell opening on the page's own surface token
+  with the flattest shadow, not a detached `bg-surface-high` layer.
 - **Scrim is a veil, not a dimmer:** `bg-background/75` +
   `supports-backdrop-filter:backdrop-blur-xs` on dialog/alert-dialog/drawer
   overlays — the page washes out into the theme's own background token

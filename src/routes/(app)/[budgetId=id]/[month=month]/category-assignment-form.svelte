@@ -81,7 +81,7 @@ button during flight; the optimistic-override feedback model stays untouched. --
 
 	{#snippet errors(error)}
 		<p
-			class="absolute inset-x-0 top-full z-10 bg-surface-high p-1 text-right text-xs text-error shadow-md"
+			class="absolute inset-x-0 top-full z-10 bg-surface-high p-1 text-right text-xs text-error shadow-md ring-1 ring-foreground/10"
 			role="alert"
 		>
 			{error.message}
