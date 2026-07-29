@@ -19,9 +19,11 @@ export const cellTriggerClass =
 	'relative flex size-full cursor-pointer items-center justify-start px-2 text-left hover:z-10 hover:bg-surface hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50 focus-visible:z-20';
 
 // Edit-mode control: keeps the trigger's px-2 (pixel-lock) and mirrors its
-// hover/focus layering.
+// hover/focus layering. text-base pins the read-mode (inherited) font size —
+// Button-based controls like DatePicker would otherwise drop to the Button
+// base's text-sm when the cell enters edit mode.
 export const editInputClass =
-	'h-full w-full justify-start rounded-none border-0 bg-transparent px-2 shadow-none hover:z-10 hover:bg-surface hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50 focus-visible:z-20';
+	'h-full w-full justify-start rounded-none border-0 bg-transparent px-2 text-base shadow-none hover:z-10 hover:bg-surface hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50 focus-visible:z-20';
 
 // Open-row footer actions rest at size="xs" (24px) — too small to tap. Grown
 // to 44px in the nav-hidden band, back to xs geometry ≥7xl (pointer).

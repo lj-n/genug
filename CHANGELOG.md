@@ -17,6 +17,12 @@ and dependency bumps get no entry.
   hairline outline and shadow as every other overlay, and the mobile
   navigation button casts the standard overlay shadow instead of a heavier
   one.
+
+### Fixed
+
+- Clicking a date in the transaction table no longer shrinks the cell's text:
+  the date-picker trigger now keeps the same font size as the read-only cell
+  it replaces.
 - The error page dropped its tinted panel for a plain poster layout: the
   status code stands directly on the page as a large serif numeral, with the
   error message, log ID, and home link beneath it.
