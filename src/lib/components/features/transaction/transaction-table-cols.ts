@@ -1,3 +1,5 @@
+import { hoverOutline } from '$lib/components/ui/focus-ring';
+
 // Read and edit modes share these tracks and the px-2 text inset so toggling
 // edit moves nothing. minmax(0,…) instead of bare 1fr: the edit controls'
 // min-content width would otherwise shift the columns between modes.
@@ -15,15 +17,13 @@ export const cellClass =
 // Read-mode click-to-edit trigger. Focus lifts above hover (z-20 vs z-10) so a
 // hovered neighbour's surface fill never paints over the focused cell's
 // outline where the ring overlaps the shared cell edge.
-export const cellTriggerClass =
-	'relative flex size-full cursor-pointer items-center justify-start px-2 text-left hover:z-10 hover:bg-surface hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50 focus-visible:z-20';
+export const cellTriggerClass = `relative flex size-full cursor-pointer items-center justify-start px-2 text-left hover:z-10 hover:bg-surface ${hoverOutline} focus-visible:z-20`;
 
 // Edit-mode control: keeps the trigger's px-2 (pixel-lock) and mirrors its
 // hover/focus layering. text-base pins the read-mode (inherited) font size —
 // Button-based controls like DatePicker would otherwise drop to the Button
 // base's text-sm when the cell enters edit mode.
-export const editInputClass =
-	'h-full w-full justify-start rounded-none border-0 bg-transparent px-2 text-base shadow-none hover:z-10 hover:bg-surface hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50 focus-visible:z-20';
+export const editInputClass = `h-full w-full justify-start rounded-none border-0 bg-transparent px-2 text-base shadow-none hover:z-10 hover:bg-surface ${hoverOutline} focus-visible:z-20`;
 
 // Open-row footer actions rest at size="xs" (24px) — too small to tap. Grown
 // to 44px in the nav-hidden band, back to xs geometry ≥7xl (pointer).

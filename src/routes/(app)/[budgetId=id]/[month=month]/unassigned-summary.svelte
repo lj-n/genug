@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { focusRing } from '$lib/components/ui/focus-ring';
+	import { focusRing, hoverOutline } from '$lib/components/ui/focus-ring';
 	import * as Popover from '$lib/components/ui/popover';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget, getUnassigned } from '$lib/remote-functions/budget.remote';
@@ -71,7 +71,8 @@
 <Popover.Root bind:open>
 	<Popover.Trigger
 		class={cn(
-			'ml-auto flex h-11 w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-2 hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50 @3xl/main:h-7 @3xl/main:w-auto @3xl/main:justify-start',
+			'ml-auto flex h-11 w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-2 @3xl/main:h-7 @3xl/main:w-auto @3xl/main:justify-start',
+			hoverOutline,
 			focusRing,
 			unassigned === 0
 				? 'bg-muted/10 text-muted'
