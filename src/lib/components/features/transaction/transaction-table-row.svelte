@@ -175,7 +175,7 @@
 					{transaction.categoryName}
 				{:else}
 					<span
-						class="inline-flex max-w-full min-w-0 items-center gap-1 rounded-sm bg-muted/10 px-1 py-0 text-sm text-muted"
+						class="inline-flex max-w-full min-w-0 items-center gap-1 rounded-sm bg-muted/5 px-1 py-0 text-sm text-muted"
 					>
 						<EmptyIcon class="size-3.5 shrink-0" aria-hidden="true" />
 						<span class="truncate">{m.transaction_table_cell_category_empty()}</span>
