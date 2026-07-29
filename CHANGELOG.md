@@ -12,6 +12,15 @@ and dependency bumps get no entry.
 
 ### Changed
 
+- Archived categories and accounts moved out of their dedicated pages into
+  lightweight surfaces with inline restore: categories open in a popover next
+  to the budget table's create button (a bottom drawer on small screens), and
+  accounts in a small dialog next to the create button in budget settings.
+  Restored items reappear in their list immediately, and the archive
+  affordance hides itself while nothing is archived. Visiting an archived
+  category or account directly now shows only a short notice with a restore
+  button — restoring an account brings its register back in place, restoring
+  a category returns to the budget table.
 - The budget table's remaining amounts now render in a medium weight rather
   than semibold, so the figure still anchors each row without dominating the
   quieter secondary numbers.

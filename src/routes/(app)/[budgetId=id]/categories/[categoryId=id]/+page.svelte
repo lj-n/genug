@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import {
 		CategoryArchive,
+		CategoryArchivedNotice,
 		CategoryDelete,
 		CategoryEdit,
 		CategoryStats
@@ -29,16 +30,11 @@
 	// month in this URL.
 	const month = currentMonth();
 
-	// Archived categories are managed through the archived list's restore flow,
-	// not this page. Archiving here trips the same redirect: the submit
-	// refreshes getCategoryById, populating archivedAt.
-	$effect(() => {
-		if (category.archivedAt !== null) {
-			goto(resolve('/(app)/[budgetId=id]/categories/archived', { budgetId: budgetId() }));
-		}
-	});
-
-	const onDeleted = () =>
+	// Deleting and restoring both leave this page for the budget table: the
+	// restored category's place is the table, and re-mounting the detail view
+	// in place would introduce first-time awaits mid-update (CategoryStats),
+	// which stalls the fragment in production builds.
+	const gotoBudgetTable = () =>
 		goto(
 			resolve('/(app)/[budgetId=id]/[month=month]', {
 				budgetId: budgetId(),
@@ -55,20 +51,26 @@
 	</Page.Header>
 
 	<Page.Content class="max-w-xl">
-		<div class="space-y-3">
-			<CategoryEdit {category} currency={budget.currency} />
+		{#if category.archivedAt !== null}
+			<!-- An archived category's page is nothing but the disclaimer +
+			     restore; archiving below lands here via the query refresh. -->
+			<CategoryArchivedNotice categoryId={categoryId()} onRestored={gotoBudgetTable} />
+		{:else}
+			<div class="space-y-3">
+				<CategoryEdit {category} currency={budget.currency} />
 
-			<Separator class="mt-6 mb-3" />
+				<Separator class="mt-6 mb-3" />
 
-			<CategoryStats {category} currency={budget.currency} {month} />
+				<CategoryStats {category} currency={budget.currency} {month} />
 
-			<Separator class="mt-6 mb-3" />
+				<Separator class="mt-6 mb-3" />
 
-			<CategoryArchive {category} currency={budget.currency} />
+				<CategoryArchive {category} currency={budget.currency} />
 
-			<Separator class="mt-6 mb-3" />
+				<Separator class="mt-6 mb-3" />
 
-			<CategoryDelete {category} currency={budget.currency} {onDeleted} />
-		</div>
+				<CategoryDelete {category} currency={budget.currency} onDeleted={gotoBudgetTable} />
+			</div>
+		{/if}
 	</Page.Content>
 </Page.Root>

@@ -122,7 +122,7 @@ test('Delete is disabled while a transaction references the category', async ({ 
 	await pages.category.expectDeleteDisabled(categoryName);
 });
 
-test('Archived category links to the budget month page', async ({ pages }) => {
+test('Archived category restores from the archive popover', async ({ pages }) => {
 	await pages.auth.createUserAndLogin();
 
 	const budgetName = faker.commerce.department();
@@ -135,5 +135,5 @@ test('Archived category links to the budget month page', async ({ pages }) => {
 	await pages.budget.createCategory(categoryName);
 
 	await pages.category.archive(categoryName);
-	await pages.category.followArchivedCategoryLink(categoryName, budgetName);
+	await pages.category.restoreFromArchivePopover(categoryName);
 });

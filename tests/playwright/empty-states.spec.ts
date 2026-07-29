@@ -31,19 +31,12 @@ test('Empty-state guidance — canonical first-run path', async ({ page, pages }
 	await expect(page.getByRole('button', { name: 'Create Category' })).toHaveCount(0);
 	await expect(page.getByRole('link', { name: 'Create Category' })).toHaveCount(0);
 	await expect(page.getByRole('button', { name: 'Explain the unallocated amount' })).toHaveCount(0);
-	await expect(page.getByRole('link', { name: '0 archived' })).toHaveCount(0);
+	await expect(page.getByRole('button', { name: '0 archived' })).toHaveCount(0);
 
 	// The Budget Settings dialog's accounts section carries the no-accounts hint.
 	await page.getByRole('button', { name: 'Budget Settings' }).click();
 	await expect(page.getByText('No accounts yet — add one below.')).toBeVisible();
 	await page.keyboard.press('Escape');
-
-	// Both archived pages state what will appear there.
-	await page.goto(`/${pages.budget.ctx.budgetId}/accounts/archived`);
-	await expect(page.getByText('Archived accounts will show up here.')).toBeVisible();
-	await page.goto(`/${pages.budget.ctx.budgetId}/categories/archived`);
-	await expect(page.getByText('Archived categories will show up here.')).toBeVisible();
-	await pages.budget.goto(budgetName);
 
 	// Step 1: creating the account checks the step, removes the dialog hint,
 	// and turns the footer phrase into a link.
@@ -58,8 +51,8 @@ test('Empty-state guidance — canonical first-run path', async ({ page, pages }
 	const settingsDialog = page.getByRole('dialog');
 	await expect(settingsDialog.getByRole('link', { name: accountName })).toBeVisible();
 	await expect(settingsDialog.getByText('No accounts yet — add one below.')).toHaveCount(0);
-	// With no archived accounts the dialog omits the archived link (#171).
-	await expect(settingsDialog.getByRole('link', { name: /archived/i })).toHaveCount(0);
+	// With no archived accounts the dialog omits the archive button (#171).
+	await expect(settingsDialog.getByRole('button', { name: /archived/i })).toHaveCount(0);
 	await page.keyboard.press('Escape');
 
 	// The footer link — now carrying the account's name — leads to the
@@ -105,12 +98,12 @@ test('Empty-state guidance — canonical first-run path', async ({ page, pages }
 	await expect(pages.budget.tutorialCard()).toHaveCount(0);
 	await expect(page.getByRole('columnheader', { exact: true, name: 'Category' })).toBeVisible();
 
-	// With a category the month affordances return — except the archived link,
-	// which waits for the first archived category.
+	// With a category the month affordances return — except the archive
+	// popover, which waits for the first archived category.
 	await expect(page.getByRole('button', { name: 'Select previous month' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Create Category' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Explain the unallocated amount' })).toBeVisible();
-	await expect(page.getByRole('link', { name: '0 archived' })).toHaveCount(0);
+	await expect(page.getByRole('button', { name: '0 archived' })).toHaveCount(0);
 });
 
 // Regression (#167): a user who creates a category before an account must not

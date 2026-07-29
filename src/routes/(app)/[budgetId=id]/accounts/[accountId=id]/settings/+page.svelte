@@ -20,12 +20,17 @@
 	const account = $derived(await getAccount(accountId()));
 	const budget = $derived(await getBudget(budgetId()));
 
-	// Archived accounts are managed through the archived list's restore flow, not
-	// this page. Archiving here trips the same redirect: the submit refreshes
-	// getAccount, populating archivedAt.
+	// An archived account has no settings to edit — its detail page shows the
+	// archived notice with the restore flow instead. Archiving here trips the
+	// same redirect: the submit refreshes getAccount, populating archivedAt.
 	$effect(() => {
 		if (account.archivedAt !== null) {
-			goto(resolve('/(app)/[budgetId=id]/accounts/archived', { budgetId: budgetId() }));
+			goto(
+				resolve('/(app)/[budgetId=id]/accounts/[accountId=id]', {
+					accountId: accountId(),
+					budgetId: budgetId()
+				})
+			);
 		}
 	});
 
