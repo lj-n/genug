@@ -53,7 +53,7 @@
 				})}
 			</dd>
 		</div>
-		<div class="font-currency text-xs text-foreground/60">
+		<div class="font-currency text-xs text-muted">
 			{m.category_stats_delta_breakdown({
 				currentSpend: formatMoney({ currency, money: asMoney(stats.monthSpend) }),
 				previousSpend: formatMoney({ currency, money: asMoney(stats.previousMonthSpend) })
