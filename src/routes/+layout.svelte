@@ -8,6 +8,8 @@
 
 	import type { LayoutProps } from './$types';
 
+	import PrototypeTokenSwitcher from './prototype-token-switcher.svelte';
+
 	let { children }: LayoutProps = $props();
 </script>
 
@@ -19,3 +21,7 @@
 {@render children()}
 
 <Toaster />
+
+{#if dev}
+	<PrototypeTokenSwitcher />
+{/if}
