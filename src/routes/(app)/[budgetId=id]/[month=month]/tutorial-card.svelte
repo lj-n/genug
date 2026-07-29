@@ -61,7 +61,7 @@
 {#if accounts.length === 0 || categories.length === 0}
 	<section
 		aria-label={m.tutorial_card_title()}
-		class="flex flex-col gap-3 rounded-md border border-info/30 bg-info/5 p-4 shadow-xs shadow-info/15"
+		class="flex flex-col gap-3 rounded-md border border-info/30 bg-info/5 p-4"
 	>
 		<div class="flex flex-col gap-1">
 			<h2 class="text-lg font-semibold">{m.tutorial_card_title()}</h2>

@@ -90,9 +90,7 @@
 {:else}
 	<ul aria-label={m.settings_api_tokens()} class="grid gap-2">
 		{#each tokens as token (token.id)}
-			<li
-				class="flex items-center gap-3 rounded-lg border border-muted/20 bg-surface-high p-3 shadow-xs"
-			>
+			<li class="flex items-center gap-3 rounded-lg border border-muted/20 bg-surface p-3">
 				<div class="min-w-0">
 					<div class="truncate font-medium">{token.name}</div>
 					<div class="text-sm text-muted">
