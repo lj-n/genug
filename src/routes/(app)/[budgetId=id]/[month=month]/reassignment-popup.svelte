@@ -5,6 +5,7 @@
 	import type { Month } from '$lib/utils/month';
 
 	import { Button } from '$lib/components/ui/button';
+	import { hoverOutline } from '$lib/components/ui/focus-ring';
 	import { InputMoney } from '$lib/components/ui/input-money';
 	import * as Popover from '$lib/components/ui/popover';
 	import { SelectCategory } from '$lib/components/ui/select-category';
@@ -86,7 +87,8 @@
 		aria-disabled={remaining === 0}
 		aria-label={m.reassignment_trigger_label({ name: categoryName })}
 		class={cn(
-			'flex size-full cursor-pointer items-center justify-end px-2 text-right font-currency font-medium hover:z-10 hover:bg-surface hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50 focus-visible:z-10',
+			'flex size-full cursor-pointer items-center justify-end px-2 text-right font-currency font-medium hover:z-10 hover:bg-surface focus-visible:z-10',
+			hoverOutline,
 			remaining < 0 && 'text-error',
 			remaining === 0 &&
 				'cursor-default font-normal text-muted hover:bg-transparent hover:outline-none'
