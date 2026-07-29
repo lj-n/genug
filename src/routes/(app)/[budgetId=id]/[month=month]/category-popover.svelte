@@ -10,6 +10,7 @@
 	import { resolve } from '$app/paths';
 	import { CategoryStatsLedger } from '$lib/components/features/category';
 	import { Button } from '$lib/components/ui/button';
+	import { hoverOutline } from '$lib/components/ui/focus-ring';
 	import * as Popover from '$lib/components/ui/popover';
 	import { m } from '$lib/paraglide/messages';
 	import { getCategoryStats } from '$lib/remote-functions/category.remote';
@@ -59,7 +60,7 @@
 	     progress bar that overlays the cell's bottom edge. -->
 	<Popover.Trigger
 		bind:ref={triggerEl}
-		class="relative flex size-full cursor-pointer items-center px-2 text-left hover:z-10 hover:bg-surface hover:outline-1 hover:-outline-offset-1 hover:outline-foreground/50 focus-visible:z-10"
+		class={`relative flex size-full cursor-pointer items-center px-2 text-left hover:z-10 hover:bg-surface ${hoverOutline} focus-visible:z-10`}
 		onpointerenter={prefetch}
 		onfocus={prefetch}
 	>
