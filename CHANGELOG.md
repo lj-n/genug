@@ -12,6 +12,11 @@ and dependency bumps get no entry.
 
 ### Changed
 
+- Floating panels now share one consistent chrome: the date-picker calendar,
+  select menus, and the budget table's assignment error flyout wear the same
+  hairline outline and shadow as every other overlay, and the mobile
+  navigation button casts the standard overlay shadow instead of a heavier
+  one.
 - Hover and list-highlight feedback is neutral everywhere: the budget
   settings, budget members, and account settings icon buttons no longer
   deepen their tint on hover, and the reassignment popup's category list
@@ -91,6 +96,9 @@ and dependency bumps get no entry.
 
 ### Fixed
 
+- Clicking a date in the transaction table no longer shrinks the cell's text:
+  the date-picker trigger now keeps the same font size as the read-only cell
+  it replaces.
 - Dialogs and drawers no longer render their middle section empty in
   Safari (including iOS home-screen installs) — content such as form
   fields was collapsing to zero height.

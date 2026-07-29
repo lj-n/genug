@@ -52,7 +52,7 @@
 			<!-- Bottom-right so it never covers the page heading or its action
 			     buttons; z-40 keeps it underneath every drawer/dialog (z-50). -->
 			<div
-				class="fixed right-4 bottom-4 z-40 flex rounded-xl border border-muted/10 bg-foreground p-1 text-background shadow-lg @7xl/main:hidden"
+				class="fixed right-4 bottom-4 z-40 flex rounded-xl border border-muted/10 bg-foreground p-1 text-background shadow-md @7xl/main:hidden"
 			>
 				<Button {...props} size="icon" variant="ghost" class="size-11">
 					<span class="sr-only">Toggle Navigation</span>
