@@ -30,6 +30,9 @@
 	const media = new MediaQuery(DESKTOP_QUERY, true);
 
 	setResponsiveModalContext({
+		close() {
+			open = false;
+		},
 		get dismissible() {
 			return dismissible;
 		},
