@@ -12,6 +12,13 @@ and dependency bumps get no entry.
 
 ### Changed
 
+- Hover and list-highlight feedback is neutral everywhere: the budget
+  settings, budget members, and account settings icon buttons no longer
+  deepen their tint on hover, and the reassignment popup's category list
+  highlights with the standard neutral fill instead of blue. Positive
+  balances in that list render as plain text — green stays reserved for
+  target progress.
+
 - The error page dropped its tinted panel for a plain poster layout: the
   status code stands directly on the page as a large serif numeral, with the
   error message, log ID, and home link beneath it.

@@ -23,13 +23,7 @@
 <ResponsiveModal.Root dismissible={false}>
 	<ResponsiveModal.Trigger>
 		{#snippet child({ props })}
-			<Button
-				{...props}
-				variant="ghost"
-				size="icon"
-				aria-label={m.budget_users_dialog_title()}
-				class="bg-muted/10 hover:bg-muted/20"
-			>
+			<Button {...props} variant="ghost" size="icon" aria-label={m.budget_users_dialog_title()}>
 				{#if budgetUsers.length > 1}
 					<UsersThreeIcon />
 				{:else}

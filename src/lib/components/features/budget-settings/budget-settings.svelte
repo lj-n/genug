@@ -47,7 +47,7 @@
 <ResponsiveModal.Root bind:open>
 	<ResponsiveModal.Trigger>
 		{#snippet child({ props })}
-			<Button {...props} variant="ghost" size="icon" class="bg-muted/10 hover:bg-muted/20">
+			<Button {...props} variant="ghost" size="icon">
 				<PencilIcon />
 				<span class="sr-only">{m.budget_settings_title()}</span>
 			</Button>
