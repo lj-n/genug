@@ -65,7 +65,7 @@
 		<figcaption class="text-xs text-muted">{m.category_stats_sparkline_label()}</figcaption>
 	</figure>
 
-	<h3 class="text-xs font-medium tracking-wide text-muted uppercase">
+	<h3 class="text-xs font-medium tracking-wider text-muted uppercase">
 		{formatMonth({ month, options: { month: 'long', year: 'numeric' } })}
 	</h3>
 
@@ -116,7 +116,7 @@
 		{/if}
 	</dl>
 
-	<h3 class="mt-2 text-xs font-medium tracking-wide text-muted uppercase">
+	<h3 class="mt-2 text-xs font-medium tracking-wider text-muted uppercase">
 		{m.category_stats_group_all_time()}
 	</h3>
 

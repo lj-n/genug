@@ -64,7 +64,7 @@
 		class="flex flex-col gap-3 rounded-md border border-info/30 bg-info/5 p-4 shadow-xs shadow-info/15"
 	>
 		<div class="flex flex-col gap-1">
-			<h2 class="text-lg font-semibold">{m.tutorial_card_title()}</h2>
+			<h2 class="font-semibold">{m.tutorial_card_title()}</h2>
 			<p class="text-sm text-muted">{m.tutorial_card_description()}</p>
 		</div>
 
