@@ -102,7 +102,7 @@ for (const theme of THEMES) {
 		test.beforeEach(async ({ page }) => setTheme(page, theme));
 
 		// axe cannot judge text over `/10` tint chips (it reports them "incomplete"),
-		// so the accent tokens are gated by direct token math (#354): accent text must
+		// so the accent tokens are gated by direct token math: accent text must
 		// keep AA on `surface-high` and inside its own `/10` chip over either surface —
 		// the default button variant in dialogs is the live worst case.
 		test('Accent tokens keep AA on elevated surfaces and tint chips', async ({ page, pages }) => {
@@ -260,7 +260,7 @@ for (const theme of THEMES) {
 }
 
 /**
- * ARIA structure & control wiring (#356) is mode-independent, so these states
+ * ARIA structure & control wiring is mode-independent, so these states
  * scan once outside the theme loop. They cover what the themed flows above
  * never reach: the mobile table markup, the stats definition lists, and the
  * expanded combobox / date-picker popups.
