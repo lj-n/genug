@@ -33,7 +33,7 @@
 			bind:ref={triggerEl}
 			class={cn(
 				buttonVariants({ size: 'xs', variant: 'ghost' }),
-				'@3xl/main:size-11 @7xl/main:h-6 @7xl/main:w-auto'
+				'@3xl/main:w-11 @7xl/main:w-auto'
 			)}
 			aria-label={m.category_archived_link({ amount: categories.length })}
 		>

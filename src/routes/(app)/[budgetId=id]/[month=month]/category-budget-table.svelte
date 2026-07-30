@@ -116,7 +116,7 @@
 						{m.budget_monthly_table_header_category()}
 						<Button
 							size="xs"
-							class="ml-1 @3xl/main:size-11 @7xl/main:h-6 @7xl/main:w-auto"
+							class="ml-1 @3xl/main:w-11 @7xl/main:w-auto"
 							aria-label={m.category_create_button()}
 							onclick={() => (createDialogOpen = true)}
 						>
