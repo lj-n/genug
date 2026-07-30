@@ -12,6 +12,10 @@ and dependency bumps get no entry.
 
 ### Fixed
 
+- Navigating to a nonexistent route now shows a localized "This page could not
+  be found." message with no Error ID, instead of the generic "An unexpected
+  error occurred." copy and a meaningless lookup id. Genuine unexpected errors
+  still show the generic message and an Error ID.
 - The "You have an invitation" nav indicator now disappears immediately after
   you accept or decline a budget invitation, instead of lingering until the
   next navigation. Accepting also surfaces the newly-joined budget in the nav
