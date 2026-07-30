@@ -1,7 +1,10 @@
+import { asMoney, formatMoney } from '$lib/utils/money';
 import { faker } from '@faker-js/faker';
 
 import { expect, test } from './fixture';
 import { uniqueName } from './unique-name';
+
+const eur = (value: number) => formatMoney({ currency: 'EUR', money: asMoney(value) });
 
 test('Create Transaction', async ({ pages }) => {
 	await pages.auth.createUserAndLogin();
@@ -97,6 +100,107 @@ test('Toggle Validated', async ({ pages }) => {
 	});
 
 	await pages.account.toggleValidated();
+});
+
+test('Creating a transaction updates the balance summary without reload', async ({ pages }) => {
+	await pages.auth.createUserAndLogin();
+
+	const budgetName = faker.commerce.department();
+	await pages.budget.createBudget(budgetName);
+
+	// Start from a non-zero balance so the post-create total is distinct from the
+	// single transaction's amount (100 + 42 = 142, not just 42).
+	const accountName = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountName, '100');
+
+	const categoryName = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryName);
+
+	await pages.account.goto(accountName);
+	await expect(pages.account.balanceFigure('Balance')).toContainText(eur(10000));
+
+	await pages.account.createTransaction({ amount: '42', category: categoryName, validated: true });
+
+	// The summary must reflect the new transaction with no manual reload.
+	await expect(pages.account.balanceFigure('Balance')).toContainText(eur(14200));
+	await expect(pages.account.balanceFigure('Validated')).toContainText(eur(14200));
+	await expect(pages.account.balanceFigure('Pending')).toContainText(eur(0));
+});
+
+test('Validating, editing, and deleting a transaction each update the balance summary without reload', async ({
+	pages
+}) => {
+	await pages.auth.createUserAndLogin();
+
+	const budgetName = faker.commerce.department();
+	await pages.budget.createBudget(budgetName);
+
+	const accountName = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountName);
+
+	const categoryName = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryName);
+
+	await pages.account.goto(accountName);
+
+	// A pending transaction: it counts toward the total but sits in `Pending`.
+	await pages.account.createTransaction({ amount: '42', category: categoryName, validated: false });
+	await expect(pages.account.balanceFigure('Balance')).toContainText(eur(4200));
+	await expect(pages.account.balanceFigure('Pending')).toContainText(eur(4200));
+	await expect(pages.account.balanceFigure('Validated')).toContainText(eur(0));
+
+	// Validating moves it from pending to validated.
+	await pages.account.toggleValidated();
+	await expect(pages.account.balanceFigure('Validated')).toContainText(eur(4200));
+	await expect(pages.account.balanceFigure('Pending')).toContainText(eur(0));
+
+	// Editing the amount reflects in the total (validated stays on).
+	await pages.account.editTransaction({ amount: '99' });
+	await expect(pages.account.balanceFigure('Balance')).toContainText(eur(9900));
+	await expect(pages.account.balanceFigure('Validated')).toContainText(eur(9900));
+
+	// Deleting it clears the balance back to zero.
+	await pages.account.deleteTransaction();
+	await expect(pages.account.balanceFigure('Balance')).toContainText(eur(0));
+});
+
+test("Transfer updates the counterpart account's balance summary without reload", async ({
+	page,
+	pages
+}) => {
+	// The desktop side menu (the cross-account switcher used below) only mounts at
+	// the wide breakpoint; pin a desktop viewport so this runs the same way under
+	// the tablet project.
+	await page.setViewportSize({ height: 900, width: 1440 });
+
+	await pages.auth.createUserAndLogin();
+
+	const budgetName = faker.commerce.department();
+	await pages.budget.createBudget(budgetName);
+
+	const accountA = uniqueName(faker.finance.accountName());
+	const accountB = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountA, '100');
+	await pages.budget.createAccount(accountB, '50');
+
+	// Visit account B first so its balance queries are cached client-side; the
+	// bug is that a transfer created from another account fails to refresh this
+	// cached summary, so it stays stale.
+	await pages.account.switchToAccountViaSideMenu(accountB);
+	await expect(pages.account.balanceFigure('Balance')).toContainText(eur(5000));
+
+	// Create the transfer while viewing account A. A positive amount arrives in
+	// the viewed account (A: 100 → 125) and the counterpart leg leaves B (50 → 25).
+	await pages.account.switchToAccountViaSideMenu(accountA);
+	await pages.account.createTransfer({ amount: '25', counterpartAccount: accountB });
+	await expect(pages.account.balanceFigure('Balance')).toContainText(eur(12500));
+
+	// Return to B via browser back, which restores B's cached query instances
+	// rather than refetching them (a fresh navigation would refetch and mask the
+	// bug). B's summary must already reflect the counterpart leg.
+	await page.goBack();
+	await expect(page.getByRole('heading', { name: accountB })).toBeVisible();
+	await expect(pages.account.balanceFigure('Balance')).toContainText(eur(2500));
 });
 
 test("Transfer's counterpart leg shows in the other account without reload", async ({

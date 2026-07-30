@@ -70,6 +70,8 @@ const remote = vi.hoisted(() => {
 			pending: 0
 		},
 		fieldState: () => fieldState,
+		getAccount: vi.fn((accountId: unknown) => ({ account: accountId })),
+		getAccountBalances: vi.fn((accountId: unknown) => ({ balances: accountId })),
 		getBudget: vi.fn(async () => ({ currency: 'EUR', id: 'budget-1', name: 'Budget' })),
 		getCategories: vi.fn(async () => [
 			{ id: 'category-1', name: 'Groceries' },
@@ -99,6 +101,10 @@ const remote = vi.hoisted(() => {
 vi.mock('$lib/remote-functions/transaction.remote', () => ({
 	createTransaction: remote.createTransaction,
 	listTransactions: remote.listTransactions
+}));
+vi.mock('$lib/remote-functions/account.remote', () => ({
+	getAccount: remote.getAccount,
+	getAccountBalances: remote.getAccountBalances
 }));
 vi.mock('$lib/remote-functions/budget.remote', () => ({ getBudget: remote.getBudget }));
 vi.mock('$lib/remote-functions/category.remote', () => ({ getCategories: remote.getCategories }));
@@ -178,14 +184,16 @@ describe('TableRowCreate', () => {
 		expect(screen.getByRole('row')).toBeInTheDocument();
 	});
 
-	it('updates the transaction list for the account and url params on submit', async () => {
+	it('updates the transaction list and account balances for the account on submit', async () => {
 		const user = userEvent.setup();
 		await renderRow();
 
 		await user.click(screen.getByRole('button', { name: 'Save' }));
 
 		expect(remote.listTransactions).toHaveBeenCalledWith({ accountId: 'account-1', ...urlParams });
-		expect(remote.updatedQueries).toHaveLength(1);
+		expect(remote.getAccount).toHaveBeenCalledWith('account-1');
+		expect(remote.getAccountBalances).toHaveBeenCalledWith('account-1');
+		expect(remote.updatedQueries).toHaveLength(3);
 	});
 
 	it('closes the popover after saving with the save button', async () => {

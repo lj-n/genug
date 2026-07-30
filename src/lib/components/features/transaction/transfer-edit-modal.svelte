@@ -11,7 +11,11 @@
 	import * as ResponsiveModal from '$lib/components/ui/responsive-modal';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { m } from '$lib/paraglide/messages';
-	import { getAccounts } from '$lib/remote-functions/account.remote';
+	import {
+		getAccount,
+		getAccountBalances,
+		getAccounts
+	} from '$lib/remote-functions/account.remote';
 	import {
 		batchDeleteTransactions,
 		editTransfer,
@@ -56,7 +60,7 @@
 			open = false;
 		},
 		toast: {},
-		updates: () => [listTransactions]
+		updates: () => [listTransactions, getAccount, getAccountBalances]
 	});
 
 	// Deleting either leg removes the whole transfer server-side (ADR-0015);
@@ -66,7 +70,7 @@
 			open = false;
 		},
 		toast: {},
-		updates: () => [listTransactions]
+		updates: () => [listTransactions, getAccount, getAccountBalances]
 	});
 
 	const pending = $derived(submit.pending || deleteSubmit.pending);

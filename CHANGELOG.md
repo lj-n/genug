@@ -12,6 +12,10 @@ and dependency bumps get no entry.
 
 ### Fixed
 
+- Account balance figures now update immediately after any transaction change —
+  creating, editing, transferring, and batch delete/validate — instead of
+  staying stale until a manual page reload. Both accounts in a transfer refresh,
+  so the counterpart's balance updates too.
 - The clear-all-filters button and the per-filter remove buttons on the
   transaction register now expose accessible names, so screen readers announce
   them instead of unlabelled buttons.

@@ -8,6 +8,7 @@
 	import { InputMoney } from '$lib/components/ui/input-money';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { m } from '$lib/paraglide/messages';
+	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getCategories } from '$lib/remote-functions/category.remote';
 	import {
 		batchDeleteTransactions,
@@ -72,13 +73,21 @@
 	const submit = createFormSubmit(() => form, {
 		onSuccess: () => cancelEditing(),
 		toast: {},
-		updates: () => [listTransactions]
+		updates: () => [
+			listTransactions,
+			getAccount(transaction.accountId),
+			getAccountBalances(transaction.accountId)
+		]
 	});
 
 	// No onSuccess: the refreshed list unmounting this row is the success signal.
 	const deleteSubmit = createFormSubmit(() => deleteForm, {
 		toast: {},
-		updates: () => [listTransactions]
+		updates: () => [
+			listTransactions,
+			getAccount(transaction.accountId),
+			getAccountBalances(transaction.accountId)
+		]
 	});
 
 	const pending = $derived(submit.pending || deleteSubmit.pending);
