@@ -96,6 +96,9 @@ and dependency bumps get no entry.
 
 ### Fixed
 
+- The budget members drawer on small screens can be closed again: its Close
+  button and the Escape key work while tapping outside stays disabled, so the
+  drawer no longer traps you until a page reload.
 - Clicking a date in the transaction table no longer shrinks the cell's text:
   the date-picker trigger now keeps the same font size as the read-only cell
   it replaces.

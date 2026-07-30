@@ -25,7 +25,9 @@
 		{@render children?.()}
 	</Dialog.Close>
 {:else}
-	<Drawer.Close {child} class={className}>
+	<!-- Non-dismissible drawers swallow vaul's built-in close, so close through
+	the bound open state instead. -->
+	<Drawer.Close {child} class={className} onclick={ctx.dismissible ? undefined : () => ctx.close()}>
 		{@render children?.()}
 	</Drawer.Close>
 {/if}
