@@ -8,7 +8,11 @@
 	import { InputMoney } from '$lib/components/ui/input-money';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { m } from '$lib/paraglide/messages';
-	import { getAccounts } from '$lib/remote-functions/account.remote';
+	import {
+		getAccount,
+		getAccountBalances,
+		getAccounts
+	} from '$lib/remote-functions/account.remote';
 	import {
 		batchDeleteTransactions,
 		editTransfer,
@@ -74,14 +78,14 @@
 	const submit = createFormSubmit(() => form, {
 		onSuccess: () => cancelEditing(),
 		toast: {},
-		updates: () => [listTransactions]
+		updates: () => [listTransactions, getAccount, getAccountBalances]
 	});
 
 	// Deleting either leg removes the whole transfer server-side (ADR-0015);
 	// the refreshed list unmounting this row is the success signal.
 	const deleteSubmit = createFormSubmit(() => deleteForm, {
 		toast: {},
-		updates: () => [listTransactions]
+		updates: () => [listTransactions, getAccount, getAccountBalances]
 	});
 
 	const pending = $derived(submit.pending || deleteSubmit.pending);

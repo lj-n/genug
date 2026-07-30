@@ -44,6 +44,20 @@ export class AccountPage extends BasePage {
 		await expect(this.page.getByText('This account is archived')).toBeVisible();
 	}
 
+	/**
+	 * One figure from the balance summary strip at the top of the register
+	 * (`Balance` total, `Validated`, or `Pending`). Each figure is a small block
+	 * pairing the exact label with a `font-currency` amount as a *direct* child;
+	 * the register's own amounts nest their `font-currency` inside a cell button,
+	 * and the "Validated" column header carries no amount — so keying on a direct
+	 * `font-currency` child plus the exact label isolates the summary block.
+	 */
+	balanceFigure(label: 'Balance' | 'Pending' | 'Validated'): Locator {
+		return this.page
+			.locator('div:has(> .font-currency)')
+			.filter({ has: this.page.getByText(label, { exact: true }) });
+	}
+
 	/** The filtered-empty state's clear-filters action. */
 	clearFiltersAction(): Locator {
 		return this.page.getByRole('button', { name: 'Clear filters' });

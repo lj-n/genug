@@ -18,6 +18,13 @@ vi.mock('$lib/remote-functions/transaction.remote', () => ({
 		})
 	}
 }));
+// The validate toggle rendered per row refreshes account-balance queries, so
+// its account.remote import loads too; stub it to keep this suite off the real
+// remote module (which pulls $app/paths).
+vi.mock('$lib/remote-functions/account.remote', () => ({
+	getAccount: vi.fn(),
+	getAccountBalances: vi.fn()
+}));
 
 import TransactionListMobile from './transaction-list-mobile.svelte';
 

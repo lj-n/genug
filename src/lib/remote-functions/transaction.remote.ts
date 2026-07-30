@@ -15,7 +15,21 @@ import {
 } from '$lib/schemas/transaction';
 import { guardedForm, guardedQuery } from '$server/utils/remote-guard';
 
+import { getAccount, getAccountBalances } from './account.remote';
 import { REFRESH_LIMIT } from './remote.utils';
+
+// Every transaction mutation moves money in one or two accounts, so the
+// balance figures (`getAccount.balance` for the total, `getAccountBalances`
+// for the validated/pending split) go stale alongside the register. Refresh
+// all three together; the client's `.updates(...)` declares which instances
+// each surface holds (see docs/dev/remote-functions.md).
+function refreshRegisters() {
+	return Promise.all([
+		requested(listTransactions, REFRESH_LIMIT).refreshAll(),
+		requested(getAccount, REFRESH_LIMIT).refreshAll(),
+		requested(getAccountBalances, REFRESH_LIMIT).refreshAll()
+	]);
+}
 
 export const listTransactions = guardedQuery(
 	ListTransactionsSchema,
@@ -70,7 +84,7 @@ export const createTransaction = guardedForm(
 			notes: data.notes || null,
 			validated: data.validated
 		});
-		await requested(listTransactions, REFRESH_LIMIT).refreshAll();
+		await refreshRegisters();
 	}
 );
 
@@ -84,7 +98,7 @@ export const editTransaction = guardedForm(
 			validated: rest.validated
 		};
 		ctx.transaction.edit(transactionId, update);
-		await requested(listTransactions, REFRESH_LIMIT).refreshAll();
+		await refreshRegisters();
 	}
 );
 
@@ -107,7 +121,7 @@ export const createTransfer = guardedForm(TransferCreateSchema, async (data, { c
 		notes: data.notes || null,
 		...transferDirection(data)
 	});
-	await requested(listTransactions, REFRESH_LIMIT).refreshAll();
+	await refreshRegisters();
 });
 
 export const editTransfer = guardedForm(TransferEditSchema, async (data, { ctx }) => {
@@ -117,14 +131,14 @@ export const editTransfer = guardedForm(TransferEditSchema, async (data, { ctx }
 		notes: data.notes === undefined ? undefined : data.notes || null,
 		...transferDirection(data)
 	});
-	await requested(listTransactions, REFRESH_LIMIT).refreshAll();
+	await refreshRegisters();
 });
 
 export const batchDeleteTransactions = guardedForm(
 	BatchTransactionIdsSchema,
 	async ({ ids }, { ctx }) => {
 		ctx.transaction.delete(ids);
-		await requested(listTransactions, REFRESH_LIMIT).refreshAll();
+		await refreshRegisters();
 	}
 );
 
@@ -132,6 +146,6 @@ export const batchValidateTransactions = guardedForm(
 	BatchValidateSchema,
 	async ({ ids, validated }, { ctx }) => {
 		ctx.transaction.validate(ids, validated);
-		await requested(listTransactions, REFRESH_LIMIT).refreshAll();
+		await refreshRegisters();
 	}
 );

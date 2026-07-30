@@ -11,6 +11,7 @@
 	import * as ResponsiveModal from '$lib/components/ui/responsive-modal';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { m } from '$lib/paraglide/messages';
+	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getCategories } from '$lib/remote-functions/category.remote';
 	import {
 		batchDeleteTransactions,
@@ -55,7 +56,11 @@
 			open = false;
 		},
 		toast: {},
-		updates: () => [listTransactions]
+		updates: () => [
+			listTransactions,
+			getAccount(transaction!.accountId),
+			getAccountBalances(transaction!.accountId)
+		]
 	});
 
 	// Unlike the inline row (which unmounts on success), the sheet must close
@@ -65,7 +70,11 @@
 			open = false;
 		},
 		toast: {},
-		updates: () => [listTransactions]
+		updates: () => [
+			listTransactions,
+			getAccount(transaction!.accountId),
+			getAccountBalances(transaction!.accountId)
+		]
 	});
 
 	const pending = $derived(submit.pending || deleteSubmit.pending);

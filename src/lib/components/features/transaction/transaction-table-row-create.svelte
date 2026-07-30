@@ -8,6 +8,7 @@
 	import { InputMoney } from '$lib/components/ui/input-money';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { m } from '$lib/paraglide/messages';
+	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategories } from '$lib/remote-functions/category.remote';
 	import { createTransaction, listTransactions } from '$lib/remote-functions/transaction.remote';
@@ -63,7 +64,11 @@
 			open = false;
 		},
 		toast: {},
-		updates: () => [listTransactions({ accountId, ...urlParams })]
+		updates: () => [
+			listTransactions({ accountId, ...urlParams }),
+			getAccount(accountId),
+			getAccountBalances(accountId)
+		]
 	});
 
 	const submitWithKeyboard: Attachment<HTMLFormElement> = (node) => {

@@ -111,6 +111,8 @@ const remote = vi.hoisted(() => {
 	return {
 		deleteForm,
 		editForm,
+		getAccount: vi.fn(),
+		getAccountBalances: vi.fn(),
 		getCategories: vi.fn(async () => [
 			{ id: 'category-1', name: 'Groceries' },
 			{ id: 'category-2', name: 'Rent' }
@@ -123,6 +125,10 @@ vi.mock('$lib/remote-functions/transaction.remote', () => ({
 	batchDeleteTransactions: { for: () => remote.deleteForm.form },
 	editTransaction: { for: () => remote.editForm.form },
 	listTransactions: remote.listTransactions
+}));
+vi.mock('$lib/remote-functions/account.remote', () => ({
+	getAccount: remote.getAccount,
+	getAccountBalances: remote.getAccountBalances
 }));
 vi.mock('$lib/remote-functions/category.remote', () => ({ getCategories: remote.getCategories }));
 
@@ -185,13 +191,17 @@ describe('TransactionTableRow (edit mode) — submit lifecycle', () => {
 		await waitFor(() => expect(cancelEditing).toHaveBeenCalledTimes(1));
 	});
 
-	it('chains the transaction list refresh into the submit', async () => {
+	it('chains the transaction list and account-balance refreshes into the submit', async () => {
 		const user = userEvent.setup();
 		await renderRow();
 
 		await user.click(saveButton());
 
 		await waitFor(() => expect(remote.editForm.updatedQueries).toContain(remote.listTransactions));
+		// The account's total (getAccount) and validated/pending split
+		// (getAccountBalances) go stale with the register, so both refresh too.
+		expect(remote.getAccount).toHaveBeenCalledWith(transaction.accountId);
+		expect(remote.getAccountBalances).toHaveBeenCalledWith(transaction.accountId);
 	});
 
 	it('stays in edit mode when the submit reports validation issues', async () => {

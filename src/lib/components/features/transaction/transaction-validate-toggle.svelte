@@ -3,6 +3,7 @@
 
 	import { Button } from '$lib/components/ui/button';
 	import { m } from '$lib/paraglide/messages';
+	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import {
 		batchValidateTransactions,
 		listTransactions
@@ -31,7 +32,11 @@
 	// refreshed list is the success signal; thrown errors go to the toast.
 	const submit = createFormSubmit(() => form, {
 		toast: {},
-		updates: () => [listTransactions]
+		updates: () => [
+			listTransactions,
+			getAccount(transaction.accountId),
+			getAccountBalances(transaction.accountId)
+		]
 	});
 </script>
 
