@@ -232,6 +232,17 @@ for (const theme of THEMES) {
 			).toBeVisible();
 			await expectAxeClean(page);
 
+			// Filter active: opening a filter reveals the icon-only clear-all control,
+			// which must carry an accessible name (#286). Scan the register in that state.
+			await page.getByRole('button', { exact: true, name: 'Filter' }).click();
+			await page.getByRole('menuitem', { name: 'Notes Filter' }).click();
+			const clearAll = page.getByRole('button', { name: 'Clear all filters' });
+			await expect(clearAll).toBeVisible();
+			await expectAxeClean(page);
+			// Restore the unfiltered register for the states below.
+			await clearAll.click();
+			await expect(clearAll).not.toBeVisible();
+
 			// Create: the inline transaction create row.
 			await page.getByRole('button', { name: 'New Transaction' }).click();
 			await expect(page.getByRole('row', { name: 'New Transaction' })).toBeVisible();

@@ -88,6 +88,7 @@
 						variant="destructive"
 						size="icon"
 						class="@3xl/main:size-11 @7xl/main:size-9"
+						aria-label={m.transaction_filter_clear_all()}
 						onclick={() => onClearAllFilters()}
 					>
 						<XIcon />
@@ -123,7 +124,12 @@
 					/>
 				{/if}
 
-				<Button size="icon" variant="ghost" onclick={() => onClearFilter(f.type)}>
+				<Button
+					size="icon"
+					variant="ghost"
+					aria-label={m.transaction_filter_remove()}
+					onclick={() => onClearFilter(f.type)}
+				>
 					<XIcon />
 				</Button>
 			</div>
