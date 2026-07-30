@@ -2,6 +2,7 @@ import type { Handle, HandleServerError } from '@sveltejs/kit';
 
 import * as auth from '$db/auth';
 import { validateApiToken } from '$db/auth/api-tokens';
+import { m } from '$lib/paraglide/messages';
 import { getTextDirection } from '$lib/paraglide/runtime';
 import { paraglideMiddleware } from '$lib/paraglide/server';
 import { logger } from '$lib/server/logger';
@@ -87,12 +88,16 @@ const handleParaglide: Handle = ({ event, resolve }) =>
 export const handle = sequence(handleLogging, handleAuth, handleTheme, handleParaglide);
 
 export const handleError: HandleServerError = ({ error, event, status }) => {
+	// Route-not-matched 404s are expected, not failures: give them their own
+	// localized copy and no logId (there is nothing to look up).
+	if (status === 404) {
+		return { message: m.error_page_not_found() };
+	}
+
 	const logId = createId();
 	const log = event.locals.logger ?? logger;
 
-	if (status !== 404) {
-		log.error({ err: error, logId, status }, 'unhandled server error');
-	}
+	log.error({ err: error, logId, status }, 'unhandled server error');
 
 	return { logId, message: 'An unexpected error occurred.' };
 };
