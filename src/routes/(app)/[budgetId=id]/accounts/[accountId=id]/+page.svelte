@@ -5,12 +5,17 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { AccountArchivedNotice, AccountBalances } from '$lib/components/features/account';
-	import { TableState, TransactionTable } from '$lib/components/features/transaction';
+	import {
+		pruneForeignCategoryIds,
+		TableState,
+		TransactionTable
+	} from '$lib/components/features/transaction';
 	import { Button } from '$lib/components/ui/button';
 	import * as Page from '$lib/components/ui/page';
 	import { m } from '$lib/paraglide/messages';
 	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
+	import { getCategories } from '$lib/remote-functions/category.remote';
 	import { listTransactions } from '$lib/remote-functions/transaction.remote';
 	import { TransactionsURLParamsSchema } from '$lib/schemas/transaction';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
@@ -66,6 +71,12 @@
 		return searchParams.toString();
 	}
 
+	// Read tracked so filter hydration waits for the list; it is stable per budget,
+	// so pruning adds no table rebuild beyond the account switch below (#371/#372).
+	const knownCategoryIds = $derived(
+		new Set((await getCategories({ budgetId: budgetId() })).map((c) => c.id))
+	);
+
 	// One table state per account. The route component is shared across all
 	// account pages and reused on navigation, so a single state object would carry
 	// account A's filters onto account B and the URL bridge below would stamp those
@@ -77,7 +88,9 @@
 	const currentAccountId = $derived(accountId());
 	const tableState = $derived.by(() => {
 		const _accountId = currentAccountId;
-		return new TableState(untrack(() => parseURLParams(page.url)));
+		const params = untrack(() => parseURLParams(page.url));
+		params.categoryId = pruneForeignCategoryIds(params.categoryId, knownCategoryIds);
+		return new TableState(params);
 	});
 
 	const result = $derived(await listTransactions({ accountId: accountId(), ...tableState.params }));

@@ -429,3 +429,65 @@ test('Filter state does not persist when switching accounts (#371)', async ({ pa
 	await expect(page).toHaveURL(/^[^?]*$/);
 	await expect(pages.account.categoryFilterTrigger()).toHaveCount(0);
 });
+
+test('Deep link drops category filter ids foreign to the budget (#372)', async ({
+	page,
+	pages
+}) => {
+	// The filter dropdown used to capture real category ids lives in the desktop
+	// register; pin a desktop viewport so this runs the same way under tablet.
+	await page.setViewportSize({ height: 900, width: 1440 });
+
+	await pages.auth.createUserAndLogin();
+
+	// Budget one owns the account we deep-link into and one valid category.
+	const budgetOne = faker.commerce.department();
+	await pages.budget.createBudget(budgetOne);
+	const account = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(account);
+	const ownCategory = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(ownCategory);
+
+	// Budget two owns a category that is foreign to budget one's account.
+	const budgetTwo = faker.commerce.department();
+	await pages.budget.createAdditionalBudget(budgetTwo);
+	const foreignAccount = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(foreignAccount);
+	const foreignCategory = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(foreignCategory);
+
+	// Capture the foreign budget's real category id by filtering with it and
+	// reading it back off the URL.
+	await pages.account.goto(foreignAccount);
+	await pages.account.applyCategoryFilter(foreignCategory);
+	await expect(page).toHaveURL(/categoryId=/);
+	const foreignId = new URL(page.url()).searchParams.get('categoryId')!;
+
+	// Capture budget one's own category id the same way, and remember the
+	// account's base path for the deep links below.
+	await pages.account.goto(account);
+	const accountPath = new URL(page.url()).pathname;
+	await pages.account.applyCategoryFilter(ownCategory);
+	await expect(page).toHaveURL(/categoryId=/);
+	const ownId = new URL(page.url()).searchParams.get('categoryId')!;
+
+	// A foreign-only deep link normalizes to a clean URL with no active filter.
+	await page.goto(`${accountPath}?categoryId=${foreignId}`);
+	await expect(page.getByRole('heading', { name: account })).toBeVisible();
+	await expect(page).toHaveURL(/^[^?]*$/);
+	await expect(pages.account.categoryFilterTrigger()).toHaveCount(0);
+
+	// A mixed deep link keeps the budget's own id and drops only the foreign one.
+	await page.goto(`${accountPath}?categoryId=${ownId}&categoryId=${foreignId}`);
+	await expect(page.getByRole('heading', { name: account })).toBeVisible();
+	await expect(pages.account.categoryFilterTrigger()).toHaveText('1 selected');
+	await expect.poll(() => new URL(page.url()).searchParams.getAll('categoryId')).toEqual([ownId]);
+
+	// The unassigned sentinel is budget-agnostic and survives the deep link.
+	await page.goto(`${accountPath}?categoryId=__none__`);
+	await expect(page.getByRole('heading', { name: account })).toBeVisible();
+	await expect(pages.account.categoryFilterTrigger()).toHaveText('1 selected');
+	await expect
+		.poll(() => new URL(page.url()).searchParams.getAll('categoryId'))
+		.toEqual(['__none__']);
+});
