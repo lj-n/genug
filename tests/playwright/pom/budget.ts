@@ -102,6 +102,24 @@ export class BudgetPage extends BasePage {
 		await expect(this.page.getByRole('heading', { name: 'Add New Account' })).toBeHidden();
 	}
 
+	/**
+	 * Creates a further budget once the user already has one — the `/new` page
+	 * drops the "first budget" heading once a budget exists, so `createBudget`
+	 * (which asserts it) can't be reused.
+	 */
+	async createAdditionalBudget(name: string) {
+		await this.page.goto('/new');
+		await expect(this.page.getByRole('heading', { name: 'Create New Budget Plan' })).toBeVisible();
+
+		await this.page.getByRole('textbox', { name: 'Budget Name' }).fill(name);
+		await this.page.getByRole('button', { name: 'Create Budget' }).click();
+
+		await expect(this.page.getByRole('heading', { name })).toBeVisible();
+		this.ctx.budgetName = name;
+		this.ctx.budgetUrl = this.page.url();
+		this.ctx.budgetId = new URL(this.page.url()).pathname.split('/')[1];
+	}
+
 	async createBudget(name: string) {
 		await this.page.goto('/new');
 		await expect(

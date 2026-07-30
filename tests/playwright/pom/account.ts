@@ -21,6 +21,21 @@ type EditTransactionParams = {
 
 export class AccountPage extends BasePage {
 	/**
+	 * Adds a category filter through the filter dropdown and picks one category by
+	 * name. The multi-select listbox stays open after a pick, so Escape closes it.
+	 */
+	async applyCategoryFilter(categoryName: string) {
+		await this.page.getByRole('button', { name: 'Filter' }).click();
+		await this.page.getByRole('menuitem', { name: 'Category Filter' }).click();
+
+		await this.page.getByRole('button', { name: 'All Categories' }).click();
+		await this.page.getByRole('option', { name: categoryName }).click();
+		await this.page.keyboard.press('Escape');
+
+		await expect(this.categoryFilterTrigger()).toHaveText('1 selected');
+	}
+
+	/**
 	 * Adds a notes filter through the filter dropdown. The input debounces
 	 * before the list refreshes; callers assert on the resulting list state.
 	 */
@@ -56,6 +71,11 @@ export class AccountPage extends BasePage {
 		return this.page
 			.locator('div:has(> .font-currency)')
 			.filter({ has: this.page.getByText(label, { exact: true }) });
+	}
+
+	/** The category filter chip's multi-select trigger; absent until the filter is active. */
+	categoryFilterTrigger(): Locator {
+		return this.page.getByRole('button', { name: /^(All Categories|\d+ selected)$/ });
 	}
 
 	/** The filtered-empty state's clear-filters action. */
