@@ -10,6 +10,8 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+## [2026.07.6] - 2026-07-30
+
 ### Changed
 
 - genug has been redesigned end to end on a single design language, in light
