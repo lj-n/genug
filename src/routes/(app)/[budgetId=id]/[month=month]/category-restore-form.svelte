@@ -13,8 +13,6 @@
 
 <form {...submit.attrs}>
 	<input {...form.fields.categoryId.as('hidden', category.id)} />
-	<!-- The link treatment is locked (#334) — on touch the tap area grows
-	     invisibly instead (padding cancelled by negative margin). -->
 	<Button
 		type="submit"
 		size="xs"

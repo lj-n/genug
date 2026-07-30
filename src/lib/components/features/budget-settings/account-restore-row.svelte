@@ -14,8 +14,6 @@
 <span class="line-clamp-1">{account.name}</span>
 <form {...submit.attrs}>
 	<input {...form.fields.accountId.as('hidden', account.id)} />
-	<!-- The link treatment is locked (#334) — on touch the tap area grows
-	     invisibly instead (padding cancelled by negative margin). -->
 	<Button
 		type="submit"
 		size="xs"

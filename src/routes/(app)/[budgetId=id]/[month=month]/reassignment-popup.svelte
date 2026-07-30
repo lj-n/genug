@@ -127,9 +127,8 @@
 			</span>
 		</div>
 
-		<!-- Touch density: the panel portals to <body>, outside @container/main, so
-		     the #297 band hook can't reach it — pointer-coarse is the touch signal
-		     for portaled overlay controls. -->
+		<!-- The panel portals to <body>, outside @container/main — touch density
+		     keys on pointer-coarse instead of the band. -->
 		<form {...submit.attrs} class="flex flex-col gap-3 p-3">
 			<input {...form.fields.budgetId.as('hidden', budgetId())} />
 			<input type="hidden" name={form.fields.month.as('number').name} value={month} />
