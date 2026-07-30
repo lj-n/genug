@@ -4,7 +4,12 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as ResponsiveModal from '$lib/components/ui/responsive-modal';
 	import { m } from '$lib/paraglide/messages';
-	import { acceptInvite, getInvitations, removeUser } from '$lib/remote-functions/budget.remote';
+	import {
+		acceptInvite,
+		getBudgets,
+		getInvitations,
+		removeUser
+	} from '$lib/remote-functions/budget.remote';
 	import { getUser } from '$lib/remote-functions/user.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { ParaglideMessage } from '@inlang/paraglide-js-svelte';
@@ -22,7 +27,10 @@
 		onSuccess: () => {
 			open = false;
 		},
-		toast: {}
+		toast: {},
+		// Drop the nav invitation indicator and surface the newly-joined budget,
+		// both without a reload (see docs/dev/remote-functions.md).
+		updates: () => [getInvitations(), getBudgets()]
 	});
 </script>
 
@@ -60,6 +68,7 @@
 				onSuccess={() => {
 					open = false;
 				}}
+				updates={() => [getInvitations()]}
 			>
 				{#snippet trigger(props)}
 					<Button {...props} variant="ghost">{m.invitation_decline_button()}</Button>
