@@ -169,7 +169,9 @@
 				</div>
 
 				<div class="flex items-center justify-between gap-4 rounded-lg bg-muted/5 p-2">
-					<div class="min-w-0 p-3 break-all text-info" aria-label="api-token">{issued.token}</div>
+					<div class="min-w-0 p-3 break-all text-info" aria-label={m.api_token_value_label()}>
+						{issued.token}
+					</div>
 					<Button size="icon" {@attach copyToClipboard(issued.token)}>
 						<CopySimpleIcon />
 						<span class="sr-only">{m.api_token_copy()}</span>
