@@ -39,6 +39,9 @@ export const removeUser = guardedForm(
 	async ({ budgetId, userId }, { ctx }) => {
 		ctx.budget.removeUser(budgetId, userId);
 		void getBudgetUsers(budgetId).refresh();
+		// Declining an invitation is a self-removal, so the nav's invitation
+		// indicator must drop the row too (see docs/dev/remote-functions.md).
+		void requested(getInvitations, REFRESH_LIMIT).refreshAll();
 	}
 );
 
@@ -82,8 +85,11 @@ export const reorderBudgets = guardedCommand(OrderedIdsSchema, async (orderedIds
 
 export const acceptInvite = guardedForm(BudgetAndUserIdSchema, async ({ budgetId }, { ctx }) => {
 	ctx.budget.acceptInvite(budgetId);
+	// Surface the newly-joined budget in the nav and drop the now-consumed
+	// invitation indicator, both without a manual reload.
 	void getBudgets().refresh();
 	void getBudget(budgetId).refresh();
+	void requested(getInvitations, REFRESH_LIMIT).refreshAll();
 });
 
 export const reassignment = guardedForm(ReassignmentSchema, async (data, { ctx }) => {

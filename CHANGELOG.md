@@ -12,6 +12,10 @@ and dependency bumps get no entry.
 
 ### Fixed
 
+- The "You have an invitation" nav indicator now disappears immediately after
+  you accept or decline a budget invitation, instead of lingering until the
+  next navigation. Accepting also surfaces the newly-joined budget in the nav
+  without a reload.
 - Account balance figures now update immediately after any transaction change —
   creating, editing, transferring, and batch delete/validate — instead of
   staying stale until a manual page reload. Both accounts in a transfer refresh,
