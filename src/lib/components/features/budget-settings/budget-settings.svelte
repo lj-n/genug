@@ -36,16 +36,21 @@
 	let archiveOpen = $state(false);
 
 	// The stacked dialogs must never outlive their dismissed parent.
-	function setOpen(value: boolean) {
-		open = value;
-		if (!value) {
+	//
+	// This must stay an $effect over a plain `bind:open`: rewriting it as a
+	// function binding or an onOpenChangeComplete callback changes when this
+	// component's subtrees initialize under async rendering, which reorders the
+	// forceMount portal anchors in <body> — the stacked account dialogs then
+	// mount *under* this modal and become unclickable (#369).
+	$effect(() => {
+		if (!open) {
 			addOpen = false;
 			archiveOpen = false;
 		}
-	}
+	});
 </script>
 
-<ResponsiveModal.Root bind:open={() => open, setOpen}>
+<ResponsiveModal.Root bind:open>
 	<ResponsiveModal.Trigger>
 		{#snippet child({ props })}
 			<Button {...props} variant="ghost" size="icon">
