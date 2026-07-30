@@ -137,7 +137,7 @@
 			oninput={handleInput}
 		/>
 		<Combobox.Trigger
-			class="flex h-full items-center px-2 text-muted hover:text-foreground"
+			class="flex h-full items-center px-2 text-muted hover:text-foreground pointer-coarse:px-3.5"
 			aria-label={ariaLabelTrigger}
 		>
 			<CaretUpDownIcon class="size-4" aria-hidden="true" />

@@ -54,7 +54,9 @@ get along, so we shut typescript up by casting `value` to `never`.
 	{weekdayFormat}
 	{disableDaysOutsideMonth}
 	class={cn(
-		'group/calendar bg-surface p-3 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(8)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent',
+		// Renders in portaled overlays, outside @container/main — touch density
+		// keys on pointer-coarse instead of the band.
+		'group/calendar bg-surface p-3 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(8)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent pointer-coarse:[--cell-size:--spacing(11)]',
 		className
 	)}
 	{locale}

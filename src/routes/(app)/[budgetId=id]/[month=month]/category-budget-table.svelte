@@ -116,7 +116,7 @@
 						{m.budget_monthly_table_header_category()}
 						<Button
 							size="xs"
-							class="ml-1"
+							class="ml-1 @3xl/main:w-11 @7xl/main:w-auto"
 							aria-label={m.category_create_button()}
 							onclick={() => (createDialogOpen = true)}
 						>
@@ -134,7 +134,7 @@
 				<BudgetTableHeader class="w-1/5">
 					{m.budget_monthly_table_header_remaining()}
 				</BudgetTableHeader>
-				<BudgetTableHeader class="w-9">
+				<BudgetTableHeader class="w-9 @3xl/main:w-11 @7xl/main:w-9">
 					<span class="sr-only">{m.budget_monthly_table_header_actions()}</span>
 				</BudgetTableHeader>
 			</div>
@@ -194,9 +194,11 @@
 							/>
 						</BudgetTableCell>
 
-						<BudgetTableCell class="hidden w-9 border-0 last:p-1 @3xl/main:flex">
+						<BudgetTableCell
+							class="hidden w-9 border-0 last:p-1 @3xl/main:flex @3xl/main:w-11 @3xl/main:p-0 @7xl/main:w-9 @7xl/main:px-2 @7xl/main:py-1"
+						>
 							<button
-								class="flex size-7 cursor-grab items-center justify-center text-muted hover:text-interactive"
+								class="flex size-7 cursor-grab items-center justify-center text-muted hover:text-interactive @3xl/main:size-11 @7xl/main:size-7"
 								data-drag-handle="category"
 								aria-label={m.drag_handle_label()}
 							>

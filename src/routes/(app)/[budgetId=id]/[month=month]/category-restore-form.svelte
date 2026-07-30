@@ -17,7 +17,7 @@
 		type="submit"
 		size="xs"
 		variant="link"
-		class="px-0"
+		class="px-0 pointer-coarse:-mx-2 pointer-coarse:min-h-11 pointer-coarse:px-2"
 		loading={submit.pending}
 		{@attach submit.anchor}
 	>

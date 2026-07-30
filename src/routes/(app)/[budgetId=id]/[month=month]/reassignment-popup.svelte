@@ -127,6 +127,8 @@
 			</span>
 		</div>
 
+		<!-- The panel portals to <body>, outside @container/main — touch density
+		     keys on pointer-coarse instead of the band. -->
 		<form {...submit.attrs} class="flex flex-col gap-3 p-3">
 			<input {...form.fields.budgetId.as('hidden', budgetId())} />
 			<input type="hidden" name={form.fields.month.as('number').name} value={month} />
@@ -138,7 +140,7 @@
 					aria-label={m.reassignment_amount()}
 					bind:value={() => form.fields.amount.value(), (v) => form.fields.amount.set(v)}
 					currency={budget.currency}
-					class="px-2 text-right font-currency"
+					class="px-2 text-right font-currency pointer-coarse:h-11"
 					selectOnFocus
 				/>
 			{:else}
@@ -146,6 +148,7 @@
 			{/if}
 
 			<SelectCategory
+				class="pointer-coarse:h-11"
 				name={form.fields.targetCategoryId.as('select').name}
 				bind:value={
 					() => form.fields.targetCategoryId.value() ?? '',
@@ -172,10 +175,22 @@
 			{/if}
 
 			<div class="flex justify-end gap-2">
-				<Button variant="ghost" size="sm" onclick={() => (open = false)}>
+				<Button
+					variant="ghost"
+					size="sm"
+					class="pointer-coarse:h-11"
+					onclick={() => (open = false)}
+				>
 					{m.reassignment_cancel()}
 				</Button>
-				<Button type="submit" size="sm" loading={submit.pending}>{m.reassignment_ok()}</Button>
+				<Button
+					type="submit"
+					size="sm"
+					class="pointer-coarse:h-11 pointer-coarse:px-4"
+					loading={submit.pending}
+				>
+					{m.reassignment_ok()}
+				</Button>
 			</div>
 		</form>
 	</Popover.Content>

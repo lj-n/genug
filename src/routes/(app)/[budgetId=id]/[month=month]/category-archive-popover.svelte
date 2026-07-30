@@ -5,6 +5,7 @@
 	import { getArchivedCategories } from '$lib/remote-functions/category.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { flip } from 'svelte/animate';
+	import { cn } from 'tailwind-variants';
 	import ArchiveIcon from '~icons/ph/archive';
 
 	import CategoryRestoreForm from './category-restore-form.svelte';
@@ -30,7 +31,10 @@
 	<Popover.Root>
 		<Popover.Trigger
 			bind:ref={triggerEl}
-			class={buttonVariants({ size: 'xs', variant: 'ghost' })}
+			class={cn(
+				buttonVariants({ size: 'xs', variant: 'ghost' }),
+				'@3xl/main:w-11 @7xl/main:w-auto'
+			)}
 			aria-label={m.category_archived_link({ amount: categories.length })}
 		>
 			<ArchiveIcon class="size-4" />
