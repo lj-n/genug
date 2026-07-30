@@ -6,10 +6,10 @@
 	import { AlertDialogForm } from '$lib/components/ui/alert-dialog-form';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { DatePicker } from '$lib/components/ui/date-picker';
-	import * as Dialog from '$lib/components/ui/dialog';
 	import { FormField } from '$lib/components/ui/form-field';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import * as ResponsiveModal from '$lib/components/ui/responsive-modal';
 	import { m } from '$lib/paraglide/messages';
 	import {
 		getApiTokens,
@@ -90,9 +90,7 @@
 {:else}
 	<ul aria-label={m.settings_api_tokens()} class="grid gap-2">
 		{#each tokens as token (token.id)}
-			<li
-				class="flex items-center gap-3 rounded-lg border border-muted/20 bg-surface-high p-3 shadow-xs"
-			>
+			<li class="flex items-center gap-3 rounded-lg border border-muted/20 bg-surface p-3">
 				<div class="min-w-0">
 					<div class="truncate font-medium">{token.name}</div>
 					<div class="text-sm text-muted">
@@ -148,38 +146,42 @@
 	{/snippet}
 </AlertDialogForm>
 
-<Dialog.Root bind:open={openReveal}>
-	<Dialog.Content class="max-w-lg gap-6">
-		<Dialog.Header>
-			<Dialog.Title>{m.api_token_created_title()}</Dialog.Title>
-			<Dialog.Description>{m.api_token_created_description()}</Dialog.Description>
-		</Dialog.Header>
+<ResponsiveModal.Root bind:open={openReveal}>
+	<ResponsiveModal.Content>
+		<ResponsiveModal.Header>
+			<ResponsiveModal.Title>{m.api_token_created_title()}</ResponsiveModal.Title>
+			<ResponsiveModal.Description>{m.api_token_created_description()}</ResponsiveModal.Description>
+		</ResponsiveModal.Header>
 
 		{#if issued && qrSvg}
-			<div class="grid justify-items-center gap-2">
-				<!-- Fixed white backdrop in both themes: scanners need dark-on-light contrast. -->
-				<div
-					role="img"
-					aria-label={m.api_token_qr_alt()}
-					class="w-52 rounded-lg bg-white p-2 [&_svg]:h-auto [&_svg]:w-full"
-				>
-					<!-- eslint-disable-next-line svelte/no-at-html-tags -- locally generated QR markup -->
-					{@html qrSvg}
+			<ResponsiveModal.Body class="grid gap-6">
+				<div class="grid justify-items-center gap-2">
+					<!-- Fixed white backdrop in both themes: scanners need dark-on-light contrast. -->
+					<div
+						role="img"
+						aria-label={m.api_token_qr_alt()}
+						class="w-52 rounded-lg bg-white p-2 [&_svg]:h-auto [&_svg]:w-full"
+					>
+						<!-- eslint-disable-next-line svelte/no-at-html-tags -- locally generated QR markup -->
+						{@html qrSvg}
+					</div>
+					<div class="text-sm text-muted">{page.url.origin}</div>
 				</div>
-				<div class="text-sm text-muted">{page.url.origin}</div>
-			</div>
 
-			<div class="flex items-center justify-between gap-4 rounded-lg bg-muted/5 p-2">
-				<div class="min-w-0 p-3 break-all text-info" aria-label="api-token">{issued.token}</div>
-				<Button size="icon" {@attach copyToClipboard(issued.token)}>
-					<CopySimpleIcon />
-					<span class="sr-only">{m.api_token_copy()}</span>
-				</Button>
-			</div>
+				<div class="flex items-center justify-between gap-4 rounded-lg bg-muted/5 p-2">
+					<div class="min-w-0 p-3 break-all text-info" aria-label="api-token">{issued.token}</div>
+					<Button size="icon" {@attach copyToClipboard(issued.token)}>
+						<CopySimpleIcon />
+						<span class="sr-only">{m.api_token_copy()}</span>
+					</Button>
+				</div>
+			</ResponsiveModal.Body>
 		{/if}
 
-		<Dialog.Footer>
-			<Dialog.Close class={buttonVariants({ variant: 'default' })}>{m.dialog_close()}</Dialog.Close>
-		</Dialog.Footer>
-	</Dialog.Content>
-</Dialog.Root>
+		<ResponsiveModal.Footer>
+			<ResponsiveModal.Close class={buttonVariants({ variant: 'default' })}>
+				{m.dialog_close()}
+			</ResponsiveModal.Close>
+		</ResponsiveModal.Footer>
+	</ResponsiveModal.Content>
+</ResponsiveModal.Root>

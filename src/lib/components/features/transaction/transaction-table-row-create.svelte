@@ -14,8 +14,16 @@
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { getLocalTimeZone, parseDate, today } from '@internationalized/date';
 	import { Popover } from 'bits-ui';
+	import { slide } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
 
+	import {
+		cellClass,
+		editInputClass,
+		editRowClass,
+		editSelectClass,
+		footerButtonTouchClass
+	} from './transaction-table-cols';
 	import RowErrors from './transaction-table-row-errors.svelte';
 	import ValidationCheckbox from './transaction-validation-checkbox.svelte';
 
@@ -71,139 +79,153 @@
 		return () => node.removeEventListener('keydown', handle);
 	};
 
-	// The draft is scoped to one account (carried as the hidden accountId), so it
-	// is stale once the viewed account changes. Reset the fields when the form
-	// next mounts for a different account; reopening on the SAME account keeps the
-	// draft. This replaces the old reset-on-open, which was dead code (bits-ui
-	// never fires onOpenChangeComplete(true) for static popover content).
+	// Reopening on the same account keeps the draft; switching accounts resets
+	// it. The factory keys the attachment on accountId so it re-runs when the
+	// account changes while the form stays mounted (a reversed close/open
+	// transition never unmounts it).
 	let lastResetAccountId: string | undefined;
 
-	const resetOnAccountChange: Attachment<HTMLFormElement> = () => {
-		if (lastResetAccountId === accountId) return;
-		lastResetAccountId = accountId;
-		submitAndContinue = false;
-		createTransaction.fields.set({
-			amount: 0,
-			categoryId: undefined,
-			date: today(getLocalTimeZone()).toString(),
-			notes: undefined,
-			validated: false
-		});
-	};
+	const resetOnAccountChange =
+		(forAccountId: string): Attachment<HTMLFormElement> =>
+		() => {
+			if (lastResetAccountId === forAccountId) return;
+			lastResetAccountId = forAccountId;
+			submitAndContinue = false;
+			createTransaction.fields.set({
+				amount: 0,
+				categoryId: undefined,
+				date: today(getLocalTimeZone()).toString(),
+				notes: undefined,
+				validated: false
+			});
+		};
 </script>
 
 <Popover.Root bind:open>
 	<!-- Render the popover content ONTO the form via `child`: no wrapper div sits
 	     between the rowgroup and form[role="row"], so the table's a11y tree stays
 	     valid (a table/rowgroup may only own rows — an intermediate generic or
-	     presentation div fails aria-required-children). -->
+	     presentation div fails aria-required-children). forceMount + {#if open}
+	     hands presence to Svelte so the whole row can slide in and out. -->
 	<Popover.ContentStatic
+		forceMount
 		onInteractOutside={(e) => {
 			if (interactOutsideIgnore?.contains(e.target as Node)) e.preventDefault();
 		}}
 	>
 		{#snippet child({ props })}
-			<form
-				{...props}
-				class={cn(
-					className,
-					'grid rounded-sm border border-interactive/30 bg-surface shadow shadow-interactive/15'
-				)}
-				role="row"
-				aria-label={m.transactions_table_create_transaction()}
-				bind:this={formElement}
-				{...submit.attrs}
-				{@attach open && submitWithKeyboard}
-				{@attach submit.anchor}
-				{@attach resetOnAccountChange}
-			>
-				<input {...createTransaction.fields.accountId.as('hidden', accountId)} />
-				<input {...createTransaction.fields.budgetId.as('hidden', budgetId)} />
-
-				<div role="cell" class="grid items-center bg-interactive/5 p-2">
-					<SelectCategory
-						name={createTransaction.fields.categoryId.as('select').name}
-						bind:value={
-							() => createTransaction.fields.categoryId.value() ?? '',
-							(v) => createTransaction.fields.categoryId.set(v)
-						}
-						{categories}
-						nullable
-						ariaInvalid={createTransaction.fields.categoryId.issues()?.length ? true : undefined}
-						ariaLabel={m.transactions_table_header_category()}
-						ariaLabelTrigger={m.select_category_open()}
-					/>
-				</div>
-
-				<div role="cell" class="grid items-center bg-interactive/5 p-2">
-					<Input class="px-2" aria-label="Notes" {...createTransaction.fields.notes.as('text')} />
-				</div>
-
-				<div role="cell" class="grid items-center bg-interactive/5 p-2">
-					<DatePicker
-						name={createTransaction.fields.date.as('date').name}
-						bind:value={
-							() => {
-								const d = createTransaction.fields.date.value();
-								return d ? parseDate(d) : today(getLocalTimeZone());
-							},
-							(v) => createTransaction.fields.date.set(v.toString())
-						}
-						ariaInvalid={createTransaction.fields.date.issues()?.length ? true : undefined}
-						class="justify-end"
-						label={m.transaction_table_cell_date_select()}
-					/>
-				</div>
-
-				<div role="cell" class="grid items-center bg-interactive/5 p-2">
-					<InputMoney
-						name={createTransaction.fields.amount.as('number').name}
-						aria-label="Amount"
-						bind:value={
-							() => createTransaction.fields.amount.value(),
-							(v) => createTransaction.fields.amount.set(v)
-						}
-						currency={budget.currency}
-						class="px-2 text-right font-currency font-medium"
-					/>
-				</div>
-
-				<div role="cell" class="grid place-content-center bg-interactive/5 p-2">
-					<ValidationCheckbox {...createTransaction.fields.validated.as('checkbox')} />
-				</div>
-
-				<RowErrors issues={createTransaction.fields.allIssues()} />
-
-				<div
-					role="cell"
-					class="col-span-full flex items-center justify-end gap-2 bg-interactive/5 p-2"
+			{#if open}
+				<form
+					{...props}
+					transition:slide={{ duration: 150 }}
+					class={cn(className, 'grid', editRowClass)}
+					role="row"
+					aria-label={m.transactions_table_create_transaction()}
+					bind:this={formElement}
+					{...submit.attrs}
+					{@attach submitWithKeyboard}
+					{@attach submit.anchor}
+					{@attach resetOnAccountChange(accountId)}
 				>
-					<Button
-						type="button"
-						variant="ghost"
-						disabled={submit.pending}
-						onclick={() => (open = false)}
-					>
-						{m.cancel()}
-					</Button>
+					<input {...createTransaction.fields.accountId.as('hidden', accountId)} />
+					<input {...createTransaction.fields.budgetId.as('hidden', budgetId)} />
 
-					<Button
-						type="submit"
-						disabled={submit.pending}
-						onclick={() => (submitAndContinue = false)}
-					>
-						{m.save()}
-					</Button>
+					<div role="cell" class={cellClass}>
+						<SelectCategory
+							class={cn(editInputClass, editSelectClass)}
+							name={createTransaction.fields.categoryId.as('select').name}
+							bind:value={
+								() => createTransaction.fields.categoryId.value() ?? '',
+								(v) => createTransaction.fields.categoryId.set(v)
+							}
+							{categories}
+							nullable
+							ariaInvalid={createTransaction.fields.categoryId.issues()?.length ? true : undefined}
+							ariaLabel={m.transactions_table_header_category()}
+							ariaLabelTrigger={m.select_category_open()}
+						/>
+					</div>
 
-					<Button
-						type="submit"
-						disabled={submit.pending}
-						onclick={() => (submitAndContinue = true)}
-					>
-						{m.save_and_continue()}
-					</Button>
-				</div>
-			</form>
+					<div role="cell" class={cellClass}>
+						<Input
+							class={cn(editInputClass, 'text-sm')}
+							aria-label="Notes"
+							{...createTransaction.fields.notes.as('text')}
+						/>
+					</div>
+
+					<div role="cell" class={cellClass}>
+						<DatePicker
+							name={createTransaction.fields.date.as('date').name}
+							bind:value={
+								() => {
+									const d = createTransaction.fields.date.value();
+									return d ? parseDate(d) : today(getLocalTimeZone());
+								},
+								(v) => createTransaction.fields.date.set(v.toString())
+							}
+							ariaInvalid={createTransaction.fields.date.issues()?.length ? true : undefined}
+							class={cn(editInputClass, 'justify-end')}
+							label={m.transaction_table_cell_date_select()}
+						/>
+					</div>
+
+					<div role="cell" class={cellClass}>
+						<InputMoney
+							name={createTransaction.fields.amount.as('number').name}
+							aria-label="Amount"
+							bind:value={
+								() => createTransaction.fields.amount.value(),
+								(v) => createTransaction.fields.amount.set(v)
+							}
+							currency={budget.currency}
+							class={cn(editInputClass, 'text-right font-currency')}
+						/>
+					</div>
+
+					<div role="cell" class={cn(cellClass, 'items-center justify-end pr-1')}>
+						<ValidationCheckbox
+							labelClass="size-8"
+							{...createTransaction.fields.validated.as('checkbox')}
+						/>
+					</div>
+
+					<RowErrors issues={createTransaction.fields.allIssues()} />
+
+					<div role="cell" class="col-span-full flex items-center justify-end gap-1 p-1">
+						<Button
+							type="button"
+							size="xs"
+							class={footerButtonTouchClass}
+							variant="ghost"
+							disabled={submit.pending}
+							onclick={() => (open = false)}
+						>
+							{m.cancel()}
+						</Button>
+
+						<Button
+							type="submit"
+							size="xs"
+							class={footerButtonTouchClass}
+							disabled={submit.pending}
+							onclick={() => (submitAndContinue = false)}
+						>
+							{m.save()}
+						</Button>
+
+						<Button
+							type="submit"
+							size="xs"
+							class={footerButtonTouchClass}
+							disabled={submit.pending}
+							onclick={() => (submitAndContinue = true)}
+						>
+							{m.save_and_continue()}
+						</Button>
+					</div>
+				</form>
+			{/if}
 		{/snippet}
 	</Popover.ContentStatic>
 </Popover.Root>

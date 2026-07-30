@@ -3,9 +3,9 @@
 	import type { ComponentProps } from 'svelte';
 
 	import { Button } from '$lib/components/ui/button/index.js';
+	import { modalIn, modalOut } from '$lib/components/ui/overlay-motion';
 	import { m } from '$lib/paraglide/messages';
 	import { Dialog as DialogPrimitive, type WithoutChildrenOrChild } from 'bits-ui';
-	import { fly } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
 	import PhX from '~icons/ph/x';
 
@@ -15,19 +15,25 @@
 	let {
 		children,
 		class: className,
+		overlayClass,
 		portalProps,
 		ref = $bindable(null),
 		showCloseButton = true,
 		...restProps
 	}: WithoutChildrenOrChild<DialogPrimitive.ContentProps> & {
 		children: Snippet;
+		// Override the scrim: a class merged onto the overlay, or `null` to drop the
+		// overlay entirely (e.g. a dialog stacked over another that already dims).
+		overlayClass?: null | string;
 		portalProps?: WithoutChildrenOrChild<ComponentProps<typeof DialogPortal>>;
 		showCloseButton?: boolean;
 	} = $props();
 </script>
 
 <DialogPortal {...portalProps}>
-	<Dialog.Overlay />
+	{#if overlayClass !== null}
+		<Dialog.Overlay class={overlayClass ?? undefined} />
+	{/if}
 	<DialogPrimitive.Content
 		data-slot="dialog-content"
 		{...restProps}
@@ -44,10 +50,11 @@
 					bind:this={ref}
 					{...props}
 					class={cn(
-						'fixed inset-0 z-50 m-auto flex h-fit max-h-[calc(100dvh-2rem)] w-full max-w-[calc(100%-2rem)] flex-col gap-6 overflow-hidden rounded-md bg-surface p-6 text-sm ring-1 ring-foreground/10 outline-none',
+						'fixed inset-0 z-50 m-auto flex h-fit max-h-[calc(100dvh-2rem)] w-full max-w-[calc(100%-2rem)] flex-col gap-6 overflow-hidden rounded-md bg-surface p-6 text-sm shadow-md ring-1 ring-foreground/10 outline-none sm:max-w-lg',
 						className
 					)}
-					transition:fly={{ duration: 150, x: 6, y: 6 }}
+					in:modalIn
+					out:modalOut
 				>
 					{@render children?.()}
 					{#if showCloseButton}

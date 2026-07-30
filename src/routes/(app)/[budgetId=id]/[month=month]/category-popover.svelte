@@ -1,12 +1,16 @@
 <!-- Desktop glance surface for a category: the budget table's name cell anchors
      a popover with the viewed month's stats and a link to the detail page.
-     The anchored cell already shows the name, so the popover carries none. -->
+     The popover sits directly on top of the cell — a negative offset equal to the
+     cell's own height overlaps it exactly, so the panel replaces ("hides") the
+     cell and grows from there (down by default, up when there's no room below).
+     That's why the panel repeats the category name before the viewed month. -->
 <script lang="ts">
 	import type { Month } from '$lib/utils/month';
 
 	import { resolve } from '$app/paths';
-	import { CategoryStatsMonthly } from '$lib/components/features/category';
+	import { CategoryStatsLedger } from '$lib/components/features/category';
 	import { Button } from '$lib/components/ui/button';
+	import { hoverOutline } from '$lib/components/ui/focus-ring';
 	import * as Popover from '$lib/components/ui/popover';
 	import { m } from '$lib/paraglide/messages';
 	import { getCategoryStats } from '$lib/remote-functions/category.remote';
@@ -38,29 +42,61 @@
 	function prefetch() {
 		void getCategoryStats({ categoryId: row.id, month });
 	}
+
+	// Cell height measured live so the overlap offset tracks the row density;
+	// the same height sizes the panel's title strip so the name stays put.
+	let triggerEl = $state<HTMLElement | null>(null);
+	let cellHeight = $state(0);
+	$effect(() => {
+		if (!triggerEl) return;
+		const observer = new ResizeObserver(() => (cellHeight = triggerEl!.offsetHeight));
+		observer.observe(triggerEl);
+		return () => observer.disconnect();
+	});
 </script>
 
 <Popover.Root>
+	<!-- relative + z on hover/focus: the outline must paint above the target
+	     progress bar that overlays the cell's bottom edge. -->
 	<Popover.Trigger
-		class="flex size-full cursor-pointer items-center px-2 text-left -outline-offset-2 hover:bg-surface hover:outline-2 hover:outline-interactive/60"
+		bind:ref={triggerEl}
+		class={`relative flex size-full cursor-pointer items-center px-2 text-left hover:z-10 hover:bg-surface ${hoverOutline} focus-visible:z-10`}
 		onpointerenter={prefetch}
 		onfocus={prefetch}
 	>
 		{row.name}
 	</Popover.Trigger>
 
-	<Popover.Content align="start" sideOffset={1} class="w-(--bits-popover-anchor-width) gap-3 p-3">
-		<div class="flex items-center justify-between gap-2">
-			<h3 class="text-sm font-semibold">
-				{formatMonth({ month, options: { month: 'long', year: 'numeric' } })}
-			</h3>
+	<Popover.Content
+		side="bottom"
+		align="start"
+		sideOffset={-cellHeight}
+		motion="fade"
+		class="w-(--bits-popover-anchor-width) gap-0 overflow-hidden rounded-xs bg-surface p-0 shadow-sm ring-1 ring-muted/30"
+	>
+		<!-- Title strip mirrors the cell — same inset, height, and font — so the
+		     name doesn't shift when the panel opens over it. -->
+		<div
+			class="flex items-center justify-between gap-2 border-b border-muted/20 bg-muted/5 px-2"
+			style="min-height: {cellHeight}px"
+		>
+			<div class="flex min-w-0 items-baseline gap-1.5">
+				<!-- font-sans overrides the display (Lora) face that h3 gets by
+				     default, so the name matches the cell's Plex Sans exactly. -->
+				<h3 class="truncate font-sans text-base leading-6 font-normal">{row.name}</h3>
+				<span class="shrink-0 text-xs text-muted">
+					{formatMonth({ month, options: { month: 'short', year: 'numeric' } })}
+				</span>
+			</div>
 
-			<Button size="sm" href={settingsHref}>
+			<Button size="sm" variant="ghost" href={settingsHref}>
 				{m.category_popover_settings()}
 				<ArrowRightIcon />
 			</Button>
 		</div>
 
-		<CategoryStatsMonthly categoryId={row.id} {currency} {month} />
+		<div class="p-2">
+			<CategoryStatsLedger categoryId={row.id} {currency} {month} />
+		</div>
 	</Popover.Content>
 </Popover.Root>

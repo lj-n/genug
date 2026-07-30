@@ -21,7 +21,7 @@
 </script>
 
 <label class={cn('grid gap-0.5', className)}>
-	<span class={hideLabel ? 'sr-only' : 'pl-1.5 text-sm font-medium tracking-tighter'}>
+	<span class={hideLabel ? 'sr-only' : 'pl-1.5 text-sm font-semibold tracking-tight'}>
 		{label}
 	</span>
 

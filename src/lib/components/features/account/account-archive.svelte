@@ -14,21 +14,14 @@
 
 	let {
 		account,
-		currency,
-		onArchived
+		currency
 	}: {
 		account: Awaited<ReturnType<typeof getAccount>>;
 		currency: (typeof CURRENCIES)[number];
-		onArchived: () => void;
 	} = $props();
 
-	// Unlike a category (which visibly leaves the month grid), an account is
-	// archived from its own detail page — so navigating away to the archive is
-	// the success signal. No toast.
-	const submit = createFormSubmit(() => archiveAccount, {
-		onSuccess: () => onArchived(),
-		toast: {}
-	});
+	// The redirect to the archive is the success signal — no toast.
+	const submit = createFormSubmit(() => archiveAccount, { toast: {} });
 
 	const archivability = $derived(await getAccountArchivability({ accountId: account.id }));
 
@@ -37,8 +30,8 @@
 	let archivable = $derived(archivability.archivable);
 </script>
 
-<section class="flex flex-col gap-3 rounded-md border border-muted/20 bg-background p-3 shadow-xs">
-	<h2 class="text-lg font-semibold">
+<section class="flex flex-col gap-3">
+	<h2 class="font-semibold">
 		{m.account_section_title_archive()}
 	</h2>
 
@@ -52,7 +45,7 @@
 				<div>
 					<ParaglideMessage message={m.account_not_archivable_balance} inputs={{}}>
 						{#snippet sum()}
-							<span class="font-semibold tabular-nums">
+							<span class="font-currency font-medium">
 								{formatMoney({
 									currency,
 									money: asMoney(archivability.balance)
@@ -61,7 +54,7 @@
 						{/snippet}
 
 						{#snippet required()}
-							<span class="font-semibold tabular-nums">
+							<span class="font-currency font-medium">
 								{formatMoney({ currency, money: asMoney(0) })}
 							</span>
 						{/snippet}

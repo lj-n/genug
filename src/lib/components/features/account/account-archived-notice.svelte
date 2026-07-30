@@ -20,7 +20,7 @@
 >
 	<ArchiveIcon class="size-10 text-muted" />
 
-	<h2 class="text-lg font-semibold">{m.account_archived_notice_title()}</h2>
+	<h2 class="font-semibold">{m.account_archived_notice_title()}</h2>
 
 	<p class="max-w-prose text-muted">{m.account_archived_notice_description()}</p>
 

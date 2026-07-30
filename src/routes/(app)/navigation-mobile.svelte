@@ -52,7 +52,7 @@
 			<!-- Bottom-right so it never covers the page heading or its action
 			     buttons; z-40 keeps it underneath every drawer/dialog (z-50). -->
 			<div
-				class="fixed right-4 bottom-4 z-40 flex rounded-xl border border-muted/10 bg-foreground p-1 text-background shadow-lg @7xl/main:hidden"
+				class="fixed right-4 bottom-4 z-40 flex rounded-xl border border-muted/10 bg-foreground p-1 text-background shadow-md @7xl/main:hidden"
 			>
 				<Button {...props} size="icon" variant="ghost" class="size-11">
 					<span class="sr-only">Toggle Navigation</span>
@@ -86,20 +86,27 @@
 			{@render invitations?.()}
 
 			<nav class="mx-auto grid w-full max-w-md gap-6" {@attach closeDrawerAttachment}>
-				<ul class="space-y-6 text-lg">
+				<ul class="space-y-2 text-lg">
 					{#each await getBudgets() as budget (budget.id)}
-						<li class="space-y-1 rounded-lg bg-surface p-1.5 shadow-sm">
+						<li class="flex flex-col gap-1">
 							<a
 								href={resolve('/(app)/[budgetId=id]', { budgetId: budget.id })}
 								class={cn(
-									'group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
-									isCurrentPage(page, budget.id) && 'bg-info/10 text-info hover:bg-info/15'
+									'group flex grow items-center gap-2 rounded-md p-2 font-medium transition-colors hover:bg-muted/5',
+									isCurrentPage(page, budget.id) && 'text-info'
 								)}
 							>
+								<span
+									class={cn(
+										'size-1.5 shrink-0 rounded-full',
+										isCurrentPage(page, budget.id) ? 'bg-info' : 'bg-transparent'
+									)}
+									aria-hidden="true"
+								></span>
 								{budget.name}
 							</a>
 
-							<ul class="space-y-1">
+							<ul class="flex flex-col">
 								{#each await getAccounts(budget.id) as account (account.id)}
 									<li class="flex">
 										<div
@@ -117,8 +124,8 @@
 												budgetId: budget.id
 											})}
 											class={cn(
-												'group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
-												isCurrentPage(page, account.id) && 'bg-info/10 text-info hover:bg-info/15'
+												'group flex grow items-center gap-2 rounded-md p-2 text-muted transition-colors hover:bg-muted/5 hover:text-foreground',
+												isCurrentPage(page, account.id) && 'text-info hover:text-info'
 											)}
 										>
 											{account.name}
@@ -130,17 +137,17 @@
 					{/each}
 				</ul>
 
-				<ul class="space-y-1 rounded-lg bg-surface p-1.5 text-lg shadow-sm">
+				<ul class="flex flex-col border-t border-muted/20 pt-2 text-lg">
 					<li class="flex">
 						<a
 							href={resolve('/(app)/new')}
 							class={cn(
-								'group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
-								isCurrentPage(page, 'new') && 'bg-info/10 text-info hover:bg-info/15'
+								'group flex grow items-center gap-2 rounded-md p-2 text-muted transition-colors hover:bg-muted/5 hover:text-foreground',
+								isCurrentPage(page, 'new') && 'font-medium text-info hover:text-info'
 							)}
 						>
 							<PlusIcon
-								class={cn('size-6', isCurrentPage(page, 'new') ? 'text-success' : 'text-muted')}
+								class={cn('size-6', isCurrentPage(page, 'new') ? 'text-info' : 'text-muted')}
 							/>
 							{m.budget_create_button()}
 						</a>
@@ -150,15 +157,12 @@
 						<a
 							href={resolve('/(app)/settings')}
 							class={cn(
-								'group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
-								isCurrentPage(page, 'settings') && 'bg-info/10 text-info hover:bg-info/15'
+								'group flex grow items-center gap-2 rounded-md p-2 text-muted transition-colors hover:bg-muted/5 hover:text-foreground',
+								isCurrentPage(page, 'settings') && 'font-medium text-info hover:text-info'
 							)}
 						>
 							<GearSixIcon
-								class={cn(
-									'size-6',
-									isCurrentPage(page, 'settings') ? 'text-success' : 'text-muted'
-								)}
+								class={cn('size-6', isCurrentPage(page, 'settings') ? 'text-info' : 'text-muted')}
 							/>
 							{m.settings_title()}
 						</a>
@@ -169,12 +173,12 @@
 							<a
 								href={resolve('/(app)/admin')}
 								class={cn(
-									'group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted/5',
-									isCurrentPage(page, 'admin') && 'bg-info/10 text-info hover:bg-info/15'
+									'group flex grow items-center gap-2 rounded-md p-2 text-muted transition-colors hover:bg-muted/5 hover:text-foreground',
+									isCurrentPage(page, 'admin') && 'font-medium text-info hover:text-info'
 								)}
 							>
 								<WrenchIcon
-									class={cn('size-6', isCurrentPage(page, 'admin') ? 'text-success' : 'text-muted')}
+									class={cn('size-6', isCurrentPage(page, 'admin') ? 'text-info' : 'text-muted')}
 								/>
 								{m.admin_settings_title()}
 							</a>
@@ -185,7 +189,7 @@
 						<form {...signout.for('mobile-navigation')} class="contents">
 							<button
 								type="submit"
-								class="group flex grow items-center gap-2 rounded-md p-2 transition-colors hover:cursor-pointer hover:bg-muted/5"
+								class="group flex grow items-center gap-2 rounded-md p-2 text-muted transition-colors hover:cursor-pointer hover:bg-muted/5 hover:text-foreground"
 							>
 								<div aria-hidden="true">
 									<SignOutIcon class="size-6 text-muted" />

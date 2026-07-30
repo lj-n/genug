@@ -26,7 +26,7 @@
 <!-- Below @3xl each entry is a compact label/amount row (operators dropped);
      at @3xl and up the original horizontal validated + pending = balance strip. -->
 <div
-	class="flex w-full flex-col gap-1 rounded-md bg-muted/5 p-3 @3xl/main:w-fit @3xl/main:flex-row @3xl/main:flex-wrap @3xl/main:items-center @3xl/main:gap-x-6 @3xl/main:gap-y-2"
+	class="flex w-full flex-col gap-1 @3xl/main:w-fit @3xl/main:flex-row @3xl/main:flex-wrap @3xl/main:items-center @3xl/main:gap-x-6 @3xl/main:gap-y-2"
 >
 	<div
 		class="flex flex-row-reverse items-center justify-between gap-4 @3xl/main:flex-col @3xl/main:items-start @3xl/main:justify-center @3xl/main:gap-0"

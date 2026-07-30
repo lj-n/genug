@@ -1,20 +1,37 @@
 <script lang="ts">
-	import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
+	import type { Snippet } from 'svelte';
+
+	import { floatingIn, floatingOut } from '$lib/components/ui/overlay-motion';
+	import { DropdownMenu as DropdownMenuPrimitive, type WithoutChildrenOrChild } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
 
 	let {
+		children,
 		class: className,
 		ref = $bindable(null),
 		...restProps
-	}: DropdownMenuPrimitive.SubContentProps = $props();
+	}: WithoutChildrenOrChild<DropdownMenuPrimitive.SubContentProps> & {
+		children?: Snippet;
+	} = $props();
 </script>
 
-<DropdownMenuPrimitive.SubContent
-	bind:ref
-	data-slot="dropdown-menu-sub-content"
-	class={cn(
-		'w-auto min-w-24 rounded-md bg-surface p-1 text-foreground shadow-lg ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
-		className
-	)}
-	{...restProps}
-/>
+<DropdownMenuPrimitive.SubContent data-slot="dropdown-menu-sub-content" forceMount {...restProps}>
+	{#snippet child({ open, props, wrapperProps })}
+		{#if open}
+			<div {...wrapperProps}>
+				<div
+					bind:this={ref}
+					{...props}
+					class={cn(
+						'w-auto min-w-24 rounded-md bg-surface-high p-1 text-foreground shadow-md ring-1 ring-foreground/10',
+						className
+					)}
+					in:floatingIn={{ side: props['data-side'] }}
+					out:floatingOut
+				>
+					{@render children?.()}
+				</div>
+			</div>
+		{/if}
+	{/snippet}
+</DropdownMenuPrimitive.SubContent>

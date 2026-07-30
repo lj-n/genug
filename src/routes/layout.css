@@ -1,24 +1,37 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
-@import '@fontsource-variable/inter';
-@import '@fontsource/zilla-slab/700.css';
-@import '@fontsource/instrument-serif';
+@import '@fontsource-variable/ibm-plex-sans';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+@import '@fontsource-variable/lora';
 @plugin 'tailwindcss-animate';
 
 @theme {
-	--color-surface: #fffefd;
-	--color-surface-high: #fffffe;
-	--color-background: #fffcf8;
-	--color-foreground: #2d2a3e;
-	--color-muted: #696671;
-	--color-error: #b04641;
-	--color-info: #286983;
-	--color-interactive: #8467a6;
-	--color-success: #497f4f;
-	--color-focus: #bf8339;
-	--font-sans: 'Inter Variable', sans-serif;
-	--font-slab: 'Zilla Slab', serif;
-	--font-serif: 'Instrument Serif', serif;
+	/* Design language (#255): a single small radius token — every rounded-*
+	   step collapses to 4px so components keep their markup but share one
+	   corner radius. */
+	--radius-xs: 0.25rem;
+	--radius-sm: 0.25rem;
+	--radius-md: 0.25rem;
+	--radius-lg: 0.25rem;
+	--radius-xl: 0.25rem;
+
+	--color-surface: #fdfdfd;
+	--color-surface-high: #ffffff;
+	--color-background: #fafafa;
+	--color-foreground: #383a42;
+	--color-muted: #676a74;
+	--color-error: #bc1a3f;
+	--color-info: #06506f;
+	--color-interactive: #442c73;
+	--color-success: #347935;
+	--color-focus: #d75f00;
+	/* Typography roles (#261): Plex Sans carries all UI text, Plex Mono all
+	   money (via `font-currency`), Lora is the single display voice — page
+	   titles, section titles, table headers, brand block. */
+	--font-sans: 'IBM Plex Sans Variable', sans-serif;
+	--font-display: 'Lora Variable', serif;
+	--font-mono: 'IBM Plex Mono', monospace;
 
 	--container-8xl: 88rem; /* 1408px */
 	--container-9xl: 96rem; /* 1536px */
@@ -190,8 +203,11 @@
 	}
 }
 
+/* Money role (#261): Plex Mono, regular weight (the mono texture already
+   carries emphasis), em-based size so amounts scale with their context.
+   Emphasized figures (chips) add `font-medium` on top. */
 @utility font-currency {
-	@apply font-medium tabular-nums;
+	@apply font-mono text-[0.9375em] font-normal tabular-nums;
 }
 
 @layer base {
@@ -201,6 +217,13 @@
 	html {
 		@apply font-sans;
 		scrollbar-gutter: stable;
+	}
+	/* Headings speak in the display face (#261); weight/size stay per-site
+	   utilities (page title 700/text-3xl, section titles 600). */
+	h1,
+	h2,
+	h3 {
+		@apply font-display;
 	}
 	body {
 		@apply flex min-h-screen flex-col bg-background text-foreground;
@@ -213,48 +236,54 @@
  * the tokens carry the theme. `system` emits no class on <html> and follows the
  * OS via the media query below; an explicit `.light`/`.dark` override wins by
  * source order (declared after the media block, equal specificity). These are
- * unlayered so they override the `@theme`-emitted `:root` values. Dark values
- * are a first pass, AA-verified in the accessibility pass (#128).
+ * unlayered so they override the `@theme`-emitted `:root` values. The muted
+ * and error values must keep ≥4.5:1 on the brightest overlay stacks
+ * (`surface-high`, plus `bg-muted/5` and `bg-error/10` tints over it) —
+ * overlays moved to `surface-high` in #258 and the a11y suite gates dialog
+ * text and the form-error case. The info/interactive/success values must keep
+ * ≥4.5:1 as text on `surface-high` and inside their own `/10` tint chips over
+ * either surface (the default button variant in dialogs is the worst case) —
+ * gated in the a11y suite.
  */
 @media (prefers-color-scheme: dark) {
 	:root {
-		--color-surface: #1f1d2e;
-		--color-surface-high: #26233a;
-		--color-background: #191724;
-		--color-foreground: #e0def4;
-		--color-muted: #908caa;
-		--color-error: #eb6f92;
-		--color-info: #9ccfd8;
-		--color-interactive: #c4a7e7;
-		--color-success: #85c98d;
-		--color-focus: #f6c177;
+		--color-surface: #282727;
+		--color-surface-high: #393836;
+		--color-background: #181616;
+		--color-foreground: #c5c9c5;
+		--color-muted: #aaa5a0;
+		--color-error: #e4a29c;
+		--color-info: #d6ace6;
+		--color-interactive: #98c1d4;
+		--color-success: #a9c394;
+		--color-focus: #d4a96f;
 	}
 }
 
 .light {
-	--color-surface: #fffefd;
-	--color-surface-high: #fffffe;
-	--color-background: #fffcf8;
-	--color-foreground: #2d2a3e;
-	--color-muted: #696671;
-	--color-error: #b04641;
-	--color-info: #286983;
-	--color-interactive: #8467a6;
-	--color-success: #497f4f;
-	--color-focus: #bf8339;
+	--color-surface: #fdfdfd;
+	--color-surface-high: #ffffff;
+	--color-background: #fafafa;
+	--color-foreground: #383a42;
+	--color-muted: #676a74;
+	--color-error: #bc1a3f;
+	--color-info: #06506f;
+	--color-interactive: #442c73;
+	--color-success: #347935;
+	--color-focus: #d75f00;
 }
 
 .dark {
-	--color-surface: #1f1d2e;
-	--color-surface-high: #26233a;
-	--color-background: #191724;
-	--color-foreground: #e0def4;
-	--color-muted: #908caa;
-	--color-error: #eb6f92;
-	--color-info: #9ccfd8;
-	--color-interactive: #c4a7e7;
-	--color-success: #85c98d;
-	--color-focus: #f6c177;
+	--color-surface: #282727;
+	--color-surface-high: #393836;
+	--color-background: #181616;
+	--color-foreground: #c5c9c5;
+	--color-muted: #aaa5a0;
+	--color-error: #e4a29c;
+	--color-info: #d6ace6;
+	--color-interactive: #98c1d4;
+	--color-success: #a9c394;
+	--color-focus: #d4a96f;
 }
 
 @custom-variant data-open {

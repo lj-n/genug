@@ -10,6 +10,79 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Changed
+
+- genug has been redesigned end to end on a single design language, in light
+  and dark: calm flat pages without stacked panels or in-page shadows, one
+  small corner radius, quiet compact tables, and color reserved for meaning —
+  red marks problems, gold marks keyboard focus, and green stays on target
+  progress. Hovering interactive elements shows a thin neutral outline, and
+  positive amounts render as plain ink instead of green.
+- The budget month view is a quiet open ledger: compact zebra-striped rows
+  directly on the page with a filled header bar, small quiet column labels, a
+  flat Unallocated chip, and remaining amounts in a medium weight that
+  anchors each row without dominating the quieter secondary numbers. Mobile
+  category cards keep their bordered look.
+- The transaction register got its own spreadsheet-like look: a framed grid
+  with row and column hairlines, a quiet floating header and a flat
+  pagination line. Clicking a cell switches the row into edit mode with the
+  clicked field focused and preselected while every value stays exactly in
+  place; open edit and create rows are tinted like a form and animate open
+  and closed. Generic tables and pagination share the same quiet striped
+  look, and empty states got a lighter dashed frame.
+- The navigation sidebar is a narrower, quieter rail: budget names anchor
+  their accounts in ink, the current budget or account is marked with a small
+  colored dot or tinted arrow instead of a filled highlight, secondary
+  actions moved behind a hairline with small muted icons, and the reorder
+  grips are subtle hover-revealed handles. The mobile navigation drawer uses
+  the same idiom on flat bordered cards.
+- Settings, admin, login and the error page follow the same calm rhythm:
+  sections sit directly on the page, separated by hairline dividers that hug
+  the heading they introduce; the admin screen's per-user reset-password and
+  delete actions moved from hover-only icons into an always-visible overflow
+  menu so they stay reachable on touch; the login and first-login screens
+  joined the new look; and the error page shows the status code as a large
+  serif numeral directly on the page, with the error message, log ID and
+  home link beneath it.
+- Archived categories and accounts moved out of their dedicated pages into
+  lightweight surfaces with inline restore: categories open in a popover next
+  to the budget table's create button (a bottom drawer on small screens), and
+  accounts in a small dialog in budget settings. Restored items reappear in
+  their list immediately, the archive affordance hides itself while nothing
+  is archived, and visiting an archived category or account directly now
+  shows only a short notice with a restore button.
+- All overlays — dialogs, confirmation dialogs, drawers, popovers, dropdown
+  menus, selects and the command palette — share one chrome: the brightest
+  surface tone, a hairline edge plus one soft shadow, and a backdrop that
+  washes the page out in the theme's own background color instead of
+  darkening it. Open/close animations share one quick, springy character and
+  are disabled for reduced-motion users. Dialogs have a sensible default
+  width and keep an edge margin on small phone screens, footer buttons are
+  laid out consistently, destructive menu entries show a faint red fill when
+  highlighted — and on phones the remaining plain dialogs now open as bottom
+  drawers.
+- Form fields (inputs, textareas, selects, the category picker, checkboxes,
+  toggle groups, the calendar and the date picker) use a translucent tint
+  instead of a fixed surface color, so they stay clearly recognizable on any
+  background — including inside dialogs and popovers. Selected states fill
+  with ink instead of accent tints, today is marked with a subtle frame,
+  invalid fields show a red border plus a soft red halo that steps aside
+  while a field is focused so the gold focus ring stays visible, and
+  disabled controls consistently dim to half opacity.
+- Accessibility rose with the redesign: all text — including tinted chips
+  and the accent colors on elevated surfaces — keeps WCAG AA contrast in
+  both themes, touch targets grow to 44px on phones, tablets and other touch
+  devices, and screen-reader structure was repaired across the budget table,
+  the statistics breakdowns, comboboxes and the password-visibility toggle.
+
+### Fixed
+
+- Dialogs and drawers no longer render their middle section empty in Safari
+  (including iOS home-screen installs) — content such as form fields was
+  collapsing to zero height.
+- The gold keyboard-focus ring and red invalid halo are no longer cut off on
+  fields that touch the edge of a dialog or drawer's scrollable area.
+
 ## [2026.07.5] - 2026-07-21
 
 ### Added

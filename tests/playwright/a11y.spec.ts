@@ -62,6 +62,35 @@ async function seedBudget(pages: Pages) {
  */
 const THEMES = ['light', 'dark'] as const;
 
+/** sRGB alpha-composite of `fgHex` at `alpha` over `bgHex` — a 10% tint chip. */
+function composite(fgHexRaw: string, alpha: number, bgHexRaw: string): string {
+	const [fgHex, bgHex] = [expandHex(fgHexRaw), expandHex(bgHexRaw)];
+	const channel = (i: number) =>
+		Math.round(
+			parseInt(fgHex.slice(i, i + 2), 16) * alpha +
+				parseInt(bgHex.slice(i, i + 2), 16) * (1 - alpha)
+		);
+	return '#' + [1, 3, 5].map((i) => channel(i).toString(16).padStart(2, '0')).join('');
+}
+
+/** WCAG relative-luminance contrast between two sRGB hex colors. */
+function contrastRatio(fgHex: string, bgHex: string): number {
+	const luminance = (rawHex: string) => {
+		const hex = expandHex(rawHex);
+		const [r, g, b] = [1, 3, 5]
+			.map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+			.map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+		return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+	};
+	const [hi, lo] = [luminance(fgHex), luminance(bgHex)].sort((a, b) => b - a);
+	return (hi + 0.05) / (lo + 0.05);
+}
+
+/** Expands `#abc` shorthand (the minifier emits it in production CSS) to `#aabbcc`. */
+function expandHex(hex: string): string {
+	return hex.length === 4 ? '#' + [...hex.slice(1)].map((c) => c + c).join('') : hex;
+}
+
 async function setTheme(page: Page, theme: (typeof THEMES)[number]) {
 	await page
 		.context()
@@ -71,6 +100,41 @@ async function setTheme(page: Page, theme: (typeof THEMES)[number]) {
 for (const theme of THEMES) {
 	test.describe(`${theme} theme`, () => {
 		test.beforeEach(async ({ page }) => setTheme(page, theme));
+
+		// axe cannot judge text over `/10` tint chips (it reports them "incomplete"),
+		// so the accent tokens are gated by direct token math: accent text must
+		// keep AA on `surface-high` and inside its own `/10` chip over either surface —
+		// the default button variant in dialogs is the live worst case.
+		test('Accent tokens keep AA on elevated surfaces and tint chips', async ({ page, pages }) => {
+			await pages.auth.createUserAndLogin();
+			const tokens = await page.evaluate(() => {
+				const style = getComputedStyle(document.documentElement);
+				const read = (name: string) => style.getPropertyValue(name).trim();
+				return {
+					accents: {
+						info: read('--color-info'),
+						interactive: read('--color-interactive'),
+						success: read('--color-success')
+					},
+					surface: read('--color-surface'),
+					surfaceHigh: read('--color-surface-high')
+				};
+			});
+
+			for (const [name, accent] of Object.entries(tokens.accents)) {
+				expect(accent, `--color-${name} should resolve to a hex color`).toMatch(
+					/^#([0-9a-f]{3}|[0-9a-f]{6})$/i
+				);
+				const pairs: [string, string][] = [
+					[`${name} on surface-high`, tokens.surfaceHigh],
+					[`${name}/10 chip over surface`, composite(accent, 0.1, tokens.surface)],
+					[`${name}/10 chip over surface-high`, composite(accent, 0.1, tokens.surfaceHigh)]
+				];
+				for (const [pair, background] of pairs) {
+					expect(contrastRatio(accent, background), pair).toBeGreaterThanOrEqual(4.5);
+				}
+			}
+		});
 
 		test('Login page is axe-clean', async ({ page, pages }) => {
 			// A registered user exists, so `/login` renders the returning-user form
@@ -134,10 +198,13 @@ for (const theme of THEMES) {
 			await page.keyboard.press('Escape');
 			await expect(categoryDialog).not.toBeVisible();
 
-			// Add account: the create-account dialog from the accounts dropdown.
-			await page.getByRole('button', { name: 'Show Accounts' }).click();
-			await page.getByRole('menuitem', { name: 'Add Account' }).click();
-			await expect(page.getByRole('heading', { name: 'Add New Account' })).toBeVisible();
+			// Add account: the create-account form is a nested dialog stacked over
+			// the Budget Settings dialog (#294). Scan both surfaces together.
+			await page.getByRole('button', { name: 'Budget Settings' }).click();
+			const settingsDialog = page.getByRole('dialog', { name: 'Budget Settings' });
+			await settingsDialog.getByRole('button', { name: 'Add Account' }).click();
+			const addAccountDialog = page.getByRole('dialog', { name: 'Add New Account' });
+			await expect(addAccountDialog.getByRole('textbox', { name: 'Account Name' })).toBeVisible();
 			await expectAxeClean(page);
 		});
 
@@ -191,6 +258,64 @@ for (const theme of THEMES) {
 		});
 	});
 }
+
+/**
+ * ARIA structure & control wiring is mode-independent, so these states
+ * scan once outside the theme loop. They cover what the themed flows above
+ * never reach: the mobile table markup, the stats definition lists, and the
+ * expanded combobox / date-picker popups.
+ */
+test.describe('ARIA structure', () => {
+	test('Month view on a mobile viewport is axe-clean', async ({ page, pages }) => {
+		const { budgetName } = await seedBudget(pages);
+		await pages.budget.goto(budgetName);
+
+		await page.setViewportSize({ height: 720, width: 390 });
+		// The mobile toolbar replaces the desktop column header below @3xl; it
+		// must sit outside the role="table" element to be valid table content.
+		await expect(page.getByRole('link', { name: 'Create Category' })).toBeVisible();
+		await expectAxeClean(page);
+	});
+
+	test('Category stats popover and detail page are axe-clean', async ({ page, pages }) => {
+		const { budgetName, categoryName } = await seedBudget(pages);
+		await pages.budget.goto(budgetName);
+
+		// The monthly-stats popover: its ledger is a <dl> with grouped rows.
+		await pages.category.openPopover(categoryName);
+		await expect(pages.category.popover().getByText('Average Monthly Spend')).toBeVisible();
+		await expectAxeClean(page);
+
+		// The detail page repeats the same dl rows plus the all-time group.
+		await pages.category.popover().getByRole('link', { name: 'Settings' }).click();
+		await expect(page.getByRole('heading', { name: categoryName })).toBeVisible();
+		await expectAxeClean(page);
+	});
+
+	test('Expanded category combobox and date picker are axe-clean', async ({ page, pages }) => {
+		const { accountName } = await seedBudget(pages);
+		await pages.account.goto(accountName);
+
+		await page.getByRole('button', { name: 'New Transaction' }).click();
+		const createRow = page.getByRole('row', { name: 'New Transaction' });
+		await expect(createRow).toBeVisible();
+
+		// Expanded combobox: the listbox needs an accessible name and the input
+		// needs aria-controls — neither fires while collapsed.
+		await createRow.getByRole('button', { name: 'Open category dropdown' }).click();
+		await expect(page.getByRole('listbox', { name: 'Category' })).toBeVisible();
+		await expectAxeClean(page);
+		await page.keyboard.press('Escape');
+
+		// Expanded date picker: the trigger is a role="combobox" button that
+		// needs aria-controls while open. Its accessible name is the selected
+		// date, so target the row's only combobox *button* (the category
+		// combobox is an input).
+		await createRow.locator('button[role="combobox"]').click();
+		await expect(page.getByRole('grid')).toBeVisible();
+		await expectAxeClean(page);
+	});
+});
 
 /** Tabs forward until the given locator holds focus, or throws after `max` hops. */
 async function tabToFocus(page: Page, target: Locator, max = 10) {

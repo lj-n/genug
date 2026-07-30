@@ -39,11 +39,13 @@ export class AuthPage extends BasePage {
 		const passwordLocator = this.page.getByLabel('generated-password');
 		await expect(passwordLocator).toBeVisible();
 
+		// Read before closing: the dialog unmounts on close (instantly under
+		// the reduced-motion e2e context), so the locator is gone afterwards.
+		const password = await passwordLocator.textContent();
+
 		await this.page.getByRole('button', { name: 'Close' }).first().click();
 
 		await expect(this.page.getByText(username)).toBeVisible();
-
-		const password = await passwordLocator.textContent();
 
 		if (!password) throw new Error('Could not copy password');
 

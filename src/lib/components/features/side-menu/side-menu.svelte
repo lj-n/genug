@@ -11,8 +11,8 @@
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
 	import { slide } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
-	import PhArrowBendDownRightBold from '~icons/ph/arrow-bend-down-right-bold';
-	import PhDotsSixVertical from '~icons/ph/dots-six-vertical';
+	import ArrowBendDownRightBoldIcon from '~icons/ph/arrow-bend-down-right-bold';
+	import DotsSixVerticalIcon from '~icons/ph/dots-six-vertical';
 
 	type NavitemProps = {
 		dragDisabled?: boolean;
@@ -49,12 +49,25 @@
 }: NavitemProps)}
 	<div
 		class={cn(
-			'group flex grow items-center gap-2 rounded-md transition-colors hover:bg-muted/5',
-			isActive && 'bg-info/10 text-info hover:bg-info/15'
+			'group flex items-center rounded-md text-sm transition-colors hover:bg-muted/5',
+			isSubItem ? 'text-muted hover:text-foreground' : 'font-medium text-foreground',
+			isActive && 'text-info hover:text-info'
 		)}
 	>
-		<a {href} class={cn('flex w-full items-center p-2', !isSubItem && 'font-medium')}>
-			{name}
+		<a {href} class="flex min-w-0 grow items-center gap-1.5 px-2 py-1">
+			{#if isSubItem}
+				<ArrowBendDownRightBoldIcon
+					class={cn('size-3 shrink-0', isActive ? 'text-info' : 'text-muted')}
+					aria-hidden="true"
+				/>
+			{:else}
+				<!-- Transparent when inactive so budget labels stay aligned. -->
+				<span
+					class={cn('size-1.5 shrink-0 rounded-full', isActive ? 'bg-info' : 'bg-transparent')}
+					aria-hidden="true"
+				></span>
+			{/if}
+			<span class="truncate">{name}</span>
 		</a>
 
 		<button
@@ -64,24 +77,24 @@
 			disabled={dragDisabled}
 			aria-disabled={dragDisabled}
 			class={cn(
-				'ml-auto cursor-grab rounded-sm opacity-0',
-				'group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none',
+				'mr-1 shrink-0 cursor-grab rounded-sm p-0.5 opacity-0',
+				'group-hover:opacity-100 focus-visible:opacity-100',
 				dragDisabled && 'hidden'
 			)}
 			data-drag-handle={dragHandleIdentifier}
 		>
-			<PhDotsSixVertical class="size-6 text-interactive" />
+			<DotsSixVerticalIcon class="size-4 text-muted" />
 		</button>
 	</div>
 {/snippet}
 
-<ul {@attach budgetSortable.attach} class="grid">
+<ul {@attach budgetSortable.attach} class="flex flex-col gap-2">
 	{#each budgets as budget (budget.id)}
 		{@const accounts = await getAccounts(budget.id)}
 
 		<li
 			transition:slide={{ axis: 'y' }}
-			class="grid space-y-1 pt-2"
+			class="flex flex-col"
 			data-drag-item="budget"
 			data-sortable-id={budget.id}
 		>
@@ -114,14 +127,9 @@
 					}
 				})}
 
-				<ul {@attach accountSortable.attach} class="space-y-0.5 pl-2">
+				<ul {@attach accountSortable.attach} class="ml-3 flex flex-col">
 					{#each accounts as account (account.id)}
-						{@const isActive = isCurrentPage(page, account.id)}
-						<li data-drag-item={budget.id} data-sortable-id={account.id} class="flex">
-							<div class={cn('mx-1 my-auto aspect-square', isActive ? 'text-info' : 'text-muted')}>
-								<PhArrowBendDownRightBold class="size-3" />
-							</div>
-
+						<li data-drag-item={budget.id} data-sortable-id={account.id} class="flex flex-col">
 							{@render navitem({
 								dragDisabled: accounts.length <= 1,
 								dragHandleIdentifier: budget.id,
@@ -129,7 +137,7 @@
 									accountId: account.id,
 									budgetId: budget.id
 								}),
-								isActive,
+								isActive: isCurrentPage(page, account.id),
 								isSubItem: true,
 								name: account.name
 							})}

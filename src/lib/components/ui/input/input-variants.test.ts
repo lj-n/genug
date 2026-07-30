@@ -12,7 +12,7 @@ describe('inputVariants', () => {
 		const result = classList(inputVariants());
 
 		expect(result).toEqual(
-			expect.arrayContaining(['rounded-lg', 'border', 'border-muted/30', 'bg-surface/70', 'h-9'])
+			expect.arrayContaining(['rounded-lg', 'border', 'border-muted/20', 'bg-muted/5', 'h-9'])
 		);
 	});
 
@@ -69,7 +69,7 @@ describe('inputVariants', () => {
 		const result = classList(inputVariants({ variant: 'container' }));
 
 		expect(result).toEqual(
-			expect.arrayContaining(['rounded-lg', 'border', 'border-muted/30', 'bg-surface/70', 'h-9'])
+			expect.arrayContaining(['rounded-lg', 'border', 'border-muted/20', 'bg-muted/5', 'h-9'])
 		);
 		expect(result.filter((cls) => /^p[xy]?-/.test(cls))).toEqual([]);
 	});

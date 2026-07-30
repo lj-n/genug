@@ -19,7 +19,9 @@
 		class: className,
 		contentProps,
 		customItemRow,
+		form,
 		inputProps,
+		inputRef = $bindable(null),
 		name,
 		nullable = false,
 		open = $bindable(false),
@@ -35,7 +37,11 @@
 		class?: string;
 		contentProps?: WithoutChildrenOrChild<Combobox.ContentProps>;
 		customItemRow?: Snippet<[{ label: string; value: string }]>;
+		/** Form owner for the hidden value input, for callers outside a <form>. */
+		form?: string;
 		inputProps?: WithoutChildrenOrChild<Combobox.InputProps>;
+		/** The search input element, e.g. to move focus into the combobox. */
+		inputRef?: HTMLInputElement | null;
 		name?: string;
 		nullable?: boolean;
 		open?: boolean;
@@ -47,6 +53,18 @@
 
 	let searchValue = $state('');
 	let containerRef = $state<HTMLDivElement | null>(null);
+	let contentRef = $state<HTMLElement | null>(null);
+
+	// bits-ui does not link the combobox input to its listbox, so the input
+	// fails ARIA's required aria-controls while expanded — wire it by hand.
+	const uid = $props.id();
+	const listboxId = `${uid}-listbox`;
+
+	// The id prop never reaches the floating listbox element (every popper
+	// layer destructures it away), so stamp it on the node itself.
+	$effect(() => {
+		if (contentRef) contentRef.id = listboxId;
+	});
 
 	const items = $derived(categories.map((c) => ({ label: c.name, value: c.id })));
 
@@ -77,7 +95,7 @@
 	<Combobox.Item
 		value={args.value}
 		label={args.label}
-		class="relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-highlighted:bg-info/5 data-highlighted:text-info data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+		class="relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-highlighted:bg-muted/10 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
 	>
 		{#snippet children({ selected })}
 			<span class="absolute inset-e-2 flex size-3.5 items-center justify-center">
@@ -110,14 +128,16 @@
 	>
 		<Combobox.Input
 			{...inputProps}
+			bind:ref={inputRef}
+			aria-controls={open ? listboxId : undefined}
 			aria-invalid={ariaInvalid}
 			aria-label={ariaLabel}
-			class="h-full flex-1 border-0 bg-transparent px-2 py-1 outline-none placeholder:text-muted focus-visible:ring-0"
+			class="h-full min-w-0 flex-1 border-0 bg-transparent px-2 py-1 outline-none placeholder:text-muted focus-visible:ring-0"
 			{placeholder}
 			oninput={handleInput}
 		/>
 		<Combobox.Trigger
-			class="flex h-full items-center px-2 text-muted hover:text-foreground"
+			class="flex h-full items-center px-2 text-muted hover:text-foreground pointer-coarse:px-3.5"
 			aria-label={ariaLabelTrigger}
 		>
 			<CaretUpDownIcon class="size-4" aria-hidden="true" />
@@ -126,10 +146,12 @@
 
 	<Combobox.Content
 		{...contentProps}
+		bind:ref={contentRef}
+		aria-label={ariaLabel ?? placeholder}
 		customAnchor={containerRef}
 		sideOffset={6}
 		class={cn(
-			'w-(--bits-combobox-anchor-width) overflow-hidden rounded-md bg-surface p-1 shadow-md ring-1 ring-muted/20',
+			'w-(--bits-combobox-anchor-width) overflow-hidden rounded-md bg-surface-high p-1 shadow-md ring-1 ring-foreground/10',
 			contentProps?.class
 		)}
 	>
@@ -156,5 +178,5 @@
 </Combobox.Root>
 
 {#if name}
-	<input type="hidden" {name} {value} />
+	<input type="hidden" {name} {value} {form} />
 {/if}

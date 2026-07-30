@@ -13,6 +13,8 @@
 		ariaInvalid?: boolean;
 		class?: string;
 		disabled?: boolean;
+		/** Form owner for the hidden value input, for callers outside a <form>. */
+		form?: string;
 		formatDisplay?: (date: CalendarDate) => string;
 		label: string;
 		locale?: Locale;
@@ -29,6 +31,7 @@
 		ariaInvalid,
 		class: className,
 		disabled = false,
+		form,
 		formatDisplay,
 		label,
 		locale = getLocale(),
@@ -58,6 +61,19 @@
 
 	const displayValue = $derived(value ? displayFormatter(value) : label);
 
+	// The trigger is a role="combobox" button, which ARIA requires to carry
+	// aria-controls while expanded. bits-ui derives that from the content
+	// node's id, but its id prop never reaches the floating element (every
+	// popper layer destructures it away) — so stamp the id on the node and
+	// wire the trigger by hand.
+	const uid = $props.id();
+	const contentId = `${uid}-content`;
+	let contentRef = $state<HTMLElement | null>(null);
+
+	$effect(() => {
+		if (contentRef) contentRef.id = contentId;
+	});
+
 	function closeAndFocusTrigger() {
 		open = false;
 		tick().then(() => {
@@ -76,10 +92,11 @@
 				{disabled}
 				type="button"
 				class={cn(
-					'w-full justify-between border-muted/30 bg-surface/70 px-2 hover:cursor-text hover:bg-surface/70 aria-expanded:bg-surface/70 aria-expanded:ring-2 aria-expanded:ring-focus',
+					'w-full justify-between border-muted/20 bg-muted/5 px-2 hover:cursor-text hover:bg-muted/5 aria-expanded:outline-1 aria-expanded:-outline-offset-1 aria-expanded:outline-foreground/50',
 					className
 				)}
 				role="combobox"
+				aria-controls={open ? contentId : undefined}
 				aria-expanded={open}
 				aria-invalid={ariaInvalid}
 				aria-label={value ? displayFormatter(value) : label}
@@ -90,6 +107,7 @@
 	</Popover.Trigger>
 
 	<Popover.Content
+		bind:ref={contentRef}
 		class="w-full p-0"
 		sideOffset={4}
 		onkeydown={(ev) => {
@@ -106,11 +124,11 @@
 			{placeholder}
 			{locale}
 			onValueChange={closeAndFocusTrigger}
-			class="rounded-xl border border-muted/30 bg-surface-high shadow"
+			class="rounded-xl bg-surface-high shadow-md ring-1 ring-foreground/10"
 		/>
 	</Popover.Content>
 </Popover.Root>
 
 {#if name && value !== undefined}
-	<input type="hidden" {name} value={value.toString()} />
+	<input type="hidden" {name} value={value.toString()} {form} />
 {/if}

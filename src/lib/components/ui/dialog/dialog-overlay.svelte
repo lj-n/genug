@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { scrimFade } from '$lib/components/ui/overlay-motion';
 	import { Dialog as DialogPrimitive } from 'bits-ui';
-	import { fade } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
 
 	let {
@@ -17,10 +17,10 @@
 				bind:this={ref}
 				{...props}
 				class={cn(
-					'fixed inset-0 z-50 w-screen bg-black/10 supports-backdrop-filter:backdrop-blur-xs',
+					'fixed inset-0 z-50 w-screen bg-background/75 supports-backdrop-filter:backdrop-blur-xs',
 					className
 				)}
-				transition:fade={{ duration: 150 }}
+				transition:scrimFade
 			></div>
 		{/if}
 	{/snippet}

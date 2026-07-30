@@ -113,7 +113,7 @@ vi.mock('$lib/remote-functions/transaction.remote', () => ({
 }));
 vi.mock('$lib/remote-functions/category.remote', () => ({ getCategories: remote.getCategories }));
 
-import TableRowEdit from './transaction-table-row-edit.svelte';
+import TableRow from './transaction-table-row.svelte';
 
 const transaction: ListTransaction = {
 	accountId: 'account-1',
@@ -142,18 +142,26 @@ async function renderRow(configure?: () => void) {
 	remote.deleteForm.reset();
 	configure?.();
 	const cancelEditing = vi.fn();
-	const utils = render(TableRowEdit, {
-		props: { budgetId: 'budget-1', cancelEditing, currency: 'EUR', transaction }
+	const setEditing = vi.fn();
+	const utils = render(TableRow, {
+		props: {
+			budgetId: 'budget-1',
+			cancelEditing,
+			currency: 'EUR',
+			isEditing: true,
+			setEditing,
+			transaction
+		}
 	});
 	await screen.findByRole('row');
-	return { ...utils, cancelEditing };
+	return { ...utils, cancelEditing, setEditing };
 }
 
 const saveButton = () => screen.getByRole('button', { name: 'Save' });
 const cancelButton = () => screen.getByRole('button', { name: 'Cancel' });
 const deleteButton = () => screen.getByRole('button', { name: 'Delete' });
 
-describe('TableRowEdit — submit lifecycle', () => {
+describe('TransactionTableRow (edit mode) — submit lifecycle', () => {
 	it('saves the row and exits edit mode on success', async () => {
 		const user = userEvent.setup();
 		const { cancelEditing } = await renderRow();
@@ -199,7 +207,7 @@ describe('TableRowEdit — submit lifecycle', () => {
 	});
 });
 
-describe('TableRowEdit — shared error line', () => {
+describe('TransactionTableRow (edit mode) — shared error line', () => {
 	it('shows all field issues in one shared error line', async () => {
 		await renderRow(() =>
 			remote.editForm.setAllIssues([
@@ -221,7 +229,7 @@ describe('TableRowEdit — shared error line', () => {
 	});
 });
 
-describe('TableRowEdit — delete', () => {
+describe('TransactionTableRow (edit mode) — delete', () => {
 	it('submits the row id under the ids field through the hidden delete form', async () => {
 		const user = userEvent.setup();
 		await renderRow();
@@ -249,7 +257,7 @@ describe('TableRowEdit — delete', () => {
 	});
 });
 
-describe('TableRowEdit — pending', () => {
+describe('TransactionTableRow (edit mode) — pending', () => {
 	it('disables the row buttons during an edit submit without a spinner', async () => {
 		await renderRow(() => {
 			remote.editForm.form.pending = 1;

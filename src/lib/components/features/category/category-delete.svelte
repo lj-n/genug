@@ -32,8 +32,8 @@
 	let deletable = $derived(deletability.deletable);
 </script>
 
-<section class="flex flex-col gap-3 rounded-md border border-muted/20 bg-background p-3 shadow-xs">
-	<h2 class="text-lg font-semibold">
+<section class="flex flex-col gap-3">
+	<h2 class="font-semibold">
 		{m.category_section_title_delete()}
 	</h2>
 
@@ -47,7 +47,7 @@
 				<div>
 					<ParaglideMessage message={m.category_not_deletable_balance} inputs={{}}>
 						{#snippet sum()}
-							<span class="font-semibold tabular-nums">
+							<span class="font-currency font-medium">
 								{formatMoney({
 									currency,
 									money: asMoney(deletability.remainingBalance)
@@ -56,7 +56,7 @@
 						{/snippet}
 
 						{#snippet required()}
-							<span class="font-semibold tabular-nums">
+							<span class="font-currency font-medium">
 								{formatMoney({ currency, money: asMoney(0) })}
 							</span>
 						{/snippet}

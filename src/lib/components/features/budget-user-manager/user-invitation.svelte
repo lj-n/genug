@@ -58,46 +58,44 @@
 				</ParaglideMessage>
 			</div>
 
-			<div class="flex w-full items-center gap-2 rounded-lg bg-muted/5 p-3">
-				<FormField
-					class="w-full"
-					field={inviteUser.fields.inviteeName}
-					label={m.admin_input_placeholder_username()}
-					hideLabel
-				>
-					{#snippet input(field)}
-						<InputGroup.Root>
-							<InputGroup.Input
-								{...field.as('text')}
-								placeholder={m.admin_input_placeholder_username()}
-								class="w-full bg-transparent text-base"
-							/>
+			<FormField
+				class="w-full"
+				field={inviteUser.fields.inviteeName}
+				label={m.admin_input_placeholder_username()}
+				hideLabel
+			>
+				{#snippet input(field)}
+					<InputGroup.Root>
+						<InputGroup.Input
+							{...field.as('text')}
+							placeholder={m.admin_input_placeholder_username()}
+							class="w-full bg-transparent text-base"
+						/>
 
-							<InputGroup.Addon align="block-end" class="text-xs font-normal">
-								{#if findUserResult?.current?.userId}
-									<div class="flex items-center gap-1 text-success">
-										{m.budget_users_invite_success()}
-									</div>
-								{:else}
-									<div class="flex items-center gap-1 text-muted">
-										{m.budget_users_username_case_hint()}
-									</div>
-								{/if}
+						<InputGroup.Addon align="block-end" class="text-xs font-normal">
+							{#if findUserResult?.current?.userId}
+								<div class="flex items-center gap-1 text-success">
+									{m.budget_users_invite_success()}
+								</div>
+							{:else}
+								<div class="flex items-center gap-1 text-muted">
+									{m.budget_users_username_case_hint()}
+								</div>
+							{/if}
 
-								<Button
-									type="submit"
-									class="ms-auto"
-									aria-disabled={!findUserResult?.current?.userId}
-									loading={submit.pending}
-									{@attach submit.anchor}
-								>
-									{m.budget_users_invite_button()}
-								</Button>
-							</InputGroup.Addon>
-						</InputGroup.Root>
-					{/snippet}
-				</FormField>
-			</div>
+							<Button
+								type="submit"
+								class="ms-auto"
+								aria-disabled={!findUserResult?.current?.userId}
+								loading={submit.pending}
+								{@attach submit.anchor}
+							>
+								{m.budget_users_invite_button()}
+							</Button>
+						</InputGroup.Addon>
+					</InputGroup.Root>
+				{/snippet}
+			</FormField>
 		</form>
 	</Collapsible.Content>
 </Collapsible.Root>

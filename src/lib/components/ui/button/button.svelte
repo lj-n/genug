@@ -5,8 +5,13 @@
 
 	import { cn, tv, type VariantProps } from 'tailwind-variants';
 
+	import { hoverOutline, invalidRing } from '../focus-ring';
+
 	export const variants = tv({
-		base: "hover:cursor-pointer aria-invalid:ring-error/20 aria-invalid:border-error rounded-md border border-transparent bg-clip-padding active:not-aria-[haspopup]:translate-y-px aria-invalid:ring-2 [&_svg:not([class*='size-'])]:size-4 group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+		base: [
+			"hover:cursor-pointer aria-invalid:border-error rounded-md border border-transparent bg-clip-padding active:not-aria-[haspopup]:translate-y-px [&_svg:not([class*='size-'])]:size-4 group/button inline-flex shrink-0 items-center justify-center text-sm font-medium whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+			invalidRing
+		],
 		defaultVariants: {
 			size: 'default',
 			variant: 'default'
@@ -26,12 +31,12 @@
 				xs: "h-6 gap-1 rounded-[min(var(--radius-md),8px)] px-2 text-xs in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3"
 			},
 			variant: {
-				default: 'bg-interactive/10 text-interactive hover:bg-interactive/15',
-				destructive: 'bg-error/10 text-error hover:bg-error/15',
-				ghost: 'hover:bg-muted/10 hover:text-foreground',
-				info: 'bg-info/10 text-info hover:bg-info/15',
+				default: ['bg-interactive/10 text-interactive', hoverOutline],
+				destructive: ['bg-error/10 text-error', hoverOutline],
+				ghost: ['hover:bg-muted/10 hover:text-foreground', hoverOutline],
+				info: ['bg-info/10 text-info', hoverOutline],
 				link: 'text-interactive underline-offset-3 hover:underline',
-				success: 'bg-success/10 text-success hover:bg-success/15'
+				success: ['bg-success/10 text-success', hoverOutline]
 			}
 		}
 	});

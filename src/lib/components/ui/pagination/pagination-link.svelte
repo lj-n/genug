@@ -28,7 +28,9 @@
 	data-active={isActive}
 	data-size={size}
 	class={cn(
-		buttonVariants({ size, variant: isActive ? 'info' : 'ghost' }),
+		// The current page wears the interactive tint — pagination's exception
+		// to the selection-is-ink rule.
+		buttonVariants({ size, variant: isActive ? 'default' : 'ghost' }),
 		'cn-pagination-link',
 		className
 	)}

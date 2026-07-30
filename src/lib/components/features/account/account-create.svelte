@@ -26,10 +26,12 @@
 	// the close signal and the account list refreshes single-flight, plus any
 	// caller-declared `updates`. Without it, the redirect is the success signal.
 	let {
+		class: className,
 		currency,
 		onSuccess,
 		updates
 	}: {
+		class?: string;
 		currency: (typeof CURRENCIES)[number];
 		onSuccess?: () => void;
 		updates?: () => RemoteQueryUpdate[];
@@ -57,7 +59,7 @@
 	});
 </script>
 
-<FormBody {...submit.attrs}>
+<FormBody {...submit.attrs} class={className}>
 	<input {...form.fields.budgetId.as('hidden', budgetId())} />
 
 	<FormField field={form.fields.accountName} label={m.account_label_name()}>

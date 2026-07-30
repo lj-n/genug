@@ -29,6 +29,19 @@ export function asMoney(cents: number): Money {
 	return cents as Money;
 }
 
+/** The narrow currency glyph (e.g. `$`, `€`, `¥`) for display beside a code. */
+export function currencySymbol(
+	currency: (typeof CURRENCIES)[number],
+	locale: Locale = getLocale()
+): string {
+	const parts = new Intl.NumberFormat(locale, {
+		currency,
+		currencyDisplay: 'narrowSymbol',
+		style: 'currency'
+	}).formatToParts(0);
+	return parts.find((part) => part.type === 'currency')?.value ?? currency;
+}
+
 export function formatMoney({
 	currency,
 	locale = getLocale(),

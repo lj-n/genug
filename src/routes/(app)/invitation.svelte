@@ -2,7 +2,7 @@
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { AlertDialogForm } from '$lib/components/ui/alert-dialog-form';
 	import { Button } from '$lib/components/ui/button';
-	import * as Dialog from '$lib/components/ui/dialog';
+	import * as ResponsiveModal from '$lib/components/ui/responsive-modal';
 	import { m } from '$lib/paraglide/messages';
 	import { acceptInvite, getInvitations, removeUser } from '$lib/remote-functions/budget.remote';
 	import { getUser } from '$lib/remote-functions/user.remote';
@@ -26,33 +26,35 @@
 	});
 </script>
 
-<Dialog.Root bind:open>
-	<Dialog.Trigger>
+<ResponsiveModal.Root bind:open dismissible={false}>
+	<ResponsiveModal.Trigger>
 		{#snippet child({ props })}
 			<Button {...props} class="mt-6 w-full">
 				<EnvelopeDuotoneIcon class="size-6 animate-pulse" />
 				<span class="font-semibold">{m.invitation_button_label()}</span>
 			</Button>
 		{/snippet}
-	</Dialog.Trigger>
+	</ResponsiveModal.Trigger>
 
-	<Dialog.Content class="max-w-md" interactOutsideBehavior="ignore">
-		<Dialog.Header>
-			<Dialog.Title>{m.invitation_dialog_title()}</Dialog.Title>
-		</Dialog.Header>
+	<ResponsiveModal.Content class="sm:max-w-md">
+		<ResponsiveModal.Header>
+			<ResponsiveModal.Title>{m.invitation_dialog_title()}</ResponsiveModal.Title>
+		</ResponsiveModal.Header>
 
-		<p>
-			<ParaglideMessage
-				message={m.invitation_dialog_description}
-				inputs={{ budgetName: invitation.budgetName ?? '', inviterName: invitation.inviterName }}
-			>
-				{#snippet b({ children })}
-					<b>{@render children?.()}</b>
-				{/snippet}
-			</ParaglideMessage>
-		</p>
+		<ResponsiveModal.Body>
+			<p>
+				<ParaglideMessage
+					message={m.invitation_dialog_description}
+					inputs={{ budgetName: invitation.budgetName ?? '', inviterName: invitation.inviterName }}
+				>
+					{#snippet b({ children })}
+						<b>{@render children?.()}</b>
+					{/snippet}
+				</ParaglideMessage>
+			</p>
+		</ResponsiveModal.Body>
 
-		<Dialog.Footer>
+		<ResponsiveModal.Footer>
 			<AlertDialogForm
 				form={removeUser}
 				onSuccess={() => {
@@ -94,6 +96,6 @@
 					{m.invitation_accept_button()}
 				</Button>
 			</form>
-		</Dialog.Footer>
-	</Dialog.Content>
-</Dialog.Root>
+		</ResponsiveModal.Footer>
+	</ResponsiveModal.Content>
+</ResponsiveModal.Root>

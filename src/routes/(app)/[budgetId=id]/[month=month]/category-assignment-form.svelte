@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Month } from '$lib/utils/month';
 
+	import { hoverOutline } from '$lib/components/ui/focus-ring';
 	import { InputMoney } from '$lib/components/ui/input-money';
 	import { PopoverForm } from '$lib/components/ui/popover-form';
 	import { m } from '$lib/paraglide/messages';
@@ -50,7 +51,8 @@ button during flight; the optimistic-override feedback model stays untouched. --
 		<button
 			{...props}
 			class={cn(
-				'h-full w-full cursor-pointer p-2 text-right font-currency -outline-offset-2 hover:bg-surface hover:outline-2 hover:outline-interactive/60',
+				'h-full w-full cursor-pointer px-2 py-1 text-right font-currency hover:bg-surface',
+				hoverOutline,
 				open && 'hidden'
 			)}
 			aria-label={m.budget_monthly_table_header_amount()}
@@ -81,7 +83,7 @@ button during flight; the optimistic-override feedback model stays untouched. --
 
 	{#snippet errors(error)}
 		<p
-			class="absolute inset-x-0 top-full z-10 bg-surface-high p-1 text-right text-xs text-error shadow-md"
+			class="absolute inset-x-0 top-full z-10 bg-surface-high p-1 text-right text-xs text-error shadow-md ring-1 ring-foreground/10"
 			role="alert"
 		>
 			{error.message}

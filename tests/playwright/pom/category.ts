@@ -4,9 +4,9 @@ import { BasePage } from './base-page';
 
 export class CategoryPage extends BasePage {
 	/**
-	 * From the detail page: archives the category, waits for the redirect to the
-	 * archived-categories page, then returns to the budget table and asserts the
-	 * row is gone.
+	 * From the detail page: archives the category, waits for the page to swap
+	 * to the archived notice in place, then returns to the budget table and
+	 * asserts the row is gone.
 	 */
 	async archive(name: string) {
 		await this.gotoDetailPage(name);
@@ -14,9 +14,9 @@ export class CategoryPage extends BasePage {
 		await expect(this.page.getByRole('heading', { name: 'Archive Category' })).toBeVisible();
 		await this.page.getByRole('button', { exact: true, name: 'Archive' }).click();
 
-		// Archiving flips `archivedAt`, and the detail page redirects archived
-		// categories to the archived list.
-		await expect(this.page.getByRole('heading', { name: 'Archived Categories' })).toBeVisible();
+		// Archiving flips `archivedAt`; the detail page swaps to the archived
+		// notice with its restore action.
+		await expect(this.page.getByText('This category is archived')).toBeVisible();
 
 		await this.#gotoBudgetTable();
 		await expect(this.page.getByRole('row').filter({ hasText: name })).not.toBeVisible();
@@ -49,8 +49,14 @@ export class CategoryPage extends BasePage {
 		await input.press('Enter');
 
 		await expect(this.page.getByText(`${name} already exists.`)).toBeVisible();
-		// A successful create navigates back to the budget page; the error keeps us here.
-		await expect(this.page).toHaveURL(/\/categories\/new$/);
+		// A successful create navigates back to the budget page; the error keeps us
+		// on the create page. Match the pathname only: this page is reached by a
+		// direct goto (desktop creates via a dialog instead), so a submit fired
+		// before the remote form has enhanced falls back to a native POST that
+		// leaves the action query (`?/remote=.../createCategory`) on the URL. The
+		// contract — "no navigation away from the create page" — holds either way,
+		// and the strict `$` anchor made this assertion flaky on that fallback.
+		await expect(this.page).toHaveURL(/\/categories\/new(\?|$)/);
 	}
 
 	/**
@@ -134,17 +140,6 @@ export class CategoryPage extends BasePage {
 		await expect(this.page.getByText(/transactions? still reference this category/)).toBeVisible();
 	}
 
-	/** From the budget month page: opens the archived list and follows the category link back. */
-	async followArchivedCategoryLink(categoryName: string, budgetName: string) {
-		await this.page.getByRole('link', { name: /archived/ }).click();
-		await expect(this.page.getByRole('heading', { name: 'Archived Categories' })).toBeVisible();
-
-		await this.page.getByRole('link', { exact: true, name: categoryName }).click();
-
-		// The archived list links to the budget month page.
-		await expect(this.page.getByRole('heading', { name: budgetName })).toBeVisible();
-	}
-
 	/**
 	 * From the budget table: reaches the category detail page through the
 	 * popover's Settings link.
@@ -168,6 +163,25 @@ export class CategoryPage extends BasePage {
 	/** The monthly-stats popover anchored to the desktop name cell. */
 	popover(): Locator {
 		return this.page.locator('[data-slot="popover-content"]');
+	}
+
+	/**
+	 * From the budget month page: opens the archive popover and restores the
+	 * named category back into the budget table.
+	 */
+	async restoreFromArchivePopover(categoryName: string) {
+		await this.page.getByRole('button', { name: /archived$/ }).click();
+		await expect(this.popover().getByText('Archived Categories')).toBeVisible();
+
+		await this.popover()
+			.getByRole('listitem')
+			.filter({ hasText: categoryName })
+			.getByRole('button', { name: 'Restore' })
+			.click();
+
+		// The restored category returns to the table; the popover closes itself
+		// once its last item is gone.
+		await expect(this.page.getByRole('row').filter({ hasText: categoryName })).toBeVisible();
 	}
 
 	/** Returns to the budget month page captured at createBudget time. */

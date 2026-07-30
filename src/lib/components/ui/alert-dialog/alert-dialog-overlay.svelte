@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { scrimFade } from '$lib/components/ui/overlay-motion';
 	import { AlertDialog as AlertDialogPrimitive } from 'bits-ui';
 	import { cn } from 'tailwind-variants';
 
@@ -9,12 +10,18 @@
 	}: AlertDialogPrimitive.OverlayProps = $props();
 </script>
 
-<AlertDialogPrimitive.Overlay
-	bind:ref
-	data-slot="alert-dialog-overlay"
-	class={cn(
-		'fixed inset-0 z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0',
-		className
-	)}
-	{...restProps}
-/>
+<AlertDialogPrimitive.Overlay data-slot="alert-dialog-overlay" {...restProps} forceMount>
+	{#snippet child({ open, props })}
+		{#if open}
+			<div
+				bind:this={ref}
+				{...props}
+				class={cn(
+					'fixed inset-0 z-50 bg-background/75 supports-backdrop-filter:backdrop-blur-xs',
+					className
+				)}
+				transition:scrimFade
+			></div>
+		{/if}
+	{/snippet}
+</AlertDialogPrimitive.Overlay>

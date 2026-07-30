@@ -9,10 +9,16 @@
 
 	let {
 		children,
+		dismissible = true,
 		onOpenChangeComplete,
 		open = $bindable(false)
 	}: {
 		children?: Snippet;
+		/**
+		 * When `false`, interacting outside the modal does not close it — the Dialog
+		 * variant ignores outside clicks, the Drawer variant is non-dismissible.
+		 */
+		dismissible?: boolean;
 		/**
 		 * Fires after the open/close transition finishes, with the resulting open
 		 * state. Bridges bits-ui `onOpenChangeComplete` and vaul `onAnimationEnd`.
@@ -24,6 +30,12 @@
 	const media = new MediaQuery(DESKTOP_QUERY, true);
 
 	setResponsiveModalContext({
+		close() {
+			open = false;
+		},
+		get dismissible() {
+			return dismissible;
+		},
 		get isDesktop() {
 			return media.matches;
 		}
@@ -35,7 +47,7 @@
 		{@render children?.()}
 	</Dialog.Root>
 {:else}
-	<Drawer.Root bind:open direction="bottom" onAnimationEnd={onOpenChangeComplete}>
+	<Drawer.Root bind:open {dismissible} direction="bottom" onAnimationEnd={onOpenChangeComplete}>
 		{@render children?.()}
 	</Drawer.Root>
 {/if}

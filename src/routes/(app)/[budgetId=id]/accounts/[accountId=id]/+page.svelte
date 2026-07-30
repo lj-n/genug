@@ -4,22 +4,19 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import {
-		AccountArchivedNotice,
-		AccountBalances,
-		AccountSettings
-	} from '$lib/components/features/account';
+	import { AccountArchivedNotice, AccountBalances } from '$lib/components/features/account';
 	import { TableState, TransactionTable } from '$lib/components/features/transaction';
+	import { Button } from '$lib/components/ui/button';
 	import * as Page from '$lib/components/ui/page';
-	import { Separator } from '$lib/components/ui/separator';
+	import { m } from '$lib/paraglide/messages';
 	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { listTransactions } from '$lib/remote-functions/transaction.remote';
 	import { TransactionsURLParamsSchema } from '$lib/schemas/transaction';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
-	import { currentMonth, toParam } from '$lib/utils/month';
 	import { stickyParam } from '$lib/utils/sticky-param';
 	import * as v from 'valibot';
+	import GearSixIcon from '~icons/ph/gear-six';
 
 	import type { PageProps } from './$types';
 
@@ -72,6 +69,16 @@
 
 	const result = $derived(await listTransactions({ accountId: accountId(), ...tableState.params }));
 
+	// The archived⇄active branch decision reads the register's queries through
+	// this one object, so restoring in place never introduces a first-time
+	// await mid-update — that leaves the fragment permanently blank in
+	// production builds.
+	const view = $derived({
+		archived: account.archivedAt !== null,
+		balances,
+		result
+	});
+
 	$effect(() => {
 		const nextQuery = buildSearch(tableState.params);
 		if (nextQuery === page.url.searchParams.toString()) return;
@@ -92,27 +99,24 @@
 		</Page.Title>
 
 		{#if !account.archivedAt}
-			<AccountSettings
-				accountId={accountId()}
-				onArchived={() =>
-					goto(resolve('/(app)/[budgetId=id]/accounts/archived', { budgetId: budgetId() }))}
-				onDeleted={() =>
-					goto(
-						resolve('/(app)/[budgetId=id]/[month=month]', {
-							budgetId: budgetId(),
-							month: toParam(currentMonth())
-						})
-					)}
-			/>
+			<Button
+				variant="ghost"
+				size="icon"
+				href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/settings', {
+					accountId: accountId(),
+					budgetId: budgetId()
+				})}
+			>
+				<GearSixIcon />
+				<span class="sr-only">{m.account_settings_title()}</span>
+			</Button>
 		{/if}
 	</Page.Header>
 
 	<Page.Content>
-		<AccountBalances {balances} currency={budget.currency} />
-
-		<Separator orientation="horizontal" />
-
-		{#if account.archivedAt}
+		{#if view.archived}
+			<!-- An archived account's page is nothing but the disclaimer +
+			     restore — no balances, no register. -->
 			<AccountArchivedNotice accountId={accountId()} />
 		{:else}
 			<TransactionTable
@@ -120,13 +124,17 @@
 				budgetId={budgetId()}
 				currency={budget.currency}
 				pagination={{
-					page: result.pagination.page,
-					pageSize: result.pagination.pageSize,
-					total: result.pagination.totalTransactionCount
+					page: view.result.pagination.page,
+					pageSize: view.result.pagination.pageSize,
+					total: view.result.pagination.totalTransactionCount
 				}}
 				{tableState}
-				transactions={result.transactions}
-			/>
+				transactions={view.result.transactions}
+			>
+				{#snippet accountBalances()}
+					<AccountBalances balances={view.balances} currency={budget.currency} />
+				{/snippet}
+			</TransactionTable>
 		{/if}
 	</Page.Content>
 </Page.Root>
