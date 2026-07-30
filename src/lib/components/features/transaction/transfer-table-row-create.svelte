@@ -153,7 +153,7 @@
 					<div role="cell" class={cellClass}>
 						<Input
 							class={cn(editInputClass, 'text-sm')}
-							aria-label="Notes"
+							aria-label={m.transactions_table_header_notes()}
 							{...createTransfer.fields.notes.as('text')}
 						/>
 					</div>

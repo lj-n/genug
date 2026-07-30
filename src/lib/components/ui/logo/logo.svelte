@@ -14,7 +14,7 @@
 </script>
 
 <span {...rest} class={cn('inline-flex items-center gap-[0.5em] text-4xl', className)}>
-	<img src={logo} alt="Logo" class="size-[1.5em] [image-rendering:pixelated]" />
+	<img src={logo} alt="" class="size-[1.5em] [image-rendering:pixelated]" />
 
 	{#if href}
 		<span class="flex flex-col items-start gap-1.5">

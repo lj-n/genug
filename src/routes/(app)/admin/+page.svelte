@@ -95,7 +95,7 @@
 			<Separator class="mt-6 mb-3" />
 			<h2 class="font-semibold">{m.admin_users_title()}</h2>
 
-			<ul aria-label="Users">
+			<ul aria-label={m.admin_users_title()}>
 				{#each await getUsers() as user (user.id)}
 					{@const isCurrentUser = user.id === admin.id}
 					<li transition:slide={{ axis: 'y', duration: 300 }} class="pb-2 last:pb-0">
@@ -154,11 +154,12 @@
 			</ul>
 
 			<Separator class="mt-6 mb-3" />
-			<h2 class="font-semibold text-error">Danger Zone</h2>
+			<h2 class="font-semibold text-error">{m.admin_danger_zone_title()}</h2>
 
 			<AlertDialogForm form={resetDatabase}>
 				{#snippet trigger(props)}
-					<Button {...props} variant="destructive">Reset Instance</Button>
+					<Button {...props} variant="destructive">{m.admin_reset_database_confirm_action()}</Button
+					>
 				{/snippet}
 
 				{#snippet header()}
@@ -208,7 +209,9 @@
 
 		<ResponsiveModal.Body>
 			<div class="flex items-center justify-between gap-4 rounded-lg bg-muted/5 p-2">
-				<div class="p-3 text-lg text-info" aria-label="generated-password">{generatedPassword}</div>
+				<div class="p-3 text-lg text-info" aria-label={m.admin_generated_password_label()}>
+					{generatedPassword}
+				</div>
 				<Button size="icon" {@attach copyToClipboard(generatedPassword)}>
 					<CopySimpleIcon />
 				</Button>
