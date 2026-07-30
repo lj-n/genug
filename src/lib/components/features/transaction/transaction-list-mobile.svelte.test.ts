@@ -11,7 +11,7 @@ vi.mock('$lib/remote-functions/transaction.remote', () => ({
 		for: () => ({
 			enhance: () => ({}),
 			fields: {
-				ids: { as: () => ({ name: 'ids' }) },
+				ids: { 0: { as: () => ({ name: 'ids[0]' }) } },
 				validated: { as: (type: string, value: unknown) => ({ name: 'validated', type, value }) }
 			},
 			pending: 0

@@ -124,7 +124,19 @@ export function guardedForm<
 				invalid: InvalidField<StandardSchemaV1.InferInput<Schema>>;
 			}
 		) => Promise<Output>;
-		return form(schemaOrFn, async (output, invalid) => {
+		// SvelteKit 2.69 added a DX guard that rejects form schemas with a
+		// non-optional boolean, because unchecked *checkboxes* send no value. It
+		// can't see through this generic wrapper, and genug submits booleans via
+		// hidden inputs (which round-trip 'on'/'off'), so re-type `form` to its
+		// pre-guard shape here rather than force every boolean field optional.
+		const typedForm = form as unknown as (
+			schema: Schema,
+			handler: (
+				output: StandardSchemaV1.InferOutput<Schema>,
+				invalid: InvalidField<StandardSchemaV1.InferInput<Schema>>
+			) => Promise<Output>
+		) => RemoteForm<StandardSchemaV1.InferInput<Schema>, Output>;
+		return typedForm(schemaOrFn, async (output, invalid) => {
 			const event = getRequestEvent();
 			if (!event.locals.user) redirect(302, LOGINPAGE);
 			const user = event.locals.user;

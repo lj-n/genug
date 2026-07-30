@@ -296,8 +296,8 @@
 				size="icon-xs"
 				class="@3xl/main:size-11 @7xl/main:size-6"
 				form={deleteFormId}
-				name={deleteForm.fields.ids.as('select multiple').name}
-				value={[transaction.id]}
+				name={deleteForm.fields.ids[0].as('submit', transaction.id).name}
+				value={transaction.id}
 				disabled={pending}
 				{@attach deleteSubmit.anchor}
 			>
