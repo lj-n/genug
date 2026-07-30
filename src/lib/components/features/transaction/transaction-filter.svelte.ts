@@ -1,5 +1,6 @@
 import type { TransactionsURLParams } from '$lib/schemas/transaction';
 
+import { TRANSFER, UNASSIGNED } from '$lib/constants';
 import { m } from '$lib/paraglide/messages';
 
 export type CategoryFilter = {
@@ -86,4 +87,17 @@ export class TransactionFilter {
 		const f = this.items.find((f) => f.type === type)!;
 		(f.value as string | string[]) = value;
 	}
+}
+
+/**
+ * Drops category IDs not in the budget's own set — foreign or deleted categories —
+ * while keeping the unassigned/transfer sentinels. Order is preserved (#372).
+ */
+export function pruneForeignCategoryIds(
+	ids: string[],
+	budgetCategoryIds: Iterable<string>
+): string[] {
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- pure lookup Set, not reactive state
+	const known = new Set(budgetCategoryIds);
+	return ids.filter((id) => id === UNASSIGNED || id === TRANSFER || known.has(id));
 }

@@ -1,8 +1,9 @@
+import { TRANSFER, UNASSIGNED } from '$lib/constants';
 import { TransactionsURLParamsSchema } from '$lib/schemas/transaction';
 import { parse } from 'valibot';
 import { describe, expect, it } from 'vitest';
 
-import { TransactionFilter } from './transaction-filter.svelte';
+import { pruneForeignCategoryIds, TransactionFilter } from './transaction-filter.svelte';
 
 function params(input: Record<string, unknown> = {}) {
 	return parse(TransactionsURLParamsSchema, input);
@@ -85,5 +86,40 @@ describe('TransactionFilter', () => {
 		filter.clearAll();
 
 		expect(filter.anyActive).toBe(false);
+	});
+});
+
+describe('pruneForeignCategoryIds', () => {
+	it('keeps IDs that belong to the current budget', () => {
+		expect(pruneForeignCategoryIds(['cat-1', 'cat-2'], ['cat-1', 'cat-2', 'cat-3'])).toEqual([
+			'cat-1',
+			'cat-2'
+		]);
+	});
+
+	it('drops IDs that are foreign to the budget or deleted', () => {
+		expect(pruneForeignCategoryIds(['cat-1', 'foreign', 'gone'], ['cat-1', 'cat-2'])).toEqual([
+			'cat-1'
+		]);
+	});
+
+	it('keeps the unassigned and transfer sentinels regardless of the budget set', () => {
+		expect(pruneForeignCategoryIds([UNASSIGNED, TRANSFER], [])).toEqual([UNASSIGNED, TRANSFER]);
+	});
+
+	it('keeps valid IDs and sentinels while dropping foreign IDs, preserving order', () => {
+		expect(pruneForeignCategoryIds([UNASSIGNED, 'foreign', 'cat-1', TRANSFER], ['cat-1'])).toEqual([
+			UNASSIGNED,
+			'cat-1',
+			TRANSFER
+		]);
+	});
+
+	it('returns an empty array when every ID is foreign', () => {
+		expect(pruneForeignCategoryIds(['foreign-1', 'foreign-2'], ['cat-1'])).toEqual([]);
+	});
+
+	it('accepts a Set as the budget category source', () => {
+		expect(pruneForeignCategoryIds(['cat-1', 'foreign'], new Set(['cat-1']))).toEqual(['cat-1']);
 	});
 });

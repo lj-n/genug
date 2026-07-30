@@ -28,6 +28,11 @@ and dependency bumps get no entry.
   account, and no stale query params in the URL. This includes switching to an
   account in a different budget, whose filters previously carried over. Reloading
   or deep-linking an account URL with those params still restores that state.
+- The transaction register now discards `categoryId` filter values that don't
+  belong to the current budget (foreign or deleted categories) when an account
+  page loads from a bookmark, shared link, or history. Such ids no longer appear
+  in the filter, ride along in the URL, or reach the query; valid ids and the
+  unassigned/transfer filters keep working.
 
 ## [2026.07.6] - 2026-07-30
 
