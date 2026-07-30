@@ -23,6 +23,11 @@ and dependency bumps get no entry.
 - The clear-all-filters button and the per-filter remove buttons on the
   transaction register now expose accessible names, so screen readers announce
   them instead of unlabelled buttons.
+- Switching to another account from the side menu now starts with a clean
+  transaction table — no leftover filter, sort, or pagination from the previous
+  account, and no stale query params in the URL. This includes switching to an
+  account in a different budget, whose filters previously carried over. Reloading
+  or deep-linking an account URL with those params still restores that state.
 
 ## [2026.07.6] - 2026-07-30
 

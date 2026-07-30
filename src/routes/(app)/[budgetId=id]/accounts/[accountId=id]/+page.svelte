@@ -15,6 +15,7 @@
 	import { TransactionsURLParamsSchema } from '$lib/schemas/transaction';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { stickyParam } from '$lib/utils/sticky-param';
+	import { untrack } from 'svelte';
 	import * as v from 'valibot';
 	import GearSixIcon from '~icons/ph/gear-six';
 
@@ -65,7 +66,19 @@
 		return searchParams.toString();
 	}
 
-	const tableState = new TableState(parseURLParams(page.url));
+	// One table state per account. The route component is shared across all
+	// account pages and reused on navigation, so a single state object would carry
+	// account A's filters onto account B and the URL bridge below would stamp those
+	// stale params onto B's clean URL (#371). Rebuild it whenever the account
+	// changes. The intermediate derived only *changes value* on a real switch, so
+	// query-only navigations (in-page filter/sort/page changes) keep the instance
+	// instead of fighting the URL bridge. The URL is read untracked, so a full
+	// load or reload still hydrates from it (deep links).
+	const currentAccountId = $derived(accountId());
+	const tableState = $derived.by(() => {
+		const _accountId = currentAccountId;
+		return new TableState(untrack(() => parseURLParams(page.url)));
+	});
 
 	const result = $derived(await listTransactions({ accountId: accountId(), ...tableState.params }));
 

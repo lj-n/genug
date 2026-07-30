@@ -379,3 +379,53 @@ test('Sort Transactions', async ({ page, pages }) => {
 	// Since we only have 3, just verify page param is absent (defaults to 1)
 	await expect(page).not.toHaveURL(/page=/);
 });
+
+test('Filter state does not persist when switching accounts (#371)', async ({ page, pages }) => {
+	// The desktop side menu (the cross-account switcher used below) only mounts at
+	// the wide breakpoint; pin a desktop viewport so this runs the same way under
+	// the tablet project.
+	await page.setViewportSize({ height: 900, width: 1440 });
+
+	await pages.auth.createUserAndLogin();
+
+	// Budget one: two accounts (same-budget switch) plus a category to filter by.
+	const budgetOne = faker.commerce.department();
+	await pages.budget.createBudget(budgetOne);
+	const accountA = uniqueName(faker.finance.accountName());
+	const accountAsibling = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountA);
+	await pages.budget.createAccount(accountAsibling);
+	const category = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(category);
+
+	// Budget two: a single account in a different budget (cross-budget switch).
+	const budgetTwo = faker.commerce.department();
+	await pages.budget.createAdditionalBudget(budgetTwo);
+	const accountB = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountB);
+
+	await pages.account.goto(accountA);
+	await pages.account.applyCategoryFilter(category);
+	await expect(page).toHaveURL(/categoryId=/);
+
+	// Deep-link behaviour is unchanged: reloading the filtered URL restores it.
+	await page.reload();
+	await expect(page).toHaveURL(/categoryId=/);
+	await expect(pages.account.categoryFilterTrigger()).toHaveText('1 selected');
+
+	// Switching to another account in the same budget starts clean: no table
+	// query params in the URL and no active filter chip.
+	await pages.account.switchToAccountViaSideMenu(accountAsibling);
+	await expect(page).toHaveURL(/^[^?]*$/);
+	await expect(pages.account.categoryFilterTrigger()).toHaveCount(0);
+
+	// Re-filter A, then switch to an account in a *different* budget — the foreign
+	// category id must not leak onto its URL or into its filter UI.
+	await pages.account.goto(accountA);
+	await pages.account.applyCategoryFilter(category);
+	await expect(page).toHaveURL(/categoryId=/);
+
+	await pages.account.switchToAccountViaSideMenu(accountB);
+	await expect(page).toHaveURL(/^[^?]*$/);
+	await expect(pages.account.categoryFilterTrigger()).toHaveCount(0);
+});
