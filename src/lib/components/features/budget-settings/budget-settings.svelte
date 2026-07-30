@@ -36,15 +36,16 @@
 	let archiveOpen = $state(false);
 
 	// The stacked dialogs must never outlive their dismissed parent.
-	$effect(() => {
-		if (!open) {
+	function setOpen(value: boolean) {
+		open = value;
+		if (!value) {
 			addOpen = false;
 			archiveOpen = false;
 		}
-	});
+	}
 </script>
 
-<ResponsiveModal.Root bind:open>
+<ResponsiveModal.Root bind:open={() => open, setOpen}>
 	<ResponsiveModal.Trigger>
 		{#snippet child({ props })}
 			<Button {...props} variant="ghost" size="icon">
