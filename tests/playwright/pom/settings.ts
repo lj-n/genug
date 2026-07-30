@@ -80,6 +80,24 @@ export class SettingsPage extends BasePage {
 
 	async setTheme(label: 'Dark' | 'Light' | 'System') {
 		// A single-type toggle group exposes its items as radios.
-		await this.page.getByRole('radio', { exact: true, name: label }).click();
+		const radio = this.page.getByRole('radio', { exact: true, name: label });
+		const html = this.page.locator('html');
+
+		// The theme is applied entirely client-side: the change handler toggles
+		// the `dark`/`light` class only after Svelte hydration attaches its
+		// listener. A click that lands in the paint→hydration window hits the DOM
+		// node but fires no handler, so the class is never set. Re-click until the
+		// effect actually lands rather than trusting a single (possibly swallowed)
+		// click. `toPass` retries the click+assert without a fixed sleep.
+		await expect(async () => {
+			await radio.click();
+			if (label === 'System') {
+				await expect(html).not.toHaveClass(/dark|light/, { timeout: 1000 });
+			} else {
+				await expect(html).toHaveClass(label === 'Dark' ? /dark/ : /light/, {
+					timeout: 1000
+				});
+			}
+		}).toPass({ timeout: 10_000 });
 	}
 }
