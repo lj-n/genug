@@ -55,7 +55,7 @@
 				class="fixed right-4 bottom-4 z-40 flex rounded-xl border border-muted/10 bg-foreground p-1 text-background shadow-md @7xl/main:hidden"
 			>
 				<Button {...props} size="icon" variant="ghost" class="size-11">
-					<span class="sr-only">Toggle Navigation</span>
+					<span class="sr-only">{m.navigation_toggle()}</span>
 					<ListBoldIcon class="size-5" />
 				</Button>
 			</div>

@@ -54,7 +54,7 @@ export class SettingsPage extends BasePage {
 		const dialog = this.page.getByRole('dialog', { name: 'Token Created' });
 		await expect(dialog).toBeVisible();
 		await expect(dialog.getByRole('img', { name: /QR code/ })).toBeVisible();
-		const token = (await dialog.locator('[aria-label="api-token"]').textContent()) ?? '';
+		const token = (await dialog.locator('[aria-label="API token"]').textContent()) ?? '';
 		expect(token.length).toBeGreaterThan(20);
 
 		await dialog.getByRole('button', { name: 'Close' }).first().click();

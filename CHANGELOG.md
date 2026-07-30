@@ -12,6 +12,13 @@ and dependency bumps get no entry.
 
 ### Fixed
 
+- Several interface strings that were still hardcoded English now translate:
+  the admin page's "Danger Zone" heading and "Reset Instance" button, the mobile
+  navigation toggle, and the accessible labels on the users list, generated
+  password, API token value, and the transaction/transfer notes, amount, and
+  validated-status inputs. The logo image is now marked decorative and a hidden,
+  never-announced "More pages" label was removed from the pagination ellipsis.
+
 - The "You have an invitation" nav indicator now disappears immediately after
   you accept or decline a budget invitation, instead of lingering until the
   next navigation. Accepting also surfaces the newly-joined budget in the nav

@@ -23,5 +23,4 @@
 	{...restProps}
 >
 	<PhDotsThree />
-	<span class="sr-only">More pages</span>
 </span>

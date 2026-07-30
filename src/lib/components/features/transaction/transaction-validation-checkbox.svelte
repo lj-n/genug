@@ -4,6 +4,7 @@
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { focusRingWithin } from '$lib/components/ui/focus-ring';
 	import { Label } from '$lib/components/ui/label';
+	import { m } from '$lib/paraglide/messages';
 	import SealIcon from '~icons/ph/seal';
 	import SealCheckDuotoneIcon from '~icons/ph/seal-check-duotone';
 
@@ -27,7 +28,7 @@
 		bind:checked
 		{disabled}
 		{...restProps}
-		aria-label="Validated"
+		aria-label={m.transaction_validated_label()}
 		class="absolute inset-0 z-10 cursor-pointer opacity-0"
 	/>
 	{#if checked}

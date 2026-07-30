@@ -36,7 +36,7 @@ export class AuthPage extends BasePage {
 		await this.page.getByLabel('Username').fill(username);
 		await this.page.getByRole('button', { name: 'Create User' }).click();
 
-		const passwordLocator = this.page.getByLabel('generated-password');
+		const passwordLocator = this.page.getByLabel('Generated password', { exact: true });
 		await expect(passwordLocator).toBeVisible();
 
 		// Read before closing: the dialog unmounts on close (instantly under

@@ -154,7 +154,7 @@
 					<div role="cell" class={cellClass}>
 						<Input
 							class={cn(editInputClass, 'text-sm')}
-							aria-label="Notes"
+							aria-label={m.transactions_table_header_notes()}
 							{...createTransaction.fields.notes.as('text')}
 						/>
 					</div>
@@ -178,7 +178,7 @@
 					<div role="cell" class={cellClass}>
 						<InputMoney
 							name={createTransaction.fields.amount.as('number').name}
-							aria-label="Amount"
+							aria-label={m.transactions_table_header_amount()}
 							bind:value={
 								() => createTransaction.fields.amount.value(),
 								(v) => createTransaction.fields.amount.set(v)
