@@ -29,6 +29,16 @@
 
 	const media = new MediaQuery(DESKTOP_QUERY, true);
 
+	// The chrome variant is frozen for the lifetime of an open modal: while
+	// `open`, we stop tracking the media query so crossing the 640px breakpoint
+	// mid-edit doesn't flip the `{#if}` and remount the slotted content (which
+	// would discard component-local form state — #363). While closed, we keep
+	// syncing so the next open picks the correct variant for the viewport.
+	let isDesktop = $state(media.matches);
+	$effect(() => {
+		if (!open) isDesktop = media.matches;
+	});
+
 	setResponsiveModalContext({
 		close() {
 			open = false;
@@ -37,12 +47,12 @@
 			return dismissible;
 		},
 		get isDesktop() {
-			return media.matches;
+			return isDesktop;
 		}
 	});
 </script>
 
-{#if media.matches}
+{#if isDesktop}
 	<Dialog.Root bind:open {onOpenChangeComplete}>
 		{@render children?.()}
 	</Dialog.Root>
