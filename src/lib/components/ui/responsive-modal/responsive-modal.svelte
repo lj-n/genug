@@ -29,6 +29,13 @@
 
 	const media = new MediaQuery(DESKTOP_QUERY, true);
 
+	// Freeze the variant while open so crossing the breakpoint mid-edit doesn't
+	// flip the `{#if}` and remount the slotted content, discarding form state (#363).
+	let isDesktop = $state(media.matches);
+	$effect(() => {
+		if (!open) isDesktop = media.matches;
+	});
+
 	setResponsiveModalContext({
 		close() {
 			open = false;
@@ -37,12 +44,12 @@
 			return dismissible;
 		},
 		get isDesktop() {
-			return media.matches;
+			return isDesktop;
 		}
 	});
 </script>
 
-{#if media.matches}
+{#if isDesktop}
 	<Dialog.Root bind:open {onOpenChangeComplete}>
 		{@render children?.()}
 	</Dialog.Root>

@@ -12,6 +12,10 @@ and dependency bumps get no entry.
 
 ### Fixed
 
+- Rotating a phone across the tablet breakpoint while a modal (e.g. Budget
+  Settings) is open no longer wipes out text you were typing. The modal now
+  keeps its current drawer/dialog layout until you close it, so unsaved form
+  input survives the rotation.
 - Navigating to a nonexistent route now shows a localized "This page could not
   be found." message with no Error ID, instead of the generic "An unexpected
   error occurred." copy and a meaningless lookup id. Genuine unexpected errors

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as ResponsiveModal from './index';
+	import Field from './responsive-modal.test-fixture-field.svelte';
 
 	let {
 		dismissible = true,
@@ -16,6 +17,8 @@
 			<ResponsiveModal.Title>Manage users</ResponsiveModal.Title>
 			<ResponsiveModal.Description>People with access.</ResponsiveModal.Description>
 		</ResponsiveModal.Header>
+
+		<Field />
 
 		<ResponsiveModal.Footer>
 			<ResponsiveModal.Close>Close</ResponsiveModal.Close>
