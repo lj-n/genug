@@ -30,21 +30,24 @@
 
 	const admin = $derived(await getUser());
 
-	const createUserSubmit = createFormSubmit(() => createUser, {
-		onSuccess: (form) => form.element.reset(),
-		toast: {}
-	});
-
 	let openDialog = $state(false);
 	let openAlertDialog = $state(false);
 	let selectedUserId = $state('');
-	let resetPassword = $state<string>();
-	let generatedPassword = $derived(createUser.result?.password ?? resetPassword);
+	// Single source each reveal handler assigns directly, so a later reveal is
+	// never masked by an earlier result the way a two-source derive was (#362).
+	let generatedPassword = $state<string>();
 
-	$effect(() => {
-		if (generatedPassword) {
-			openDialog = true;
-		}
+	const revealPassword = (password: string) => {
+		generatedPassword = password;
+		openDialog = true;
+	};
+
+	const createUserSubmit = createFormSubmit(() => createUser, {
+		onSuccess: (form) => {
+			form.element.reset();
+			if (createUser.result?.password) revealPassword(createUser.result.password);
+		},
+		toast: {}
 	});
 
 	const resetForm = (userId: string) =>
@@ -115,10 +118,7 @@
 							{:else}
 								<!-- Persistent form outside the portalled menu, so its submit
 								     lifecycle survives the menu closing on select. -->
-								<ResetPasswordForm
-									userId={user.id}
-									onReset={(newPassword) => (resetPassword = newPassword)}
-								/>
+								<ResetPasswordForm userId={user.id} onReset={revealPassword} />
 
 								<DropdownMenu.Root>
 									<DropdownMenu.Trigger

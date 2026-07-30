@@ -16,6 +16,12 @@ and dependency bumps get no entry.
   be found." message with no Error ID, instead of the generic "An unexpected
   error occurred." copy and a meaningless lookup id. Genuine unexpected errors
   still show the generic message and an Error ID.
+- The admin generated-password modal now reopens for every password reset. Once
+  a user had been created (or any password revealed) in the same page visit, a
+  subsequent reset changed the password server-side but never showed it, leaving
+  the admin unable to see the new password and the user locked out. Each reveal
+  — user creation and every reset — now opens the modal with its own freshly
+  generated password.
 - Several interface strings that were still hardcoded English now translate:
   the admin page's "Danger Zone" heading and "Reset Instance" button, the mobile
   navigation toggle, and the accessible labels on the users list, generated
