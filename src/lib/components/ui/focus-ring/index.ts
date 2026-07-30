@@ -1,1 +1,7 @@
-export { focusRing, focusRingWithin } from './focus-ring';
+export {
+	focusRing,
+	focusRingWithin,
+	hoverOutline,
+	invalidRing,
+	invalidRingWithin
+} from './focus-ring';

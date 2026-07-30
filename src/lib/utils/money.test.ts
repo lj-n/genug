@@ -73,10 +73,13 @@ describe('asMoney', () => {
 
 describe('parseMoney ↔ unwrapMoney roundtrip', () => {
 	it('preserves the cent value through parse → unwrap', () => {
+		// Plain comparison in the loop; per-iteration expect() calls are too
+		// slow for 200k iterations and time out on CI.
 		for (let cents = -100000; cents <= 100000; cents++) {
 			const money = parseMoney(cents);
-			expect(money).not.toBeNull();
-			expect(unwrapMoney(money!)).toBe(cents);
+			if (money === null || unwrapMoney(money) !== cents) {
+				expect.fail(`roundtrip failed for ${cents}: got ${money}`);
+			}
 		}
 	});
 

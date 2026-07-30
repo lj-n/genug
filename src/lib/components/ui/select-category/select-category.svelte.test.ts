@@ -234,3 +234,29 @@ describe('SelectCategory — aria-invalid contract', () => {
 		expect(input).not.toHaveAttribute('aria-invalid');
 	});
 });
+
+describe('SelectCategory — listbox wiring contract (#356)', () => {
+	it('links the expanded input to the named listbox via aria-controls', async () => {
+		renderSelectCategory({ open: true });
+		await vi.waitFor(() => {
+			expect(screen.getByRole('listbox', { name: 'Category' })).toBeInTheDocument();
+		});
+
+		const input = screen.getByRole<HTMLInputElement>('combobox', { name: 'Category' });
+		const listbox = screen.getByRole('listbox', { name: 'Category' });
+		expect(listbox.id).not.toBe('');
+		expect(input).toHaveAttribute('aria-controls', listbox.id);
+	});
+
+	it('names the listbox from the placeholder when no ariaLabel is given', async () => {
+		render(SelectCategory, { props: { categories, open: true } });
+		await vi.waitFor(() => {
+			expect(screen.getByRole('listbox', { name: 'Search for category...' })).toBeInTheDocument();
+		});
+	});
+
+	it('does not set aria-controls while collapsed', () => {
+		const { input } = renderSelectCategory();
+		expect(input).not.toHaveAttribute('aria-controls');
+	});
+});

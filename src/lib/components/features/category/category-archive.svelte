@@ -30,8 +30,8 @@
 	let archivable = $derived(archivability.archivable);
 </script>
 
-<section class="flex flex-col gap-3 rounded-md border border-muted/20 bg-background p-3 shadow-xs">
-	<h2 class="text-lg font-semibold">
+<section class="flex flex-col gap-3">
+	<h2 class="font-semibold">
 		{m.category_section_title_archive()}
 	</h2>
 
@@ -45,7 +45,7 @@
 				<div>
 					<ParaglideMessage message={m.category_not_archivable_balance} inputs={{}}>
 						{#snippet sum()}
-							<span class="font-semibold tabular-nums">
+							<span class="font-currency font-medium">
 								{formatMoney({
 									currency,
 									money: asMoney(archivability.remainingBalance)
@@ -54,7 +54,7 @@
 						{/snippet}
 
 						{#snippet required()}
-							<span class="font-semibold tabular-nums">
+							<span class="font-currency font-medium">
 								{formatMoney({ currency, money: asMoney(0) })}
 							</span>
 						{/snippet}

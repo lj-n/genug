@@ -13,29 +13,20 @@
 	});
 </script>
 
-<form
-	{...submit.attrs}
-	class="flex flex-col gap-2 rounded-md border border-muted/20 bg-background p-3 shadow-xs"
->
-	<h2 class="text-lg font-semibold">{m.account_set_name_title()}</h2>
+<form {...submit.attrs} class="grid gap-3">
+	<h2 class="font-semibold">{m.account_set_name_title()}</h2>
 
 	<p class="text-muted">{m.account_set_name_description()}</p>
 
 	<input {...editAccount.fields.accountId.as('hidden', account.id)} />
 
-	<FormField field={editAccount.fields.accountName} label={m.account_label_name()} hideLabel>
+	<FormField field={editAccount.fields.accountName} label={m.account_label_name()}>
 		{#snippet input(field)}
-			<Input
-				{...field.as('text', account.name)}
-				class="h-12 text-xl font-semibold"
-				placeholder={m.account_label_name()}
-			/>
+			<Input {...field.as('text', account.name)} placeholder={m.account_label_name()} />
 		{/snippet}
 	</FormField>
 
-	<div class="mt-auto flex items-center justify-end gap-3">
-		<Button {@attach submit.anchor} type="submit" loading={submit.pending}>
-			{m.account_save()}
-		</Button>
-	</div>
+	<Button {@attach submit.anchor} type="submit" class="ml-auto" loading={submit.pending}>
+		{m.account_save()}
+	</Button>
 </form>

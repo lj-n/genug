@@ -31,19 +31,17 @@ export class AccountPage extends BasePage {
 	}
 
 	/**
-	 * Opens the account settings dialog and archives the account. An empty
-	 * account is archivable, so archiving navigates to the archived-accounts
-	 * list where the account appears with a restore action.
+	 * Opens the account settings page and archives the account. An empty account
+	 * is archivable; archiving redirects back to the account's detail page,
+	 * which now shows only the archived notice.
 	 */
 	async archive(accountName: string) {
-		await this.page.getByRole('button', { name: 'Account Settings' }).click();
+		await this.page.getByRole('link', { name: 'Account Settings' }).click();
 
-		const dialog = this.page.getByRole('dialog');
-		await dialog.getByRole('button', { name: 'Archive' }).click();
+		await this.page.getByRole('button', { name: 'Archive' }).click();
 
-		// Archiving takes the account off its detail page and lands on the archive.
-		await expect(this.page.getByRole('heading', { name: 'Archived Accounts' })).toBeVisible();
-		await expect(this.page.getByRole('link', { name: accountName })).toBeVisible();
+		await expect(this.page.getByRole('heading', { name: accountName })).toBeVisible();
+		await expect(this.page.getByText('This account is archived')).toBeVisible();
 	}
 
 	/** The filtered-empty state's clear-filters action. */
@@ -182,7 +180,7 @@ export class AccountPage extends BasePage {
 	}
 
 	async editName(name: string) {
-		await this.page.getByRole('button', { name: 'Account Settings' }).click();
+		await this.page.getByRole('link', { name: 'Account Settings' }).click();
 		await expect(this.page.getByRole('heading', { name: 'Change Account Name' })).toBeVisible();
 
 		await this.page.getByRole('textbox', { name: 'Account Name' }).clear();
@@ -190,28 +188,25 @@ export class AccountPage extends BasePage {
 
 		await this.page.getByRole('button', { name: 'Save Changes' }).click();
 
+		// Saving stays on the settings page; the name-only title picks up the new name.
 		await expect(this.page.getByRole('heading', { name })).toBeVisible();
 	}
 
 	/**
-	 * Opens the account settings dialog and renames the account to `existingName`
+	 * Opens the account settings page and renames the account to `existingName`
 	 * (another account in the same budget). Asserts the duplicate-name error
-	 * surfaces as a field error within the dialog.
+	 * surfaces as a field error on the page.
 	 */
 	async editNameExpectingError(existingName: string) {
-		await this.page.getByRole('button', { name: 'Account Settings' }).click();
+		await this.page.getByRole('link', { name: 'Account Settings' }).click();
+		await expect(this.page.getByRole('heading', { name: 'Change Account Name' })).toBeVisible();
 
-		const dialog = this.page.getByRole('dialog');
-		await expect(dialog.getByRole('heading', { name: 'Change Account Name' })).toBeVisible();
-
-		const nameInput = dialog.getByRole('textbox', { name: 'Account Name' });
+		const nameInput = this.page.getByRole('textbox', { name: 'Account Name' });
 		await nameInput.clear();
 		await nameInput.fill(existingName);
-		await dialog.getByRole('button', { name: 'Save Changes' }).click();
+		await this.page.getByRole('button', { name: 'Save Changes' }).click();
 
-		await expect(dialog.getByText(`${existingName} already exists.`)).toBeVisible();
-		// The error keeps the dialog open.
-		await expect(dialog).toBeVisible();
+		await expect(this.page.getByText(`${existingName} already exists.`)).toBeVisible();
 	}
 
 	async editTransaction(params: EditTransactionParams) {
@@ -295,26 +290,43 @@ export class AccountPage extends BasePage {
 	}
 
 	/**
-	 * On the archived-accounts page, restores the named account. Restoring
-	 * navigates back to the account's detail page.
-	 */
-	/**
-	 * From the archived-accounts list, opens the named account and asserts its
-	 * detail page is read-only: the archived notice replaces the register, and
-	 * there is no way to add transactions or reach the settings dialog.
+	 * Reopens the archived account by URL and asserts its detail page is
+	 * read-only: the archived notice replaces the register, and there is no way
+	 * to add transactions or reach the settings page.
 	 */
 	async openArchivedAccountAndVerifyReadOnly(accountName: string) {
-		await this.page.getByRole('link', { name: accountName }).click();
+		await this.goto(accountName);
 
-		await expect(this.page.getByRole('heading', { name: accountName })).toBeVisible();
 		await expect(this.page.getByText('This account is archived')).toBeVisible();
 		await expect(this.page.getByRole('button', { name: 'New Transaction' })).toHaveCount(0);
-		await expect(this.page.getByRole('button', { name: 'Account Settings' })).toHaveCount(0);
+		await expect(this.page.getByRole('link', { name: 'Account Settings' })).toHaveCount(0);
 	}
 
 	/** The desktop pagination summary ("Showing x - y of z"); hidden while the list is empty. */
 	paginationInfo(): Locator {
 		return this.page.getByText(/^Showing \d/);
+	}
+
+	/**
+	 * From the budget month page: opens Budget Settings, then the stacked
+	 * archived-accounts dialog, and restores the named account back into the
+	 * settings account list.
+	 */
+	async restoreFromArchiveDialog(accountName: string) {
+		await this.page.getByRole('button', { name: 'Budget Settings' }).click();
+		const settings = this.page.getByRole('dialog').filter({ hasText: 'Budget Settings' });
+		await settings.getByRole('button', { name: /archived$/ }).click();
+
+		const archive = this.page.getByRole('dialog').filter({ hasText: 'Archived Accounts' });
+		await archive
+			.getByRole('listitem')
+			.filter({ hasText: accountName })
+			.getByRole('button', { name: 'Restore' })
+			.click();
+
+		// The account returns to the settings list; the archive dialog closes
+		// itself once its last item is gone.
+		await expect(settings.getByRole('link', { name: accountName })).toBeVisible();
 	}
 
 	/**

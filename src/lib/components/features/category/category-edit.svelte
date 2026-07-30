@@ -27,30 +27,12 @@
 	});
 </script>
 
-<form
-	{...submit.attrs}
-	class="flex flex-col gap-2 rounded-md border border-muted/20 bg-background p-3 shadow-xs"
->
-	<input {...editCategory.fields.categoryId.as('hidden', category.id)} />
-
-	<FormField field={editCategory.fields.categoryName} label={m.category_label_name()} hideLabel>
-		{#snippet input(field)}
-			<Input
-				{...field.as('text', category.name)}
-				class="h-12 text-xl font-semibold"
-				placeholder={m.category_label_name()}
-			/>
-		{/snippet}
-	</FormField>
-
-	<Textarea
-		{...editCategory.fields.notes.as('text', category.notes ?? '')}
-		class="min-h-30 resize-none py-2 text-base"
-		placeholder={m.category_placeholder_notes()}
-		aria-label={m.category_label_notes()}
-	/>
-
+{#snippet targetField()}
 	<InputGroup.Root>
+		<InputGroup.Addon>
+			<TargetIcon class="size-4" />
+		</InputGroup.Addon>
+
 		<InputGroup.InputMoney
 			name={editCategory.fields.targetBalance.as('number').name}
 			bind:value={
@@ -59,21 +41,39 @@
 			}
 			{currency}
 			aria-invalid={editCategory.fields.targetBalance.issues()?.length ? true : undefined}
-			class="h-12 text-center text-xl font-semibold"
 			aria-label={m.category_label_targetbalance()}
 		/>
-
-		<InputGroup.Addon align="block-end">
-			<InputGroup.Text class="mx-auto">
-				<TargetIcon class="size-6" />
-				<span>{m.category_label_targetbalance()}</span>
-			</InputGroup.Text>
-		</InputGroup.Addon>
 	</InputGroup.Root>
+{/snippet}
 
-	<div class="mt-auto flex items-center justify-end gap-3">
-		<Button {@attach submit.anchor} type="submit" loading={submit.pending}>
-			{m.save()}
-		</Button>
-	</div>
+<form {...submit.attrs} class="grid gap-3">
+	<h2 class="font-semibold">{m.category_section_title_edit()}</h2>
+
+	<input {...editCategory.fields.categoryId.as('hidden', category.id)} />
+
+	<FormField field={editCategory.fields.categoryName} label={m.category_label_name()}>
+		{#snippet input(field)}
+			<Input {...field.as('text', category.name)} placeholder={m.category_placeholder_name()} />
+		{/snippet}
+	</FormField>
+
+	<FormField field={editCategory.fields.notes} label={m.category_label_notes()}>
+		{#snippet input(field)}
+			<Textarea
+				{...field.as('text', category.notes ?? '')}
+				class="min-h-24 resize-none"
+				placeholder={m.category_placeholder_notes()}
+			/>
+		{/snippet}
+	</FormField>
+
+	<FormField field={editCategory.fields.targetBalance} label={m.category_label_targetbalance()}>
+		{#snippet input()}
+			{@render targetField()}
+		{/snippet}
+	</FormField>
+
+	<Button {@attach submit.anchor} type="submit" class="ml-auto" loading={submit.pending}>
+		{m.save()}
+	</Button>
 </form>

@@ -6,8 +6,8 @@
 	import { AccountCreate } from '$lib/components/features/account';
 	import { CategoryCreate } from '$lib/components/features/category';
 	import { Button } from '$lib/components/ui/button';
-	import * as Dialog from '$lib/components/ui/dialog';
 	import { focusRing } from '$lib/components/ui/focus-ring';
+	import * as ResponsiveModal from '$lib/components/ui/responsive-modal';
 	import { m } from '$lib/paraglide/messages';
 	import { getAccounts } from '$lib/remote-functions/account.remote';
 	import { getBudget, getMonthly, getUnassigned } from '$lib/remote-functions/budget.remote';
@@ -61,10 +61,10 @@
 {#if accounts.length === 0 || categories.length === 0}
 	<section
 		aria-label={m.tutorial_card_title()}
-		class="flex flex-col gap-3 rounded-md border border-info/30 bg-info/5 p-4 shadow-xs shadow-info/15"
+		class="flex flex-col gap-3 rounded-md border border-info/30 bg-info/5 p-4"
 	>
 		<div class="flex flex-col gap-1">
-			<h2 class="text-lg font-bold tracking-tight">{m.tutorial_card_title()}</h2>
+			<h2 class="font-semibold">{m.tutorial_card_title()}</h2>
 			<p class="text-sm text-muted">{m.tutorial_card_description()}</p>
 		</div>
 
@@ -98,32 +98,36 @@
 	</section>
 {/if}
 
-<Dialog.Root bind:open={accountDialogOpen}>
-	<Dialog.Content class="max-w-lg gap-6">
-		<Dialog.Header>
-			<Dialog.Title>{m.new_account_title()}</Dialog.Title>
-			<Dialog.Description class="grid gap-4">
+<ResponsiveModal.Root bind:open={accountDialogOpen}>
+	<ResponsiveModal.Content>
+		<ResponsiveModal.Header>
+			<ResponsiveModal.Title>{m.new_account_title()}</ResponsiveModal.Title>
+			<ResponsiveModal.Description class="grid gap-4">
 				<p>{m.new_account_description()}</p>
-			</Dialog.Description>
-		</Dialog.Header>
+			</ResponsiveModal.Description>
+		</ResponsiveModal.Header>
 
-		<AccountCreate
-			{currency}
-			onSuccess={() => (accountDialogOpen = false)}
-			updates={() => [getUnassigned({ budgetId: budgetId(), month })]}
-		/>
-	</Dialog.Content>
-</Dialog.Root>
+		<ResponsiveModal.Body>
+			<AccountCreate
+				{currency}
+				onSuccess={() => (accountDialogOpen = false)}
+				updates={() => [getUnassigned({ budgetId: budgetId(), month })]}
+			/>
+		</ResponsiveModal.Body>
+	</ResponsiveModal.Content>
+</ResponsiveModal.Root>
 
-<Dialog.Root bind:open={categoryDialogOpen}>
-	<Dialog.Content class="max-w-lg gap-6">
-		<Dialog.Header>
-			<Dialog.Title>{m.new_category_title()}</Dialog.Title>
-			<Dialog.Description class="grid gap-4">
+<ResponsiveModal.Root bind:open={categoryDialogOpen}>
+	<ResponsiveModal.Content>
+		<ResponsiveModal.Header>
+			<ResponsiveModal.Title>{m.new_category_title()}</ResponsiveModal.Title>
+			<ResponsiveModal.Description class="grid gap-4">
 				<p>{m.new_category_description()}</p>
-			</Dialog.Description>
-		</Dialog.Header>
+			</ResponsiveModal.Description>
+		</ResponsiveModal.Header>
 
-		<CategoryCreate onSuccess={() => (categoryDialogOpen = false)} />
-	</Dialog.Content>
-</Dialog.Root>
+		<ResponsiveModal.Body>
+			<CategoryCreate onSuccess={() => (categoryDialogOpen = false)} />
+		</ResponsiveModal.Body>
+	</ResponsiveModal.Content>
+</ResponsiveModal.Root>

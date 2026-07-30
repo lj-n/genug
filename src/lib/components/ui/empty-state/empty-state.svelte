@@ -21,12 +21,12 @@
 
 <div
 	class={cn(
-		'flex flex-col items-center gap-1 rounded-md border border-dashed border-muted/30 px-6 py-10 text-center',
+		'flex flex-col items-center gap-1 rounded-md border border-dashed border-muted/20 px-6 py-8 text-center',
 		className
 	)}
 >
 	<Icon class="size-8 text-muted" aria-hidden="true" />
-	<p class="mt-2 font-semibold">{title}</p>
+	<p class="mt-2 font-display font-semibold">{title}</p>
 	{#if description}
 		<p class="max-w-md text-sm text-muted">{description}</p>
 	{/if}

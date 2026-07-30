@@ -2,24 +2,26 @@
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { AlertDialogForm } from '$lib/components/ui/alert-dialog-form';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import * as ButtonGroup from '$lib/components/ui/button-group';
-	import * as Dialog from '$lib/components/ui/dialog';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { FormField } from '$lib/components/ui/form-field';
 	import * as InputGroup from '$lib/components/ui/input-group';
 	import * as Page from '$lib/components/ui/page';
+	import * as ResponsiveModal from '$lib/components/ui/responsive-modal';
+	import { Separator } from '$lib/components/ui/separator';
 	import { m } from '$lib/paraglide/messages';
 	import {
 		createUser,
 		getUsers,
 		removeUser,
-		resetDatabase,
-		resetUserPassword
+		resetDatabase
 	} from '$lib/remote-functions/admin.remote';
 	import { getUser } from '$lib/remote-functions/user.remote';
 	import { copyToClipboard } from '$lib/utils/copy-to-clipboard';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { slide } from 'svelte/transition';
+	import ArrowCounterClockwiseIcon from '~icons/ph/arrow-counter-clockwise';
 	import CopySimpleIcon from '~icons/ph/copy-simple';
+	import DotsThreeIcon from '~icons/ph/dots-three-vertical';
 	import TrashIcon from '~icons/ph/trash';
 	import UserCircleIcon from '~icons/ph/user-circle';
 	import UserCirclePlusIcon from '~icons/ph/user-circle-plus';
@@ -36,15 +38,17 @@
 	let openDialog = $state(false);
 	let openAlertDialog = $state(false);
 	let selectedUserId = $state('');
-	let generatedPassword = $derived(
-		createUser.result?.password ?? resetUserPassword.result?.newPassword
-	);
+	let resetPassword = $state<string>();
+	let generatedPassword = $derived(createUser.result?.password ?? resetPassword);
 
 	$effect(() => {
 		if (generatedPassword) {
 			openDialog = true;
 		}
 	});
+
+	const resetForm = (userId: string) =>
+		document.getElementById(`reset-password-${userId}`) as HTMLFormElement | null;
 </script>
 
 <Page.Root>
@@ -52,11 +56,9 @@
 		<Page.Title />
 	</Page.Header>
 
-	<Page.Content>
-		<div class="grid max-w-2xl gap-3">
-			<div class="rounded-lg bg-muted/5 p-3">
-				{m.admin_description()}
-			</div>
+	<Page.Content class="max-w-xl">
+		<div class="space-y-3">
+			<p class="text-muted">{m.admin_description()}</p>
 
 			<form {...createUserSubmit.attrs}>
 				<FormField
@@ -90,15 +92,14 @@
 				</FormField>
 			</form>
 
-			<div class="text-lg font-medium tracking-tighter">{m.admin_users_title()}</div>
+			<Separator class="mt-6 mb-3" />
+			<h2 class="font-semibold">{m.admin_users_title()}</h2>
 
 			<ul aria-label="Users">
 				{#each await getUsers() as user (user.id)}
 					{@const isCurrentUser = user.id === admin.id}
-					<li transition:slide={{ axis: 'y', duration: 300 }} class="group pb-2 last:pb-0">
-						<div
-							class="flex items-center gap-1.5 rounded-lg border border-muted/20 bg-surface-high p-3 shadow-xs"
-						>
+					<li transition:slide={{ axis: 'y', duration: 300 }} class="pb-2 last:pb-0">
+						<div class="flex items-center gap-1.5 rounded-lg bg-muted/5 px-3 py-2">
 							<UserCircleIcon class="size-5 text-muted" />
 							<div>
 								{user.username}
@@ -112,30 +113,48 @@
 									{m.admin_role_admin_label()}
 								</div>
 							{:else}
-								<ButtonGroup.Root class="ml-auto opacity-0 group-hover:opacity-100">
-									<ResetPasswordForm userId={user.id} />
+								<!-- Persistent form outside the portalled menu, so its submit
+								     lifecycle survives the menu closing on select. -->
+								<ResetPasswordForm
+									userId={user.id}
+									onReset={(newPassword) => (resetPassword = newPassword)}
+								/>
 
-									<Button
-										size="icon-sm"
-										variant="destructive"
-										onclick={() => {
-											selectedUserId = user.id;
-											openAlertDialog = true;
-										}}
+								<DropdownMenu.Root>
+									<DropdownMenu.Trigger
+										class={buttonVariants({ size: 'icon-sm', variant: 'ghost' }) +
+											' ml-auto text-muted'}
 									>
-										<TrashIcon />
-										<span class="sr-only">{m.admin_remove_user_sr()}</span>
-									</Button>
-								</ButtonGroup.Root>
+										<DotsThreeIcon />
+										<span class="sr-only">{m.admin_user_actions_sr()}</span>
+									</DropdownMenu.Trigger>
+
+									<DropdownMenu.Content align="end" class="w-fit">
+										<DropdownMenu.Item onSelect={() => resetForm(user.id)?.requestSubmit()}>
+											<ArrowCounterClockwiseIcon />
+											{m.admin_reset_password_sr()}
+										</DropdownMenu.Item>
+										<DropdownMenu.Separator />
+										<DropdownMenu.Item
+											class="text-error data-highlighted:bg-error/10 data-highlighted:text-error"
+											onSelect={() => {
+												selectedUserId = user.id;
+												openAlertDialog = true;
+											}}
+										>
+											<TrashIcon />
+											{m.delete()}
+										</DropdownMenu.Item>
+									</DropdownMenu.Content>
+								</DropdownMenu.Root>
 							{/if}
 						</div>
 					</li>
 				{/each}
 			</ul>
-		</div>
 
-		<div class="space-y-2">
-			<div class="text-lg font-medium tracking-tighter text-error">Danger Zone</div>
+			<Separator class="mt-6 mb-3" />
+			<h2 class="font-semibold text-error">Danger Zone</h2>
 
 			<AlertDialogForm form={resetDatabase}>
 				{#snippet trigger(props)}
@@ -178,22 +197,28 @@
 	{/snippet}
 </AlertDialogForm>
 
-<Dialog.Root bind:open={openDialog}>
-	<Dialog.Content class="max-w-lg">
-		<Dialog.Header>
-			<Dialog.Title>{m.admin_generated_password_title()}</Dialog.Title>
-			<Dialog.Description>{m.admin_generated_password_description()}</Dialog.Description>
-		</Dialog.Header>
+<ResponsiveModal.Root bind:open={openDialog}>
+	<ResponsiveModal.Content>
+		<ResponsiveModal.Header>
+			<ResponsiveModal.Title>{m.admin_generated_password_title()}</ResponsiveModal.Title>
+			<ResponsiveModal.Description
+				>{m.admin_generated_password_description()}</ResponsiveModal.Description
+			>
+		</ResponsiveModal.Header>
 
-		<div class="flex items-center justify-between gap-4 rounded-lg bg-muted/5 p-2">
-			<div class="p-3 text-lg text-info" aria-label="generated-password">{generatedPassword}</div>
-			<Button size="icon" {@attach copyToClipboard(generatedPassword)}>
-				<CopySimpleIcon />
-			</Button>
-		</div>
+		<ResponsiveModal.Body>
+			<div class="flex items-center justify-between gap-4 rounded-lg bg-muted/5 p-2">
+				<div class="p-3 text-lg text-info" aria-label="generated-password">{generatedPassword}</div>
+				<Button size="icon" {@attach copyToClipboard(generatedPassword)}>
+					<CopySimpleIcon />
+				</Button>
+			</div>
+		</ResponsiveModal.Body>
 
-		<Dialog.Footer>
-			<Dialog.Close class={buttonVariants({ variant: 'default' })}>{m.dialog_close()}</Dialog.Close>
-		</Dialog.Footer>
-	</Dialog.Content>
-</Dialog.Root>
+		<ResponsiveModal.Footer>
+			<ResponsiveModal.Close class={buttonVariants({ variant: 'default' })}>
+				{m.dialog_close()}
+			</ResponsiveModal.Close>
+		</ResponsiveModal.Footer>
+	</ResponsiveModal.Content>
+</ResponsiveModal.Root>

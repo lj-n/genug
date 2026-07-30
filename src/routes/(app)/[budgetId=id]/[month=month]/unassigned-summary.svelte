@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { focusRing } from '$lib/components/ui/focus-ring';
+	import { focusRing, hoverOutline } from '$lib/components/ui/focus-ring';
 	import * as Popover from '$lib/components/ui/popover';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget, getUnassigned } from '$lib/remote-functions/budget.remote';
@@ -64,20 +64,21 @@
 {#snippet row(term: string, amount: string)}
 	<div class="flex items-baseline justify-between gap-6">
 		<dt>{term}</dt>
-		<dd class="font-currency tabular-nums">{amount}</dd>
+		<dd class="font-currency">{amount}</dd>
 	</div>
 {/snippet}
 
 <Popover.Root bind:open>
 	<Popover.Trigger
 		class={cn(
-			'ml-auto flex h-11 w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 -outline-offset-2 hover:outline-2 hover:outline-interactive/60 @3xl/main:h-9 @3xl/main:w-auto @3xl/main:justify-start',
+			'ml-auto flex h-11 w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-2 @3xl/main:h-7 @3xl/main:w-auto @3xl/main:justify-start',
+			hoverOutline,
 			focusRing,
 			unassigned === 0
 				? 'bg-muted/10 text-muted'
 				: unassigned > 0
-					? 'border border-info/15 bg-info/10 text-info shadow-xs shadow-info/15'
-					: 'border border-error/60 bg-error/10 text-error'
+					? 'bg-info/10 text-info'
+					: 'bg-error/10 text-error'
 		)}
 		aria-label={m.unassigned_breakdown_trigger_label()}
 	>
@@ -88,7 +89,7 @@
 		</span>
 
 		{#if unassigned !== 0}
-			<div class="font-semibold text-foreground tabular-nums">
+			<div class="font-currency font-medium text-foreground">
 				{formatMoney({ currency, money: asMoney(unassigned) })}
 			</div>
 		{/if}
@@ -138,7 +139,7 @@
 							})}</a
 						>)
 					</dt>
-					<dd class="font-currency tabular-nums">{signedMoney(-breakdown.reserved)}</dd>
+					<dd class="font-currency">{signedMoney(-breakdown.reserved)}</dd>
 				</div>
 			{/if}
 
@@ -146,7 +147,7 @@
 				class="flex items-baseline justify-between gap-6 border-t border-foreground/10 pt-1 font-semibold"
 			>
 				<dt>{m.unassigned_breakdown_total()}</dt>
-				<dd class="font-currency tabular-nums">
+				<dd class="font-currency">
 					{formatMoney({ currency, money: asMoney(unassigned) })}
 				</dd>
 			</div>

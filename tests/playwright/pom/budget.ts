@@ -30,23 +30,31 @@ export class BudgetPage extends BasePage {
 	}
 
 	async createAccount(name: string, startingBalance = '0') {
-		await this.page.getByRole('button', { name: 'Show Accounts' }).click();
-		await this.page.getByRole('menuitem', { name: 'Add Account' }).click();
-		await expect(this.page.getByRole('heading', { name: 'Add New Account' })).toBeVisible();
+		// Accounts live in the Budget Settings dialog now (#273); the Add Account
+		// form is a nested dialog stacked over it (#294). Open settings, open the
+		// account dialog, fill and submit.
+		await this.page.getByRole('button', { name: 'Budget Settings' }).click();
+		const settings = this.page.getByRole('dialog', { name: 'Budget Settings' });
+		await settings.getByRole('button', { name: 'Add Account' }).click();
 
-		await this.page.getByRole('textbox', { name: 'Account Name' }).fill(name);
-		await this.page
+		const addDialog = this.page.getByRole('dialog', { name: 'Add New Account' });
+		await addDialog.getByRole('textbox', { name: 'Account Name' }).fill(name);
+		await addDialog
 			.getByRole('textbox', { name: 'What is the current balance?' })
 			.fill(startingBalance);
 
-		await this.page.getByRole('button', { name: 'Create Account' }).click();
+		await addDialog.getByRole('button', { name: 'Create Account' }).click();
 
-		// The server redirects to the new account page after creation.
-		// Wait for the heading to confirm the navigation completed, then capture the URL.
+		// Creates in place (no redirect): the account dialog closes and the new
+		// account joins the settings list. Open its link to reach the account page
+		// and capture the URL, then return to the budget page so subsequent
+		// createCategory / assignAmount calls work.
+		const accountLink = settings.getByRole('link', { name });
+		await expect(accountLink).toBeVisible();
+		await accountLink.click();
 		await expect(this.page.getByRole('heading', { name })).toBeVisible();
 		this.ctx.accounts.set(name, this.page.url());
 
-		// Return to the budget page so subsequent createCategory / assignAmount calls work.
 		if (this.ctx.budgetUrl) {
 			await this.page.goto(this.ctx.budgetUrl);
 		}
@@ -58,18 +66,19 @@ export class BudgetPage extends BasePage {
 	 * stays open (no redirect to a new account page).
 	 */
 	async createAccountExpectingError(name: string) {
-		await this.page.getByRole('button', { name: 'Show Accounts' }).click();
-		await this.page.getByRole('menuitem', { name: 'Add Account' }).click();
+		await this.page.getByRole('button', { name: 'Budget Settings' }).click();
 
-		const dialog = this.page.getByRole('dialog');
-		await expect(dialog.getByRole('heading', { name: 'Add New Account' })).toBeVisible();
+		const settings = this.page.getByRole('dialog', { name: 'Budget Settings' });
+		await settings.getByRole('button', { name: 'Add Account' }).click();
 
-		await dialog.getByRole('textbox', { name: 'Account Name' }).fill(name);
-		await dialog.getByRole('button', { name: 'Create Account' }).click();
+		const addDialog = this.page.getByRole('dialog', { name: 'Add New Account' });
+		await addDialog.getByRole('textbox', { name: 'Account Name' }).fill(name);
+		await addDialog.getByRole('button', { name: 'Create Account' }).click();
 
-		await expect(dialog.getByText(`${name} already exists.`)).toBeVisible();
-		// The error keeps the dialog open — a successful create would redirect away.
-		await expect(dialog).toBeVisible();
+		await expect(addDialog.getByText(`${name} already exists.`)).toBeVisible();
+		// The field error keeps the account dialog open — a successful create would
+		// close it and add the account to the settings list instead.
+		await expect(addDialog).toBeVisible();
 	}
 
 	/**

@@ -48,7 +48,10 @@
 		size="icon-lg"
 		variant="ghost"
 		disabled={submit.pending}
-		class={cn('m-auto rounded-xs hover:bg-transparent', className)}
+		class={cn(
+			'm-auto size-8 rounded-xs hover:bg-transparent @3xl/main:size-11 @7xl/main:size-8',
+			className
+		)}
 		aria-label={m.transactions_table_toggle_validated()}
 		{@attach submit.anchor}
 	>

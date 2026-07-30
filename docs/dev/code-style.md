@@ -8,8 +8,8 @@ new code are defects, not taste.
 
 - Derive, don't sync: computed values are `$derived(...)`/`$derived.by(...)`.
   `$effect` is a last resort for imperative escape hatches (DOM measurement,
-  external libraries) — the app currently has **zero** `$effect` calls; keep
-  it that way unless nothing else can express the behavior.
+  timers, external-library seams) — use it only when nothing else can express
+  the behavior, and give every call a comment justifying why.
 - Local UI state is a plain `let x = $state(...)`; keep it minimal (e.g. a
   single `open` flag) and colocated with its markup.
 - Props are destructured inline with an inline type literal:

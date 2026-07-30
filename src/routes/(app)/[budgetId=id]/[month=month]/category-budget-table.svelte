@@ -4,8 +4,8 @@
 	import { resolve } from '$app/paths';
 	import { CategoryCreate } from '$lib/components/features/category';
 	import { Button } from '$lib/components/ui/button';
-	import * as Dialog from '$lib/components/ui/dialog';
 	import { EmptyState } from '$lib/components/ui/empty-state';
+	import * as ResponsiveModal from '$lib/components/ui/responsive-modal';
 	import { m } from '$lib/paraglide/messages';
 	import { getBudget, getMonthly } from '$lib/remote-functions/budget.remote';
 	import { reorderCategories } from '$lib/remote-functions/category.remote';
@@ -15,10 +15,13 @@
 	import { createSortable } from '$lib/utils/sort-helper.svelte';
 	import { cn } from 'tailwind-variants';
 	import PhDotsSixVerticalBold from '~icons/ph/dots-six-vertical-bold';
+	import PlusIcon from '~icons/ph/plus';
 	import StackIcon from '~icons/ph/stack';
 
 	import BudgetTableCell from './budget-table-cell.svelte';
 	import BudgetTableHeader from './budget-table-header.svelte';
+	import CategoryArchiveDrawer from './category-archive-drawer.svelte';
+	import CategoryArchivePopover from './category-archive-popover.svelte';
 	import CategoryAssignmentForm from './category-assignment-form.svelte';
 	import CategoryAssignmentModal from './category-assignment-modal.svelte';
 	import CategoryPopover from './category-popover.svelte';
@@ -31,6 +34,10 @@
 	} = $props();
 
 	const budgetId = getBudgetId();
+
+	const createHref = $derived(
+		resolve('/(app)/[budgetId=id]/categories/new', { budgetId: budgetId() })
+	);
 
 	const { currency } = $derived(await getBudget(budgetId()));
 	// `month` can transiently be null while navigating away from this route —
@@ -88,11 +95,35 @@
 		</EmptyState>
 	{/if}
 {:else}
+	<!-- The desktop column header carries create + archived, but it is hidden
+	     below @3xl — surface the same actions above the cards. Outside the
+	     role="table" element: a bare toolbar is not valid table content. -->
+	<div class="mb-2 flex flex-wrap gap-0.5 @3xl/main:hidden">
+		<Button href={createHref} class="h-11">
+			<PlusIcon class="size-6" />
+			{m.category_create_button()}
+		</Button>
+		<CategoryArchiveDrawer />
+	</div>
+
 	<div role="table">
 		<div role="rowgroup" class="hidden @3xl/main:block">
-			<div role="row" class="flex">
-				<BudgetTableHeader class="w-2/5 text-lg font-bold tracking-tight text-foreground">
-					{m.budget_monthly_table_header_category()}
+			<div role="row" class="flex border-b border-muted/30 bg-muted/3">
+				<!-- aria-label keeps the columnheader's accessible name as just the column
+				     title; the create/archived controls inside carry their own names. -->
+				<BudgetTableHeader class="w-2/5" aria-label={m.budget_monthly_table_header_category()}>
+					<span class="flex items-center gap-1">
+						{m.budget_monthly_table_header_category()}
+						<Button
+							size="xs"
+							class="ml-1 @3xl/main:w-11 @7xl/main:w-auto"
+							aria-label={m.category_create_button()}
+							onclick={() => (createDialogOpen = true)}
+						>
+							<PlusIcon class="size-4" />
+						</Button>
+						<CategoryArchivePopover />
+					</span>
 				</BudgetTableHeader>
 				<BudgetTableHeader class="w-1/5">
 					{m.budget_monthly_table_header_amount()}
@@ -103,17 +134,13 @@
 				<BudgetTableHeader class="w-1/5">
 					{m.budget_monthly_table_header_remaining()}
 				</BudgetTableHeader>
-				<BudgetTableHeader class="w-9">
+				<BudgetTableHeader class="w-9 @3xl/main:w-11 @7xl/main:w-9">
 					<span class="sr-only">{m.budget_monthly_table_header_actions()}</span>
 				</BudgetTableHeader>
 			</div>
 		</div>
 
-		<div
-			role="rowgroup"
-			class="grid overflow-hidden rounded-xs border border-muted/20"
-			{@attach categorySortable.attach}
-		>
+		<div role="rowgroup" class="grid gap-2 @3xl/main:gap-0" {@attach categorySortable.attach}>
 			<!-- The if narrows `month` for the row children; `categories` is empty when `month` is null. -->
 			{#if month !== null}
 				{#each categories as row (row.id)}
@@ -121,14 +148,14 @@
 						data-drag-item="category"
 						data-sortable-id={row.id}
 						role="row"
-						class="relative flex border-b border-muted/20 bg-surface last:border-b-0 hover:bg-muted/3"
+						class="relative flex hover:bg-muted/5 @max-3xl/main:rounded-xs @max-3xl/main:border @max-3xl/main:border-muted/20 @max-3xl/main:bg-surface @3xl/main:min-h-11 @3xl/main:even:bg-muted/3 @7xl/main:min-h-0"
 					>
 						<BudgetTableCell class="relative hidden w-2/5 p-0 @3xl/main:flex">
 							<CategoryPopover {currency} {month} {row} />
 							{#if row.targetBalance !== null}
 								<div class="absolute bottom-0 flex w-full">
 									<div
-										class="h-1 bg-success/60"
+										class="h-0.5 bg-success"
 										style="width: {getPercentage(row.targetBalance, row.remaining)}%"
 									></div>
 								</div>
@@ -167,9 +194,11 @@
 							/>
 						</BudgetTableCell>
 
-						<BudgetTableCell class="hidden w-9 border-0 last:p-2 @3xl/main:flex">
+						<BudgetTableCell
+							class="hidden w-9 border-0 last:p-1 @3xl/main:flex @3xl/main:w-11 @3xl/main:p-0 @7xl/main:w-9 @7xl/main:px-2 @7xl/main:py-1"
+						>
 							<button
-								class="flex size-9 cursor-grab items-center justify-center text-muted hover:text-interactive"
+								class="flex size-7 cursor-grab items-center justify-center text-muted hover:text-interactive @3xl/main:size-11 @7xl/main:size-7"
 								data-drag-handle="category"
 								aria-label={m.drag_handle_label()}
 							>
@@ -198,9 +227,9 @@
 								<div class="flex items-center px-4">
 									<span
 										class={cn(
-											'rounded-sm px-2 py-1 font-currency',
-											row.remaining > 0 && 'bg-success/10',
-											row.remaining < 0 && 'bg-error/10 text-error'
+											'font-currency font-medium',
+											row.remaining < 0 && 'text-error',
+											row.remaining === 0 && 'text-muted'
 										)}
 									>
 										{formatMoney({ currency, money: asMoney(row.remaining) })}
@@ -241,18 +270,20 @@
 	</div>
 {/if}
 
-<Dialog.Root bind:open={createDialogOpen}>
-	<Dialog.Content class="max-w-lg gap-6">
-		<Dialog.Header>
-			<Dialog.Title>{m.new_category_title()}</Dialog.Title>
-			<Dialog.Description class="grid gap-4">
+<ResponsiveModal.Root bind:open={createDialogOpen}>
+	<ResponsiveModal.Content>
+		<ResponsiveModal.Header>
+			<ResponsiveModal.Title>{m.new_category_title()}</ResponsiveModal.Title>
+			<ResponsiveModal.Description class="grid gap-4">
 				<p>{m.new_category_description()}</p>
-			</Dialog.Description>
-		</Dialog.Header>
+			</ResponsiveModal.Description>
+		</ResponsiveModal.Header>
 
-		<CategoryCreate onSuccess={() => (createDialogOpen = false)} />
-	</Dialog.Content>
-</Dialog.Root>
+		<ResponsiveModal.Body>
+			<CategoryCreate onSuccess={() => (createDialogOpen = false)} />
+		</ResponsiveModal.Body>
+	</ResponsiveModal.Content>
+</ResponsiveModal.Root>
 
 {#if month !== null}
 	<CategoryAssignmentModal

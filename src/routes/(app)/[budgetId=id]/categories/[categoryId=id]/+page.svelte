@@ -3,11 +3,13 @@
 	import { resolve } from '$app/paths';
 	import {
 		CategoryArchive,
+		CategoryArchivedNotice,
 		CategoryDelete,
 		CategoryEdit,
 		CategoryStats
 	} from '$lib/components/features/category';
 	import * as Page from '$lib/components/ui/page';
+	import { Separator } from '$lib/components/ui/separator';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategoryById } from '$lib/remote-functions/category.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
@@ -28,14 +30,17 @@
 	// month in this URL.
 	const month = currentMonth();
 
-	// Archived categories are managed through the archived list's restore flow,
-	// not this page. Archiving here trips the same redirect: the submit
-	// refreshes getCategoryById, populating archivedAt.
-	$effect(() => {
-		if (category.archivedAt !== null) {
-			goto(resolve('/(app)/[budgetId=id]/categories/archived', { budgetId: budgetId() }));
-		}
-	});
+	// Deleting and restoring both leave this page for the budget table: the
+	// restored category's place is the table, and re-mounting the detail view
+	// in place would introduce first-time awaits mid-update (CategoryStats),
+	// which stalls the fragment in production builds.
+	const gotoBudgetTable = () =>
+		goto(
+			resolve('/(app)/[budgetId=id]/[month=month]', {
+				budgetId: budgetId(),
+				month: toParam(currentMonth())
+			})
+		);
 </script>
 
 <Page.Root>
@@ -45,29 +50,27 @@
 		</Page.Title>
 	</Page.Header>
 
-	<Page.Content>
-		<!-- The tiles' @3xl breakpoint used to resolve against the dialog body's
-		     unnamed container — the page provides its own. -->
-		<div class="@container">
-			<div class="grid gap-6 @3xl:grid-cols-2">
+	<Page.Content class="max-w-xl">
+		{#if category.archivedAt !== null}
+			<!-- An archived category's page is nothing but the disclaimer +
+			     restore; archiving below lands here via the query refresh. -->
+			<CategoryArchivedNotice categoryId={categoryId()} onRestored={gotoBudgetTable} />
+		{:else}
+			<div class="space-y-3">
 				<CategoryEdit {category} currency={budget.currency} />
+
+				<Separator class="mt-6 mb-3" />
 
 				<CategoryStats {category} currency={budget.currency} {month} />
 
+				<Separator class="mt-6 mb-3" />
+
 				<CategoryArchive {category} currency={budget.currency} />
 
-				<CategoryDelete
-					{category}
-					currency={budget.currency}
-					onDeleted={() =>
-						goto(
-							resolve('/(app)/[budgetId=id]/[month=month]', {
-								budgetId: budgetId(),
-								month: toParam(currentMonth())
-							})
-						)}
-				/>
+				<Separator class="mt-6 mb-3" />
+
+				<CategoryDelete {category} currency={budget.currency} onDeleted={gotoBudgetTable} />
 			</div>
-		</div>
+		{/if}
 	</Page.Content>
 </Page.Root>

@@ -10,13 +10,14 @@
 	let {
 		checked = $bindable(false),
 		disabled = false,
+		labelClass,
 		...restProps
-	}: HTMLInputAttributes = $props();
+	}: HTMLInputAttributes & { labelClass?: string } = $props();
 </script>
 
 <Label
 	class={buttonVariants({
-		class: `relative cursor-pointer rounded-xs hover:bg-transparent ${focusRingWithin}`,
+		class: `relative cursor-pointer rounded-xs pl-0 hover:bg-transparent ${focusRingWithin} ${labelClass ?? ''}`,
 		size: 'icon-lg',
 		variant: 'ghost'
 	})}
