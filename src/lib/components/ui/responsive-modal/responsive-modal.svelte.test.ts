@@ -57,9 +57,8 @@ describe('ResponsiveModal drawer variant — dismissible (default)', () => {
 });
 
 describe('ResponsiveModal — breakpoint flip while open', () => {
-	// A controllable matchMedia so a test can flip the query mid-render, the way a
-	// phone rotation crosses the 640px boundary. Returns one MediaQueryList per
-	// call whose `matches` the test can toggle and then notify listeners about.
+	// A controllable matchMedia whose `matches` a test can flip mid-render, the
+	// way a phone rotation crosses the 640px boundary.
 	function installMatchMedia(initialMatches: boolean) {
 		let matches = initialMatches;
 		const listeners = new Set<() => void>();
@@ -96,8 +95,7 @@ describe('ResponsiveModal — breakpoint flip while open', () => {
 		mql.flip(true);
 		await tick();
 
-		// The modal stays open and the slotted content is not remounted, so the
-		// typed value survives the drawer↔dialog swap (#363).
+		// Modal stays open, content isn't remounted, typed value survives (#363).
 		expect(screen.getByRole('dialog')).toBeInTheDocument();
 		expect((screen.getByLabelText('Name') as HTMLInputElement).value).toBe('Household EDITED');
 	});
