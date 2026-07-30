@@ -102,6 +102,10 @@ Dialog, alert-dialog(-form), drawer, responsive-modal, popover
   `rounded-xs bg-surface p-0 shadow-sm ring-1 ring-muted/30` with
   anchor-matched width — a cell opening on the page's own surface token
   with the flattest shadow, not a detached `bg-surface-high` layer.
+- **The mobile nav FAB floats at overlay tier.** The fixed drawer trigger in
+  `navigation-mobile` hovers detached above the page, so its inverted
+  `bg-foreground` chip wears the single overlay shadow step (`shadow-md`) —
+  it is not an in-page surface under P2.
 - **Scrim is a veil, not a dimmer:** `bg-background/75` +
   `supports-backdrop-filter:backdrop-blur-xs` on dialog/alert-dialog/drawer
   overlays — the page washes out into the theme's own background token
