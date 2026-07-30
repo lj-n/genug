@@ -179,6 +179,8 @@
 	"account_balance_pending": "Ausstehend",
 	"account_balance": "Kontostand",
 	"transaction_filter_title": "Filter",
+	"transaction_filter_clear_all": "Alle Filter entfernen",
+	"transaction_filter_remove": "Filter entfernen",
 	"transaction_filter_category_title": "Kategorienfilter",
 	"transaction_filter_category_description": "Nur Transaktionen der gewählten Kategorien anzeigen.",
 	"transaction_filter_category_empty": "Alle Kategorien",

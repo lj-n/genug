@@ -10,6 +10,12 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Fixed
+
+- The clear-all-filters button and the per-filter remove buttons on the
+  transaction register now expose accessible names, so screen readers announce
+  them instead of unlabelled buttons.
+
 ## [2026.07.6] - 2026-07-30
 
 ### Changed

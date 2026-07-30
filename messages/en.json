@@ -178,6 +178,8 @@
 	"account_balance": "Balance",
 	"delete": "Delete",
 	"transaction_filter_title": "Filter",
+	"transaction_filter_clear_all": "Clear all filters",
+	"transaction_filter_remove": "Remove filter",
 	"transaction_filter_category_title": "Category Filter",
 	"transaction_filter_category_description": "Only show transactions of selected categories.",
 	"transaction_filter_category_empty": "All Categories",
