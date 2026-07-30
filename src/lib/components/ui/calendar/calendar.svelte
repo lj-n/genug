@@ -54,7 +54,10 @@ get along, so we shut typescript up by casting `value` to `never`.
 	{weekdayFormat}
 	{disableDaysOutsideMonth}
 	class={cn(
-		'group/calendar bg-surface p-3 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(8)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent',
+		// Touch density: the calendar renders in portaled popovers/drawers, outside
+		// @container/main, so pointer-coarse is the touch signal — every
+		// --cell-size consumer (day cells, nav, caption) grows to 44px together.
+		'group/calendar bg-surface p-3 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(8)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent pointer-coarse:[--cell-size:--spacing(11)]',
 		className
 	)}
 	{locale}

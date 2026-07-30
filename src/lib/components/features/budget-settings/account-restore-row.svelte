@@ -14,11 +14,13 @@
 <span class="line-clamp-1">{account.name}</span>
 <form {...submit.attrs}>
 	<input {...form.fields.accountId.as('hidden', account.id)} />
+	<!-- The link treatment is locked (#334) — on touch the tap area grows
+	     invisibly instead (padding cancelled by negative margin). -->
 	<Button
 		type="submit"
 		size="xs"
 		variant="link"
-		class="px-0"
+		class="px-0 pointer-coarse:-mx-2 pointer-coarse:min-h-11 pointer-coarse:px-2"
 		loading={submit.pending}
 		{@attach submit.anchor}
 	>

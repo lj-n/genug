@@ -22,6 +22,9 @@
 		if (sort.column !== column) return 'none';
 		return sort.direction === 'asc' ? 'ascending' : 'descending';
 	}
+
+	const sortButtonClass =
+		'inline-flex items-center justify-center @3xl/main:size-11 @7xl/main:size-auto';
 </script>
 
 {#snippet sortIcon(column: SortColumn)}
@@ -35,7 +38,10 @@
 {/snippet}
 
 <div role="rowgroup" class={className}>
-	<div role="row" class={cn(colsClass, 'mb-1 grid h-8 items-center')}>
+	<!-- Touch band (#297): sort buttons grow to 44px targets in the nav-hidden
+	     band (@3xl→@max-7xl), the row grows with them; ≥7xl (pointer) both snap
+	     back to the resting geometry. -->
+	<div role="row" class={cn(colsClass, 'mb-1 grid h-8 items-center @3xl/main:h-11 @7xl/main:h-8')}>
 		<div
 			role="columnheader"
 			aria-sort={ariaSort('category')}
@@ -43,6 +49,7 @@
 		>
 			{m.transactions_table_header_category()}
 			<button
+				class={sortButtonClass}
 				onclick={() => onToggle('category')}
 				aria-label={m.transactions_table_sort_category()}
 			>
@@ -60,7 +67,11 @@
 			aria-sort={ariaSort('date')}
 			class="flex items-center justify-end gap-1 px-2 font-display text-xs font-medium tracking-wider text-muted uppercase"
 		>
-			<button onclick={() => onToggle('date')} aria-label={m.transactions_table_sort_date()}>
+			<button
+				class={sortButtonClass}
+				onclick={() => onToggle('date')}
+				aria-label={m.transactions_table_sort_date()}
+			>
 				{@render sortIcon('date')}
 			</button>
 			{m.transactions_table_header_date()}
@@ -70,7 +81,11 @@
 			aria-sort={ariaSort('amount')}
 			class="flex items-center justify-end gap-1 px-2 font-display text-xs font-medium tracking-wider text-muted uppercase"
 		>
-			<button onclick={() => onToggle('amount')} aria-label={m.transactions_table_sort_amount()}>
+			<button
+				class={sortButtonClass}
+				onclick={() => onToggle('amount')}
+				aria-label={m.transactions_table_sort_amount()}
+			>
 				{@render sortIcon('amount')}
 			</button>
 			{m.transactions_table_header_amount()}
@@ -81,6 +96,7 @@
 			class="flex items-center justify-end gap-1 px-2 font-display text-xs font-medium tracking-wider text-muted uppercase"
 		>
 			<button
+				class={sortButtonClass}
 				onclick={() => onToggle('validated')}
 				aria-label={m.transactions_table_sort_validated()}
 			>
