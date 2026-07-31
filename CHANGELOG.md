@@ -10,6 +10,8 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+## [2026.07.7] - 2026-07-31
+
 ### Fixed
 
 - Rotating a phone across the tablet breakpoint while a modal (e.g. Budget
