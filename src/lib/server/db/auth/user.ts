@@ -142,13 +142,30 @@ export function setUsername({
 /**
  * Generates a random password that satisfies `PasswordSchema` by construction:
  * 16 characters (within the 8–20 bounds) ending in a guaranteed digit and
- * special character, from the same crypto-random source as `createSessionToken`.
+ * special character, each drawn uniformly via `randomIndex`.
  */
 function generatePassword() {
 	const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
-	const bytes = crypto.getRandomValues(new Uint8Array(16));
-	const body = Array.from(bytes.subarray(0, 14), (byte) => alphabet[byte % alphabet.length]);
-	const digit = '0123456789'[bytes[14] % 10];
-	const special = '!@#$%^&*?'[bytes[15] % 9];
-	return body.join('') + digit + special;
+	const digits = '0123456789';
+	const specials = '!@#$%^&*?';
+	const chars = Array.from({ length: 14 }, () => alphabet[randomIndex(alphabet.length)]);
+	chars.push(digits[randomIndex(digits.length)]);
+	chars.push(specials[randomIndex(specials.length)]);
+	return chars.join('');
+}
+
+/**
+ * Returns an unbiased integer in `[0, max)` drawn from the same crypto-random
+ * source as `createSessionToken`. Plain `randomByte % max` skews toward the low
+ * end whenever `max` does not divide 256 evenly, so bytes in the biased tail are
+ * rejected and re-rolled (rejection sampling) before the modulo is taken.
+ */
+function randomIndex(max: number): number {
+	const limit = 256 - (256 % max);
+	const buffer = new Uint8Array(1);
+	let byte: number;
+	do {
+		byte = crypto.getRandomValues(buffer)[0];
+	} while (byte >= limit);
+	return byte % max;
 }
