@@ -148,10 +148,10 @@ function generatePassword() {
 	const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
 	const digits = '0123456789';
 	const specials = '!@#$%^&*?';
-	const body = Array.from({ length: 14 }, () => alphabet[randomIndex(alphabet.length)]);
-	const digit = digits[randomIndex(digits.length)];
-	const special = specials[randomIndex(specials.length)];
-	return body.join('') + digit + special;
+	const chars = Array.from({ length: 14 }, () => alphabet[randomIndex(alphabet.length)]);
+	chars.push(digits[randomIndex(digits.length)]);
+	chars.push(specials[randomIndex(specials.length)]);
+	return chars.join('');
 }
 
 /**
