@@ -34,7 +34,7 @@ const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
  */
 export function nextVersion(tags: string[], today: string): string {
 	const prefix = monthPrefix(today);
-	const micro = new RegExp(`^${prefix.replace(/\./g, '\\.')}\\.(\\d+)$`);
+	const micro = new RegExp(`^${escapeRegExp(prefix)}\\.(\\d+)$`);
 
 	const highest = tags.reduce((max, tag) => {
 		const match = micro.exec(tag);
@@ -42,6 +42,11 @@ export function nextVersion(tags: string[], today: string): string {
 	}, -1);
 
 	return `${prefix}.${highest + 1}`;
+}
+
+/** Escapes every regex metacharacter (including backslash) so a literal string can be embedded in a pattern. */
+function escapeRegExp(literal: string): string {
+	return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /** Splits an ISO `YYYY-MM-DD` string into its `YYYY.0M` prefix, throwing if malformed. */
