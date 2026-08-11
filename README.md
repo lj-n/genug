@@ -95,6 +95,10 @@ keep my own data in: one SQLite file, no external services.
 
 ## Development
 
+Requires Node.js 22+ and npm 11.17+ (`npm install -g npm@11`): installs
+enforce a 3-day release-age cooldown against npm supply-chain attacks, which
+older npm versions would silently ignore.
+
 ```sh
 npm install
 npm run dev

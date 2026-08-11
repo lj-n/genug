@@ -4,6 +4,9 @@ WORKDIR /app
 RUN apk add --no-cache python3 make g++
 
 COPY package*.json ./
+# Satisfy engines.npm (node:22 bundles npm 10). npm ci installs from the
+# lockfile verbatim, so the min-release-age cooldown does not apply here.
+RUN npm install -g npm@11
 RUN npm ci
 
 COPY src ./src
