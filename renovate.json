@@ -2,7 +2,13 @@
 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
 	"extends": ["config:recommended", "group:allNonMajor", "schedule:weekly"],
 	"timezone": "Europe/Berlin",
+	"description": "minimumReleaseAge: wait 3 days after a version is published before updating to it, so compromised releases can be detected and unpublished before they land here.",
+	"minimumReleaseAge": "3 days",
 	"osvVulnerabilityAlerts": true,
+	"vulnerabilityAlerts": {
+		"description": "Security remediation PRs deliberately skip the 3-day cooldown (Renovate's default): a known vulnerability in the currently used version outweighs the supply-chain wait for the fixed version.",
+		"minimumReleaseAge": null
+	},
 	"lockFileMaintenance": {
 		"enabled": true
 	},
