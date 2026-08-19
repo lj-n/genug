@@ -15,6 +15,9 @@ node_modules
 .DS_Store
 Thumbs.db
 
+# Editor
+.vscode
+
 # Env
 # .env is committed (non-secret shared defaults). Machine-specific overrides
 # and secrets go in .env.local / .env.*, which stay ignored.
