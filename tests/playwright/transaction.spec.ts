@@ -491,3 +491,158 @@ test('Deep link drops category filter ids foreign to the budget (#372)', async (
 		.poll(() => new URL(page.url()).searchParams.getAll('categoryId'))
 		.toEqual(['__none__']);
 });
+
+test('Create-row category options reflect the budget after a cross-budget switch (#395)', async ({
+	page,
+	pages
+}) => {
+	// The desktop side menu (the cross-account switcher used below) only mounts at
+	// the wide breakpoint; pin a desktop viewport so this runs the same way under
+	// the tablet project.
+	await page.setViewportSize({ height: 900, width: 1440 });
+
+	await pages.auth.createUserAndLogin();
+
+	// Budget one owns account A and its own category.
+	const budgetOne = faker.commerce.department();
+	await pages.budget.createBudget(budgetOne);
+	const accountA = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountA);
+	const categoryA = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryA);
+
+	// Budget two owns account B and a different category.
+	const budgetTwo = faker.commerce.department();
+	await pages.budget.createAdditionalBudget(budgetTwo);
+	const accountB = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountB);
+	const categoryB = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryB);
+
+	await pages.account.goto(accountA);
+
+	// Build browser history across both budgets first: A -> B -> A. Returning
+	// to B below via the browser's own back button (not a link click) restores
+	// its cached page instance instead of triggering a fresh navigation — a
+	// plain link click already closes the row through the dismiss layer, which
+	// would mask this bug (see the sibling transfer-counterpart tests above for
+	// the same cached-instance-reuse concern).
+	await pages.account.switchToAccountViaSideMenu(accountB);
+	await pages.account.switchToAccountViaSideMenu(accountA);
+
+	// Leave the inline create-row open, then go back to account B (a different
+	// budget) while it's still open. The row is not torn down by SvelteKit on
+	// an account switch (this table component is reused across account pages),
+	// so a row left open across a history navigation used to stay open with
+	// its trigger button desynced from it, rather than being reset for the
+	// account now in view.
+	const newTransactionButton = page.getByRole('button', { name: 'New Transaction' });
+	await newTransactionButton.click();
+	await expect(page.getByRole('row', { name: 'New Transaction' })).toBeVisible();
+
+	await page.goBack();
+	await expect(page.getByRole('heading', { name: accountB })).toBeVisible();
+
+	// The create affordance resets for the account now in view instead of
+	// staying open against the one just navigated away from.
+	await expect(newTransactionButton).toHaveAttribute('aria-expanded', 'false');
+
+	// Reopening it lists only the newly active budget's category.
+	await newTransactionButton.click();
+	const createRow = page.getByRole('row', { name: 'New Transaction' });
+	await createRow.getByRole('button', { name: 'Open category dropdown' }).click();
+	const options = page.getByRole('option');
+
+	await expect(options.filter({ hasText: categoryB })).toBeVisible();
+	await expect(options.filter({ hasText: categoryA })).toHaveCount(0);
+});
+
+test('Edit-transaction form lists only the active budget categories after switching (#395)', async ({
+	page,
+	pages
+}) => {
+	// Seeding and the cross-account switch use the desktop side menu; the edit
+	// *form* under test is the mobile sheet (below @3xl the register reflows to
+	// cards and editing opens TransactionEditModal instead of the inline row).
+	await page.setViewportSize({ height: 900, width: 1440 });
+
+	await pages.auth.createUserAndLogin();
+
+	const budgetOne = faker.commerce.department();
+	await pages.budget.createBudget(budgetOne);
+	const accountA = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountA);
+	const categoryA = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryA);
+
+	const budgetTwo = faker.commerce.department();
+	await pages.budget.createAdditionalBudget(budgetTwo);
+	const accountB = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountB);
+	const categoryB = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryB);
+
+	await pages.account.goto(accountA);
+	await pages.account.createTransaction({ amount: '10', category: categoryA });
+
+	await pages.account.switchToAccountViaSideMenu(accountB);
+	await pages.account.createTransaction({ amount: '20', category: categoryB });
+
+	await page.setViewportSize({ height: 667, width: 375 });
+	await page.reload();
+
+	// Opening the edit form (closed until now) after the switch shows only B's category.
+	await page.getByRole('button', { name: 'Edit category' }).click();
+	await page.getByRole('button', { name: 'Open category dropdown' }).click();
+	let options = page.getByRole('option');
+	await expect(options.filter({ hasText: categoryB })).toBeVisible();
+	await expect(options.filter({ hasText: categoryA })).toHaveCount(0);
+	await page.keyboard.press('Escape');
+	await page.getByRole('button', { name: 'Cancel' }).click();
+
+	// Switching back (still at phone width, via the drawer nav) and reopening
+	// the form shows only A's category.
+	await page.getByRole('button', { name: 'Toggle Navigation' }).click();
+	await page.getByRole('navigation').getByRole('link', { exact: true, name: accountA }).click();
+	await expect(page.getByRole('heading', { name: accountA })).toBeVisible();
+
+	await page.getByRole('button', { name: 'Edit category' }).click();
+	await page.getByRole('button', { name: 'Open category dropdown' }).click();
+	options = page.getByRole('option');
+	await expect(options.filter({ hasText: categoryA })).toBeVisible();
+	await expect(options.filter({ hasText: categoryB })).toHaveCount(0);
+});
+
+test('Category filter dropdown lists only the active budget categories after switching (#395)', async ({
+	page,
+	pages
+}) => {
+	await page.setViewportSize({ height: 900, width: 1440 });
+
+	await pages.auth.createUserAndLogin();
+
+	const budgetOne = faker.commerce.department();
+	await pages.budget.createBudget(budgetOne);
+	const accountA = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountA);
+	const categoryA = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryA);
+
+	const budgetTwo = faker.commerce.department();
+	await pages.budget.createAdditionalBudget(budgetTwo);
+	const accountB = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountB);
+	const categoryB = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryB);
+
+	await pages.account.goto(accountA);
+	await pages.account.switchToAccountViaSideMenu(accountB);
+
+	await page.getByRole('button', { name: 'Filter' }).click();
+	await page.getByRole('menuitem', { name: 'Category Filter' }).click();
+	await page.getByRole('button', { name: 'All Categories' }).click();
+
+	const options = page.getByRole('option');
+	await expect(options.filter({ hasText: categoryB })).toBeVisible();
+	await expect(options.filter({ hasText: categoryA })).toHaveCount(0);
+});

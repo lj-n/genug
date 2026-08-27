@@ -10,6 +10,13 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Fixed
+
+- The inline "New Transaction" row on an account's register no longer stays
+  open after navigating to an account in a different budget with the browser's
+  back/forward controls. Left open across such a switch, it kept its trigger
+  button out of sync with the account now in view instead of resetting for it.
+
 ## [2026.07.7] - 2026-07-31
 
 ### Fixed
