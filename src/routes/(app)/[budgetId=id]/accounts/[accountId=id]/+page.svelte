@@ -145,22 +145,31 @@
 			     restore — no balances, no register. -->
 			<AccountArchivedNotice accountId={accountId()} />
 		{:else}
-			<TransactionTable
-				accountId={accountId()}
-				budgetId={budgetId()}
-				currency={budget.currency}
-				pagination={{
-					page: view.result.pagination.page,
-					pageSize: view.result.pagination.pageSize,
-					total: view.result.pagination.totalTransactionCount
-				}}
-				{tableState}
-				transactions={view.result.transactions}
-			>
-				{#snippet accountBalances()}
-					<AccountBalances balances={view.balances} currency={budget.currency} />
-				{/snippet}
-			</TransactionTable>
+			<!-- Keyed on accountId: every create/edit affordance on the register
+			     (create row, create/edit modals, transfer counterparts) is local
+			     $state with no lifetime tied to the viewed account. A full remount
+			     resets all of it for free on a real account switch — the rows
+			     already remount on their own (keyed by transaction.id, which
+			     changes account to account), so this only extends churn that's
+			     already happening to the header/filter/pagination/modals (#395). -->
+			{#key accountId()}
+				<TransactionTable
+					accountId={accountId()}
+					budgetId={budgetId()}
+					currency={budget.currency}
+					pagination={{
+						page: view.result.pagination.page,
+						pageSize: view.result.pagination.pageSize,
+						total: view.result.pagination.totalTransactionCount
+					}}
+					{tableState}
+					transactions={view.result.transactions}
+				>
+					{#snippet accountBalances()}
+						<AccountBalances balances={view.balances} currency={budget.currency} />
+					{/snippet}
+				</TransactionTable>
+			{/key}
 		{/if}
 	</Page.Content>
 </Page.Root>

@@ -531,11 +531,10 @@ test('Create-row category options reflect the budget after a cross-budget switch
 	await pages.account.switchToAccountViaSideMenu(accountA);
 
 	// Leave the inline create-row open, then go back to account B (a different
-	// budget) while it's still open. The row is not torn down by SvelteKit on
-	// an account switch (this table component is reused across account pages),
-	// so a row left open across a history navigation used to stay open with
-	// its trigger button desynced from it, rather than being reset for the
-	// account now in view.
+	// budget) while it's still open. The register is keyed on accountId (#395),
+	// so a genuine account switch remounts it and resets the row — but a stale
+	// param during navigation teardown must not trigger that remount early and
+	// leave the row (and its trigger button) desynced mid-transition.
 	const newTransactionButton = page.getByRole('button', { name: 'New Transaction' });
 	await newTransactionButton.click();
 	await expect(page.getByRole('row', { name: 'New Transaction' })).toBeVisible();
