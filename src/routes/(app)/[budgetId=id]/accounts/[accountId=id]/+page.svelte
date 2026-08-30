@@ -145,13 +145,9 @@
 			     restore — no balances, no register. -->
 			<AccountArchivedNotice accountId={accountId()} />
 		{:else}
-			<!-- Keyed on accountId: every create/edit affordance on the register
-			     (create row, create/edit modals, transfer counterparts) is local
-			     $state with no lifetime tied to the viewed account. A full remount
-			     resets all of it for free on a real account switch — the rows
-			     already remount on their own (keyed by transaction.id, which
-			     changes account to account), so this only extends churn that's
-			     already happening to the header/filter/pagination/modals (#395). -->
+			<!-- Keyed on accountId so a real switch remounts the whole register,
+			     resetting create/edit open-state that would otherwise dangle
+			     against the account just left (#395). -->
 			{#key accountId()}
 				<TransactionTable
 					accountId={accountId()}

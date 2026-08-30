@@ -496,14 +496,11 @@ test('Create-row category options reflect the budget after a cross-budget switch
 	page,
 	pages
 }) => {
-	// The desktop side menu (the cross-account switcher used below) only mounts at
-	// the wide breakpoint; pin a desktop viewport so this runs the same way under
-	// the tablet project.
+	// Pin a desktop viewport: the side menu used below only mounts at @3xl+.
 	await page.setViewportSize({ height: 900, width: 1440 });
 
 	await pages.auth.createUserAndLogin();
 
-	// Budget one owns account A and its own category.
 	const budgetOne = faker.commerce.department();
 	await pages.budget.createBudget(budgetOne);
 	const accountA = uniqueName(faker.finance.accountName());
@@ -511,7 +508,6 @@ test('Create-row category options reflect the budget after a cross-budget switch
 	const categoryA = uniqueName(faker.commerce.department());
 	await pages.budget.createCategory(categoryA);
 
-	// Budget two owns account B and a different category.
 	const budgetTwo = faker.commerce.department();
 	await pages.budget.createAdditionalBudget(budgetTwo);
 	const accountB = uniqueName(faker.finance.accountName());
@@ -521,32 +517,20 @@ test('Create-row category options reflect the budget after a cross-budget switch
 
 	await pages.account.goto(accountA);
 
-	// Build browser history across both budgets first: A -> B -> A. Returning
-	// to B below via the browser's own back button (not a link click) restores
-	// its cached page instance instead of triggering a fresh navigation — a
-	// plain link click already closes the row through the dismiss layer, which
-	// would mask this bug (see the sibling transfer-counterpart tests above for
-	// the same cached-instance-reuse concern).
+	// A plain link click already closes the row via the dismiss layer, masking
+	// the bug — build history (A -> B -> A) so the browser's own back button
+	// restores B's page instance instead.
 	await pages.account.switchToAccountViaSideMenu(accountB);
 	await pages.account.switchToAccountViaSideMenu(accountA);
 
-	// Leave the inline create-row open, then go back to account B (a different
-	// budget) while it's still open. The register is keyed on accountId (#395),
-	// so a genuine account switch remounts it and resets the row — but a stale
-	// param during navigation teardown must not trigger that remount early and
-	// leave the row (and its trigger button) desynced mid-transition.
 	const newTransactionButton = page.getByRole('button', { name: 'New Transaction' });
 	await newTransactionButton.click();
 	await expect(page.getByRole('row', { name: 'New Transaction' })).toBeVisible();
 
 	await page.goBack();
 	await expect(page.getByRole('heading', { name: accountB })).toBeVisible();
-
-	// The create affordance resets for the account now in view instead of
-	// staying open against the one just navigated away from.
 	await expect(newTransactionButton).toHaveAttribute('aria-expanded', 'false');
 
-	// Reopening it lists only the newly active budget's category.
 	await newTransactionButton.click();
 	const createRow = page.getByRole('row', { name: 'New Transaction' });
 	await createRow.getByRole('button', { name: 'Open category dropdown' }).click();
@@ -560,9 +544,8 @@ test('Edit-transaction form lists only the active budget categories after switch
 	page,
 	pages
 }) => {
-	// Seeding and the cross-account switch use the desktop side menu; the edit
-	// *form* under test is the mobile sheet (below @3xl the register reflows to
-	// cards and editing opens TransactionEditModal instead of the inline row).
+	// Desktop first for the side-menu switch below; the edit form itself is the
+	// mobile sheet, so the viewport drops to phone width partway through.
 	await page.setViewportSize({ height: 900, width: 1440 });
 
 	await pages.auth.createUserAndLogin();
@@ -590,7 +573,6 @@ test('Edit-transaction form lists only the active budget categories after switch
 	await page.setViewportSize({ height: 667, width: 375 });
 	await page.reload();
 
-	// Opening the edit form (closed until now) after the switch shows only B's category.
 	await page.getByRole('button', { name: 'Edit category' }).click();
 	await page.getByRole('button', { name: 'Open category dropdown' }).click();
 	let options = page.getByRole('option');
@@ -599,8 +581,6 @@ test('Edit-transaction form lists only the active budget categories after switch
 	await page.keyboard.press('Escape');
 	await page.getByRole('button', { name: 'Cancel' }).click();
 
-	// Switching back (still at phone width, via the drawer nav) and reopening
-	// the form shows only A's category.
 	await page.getByRole('button', { name: 'Toggle Navigation' }).click();
 	await page.getByRole('navigation').getByRole('link', { exact: true, name: accountA }).click();
 	await expect(page.getByRole('heading', { name: accountA })).toBeVisible();
