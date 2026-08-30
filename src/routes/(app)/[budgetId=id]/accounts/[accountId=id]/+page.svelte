@@ -145,27 +145,22 @@
 			     restore — no balances, no register. -->
 			<AccountArchivedNotice accountId={accountId()} />
 		{:else}
-			<!-- Keyed on accountId so a real switch remounts the whole register,
-			     resetting create/edit open-state that would otherwise dangle
-			     against the account just left (#395). -->
-			{#key accountId()}
-				<TransactionTable
-					accountId={accountId()}
-					budgetId={budgetId()}
-					currency={budget.currency}
-					pagination={{
-						page: view.result.pagination.page,
-						pageSize: view.result.pagination.pageSize,
-						total: view.result.pagination.totalTransactionCount
-					}}
-					{tableState}
-					transactions={view.result.transactions}
-				>
-					{#snippet accountBalances()}
-						<AccountBalances balances={view.balances} currency={budget.currency} />
-					{/snippet}
-				</TransactionTable>
-			{/key}
+			<TransactionTable
+				accountId={accountId()}
+				budgetId={budgetId()}
+				currency={budget.currency}
+				pagination={{
+					page: view.result.pagination.page,
+					pageSize: view.result.pagination.pageSize,
+					total: view.result.pagination.totalTransactionCount
+				}}
+				{tableState}
+				transactions={view.result.transactions}
+			>
+				{#snippet accountBalances()}
+					<AccountBalances balances={view.balances} currency={budget.currency} />
+				{/snippet}
+			</TransactionTable>
 		{/if}
 	</Page.Content>
 </Page.Root>

@@ -12,12 +12,10 @@ and dependency bumps get no entry.
 
 ### Fixed
 
-- Switching accounts no longer leaves stale create/edit state behind on the
-  register. The inline "New Transaction" row used to stay open (with its
-  trigger button out of sync) after navigating to a different budget's account
-  with the browser's back/forward controls, and the mobile edit-transaction
-  form could list a previously viewed budget's categories after switching
-  accounts through the navigation drawer.
+- The inline "New Transaction" row on an account's register no longer stays
+  open after navigating to an account in a different budget with the browser's
+  back/forward controls. Left open across such a switch, it kept its trigger
+  button out of sync with the account now in view instead of resetting for it.
 
 ## [2026.07.7] - 2026-07-31
 

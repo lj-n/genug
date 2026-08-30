@@ -62,6 +62,27 @@
 	let transferEditModalOpen = $state(false);
 	let transferEditModalTransaction = $state<ListTransaction | null>(null);
 
+	// Every create/edit affordance is scoped to the account being viewed (the
+	// create row's hidden accountId, the edit modal's transaction, ...). None of
+	// them are torn down by SvelteKit on an account switch — this component is
+	// reused across account pages (see the sibling account page's tableState
+	// comment) — so an open one left dangling across the switch keeps rendering
+	// against data that no longer matches the route, including categories from
+	// the budget just navigated away from (#395). Close them all whenever the
+	// viewed account changes; reopening after the switch already resolves the
+	// current account/budget correctly.
+	$effect(() => {
+		void accountId;
+		openCreateRow = false;
+		createModalOpen = false;
+		editModalOpen = false;
+		editModalTransaction = null;
+		openTransferCreateRow = false;
+		transferCreateModalOpen = false;
+		transferEditModalOpen = false;
+		transferEditModalTransaction = null;
+	});
+
 	// The empty branches key off the total count, never the rows on this page:
 	// a stale page URL beyond the last page must not show onboarding copy over
 	// existing data. With no active filters the total is the unfiltered count
