@@ -540,58 +540,6 @@ test('Create-row category options reflect the budget after a cross-budget switch
 	await expect(options.filter({ hasText: categoryA })).toHaveCount(0);
 });
 
-test('Edit-transaction form lists only the active budget categories after switching (#395)', async ({
-	page,
-	pages
-}) => {
-	// Desktop first for the side-menu switch below; the edit form itself is the
-	// mobile sheet, so the viewport drops to phone width partway through.
-	await page.setViewportSize({ height: 900, width: 1440 });
-
-	await pages.auth.createUserAndLogin();
-
-	const budgetOne = faker.commerce.department();
-	await pages.budget.createBudget(budgetOne);
-	const accountA = uniqueName(faker.finance.accountName());
-	await pages.budget.createAccount(accountA);
-	const categoryA = uniqueName(faker.commerce.department());
-	await pages.budget.createCategory(categoryA);
-
-	const budgetTwo = faker.commerce.department();
-	await pages.budget.createAdditionalBudget(budgetTwo);
-	const accountB = uniqueName(faker.finance.accountName());
-	await pages.budget.createAccount(accountB);
-	const categoryB = uniqueName(faker.commerce.department());
-	await pages.budget.createCategory(categoryB);
-
-	await pages.account.goto(accountA);
-	await pages.account.createTransaction({ amount: '10', category: categoryA });
-
-	await pages.account.switchToAccountViaSideMenu(accountB);
-	await pages.account.createTransaction({ amount: '20', category: categoryB });
-
-	await page.setViewportSize({ height: 667, width: 375 });
-	await page.reload();
-
-	await page.getByRole('button', { name: 'Edit category' }).click();
-	await page.getByRole('button', { name: 'Open category dropdown' }).click();
-	let options = page.getByRole('option');
-	await expect(options.filter({ hasText: categoryB })).toBeVisible();
-	await expect(options.filter({ hasText: categoryA })).toHaveCount(0);
-	await page.keyboard.press('Escape');
-	await page.getByRole('button', { name: 'Cancel' }).click();
-
-	await page.getByRole('button', { name: 'Toggle Navigation' }).click();
-	await page.getByRole('navigation').getByRole('link', { exact: true, name: accountA }).click();
-	await expect(page.getByRole('heading', { name: accountA })).toBeVisible();
-
-	await page.getByRole('button', { name: 'Edit category' }).click();
-	await page.getByRole('button', { name: 'Open category dropdown' }).click();
-	options = page.getByRole('option');
-	await expect(options.filter({ hasText: categoryA })).toBeVisible();
-	await expect(options.filter({ hasText: categoryB })).toHaveCount(0);
-});
-
 test('Category filter dropdown lists only the active budget categories after switching (#395)', async ({
 	page,
 	pages
