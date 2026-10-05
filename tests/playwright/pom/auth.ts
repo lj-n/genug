@@ -31,10 +31,8 @@ export class AuthPage extends BasePage {
 	}
 
 	async createUser(username = faker.string.alphanumeric(8).toUpperCase()) {
-		await this.page.goto('/admin');
-		// The generated password is revealed by the enhanced submit only; a
-		// pre-hydration click posts natively and the dialog never opens.
-		await this.waitForHydration();
+		// The generated password is revealed by the enhanced submit only.
+		await this.gotoHydrated('/admin');
 		await this.page.getByLabel('Username').click();
 		await this.page.getByLabel('Username').fill(username);
 		await this.page.getByRole('button', { name: 'Create User' }).click();
