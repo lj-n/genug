@@ -54,6 +54,19 @@ export class BasePage {
 		}
 	}
 
+	/**
+	 * Waits until the client app has hydrated after a full page load.
+	 *
+	 * A submit that lands in the paint→hydration window bypasses the remote
+	 * form's `enhance` callback and posts natively: the server still runs the
+	 * action, but client-only `onSuccess` effects (e.g. revealing a dialog)
+	 * never happen. SvelteKit's root component mounts its `#svelte-announcer`
+	 * live region only once hydration completes, so its presence is the signal.
+	 */
+	async waitForHydration() {
+		await expect(this.page.locator('#svelte-announcer')).toBeAttached();
+	}
+
 	#getViewportWidth() {
 		return this.page.viewportSize()?.width ?? 1292;
 	}
