@@ -1,5 +1,5 @@
 import { asMoney, formatMoney } from '$lib/utils/money';
-import { addMonths, toParam } from '$lib/utils/month';
+import { addMonths } from '$lib/utils/month';
 import { faker } from '@faker-js/faker';
 
 import { expect, test } from './fixture';
@@ -39,23 +39,69 @@ test('Assign Budget after client-side month navigation refreshes the table', asy
 
 	// Client-side navigation — each hop leaves the previous month's query
 	// instances in the client cache until GC. Several hops raise the odds
-	// that at least one stale instance is still around at submit time.
-	const targetMonth = addMonths(pages.budget.currentMonth(), 3);
+	// that at least one stale instance is still around at submit time. Each
+	// hop settles before the next: a click while the previous month is still
+	// loading can step from the wrong month.
+	let month = pages.budget.displayedMonth();
 	for (let i = 0; i < 3; i++) {
+		month = addMonths(month, 1);
 		await page.getByRole('button', { name: 'Select next month' }).click();
+		await pages.budget.waitForMonth(month);
 	}
-	await pages.budget.waitForMonth(targetMonth);
 
 	await pages.budget.assignAmount(categoryName, '7');
-	await expect(
-		pages.budget.categoryRow(categoryName).getByRole('button', { name: 'Budget' })
-	).toHaveText(formatMoney({ currency: 'EUR', money: asMoney(700) }));
+	await pages.budget.expectAssigned(categoryName, 700);
 });
 
 // Regression (#420): the URL commits a month navigation right away, but the
 // previous month's table stays rendered until the target month's rows load.
 // That stale table must not take assignments — they would post the old month.
-test('Budget table is not interactive while a month navigation is loading', async ({
+test('Assigning while a month navigation is loading changes no month', async ({ page, pages }) => {
+	await pages.auth.createUserAndLogin();
+
+	await pages.budget.createBudget(faker.commerce.department());
+
+	const categoryName = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryName);
+	await pages.budget.assignAmount(categoryName, '5');
+
+	const startMonth = pages.budget.displayedMonth();
+	const targetMonth = addMonths(startMonth, 1);
+
+	const releaseMonthRows = await pages.budget.holdMonthRows();
+	await page.getByRole('button', { name: 'Select next month' }).click();
+	await pages.budget.waitForMonthUrl(targetMonth);
+	await expect(pages.budget.categoryTable()).toHaveAttribute('aria-busy', 'true');
+
+	// Assign on the previous month's rows, still on screen. `force` skips
+	// Playwright's actionability wait and clicks the way a user would.
+	await pages.budget.assignedButton(categoryName).click({ force: true });
+	await page.keyboard.type('7');
+	await page.keyboard.press('Enter');
+	await expect(page.getByRole('textbox', { name: 'Budget' })).toBeHidden();
+
+	releaseMonthRows();
+	await pages.budget.waitForMonth(targetMonth);
+	await pages.budget.expectAssigned(categoryName, 0);
+
+	await page.goBack();
+	await pages.budget.waitForMonth(startMonth);
+	await pages.budget.expectAssigned(categoryName, 500);
+
+	// Once loaded, the target month takes the assignment, and a full reload
+	// of that month still shows it.
+	await page.goForward();
+	await pages.budget.waitForMonth(targetMonth);
+	await pages.budget.assignAmount(categoryName, '7');
+	await pages.budget.expectAssigned(categoryName, 700);
+	await page.reload();
+	await pages.budget.expectAssigned(categoryName, 700);
+});
+
+// The transfer panel and the phone assign sheet render outside the table, so
+// the table's busy guard does not cover them. Left open across a history
+// navigation, they would post the month the user just left.
+test('Transfer panel closes when a history navigation changes the month', async ({
 	page,
 	pages
 }) => {
@@ -66,40 +112,46 @@ test('Budget table is not interactive while a month navigation is loading', asyn
 	const categoryName = uniqueName(faker.commerce.department());
 	await pages.budget.createCategory(categoryName);
 
-	// Hold the month rows until the stale table has been checked.
-	let releaseMonthly!: () => void;
-	const monthlyReleased = new Promise<void>((resolve) => (releaseMonthly = resolve));
-	await page.route(
-		(url) => url.pathname.endsWith('/getMonthly'),
-		async (route) => {
-			await monthlyReleased;
-			await route.continue();
-		}
-	);
-
-	const startMonth = pages.budget.currentMonth();
-	const targetMonth = addMonths(startMonth, 1);
+	const startMonth = pages.budget.displayedMonth();
 	await page.getByRole('button', { name: 'Select next month' }).click();
-	await expect(page).toHaveURL(new RegExp(`/${toParam(targetMonth)}$`));
+	await pages.budget.waitForMonth(addMonths(startMonth, 1));
+	await pages.budget.assignAmount(categoryName, '5');
+	await pages.budget.openTransfer(categoryName);
 
-	await expect(pages.budget.categoryTable()).toHaveAttribute('data-month', toParam(startMonth));
-	await expect(pages.budget.categoryTable()).toHaveAttribute('aria-busy', 'true');
-	await expect(pages.budget.categoryTable()).toHaveJSProperty('inert', true);
+	const releaseMonthRows = await pages.budget.holdMonthRows();
+	await page.goBack();
+	await pages.budget.waitForMonthUrl(startMonth);
+	await expect(pages.budget.transferAmountInput()).toBeHidden();
 
-	releaseMonthly();
-	await pages.budget.waitForMonth(targetMonth);
+	releaseMonthRows();
+	await pages.budget.waitForMonth(startMonth);
+});
 
-	await pages.budget.assignAmount(categoryName, '7');
-	await expect(
-		pages.budget.categoryRow(categoryName).getByRole('button', { name: 'Budget' })
-	).toHaveText(formatMoney({ currency: 'EUR', money: asMoney(700) }));
+test('Assign sheet closes when a history navigation changes the month', async ({ page, pages }) => {
+	await pages.auth.createUserAndLogin();
 
-	// The assignment landed on the month in the URL: a full reload of that
-	// month still shows it.
-	await page.reload();
-	await expect(
-		pages.budget.categoryRow(categoryName).getByRole('button', { name: 'Budget' })
-	).toHaveText(formatMoney({ currency: 'EUR', money: asMoney(700) }));
+	await pages.budget.createBudget(faker.commerce.department());
+
+	const categoryName = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryName);
+
+	// Below the table breakpoint, Budget opens the assign sheet instead of the
+	// inline field.
+	await page.setViewportSize({ height: 720, width: 390 });
+	const startMonth = pages.budget.displayedMonth();
+	await page.getByRole('button', { name: 'Select next month' }).click();
+	await pages.budget.waitForMonth(addMonths(startMonth, 1));
+	await pages.budget.assignedButton(categoryName).click();
+	const sheet = page.getByRole('dialog');
+	await expect(sheet).toBeVisible();
+
+	const releaseMonthRows = await pages.budget.holdMonthRows();
+	await page.goBack();
+	await pages.budget.waitForMonthUrl(startMonth);
+	await expect(sheet).toBeHidden();
+
+	releaseMonthRows();
+	await pages.budget.waitForMonth(startMonth);
 });
 
 test('Transfer Assignment — Move between categories', async ({ pages }) => {

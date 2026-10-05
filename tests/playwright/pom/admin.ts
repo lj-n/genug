@@ -4,9 +4,7 @@ import { BasePage } from './base-page';
 
 export class AdminPage extends BasePage {
 	async deleteUser(username: string) {
-		await this.page.goto('/admin');
-		// The ⋮ menu opens client-side only; a pre-hydration click is swallowed.
-		await this.waitForHydration();
+		await this.gotoHydrated('/admin');
 
 		const row = this.page.getByRole('listitem').filter({ hasText: username });
 		// Row actions live behind a ⋮ overflow menu now (#279).
@@ -23,9 +21,7 @@ export class AdminPage extends BasePage {
 	}
 
 	async resetDatabase() {
-		await this.page.goto('/admin');
-		// The confirm dialog opens client-side only; a pre-hydration click is swallowed.
-		await this.waitForHydration();
+		await this.gotoHydrated('/admin');
 		await this.page.getByRole('button', { name: 'Reset Instance' }).click();
 
 		// The reset is confirmed through the app's own alert dialog (no native confirm).

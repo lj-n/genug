@@ -3,6 +3,7 @@
 	import type { Month } from '$lib/utils/month';
 	import type { Attachment } from 'svelte/attachments';
 
+	import { beforeNavigate } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
 	import { InputMoney } from '$lib/components/ui/input-money';
 	import { Label } from '$lib/components/ui/label';
@@ -37,6 +38,13 @@
 	// The footer buttons live outside the <form> (in the pinned Footer, see
 	// ADR-0013) and submit via the form attribute.
 	const formId = $props.id();
+
+	// The sheet renders outside the budget table, so the table's stale-month
+	// guard does not reach it. Left open across a navigation (e.g. browser
+	// back), it would post an assignment for the month the user just left.
+	beforeNavigate(() => {
+		open = false;
+	});
 
 	const submit = createFormSubmit(() => form!, {
 		onSuccess: () => {
