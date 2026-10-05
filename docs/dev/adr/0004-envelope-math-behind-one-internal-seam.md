@@ -50,7 +50,7 @@ An internal module `envelope.ts` in user-context owns all envelope math.
 The rule this decision establishes: **an aggregate that combines assignments
 and transactions at category or budget level may only be written in
 `envelope.ts`.** Account balances are deliberately outside — Balance is the
-account-side term, Remaining the envelope-side term (see CONTEXT.md).
+account-side term, Remaining the envelope-side term (see GLOSSARY.md).
 
 ## Consequences
 

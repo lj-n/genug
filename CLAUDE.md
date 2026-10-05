@@ -89,4 +89,4 @@ Default label vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `read
 
 ### Domain docs
 
-Single-context repo: one `CONTEXT.md` + `docs/dev/adr/`. See `docs/dev/agents/domain.md`.
+Single-context repo: one `GLOSSARY.md` + `docs/dev/adr/`. See `docs/dev/agents/domain.md`.

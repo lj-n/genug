@@ -33,7 +33,7 @@ export type UnassignedBreakdown = {
 };
 
 /**
- * Per-month Activity (see `CONTEXT.md`) of a single category: the signed sum
+ * Per-month Activity (see `GLOSSARY.md`) of a single category: the signed sum
  * of its transactions grouped by calendar month, months in the YYYYMM
  * encoding of `Month`. Only months with at least one transaction appear —
  * callers zero-fill calendar gaps. Transfer legs are excluded implicitly:

@@ -91,6 +91,6 @@ automated axe gate in CI — not a site-wide audit and not a one-time sweep.**
 - Retuning four light tokens is a visible, deliberate shift of the light
   palette's gold, green, red, and grey, carried as one `Changed` changelog
   entry; the values are re-verified by the same gate.
-- `CONTEXT.md` is deliberately unchanged: this pass verifies and completes
+- `GLOSSARY.md` is deliberately unchanged: this pass verifies and completes
   existing terms (_Focus treatment_, _Empty state_) and the token retune is an
   implementation value, not a glossary meaning.

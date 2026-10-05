@@ -37,7 +37,7 @@
 	});
 </script>
 
-<!-- Hot path (see CONTEXT.md): no pending chrome — no disabled input or loading
+<!-- Hot path (see GLOSSARY.md): no pending chrome — no disabled input or loading
 button during flight; the optimistic-override feedback model stays untouched. -->
 <PopoverForm
 	form={scopedForm}

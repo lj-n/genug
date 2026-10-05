@@ -28,7 +28,7 @@ new code are defects, not taste.
   `src/app.d.ts` where SvelteKit's ambient module augmentation requires them.
 - Domain primitives are branded types obtained through their interface —
   `Money` via `parseMoney`/`MoneySchema`, `Month` via its module — never by
-  casting (see `CONTEXT.md`).
+  casting (see `GLOSSARY.md`).
 - Type casts (`as`) are a boundary tool only: DOM event targets and
   third-party library seams (`bits-ui` wrappers). Never cast to silence a
   domain type error.

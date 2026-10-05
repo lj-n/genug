@@ -25,7 +25,7 @@ allowed when there is nothing to lose.
 
 Category deletion is **guarded**, not cascading. A category is deletable only
 when it is **Deletable** — all-time Remaining is `0` and no transaction of any
-kind references it (see CONTEXT.md). The rule is enforced by `category.delete`
+kind references it (see GLOSSARY.md). The rule is enforced by `category.delete`
 in user-context as a backstop against stale or forged requests (ADR-0001), and
 projected to the UI via `category.deletability` so the client can predict the
 outcome rather than attempt the command.

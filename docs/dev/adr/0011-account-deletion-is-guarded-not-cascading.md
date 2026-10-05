@@ -30,7 +30,7 @@ when there is nothing to lose.
 
 Account deletion is **guarded**, not cascading. An account is deletable only
 when it is **Deletable** — no transaction of any kind references it (see
-CONTEXT.md). Because an account's Balance is nothing but the sum of its
+GLOSSARY.md). Because an account's Balance is nothing but the sum of its
 transactions, "no transactions" subsumes "zero Balance"; there is no separate
 envelope/assignment dimension as there is for categories. The rule is enforced
 by `account.delete` in user-context as a backstop against stale or forged

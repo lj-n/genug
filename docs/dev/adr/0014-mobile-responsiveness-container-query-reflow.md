@@ -80,5 +80,5 @@ itself is not jsdom-testable.
 - Dropping drag-reorder and transfers on mobile keeps the cards simple, at
   the cost of two desktop-only features; both can be reintroduced behind
   mobile-appropriate affordances later.
-- `CONTEXT.md` is deliberately unchanged: this is pure implementation, no new
+- `GLOSSARY.md` is deliberately unchanged: this is pure implementation, no new
   domain term crystallized.

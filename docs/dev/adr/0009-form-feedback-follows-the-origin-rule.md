@@ -21,7 +21,7 @@ already see the effect.
 ## Decision
 
 **Every form is either a Contained form or a Standing form** (see the glossary
-in `CONTEXT.md`), and feedback follows the **origin rule**: it appears at the
+in `GLOSSARY.md`), and feedback follows the **origin rule**: it appears at the
 element the user is already looking at.
 
 | Form context                                           | Success signal                       | Validation errors             | Thrown errors (403/404/500/…)                   |
