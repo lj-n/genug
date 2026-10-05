@@ -39,12 +39,15 @@ test('Assign Budget after client-side month navigation refreshes the table', asy
 
 	// Client-side navigation — each hop leaves the previous month's query
 	// instances in the client cache until GC. Several hops raise the odds
-	// that at least one stale instance is still around at submit time.
-	const targetMonth = addMonths(pages.budget.displayedMonth(), 3);
+	// that at least one stale instance is still around at submit time. Each
+	// hop settles before the next: a click while the previous month is still
+	// loading can step from the wrong month.
+	let month = pages.budget.displayedMonth();
 	for (let i = 0; i < 3; i++) {
+		month = addMonths(month, 1);
 		await page.getByRole('button', { name: 'Select next month' }).click();
+		await pages.budget.waitForMonth(month);
 	}
-	await pages.budget.waitForMonth(targetMonth);
 
 	await pages.budget.assignAmount(categoryName, '7');
 	await pages.budget.expectAssigned(categoryName, 700);
