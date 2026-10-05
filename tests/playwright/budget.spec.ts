@@ -39,15 +39,12 @@ test('Assign Budget after client-side month navigation refreshes the table', asy
 
 	// Client-side navigation — each hop leaves the previous month's query
 	// instances in the client cache until GC. Several hops raise the odds
-	// that at least one stale instance is still around at submit time. Each
-	// hop settles before the next: a click while the previous month is still
-	// loading can step from the wrong month.
-	let month = pages.budget.displayedMonth();
+	// that at least one stale instance is still around at submit time.
+	const targetMonth = addMonths(pages.budget.displayedMonth(), 3);
 	for (let i = 0; i < 3; i++) {
-		month = addMonths(month, 1);
 		await page.getByRole('button', { name: 'Select next month' }).click();
-		await pages.budget.waitForMonth(month);
 	}
+	await pages.budget.waitForMonth(targetMonth);
 
 	await pages.budget.assignAmount(categoryName, '7');
 	await pages.budget.expectAssigned(categoryName, 700);
@@ -96,6 +93,36 @@ test('Assigning while a month navigation is loading changes no month', async ({ 
 	await pages.budget.expectAssigned(categoryName, 700);
 	await page.reload();
 	await pages.budget.expectAssigned(categoryName, 700);
+});
+
+// Regression (#421): a month hop that finished loading after a later click
+// reset the navigator to its month, so the next click stepped from there and
+// the user landed one month short.
+test('Rapid month clicks move one month each while months are loading', async ({ page, pages }) => {
+	await pages.auth.createUserAndLogin();
+
+	await pages.budget.createBudget(faker.commerce.department());
+	await pages.budget.createCategory(uniqueName(faker.commerce.department()));
+
+	const startMonth = pages.budget.displayedMonth();
+	const next = page.getByRole('button', { name: 'Select next month' });
+	const previous = page.getByRole('button', { name: 'Select previous month' });
+
+	let releaseMonthRows = await pages.budget.holdMonthRows();
+	await next.click();
+	await next.click();
+	releaseMonthRows();
+	await pages.budget.waitForMonth(addMonths(startMonth, 2));
+	await next.click();
+	await pages.budget.waitForMonth(addMonths(startMonth, 3));
+
+	releaseMonthRows = await pages.budget.holdMonthRows();
+	await previous.click();
+	await previous.click();
+	releaseMonthRows();
+	await pages.budget.waitForMonth(addMonths(startMonth, 1));
+	await previous.click();
+	await pages.budget.waitForMonth(startMonth);
 });
 
 // The transfer panel and the phone assign sheet render outside the table, so
