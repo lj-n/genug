@@ -36,7 +36,6 @@ jobs:
       # .npmrc min-release-age needs npm >=11.17; Node 22 bundles npm 10.
       - run: npm install -g npm@11
       - run: npm ci
-      - run: npx paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide
       - run: npm run build
         env:
           DATABASE_URL: ':memory:'
@@ -52,7 +51,6 @@ jobs:
       # .npmrc min-release-age needs npm >=11.17; Node 22 bundles npm 10.
       - run: npm install -g npm@11
       - run: npm ci
-      - run: npx paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide
       - run: npm run check
 
   lint:
@@ -66,7 +64,6 @@ jobs:
       # .npmrc min-release-age needs npm >=11.17; Node 22 bundles npm 10.
       - run: npm install -g npm@11
       - run: npm ci
-      - run: npx paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide
       - run: npm run lint
 
   unit-test:
@@ -80,7 +77,6 @@ jobs:
       # .npmrc min-release-age needs npm >=11.17; Node 22 bundles npm 10.
       - run: npm install -g npm@11
       - run: npm ci
-      - run: npx paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide
       - run: npm run test:unit -- run --coverage
         env:
           DATABASE_URL: ':memory:'
@@ -141,7 +137,6 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
       - run: npx playwright install-deps chromium
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-      - run: npx paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide
       - run: npx playwright test --shard=${{ matrix.shard }}/2
       - uses: actions/upload-artifact@v4
         if: always()
