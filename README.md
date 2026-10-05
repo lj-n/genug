@@ -95,7 +95,9 @@ keep my own data in: one SQLite file, no external services.
 
 ## Development
 
-Requires Node.js 22+ and npm 11.17+ (`npm install -g npm@11`): installs
+Requires the Node.js version in `.node-version` and npm 11.17+
+(`npm install -g npm@11`). When bumping Node, also update both `FROM` lines in
+the `Dockerfile`. npm 11.17+ is needed because installs
 enforce a 3-day release-age cooldown against npm supply-chain attacks, which
 older npm versions would silently ignore.
 

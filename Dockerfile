@@ -1,3 +1,4 @@
+# Node major must match .node-version (FROM can't read it) — bump both stages.
 FROM node:22-alpine AS builder
 WORKDIR /app
 
