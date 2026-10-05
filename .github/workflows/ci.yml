@@ -99,7 +99,8 @@ jobs:
               - '!docs/**'
       - id: decide
         run: |
-          if [ "${{ github.event.pull_request.draft }}" = "true" ]; then
+          # THROWAWAY (#417 demo): run e2e on this draft PR.
+          if [ "false" = "true" ]; then
             echo "run_e2e=false" >> "$GITHUB_OUTPUT"
             echo "Draft PR — skipping e2e."
           elif [ "${{ steps.filter.outputs.code }}" = "true" ]; then
