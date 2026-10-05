@@ -16,6 +16,11 @@ and dependency bumps get no entry.
   open after navigating to an account in a different budget with the browser's
   back/forward controls. Left open across such a switch, it kept its trigger
   button out of sync with the account now in view instead of resetting for it.
+- Assigning budget right after switching months no longer saves the amount to
+  the previous month. On a slow connection the previous month's table stayed
+  clickable while the new month loaded, so an assignment went to the old month
+  and the new month still showed €0.00. The table now ignores input until the
+  selected month has loaded.
 
 ## [2026.07.7] - 2026-07-31
 

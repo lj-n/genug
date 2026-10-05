@@ -106,7 +106,17 @@
 		<CategoryArchiveDrawer />
 	</div>
 
-	<div role="table">
+	<!-- A month navigation commits the URL at once, but the previous month's rows
+	     stay rendered until the new month's `getMonthly` resolves: `month` is the
+	     month the rows belong to, `$state.eager(month)` the one navigated to.
+	     Rows left interactive in between would post assignments for the old
+	     month, so the table is inert (and aria-busy) until the two agree. -->
+	<div
+		role="table"
+		data-month={month}
+		aria-busy={$state.eager(month) !== month || undefined}
+		inert={$state.eager(month) !== month}
+	>
 		<div role="rowgroup" class="hidden @3xl/main:block">
 			<div role="row" class="flex border-b border-muted/30 bg-muted/3">
 				<!-- aria-label keeps the columnheader's accessible name as just the column

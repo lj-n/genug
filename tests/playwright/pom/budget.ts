@@ -1,3 +1,4 @@
+import { type Month, parseMonth, toParam } from '$lib/utils/month';
 import { expect, type Locator } from '@playwright/test';
 
 import { BasePage } from './base-page';
@@ -22,6 +23,14 @@ export class BudgetPage extends BasePage {
 	/** Locates a category's row in the budget table by its (unique) name. */
 	categoryRow(name: string): Locator {
 		return this.page.getByRole('row').filter({ hasText: name });
+	}
+
+	/**
+	 * The month's category table. `data-month` names the month its rows belong
+	 * to; it is `aria-busy` (and inert) while a month navigation is loading.
+	 */
+	categoryTable(): Locator {
+		return this.page.getByRole('table');
 	}
 
 	/** The category table's empty-state CTA, shown while the budget has no categories. */
@@ -213,6 +222,13 @@ export class BudgetPage extends BasePage {
 		await expect(this.categoryRow(name)).toBeVisible();
 	}
 
+	/** The month shown in the current month-page URL (`/{budgetId}/{month}`). */
+	currentMonth(): Month {
+		const month = parseMonth(new URL(this.page.url()).pathname.split('/')[2]);
+		expect(month, 'not on a month page').not.toBeNull();
+		return month!;
+	}
+
 	async goto(budgetName: string) {
 		if (!this.ctx.budgetUrl) {
 			throw new Error('createBudget must be called before goto');
@@ -263,6 +279,17 @@ export class BudgetPage extends BasePage {
 		return this.tutorialCard().getByRole('button', {
 			name: step === 'account' ? 'Add account' : 'New category'
 		});
+	}
+
+	/**
+	 * Waits until a client-side month navigation has settled on `month`. The
+	 * URL commits first; the table keeps the previous month's rows (busy and
+	 * inert) until `month`'s rows are rendered.
+	 */
+	async waitForMonth(month: Month) {
+		await expect(this.page).toHaveURL(new RegExp(`/${toParam(month)}$`));
+		await expect(this.categoryTable()).toHaveAttribute('data-month', toParam(month));
+		await expect(this.categoryTable()).not.toHaveAttribute('aria-busy');
 	}
 
 	async #openTransfer(categoryName: string) {

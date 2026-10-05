@@ -1,4 +1,5 @@
 import { asMoney, formatMoney } from '$lib/utils/money';
+import { addMonths, toParam } from '$lib/utils/month';
 import { faker } from '@faker-js/faker';
 
 import { expect, test } from './fixture';
@@ -39,11 +40,63 @@ test('Assign Budget after client-side month navigation refreshes the table', asy
 	// Client-side navigation — each hop leaves the previous month's query
 	// instances in the client cache until GC. Several hops raise the odds
 	// that at least one stale instance is still around at submit time.
+	const targetMonth = addMonths(pages.budget.currentMonth(), 3);
 	for (let i = 0; i < 3; i++) {
 		await page.getByRole('button', { name: 'Select next month' }).click();
 	}
+	await pages.budget.waitForMonth(targetMonth);
 
 	await pages.budget.assignAmount(categoryName, '7');
+	await expect(
+		pages.budget.categoryRow(categoryName).getByRole('button', { name: 'Budget' })
+	).toHaveText(formatMoney({ currency: 'EUR', money: asMoney(700) }));
+});
+
+// Regression (#420): the URL commits a month navigation right away, but the
+// previous month's table stays rendered until the target month's rows load.
+// That stale table must not take assignments — they would post the old month.
+test('Budget table is not interactive while a month navigation is loading', async ({
+	page,
+	pages
+}) => {
+	await pages.auth.createUserAndLogin();
+
+	await pages.budget.createBudget(faker.commerce.department());
+
+	const categoryName = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryName);
+
+	// Hold the month rows until the stale table has been checked.
+	let releaseMonthly!: () => void;
+	const monthlyReleased = new Promise<void>((resolve) => (releaseMonthly = resolve));
+	await page.route(
+		(url) => url.pathname.endsWith('/getMonthly'),
+		async (route) => {
+			await monthlyReleased;
+			await route.continue();
+		}
+	);
+
+	const startMonth = pages.budget.currentMonth();
+	const targetMonth = addMonths(startMonth, 1);
+	await page.getByRole('button', { name: 'Select next month' }).click();
+	await expect(page).toHaveURL(new RegExp(`/${toParam(targetMonth)}$`));
+
+	await expect(pages.budget.categoryTable()).toHaveAttribute('data-month', toParam(startMonth));
+	await expect(pages.budget.categoryTable()).toHaveAttribute('aria-busy', 'true');
+	await expect(pages.budget.categoryTable()).toHaveJSProperty('inert', true);
+
+	releaseMonthly();
+	await pages.budget.waitForMonth(targetMonth);
+
+	await pages.budget.assignAmount(categoryName, '7');
+	await expect(
+		pages.budget.categoryRow(categoryName).getByRole('button', { name: 'Budget' })
+	).toHaveText(formatMoney({ currency: 'EUR', money: asMoney(700) }));
+
+	// The assignment landed on the month in the URL: a full reload of that
+	// month still shows it.
+	await page.reload();
 	await expect(
 		pages.budget.categoryRow(categoryName).getByRole('button', { name: 'Budget' })
 	).toHaveText(formatMoney({ currency: 'EUR', money: asMoney(700) }));
