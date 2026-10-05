@@ -14,7 +14,11 @@ export const test = base.extend<{ pages: Pages }>({
 		await page.addInitScript(() => {
 			const style = document.createElement('style');
 			style.textContent = `[data-vaul-drawer],[data-vaul-drawer] *,[data-vaul-overlay],[data-vaul-overlay] *{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important;transition-delay:0s!important}`;
-			document.head.appendChild(style);
+			// Init scripts run before the document is parsed, so <head> may not
+			// exist yet; append once it does.
+			const append = () => document.head.appendChild(style);
+			if (document.head) append();
+			else document.addEventListener('DOMContentLoaded', append, { once: true });
 		});
 
 		await use(new Pages(page));

@@ -65,6 +65,9 @@ export class SettingsPage extends BasePage {
 	async goto() {
 		await this.page.goto('/settings');
 		await expect(this.page.getByRole('heading', { name: 'Settings' })).toBeVisible();
+		// Settings are driven by client-only controls (Select portals, enhanced
+		// forms); a click before hydration is swallowed or posts natively.
+		await this.waitForHydration();
 	}
 
 	async revokeApiToken(name: string) {
