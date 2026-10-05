@@ -4,6 +4,7 @@
 <script lang="ts">
 	import type { Month } from '$lib/utils/month';
 
+	import { beforeNavigate } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
 	import { hoverOutline } from '$lib/components/ui/focus-ring';
 	import { InputMoney } from '$lib/components/ui/input-money';
@@ -51,6 +52,13 @@
 	const form = $derived(reassignment.for(id));
 
 	let open = $state(false);
+
+	// The panel portals outside the budget table, so the table's stale-month
+	// guard does not reach it. Left open across a navigation (e.g. browser
+	// back), it would post a transfer for the month the user just left.
+	beforeNavigate(() => {
+		open = false;
+	});
 
 	const submit = createFormSubmit(() => form, {
 		onSuccess: () => {

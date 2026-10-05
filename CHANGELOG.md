@@ -20,7 +20,9 @@ and dependency bumps get no entry.
   the previous month. On a slow connection the previous month's table stayed
   clickable while the new month loaded, so an assignment went to the old month
   and the new month still showed €0.00. The table now ignores input until the
-  selected month has loaded.
+  selected month has loaded. Likewise, an open transfer panel or phone assign
+  sheet now closes when the browser's back/forward controls switch the month,
+  instead of saving to the month you just left.
 
 ## [2026.07.7] - 2026-07-31
 

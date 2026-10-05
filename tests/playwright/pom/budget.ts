@@ -1,3 +1,4 @@
+import { asMoney, formatMoney } from '$lib/utils/money';
 import { type Month, parseMonth, toParam } from '$lib/utils/month';
 import { expect, type Locator } from '@playwright/test';
 
@@ -5,7 +6,7 @@ import { BasePage } from './base-page';
 
 export class BudgetPage extends BasePage {
 	async assignAmount(categoryName: string, amount: string) {
-		const budgetButton = this.categoryRow(categoryName).getByRole('button', { name: 'Budget' });
+		const budgetButton = this.assignedButton(categoryName);
 		// The table can re-render after a category change (SvelteKit invalidateAll
 		// re-fetches the rows). A web-first assertion retries if the button is
 		// briefly detached, which a bare click() would not.
@@ -20,14 +21,19 @@ export class BudgetPage extends BasePage {
 		await expect(budgetButton).toBeVisible();
 	}
 
+	/** A category's Budget button; its text is the amount assigned in the displayed month. */
+	assignedButton(categoryName: string): Locator {
+		return this.categoryRow(categoryName).getByRole('button', { name: 'Budget' });
+	}
+
 	/** Locates a category's row in the budget table by its (unique) name. */
 	categoryRow(name: string): Locator {
 		return this.page.getByRole('row').filter({ hasText: name });
 	}
 
 	/**
-	 * The month's category table. `data-month` names the month its rows belong
-	 * to; it is `aria-busy` (and inert) while a month navigation is loading.
+	 * The month's category table. It is `aria-busy` while a month navigation
+	 * is loading and its rows still belong to the previous month.
 	 */
 	categoryTable(): Locator {
 		return this.page.getByRole('table');
@@ -222,11 +228,18 @@ export class BudgetPage extends BasePage {
 		await expect(this.categoryRow(name)).toBeVisible();
 	}
 
-	/** The month shown in the current month-page URL (`/{budgetId}/{month}`). */
-	currentMonth(): Month {
-		const month = parseMonth(new URL(this.page.url()).pathname.split('/')[2]);
+	/** The month the open month page shows: the last segment of `/{budgetId}/{month}`. */
+	displayedMonth(): Month {
+		const month = parseMonth(new URL(this.page.url()).pathname.split('/').at(-1) ?? '');
 		expect(month, 'not on a month page').not.toBeNull();
 		return month!;
+	}
+
+	/** Asserts a category's Budget button shows `cents` (EUR) assigned in the displayed month. */
+	async expectAssigned(categoryName: string, cents: number) {
+		await expect(this.assignedButton(categoryName)).toHaveText(
+			formatMoney({ currency: 'EUR', money: asMoney(cents) })
+		);
 	}
 
 	async goto(budgetName: string) {
@@ -237,6 +250,31 @@ export class BudgetPage extends BasePage {
 		await expect(this.page.getByRole('heading', { name: budgetName })).toBeVisible();
 	}
 
+	/**
+	 * Holds every month-rows (`getMonthly`) response until the returned
+	 * function is called. A month navigation started meanwhile commits its URL
+	 * but stays in its loading window, with the previous month's rows on screen.
+	 */
+	async holdMonthRows(): Promise<() => void> {
+		let release!: () => void;
+		const released = new Promise<void>((resolve) => (release = resolve));
+		await this.page.route(
+			(url) => url.pathname.endsWith('/getMonthly'),
+			async (route) => {
+				await released;
+				await route.continue();
+			}
+		);
+		return release;
+	}
+
+	async openTransfer(categoryName: string) {
+		const trigger = this.remainingTrigger(categoryName);
+		await expect(trigger).toBeVisible();
+		await trigger.click();
+		await expect(this.transferAmountInput()).toBeVisible();
+	}
+
 	/** The transfer trigger for a category; its label shows the "remaining" amount. */
 	remainingTrigger(categoryName: string): Locator {
 		return this.categoryRow(categoryName).getByRole('button', {
@@ -244,24 +282,29 @@ export class BudgetPage extends BasePage {
 		});
 	}
 
-	async transferToCategory(sourceCategoryName: string, amount: string, targetCategoryName: string) {
-		await this.#openTransfer(sourceCategoryName);
+	/** The open transfer panel's amount field. */
+	transferAmountInput(): Locator {
+		return this.page.getByRole('textbox', { name: 'Amount' });
+	}
 
-		await this.page.getByRole('textbox', { name: 'Amount' }).fill(amount);
+	async transferToCategory(sourceCategoryName: string, amount: string, targetCategoryName: string) {
+		await this.openTransfer(sourceCategoryName);
+
+		await this.transferAmountInput().fill(amount);
 		await this.#selectTransferTarget(targetCategoryName);
 
 		await this.page.getByRole('button', { exact: true, name: 'OK' }).click();
-		await expect(this.page.getByRole('textbox', { name: 'Amount' })).not.toBeVisible();
+		await expect(this.transferAmountInput()).not.toBeVisible();
 	}
 
 	async transferToUnassigned(categoryName: string, amount: string) {
 		// "Unassigned" is the default pre-selection in the combobox (targetCategoryId = '').
 		// Clicking it again doesn't change the value, so bits-ui keeps the dropdown open.
 		// Skip the combobox and submit directly — the server treats an empty target as Unassigned.
-		await this.#openTransfer(categoryName);
-		await this.page.getByRole('textbox', { name: 'Amount' }).fill(amount);
+		await this.openTransfer(categoryName);
+		await this.transferAmountInput().fill(amount);
 		await this.page.getByRole('button', { exact: true, name: 'OK' }).click();
-		await expect(this.page.getByRole('textbox', { name: 'Amount' })).not.toBeVisible();
+		await expect(this.transferAmountInput()).not.toBeVisible();
 	}
 
 	/** The tutorial card region, shown while the budget lacks an account or a category. */
@@ -283,20 +326,19 @@ export class BudgetPage extends BasePage {
 
 	/**
 	 * Waits until a client-side month navigation has settled on `month`. The
-	 * URL commits first; the table keeps the previous month's rows (busy and
-	 * inert) until `month`'s rows are rendered.
+	 * URL commits first; the table stays busy with the previous month's rows
+	 * until `month`'s rows are rendered. The router updates the URL and the
+	 * table's busy state in the same task, so a non-busy table under `month`'s
+	 * URL shows `month`'s rows.
 	 */
 	async waitForMonth(month: Month) {
-		await expect(this.page).toHaveURL(new RegExp(`/${toParam(month)}$`));
-		await expect(this.categoryTable()).toHaveAttribute('data-month', toParam(month));
+		await this.waitForMonthUrl(month);
 		await expect(this.categoryTable()).not.toHaveAttribute('aria-busy');
 	}
 
-	async #openTransfer(categoryName: string) {
-		const trigger = this.remainingTrigger(categoryName);
-		await expect(trigger).toBeVisible();
-		await trigger.click();
-		await expect(this.page.getByRole('textbox', { name: 'Amount' })).toBeVisible();
+	/** Waits until the URL shows `month`; its rows may still be loading. */
+	async waitForMonthUrl(month: Month) {
+		await expect(this.page).toHaveURL(new RegExp(`/${toParam(month)}$`));
 	}
 
 	async #selectTransferTarget(targetCategoryName: string) {
