@@ -23,6 +23,9 @@ and dependency bumps get no entry.
   selected month has loaded. Likewise, an open transfer panel or phone assign
   sheet now closes when the browser's back/forward controls switch the month,
   instead of saving to the month you just left.
+- Clicking the next or previous month button several times in a row now moves
+  exactly one month per click. While a month was still loading, a click could
+  step from an earlier month and land one month short.
 
 ## [2026.07.7] - 2026-07-31
 
