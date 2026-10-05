@@ -187,7 +187,10 @@ jobs:
           pattern: blob-report-*
           path: blob-report/
           merge-multiple: true
-      - run: npx playwright merge-reports --reporter=list ./blob-report
+      # The html report is the merged record (incl. flaky tests) uploaded below;
+      # the list output (flooded by replayed [WebServer] logs) can come out
+      # truncated in the job log, losing its summary.
+      - run: npx playwright merge-reports --reporter=html,list ./blob-report
       - uses: actions/upload-artifact@v4
         if: always()
         with:
