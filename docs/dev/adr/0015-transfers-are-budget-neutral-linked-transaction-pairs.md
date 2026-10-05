@@ -29,7 +29,7 @@ Three shapes were considered:
 
 ## Decision
 
-A **Transfer** (see CONTEXT.md) is a pair of ordinary transactions sharing a
+A **Transfer** (see GLOSSARY.md) is a pair of ordinary transactions sharing a
 nullable `transferId` grouping column — one negative leg in the source
 account, one positive leg in the destination account, both in the same budget,
 created atomically by the `transfer` command in the transaction user-context.

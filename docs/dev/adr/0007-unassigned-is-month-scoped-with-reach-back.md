@@ -86,5 +86,5 @@ can never fund an assignment in a month before it arrives.
   negative.
 - Unassigned(M) is monotone non-decreasing in M: navigating forward can only
   reveal money, never lose it.
-- Unassigned now carries a cutoff like Remaining; CONTEXT.md records the term as
+- Unassigned now carries a cutoff like Remaining; GLOSSARY.md records the term as
   incomplete without one.

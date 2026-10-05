@@ -36,7 +36,7 @@ contributor who wants a surface to differ in dark mode changes its token, not th
 component.
 
 **The active theme is a per-device Theme override** (see the glossary in
-`CONTEXT.md`) held in the `theme` cookie, resolved by one pure function:
+`GLOSSARY.md`) held in the `theme` cookie, resolved by one pure function:
 
 ```ts
 // src/lib/utils/theme.ts

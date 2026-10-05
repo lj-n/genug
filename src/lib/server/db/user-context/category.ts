@@ -137,7 +137,7 @@ export const queries = (userId: string, db: Database = database) => ({
 
 		if (!found) error(404);
 
-		// Spend is Activity negated for display (see CONTEXT.md); calendar
+		// Spend is Activity negated for display (see GLOSSARY.md); calendar
 		// gaps read as zero.
 		const activityByMonth = new Map(
 			categoryActivityByMonth(db, categoryId).map((row) => [row.month, row.activity])

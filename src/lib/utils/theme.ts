@@ -1,7 +1,7 @@
 /**
  * Theme override — the per-device theme preference held in the `theme` cookie.
  * `system` follows the OS `prefers-color-scheme`; `light`/`dark` force that
- * theme and win over the OS signal. See CONTEXT.md and ADR-0010.
+ * theme and win over the OS signal. See GLOSSARY.md and ADR-0010.
  */
 
 /** Cookie key read server-side in `hooks.server.ts` and written by the client switcher. */
