@@ -5,7 +5,6 @@ Persistent agent and workflow rules for this repository.
 ## Ground Rules
 
 - Match existing code conventions. No drive-by refactors, renames, or reformatting.
-- Verify with real tool output — never fabricate file contents, API responses, or test results.
 - Keep codebase files in English.
 - A user-visible change (new/changed feature, bug fix, behaviour/UX change, new setting) must add an entry under `## [Unreleased]` in `CHANGELOG.md`, categorized `Added`/`Changed`/`Fixed`. Refactors, tests, CI, docs, and dependency bumps get no entry. Releases are cut with `npm run release` (CalVer + changelog stamping, see ADR-0012).
 
@@ -15,34 +14,16 @@ SvelteKit 2 + Svelte 5 runes, `@sveltejs/adapter-node`, Tailwind 4, Drizzle ORM 
 
 ## Build, Test, and Lint Commands
 
-A committed `.env` provides `DATABASE_URL=local.db`, so a fresh clone runs these commands with no prefix. Override machine-specific values in `.env.local` (gitignored, wins over `.env`). Unit tests force `:memory:` automatically.
+Scripts live in `package.json`. A committed `.env` provides `DATABASE_URL=local.db`, so a fresh clone runs them with no prefix. Override machine-specific values in `.env.local` (gitignored, wins over `.env`). Unit tests force `:memory:` automatically.
+
+Filtering tests:
 
 ```bash
-# development
-npm run dev
-
-# type/svelte checks
-npm run check
-
-# linting and formatting
-npm run lint
-npm run lint:fix
-npm run format
-
-# production build / preview
-npm run build
-npm run preview
-
-# unit tests
-npm run test:unit
 npm run test:unit -- src/lib/server/db/auth/auth.test.ts
 npm run test:unit -- src/lib/server/db/auth/auth.test.ts -t "authenticateUser - returns user on valid credentials"
 
-# Playwright
-npm run test:e2e
 npm run test:e2e -- tests/playwright/account.spec.ts
 npm run test:e2e -- tests/playwright/account.spec.ts -g "Create Account"
-npm run test:e2e:ui
 ```
 
 ## Architecture
@@ -59,8 +40,7 @@ npm run test:e2e:ui
 - **i18n:** Import `m` from `$lib/paraglide/messages`. Translation sources in `messages/*.json`. Run `npx paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide` after editing messages.
 - **Remote functions first.** Pages import remote functions directly (`foo.enhance(...)`, `await getBudget(...)`). Extend `*.remote.ts` before reaching for `+server.ts`.
 - **Business rules in `user-context`.** Route files and remote functions stay thin. Authorization, query logic, persistence rules belong in `src/lib/server/db/user-context`.
-- **Icons:** Prefer `<Name>Icon` imports. Older `Ph*` icon imports exist but new/touched code uses `<Name>Icon`.
-- **Unused values:** `_` prefixes for intentionally unused args, variables, caught errors (ESLint configured).
+- **Icons:** `<Name>Icon` imports.
 - **DB tests:** Fresh `createDatabase(':memory:')`, seed only what's needed, reuse `src/test/fixtures.ts`.
 
 ## Path-Specific Documentation
