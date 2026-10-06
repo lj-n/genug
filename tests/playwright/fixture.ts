@@ -63,10 +63,14 @@ export const test = base.extend<{ pages: Pages; waitForHydration: boolean }>({
 		// used by Select/Combobox components.
 		await page.addInitScript(() => {
 			const style = document.createElement('style');
-			style.textContent = `[data-vaul-drawer],[data-vaul-drawer] *,[data-vaul-overlay],[data-vaul-overlay] *{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important;transition-delay:0s!important}`;
+			// Wrapped in a cascade layer and prepended to <head> so it is the first
+			// declared layer: for !important declarations the earliest layer wins,
+			// which beats Tailwind's layered utilities such as `!duration-300` on
+			// the drawer content (an unlayered !important rule would lose to them).
+			style.textContent = `@layer e2e-overrides{[data-vaul-drawer],[data-vaul-drawer] *,[data-vaul-overlay],[data-vaul-overlay] *{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important;transition-delay:0s!important}}`;
 			// Init scripts run before the document is parsed, so <head> may not
-			// exist yet; append once it does.
-			const append = () => document.head.appendChild(style);
+			// exist yet; add the style once it does.
+			const append = () => document.head.prepend(style);
 			if (document.head) append();
 			else document.addEventListener('DOMContentLoaded', append, { once: true });
 		});
