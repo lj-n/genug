@@ -48,6 +48,27 @@ export default defineConfig(
 		}
 	},
 	{
+		// The fixture's `test` waits for hydration after navigation (#422); the
+		// stock `test` would silently skip that guard.
+		files: ['tests/playwright/**'],
+		ignores: ['tests/playwright/fixture.ts'],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					paths: [
+						{
+							importNames: ['test'],
+							message:
+								"Import `test` from './fixture' instead: its `page` waits for hydration after navigation.",
+							name: '@playwright/test'
+						}
+					]
+				}
+			]
+		}
+	},
+	{
 		files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
 		languageOptions: {
 			parserOptions: {
