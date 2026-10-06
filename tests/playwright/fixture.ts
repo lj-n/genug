@@ -32,8 +32,12 @@ function hydrated<A extends unknown[], R>(page: Page, navigate: (...args: A) => 
 	};
 }
 
-export const test = base.extend<{ pages: Pages; waitForHydration: boolean }>({
-	page: async ({ javaScriptEnabled, page, waitForHydration: guard }, use) => {
+export const test = base.extend<{ hydrationGuard: boolean; pages: Pages }>({
+	// Opt out with `test.use({ hydrationGuard: false })` plus a one-line
+	// reason, only for tests that must act before hydration.
+	hydrationGuard: [true, { option: true }],
+
+	page: async ({ hydrationGuard, javaScriptEnabled, page }, use) => {
 		// Opt-in: E2E_REMOTE_DELAY=<ms> holds every remote-function request to
 		// widen race windows while diagnosing flakes. Never set in CI.
 		const remoteDelay = Number(process.env.E2E_REMOTE_DELAY ?? 0);
@@ -45,7 +49,7 @@ export const test = base.extend<{ pages: Pages; waitForHydration: boolean }>({
 		}
 
 		// Without JS the app never hydrates, so there is nothing to wait for.
-		if (javaScriptEnabled && guard) {
+		if (javaScriptEnabled && hydrationGuard) {
 			page.goto = hydrated(page, page.goto.bind(page));
 			page.reload = hydrated(page, page.reload.bind(page));
 			page.goBack = hydrated(page, page.goBack.bind(page));
@@ -76,9 +80,5 @@ export const test = base.extend<{ pages: Pages; waitForHydration: boolean }>({
 		});
 
 		await use(new Pages(page));
-	},
-
-	// Opt out with `test.use({ waitForHydration: false })` plus a one-line
-	// reason, only for tests that must act before hydration.
-	waitForHydration: [true, { option: true }]
+	}
 });
