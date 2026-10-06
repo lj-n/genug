@@ -143,6 +143,7 @@ jobs:
         with:
           name: blob-report-${{ matrix.shard }}
           path: blob-report/
+          if-no-files-found: error
           retention-days: 1
 
   # Required status check. Always reports a definitive result:
@@ -188,12 +189,13 @@ jobs:
           path: blob-report/
           merge-multiple: true
       # The html report is the merged record (incl. flaky tests) uploaded below;
-      # the list output (flooded by replayed [WebServer] logs) can come out
-      # truncated in the job log, losing its summary.
+      # the list output also prints the run summary to the job log. Only warn+
+      # [WebServer] logs (e.g. unhandled errors with their logId) are replayed.
       - run: npx playwright merge-reports --reporter=html,list ./blob-report
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
           path: playwright-report/
+          if-no-files-found: error
           retention-days: 7
