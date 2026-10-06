@@ -10,6 +10,12 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Changed
+
+- The Docker image now runs on Node.js 24 (active LTS) instead of Node.js 22.
+  Running from source now requires Node.js 24.19 or later; its bundled npm is
+  recent enough, so a separate npm upgrade is no longer needed.
+
 ### Fixed
 
 - The inline "New Transaction" row on an account's register no longer stays

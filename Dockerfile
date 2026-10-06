@@ -1,13 +1,10 @@
 # Node major must match .node-version (FROM can't read it) — bump both stages.
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 
 RUN apk add --no-cache python3 make g++
 
 COPY package*.json ./
-# Satisfy engines.npm (node:22 bundles npm 10). npm ci installs from the
-# lockfile verbatim, so the min-release-age cooldown does not apply here.
-RUN npm install -g npm@11
 RUN npm ci
 
 COPY src ./src
@@ -30,7 +27,7 @@ RUN npm run build
 RUN npm prune --production
 
 
-FROM node:22-alpine
+FROM node:24-alpine
 WORKDIR /app
 
 ENV NODE_ENV=production
