@@ -57,11 +57,12 @@ export default defineConfig({
 	},
 
 	webServer: {
-		command: `DATABASE_URL=:memory: npm run build && DATABASE_URL=:memory: ORIGIN=${ORIGIN} PORT=${PORT} node build`,
+		command: `DATABASE_URL=:memory: npm run build && DATABASE_URL=:memory: LOG_LEVEL=warn ORIGIN=${ORIGIN} PORT=${PORT} node build`,
 		port: PORT,
-		// pino logs (request logs, unhandled server errors incl. logId) go to
-		// stdout, which Playwright discards by default — keep them visible so a
-		// 500 during a test can be traced to its server-side error.
+		// pino logs go to stdout, which Playwright discards by default — keep them
+		// visible so a 500 during a test can be traced to its server-side error
+		// (logged at `error` with its logId). LOG_LEVEL=warn above drops the
+		// per-request `info` logs that would otherwise flood the output.
 		stdout: 'pipe'
 	},
 

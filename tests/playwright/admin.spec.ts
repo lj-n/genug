@@ -1,6 +1,4 @@
-import { expect } from '@playwright/test';
-
-import { test } from './fixture';
+import { expect, test } from './fixture';
 
 test('Create User', async ({ pages }) => {
 	const _user = await pages.auth.createUserAndLogin();

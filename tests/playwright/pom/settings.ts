@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
 
+import { waitForHydration } from '../fixture';
 import { BasePage } from './base-page';
 
 export class SettingsPage extends BasePage {
@@ -25,9 +26,14 @@ export class SettingsPage extends BasePage {
 		// listbox to appear before looking for the option — on chromium,
 		// floating-ui can take a frame or two to position the portal.
 		await expect(this.page.getByRole('listbox')).toBeVisible();
+		// Paraglide's `setLocale` reloads the document, which the fixture's
+		// navigation wrappers do not see; wait for the load and re-hydration
+		// so later steps cannot act on the pre-hydration page.
+		const reloaded = this.page.waitForEvent('load');
 		await this.page.getByRole('option', { name: locale }).click();
-		// Language change may navigate; the trigger's aria-label also changes languages.
-		// Match by regex that covers both English and German labels, check text is locale code.
+		await reloaded;
+		await waitForHydration(this.page);
+		// The trigger's aria-label is translated too, so match both languages.
 		await expect(
 			this.page.getByRole('button', {
 				name: /Available Languages|Verfügbare Sprachen/
@@ -63,8 +69,7 @@ export class SettingsPage extends BasePage {
 	}
 
 	async goto() {
-		// Settings are driven by client-only controls (Select portals, enhanced forms).
-		await this.gotoHydrated('/settings');
+		await this.page.goto('/settings');
 		await expect(this.page.getByRole('heading', { name: 'Settings' })).toBeVisible();
 	}
 
