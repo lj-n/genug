@@ -31,7 +31,8 @@ export class AuthPage extends BasePage {
 	}
 
 	async createUser(username = faker.string.alphanumeric(8).toUpperCase()) {
-		// The generated password is revealed by the enhanced submit only.
+		// The generated password is revealed by the enhanced submit only; the
+		// fixture's `goto` waits for hydration, so the submit reaches it.
 		await this.page.goto('/admin');
 		await this.page.getByLabel('Username').click();
 		await this.page.getByLabel('Username').fill(username);
