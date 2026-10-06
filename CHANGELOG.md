@@ -13,8 +13,7 @@ and dependency bumps get no entry.
 ### Changed
 
 - The Docker image now runs on Node.js 24 (active LTS) instead of Node.js 22.
-  Running from source now requires Node.js 24.19 or later; its bundled npm is
-  recent enough, so a separate npm upgrade is no longer needed.
+  Running from source now requires Node.js 24.19 or later.
 
 ### Fixed
 

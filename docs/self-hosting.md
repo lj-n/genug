@@ -10,7 +10,7 @@ database server.
 ## Prerequisites
 
 - **Docker** for the container images below, or
-- **Node.js 22+** plus build tools for native addons (better-sqlite3
+- **Node.js 24.19+** plus build tools for native addons (better-sqlite3
   compiles from source) for a manual install.
 
 ## Container images
