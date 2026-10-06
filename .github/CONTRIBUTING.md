@@ -21,10 +21,10 @@ prior, agreed-upon issue may be closed without review.
 ## Development setup
 
 See the [Development section of the README](../README.md#development) for
-setup and the test/lint commands. In short: Node.js 22+ and npm 11.17+
-(`npm install -g npm@11` — package installs enforce a 3-day release-age
-cooldown against supply-chain attacks, which older npm versions would
-silently ignore), `npm install`, then
+setup and the test/lint commands. In short: Node.js 24.19+, whose bundled
+npm 11.17+ enforces a 3-day release-age cooldown on package installs against
+supply-chain attacks (older npm versions would silently ignore it),
+`npm install`, then
 `npm run dev`, `npm run check`, `npm run lint`, `npm run test:unit`,
 `npm run test:e2e`. A committed `.env` provides the `DATABASE_URL` default, so
 no prefix is needed.

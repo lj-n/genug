@@ -62,7 +62,7 @@
 		"@testing-library/svelte": "^5.3.1",
 		"@testing-library/user-event": "^14.6.1",
 		"@types/better-sqlite3": "^7.6.13",
-		"@types/node": "^22",
+		"@types/node": "^24",
 		"@types/sortablejs": "^1.15.9",
 		"@valibot/to-json-schema": "^1.7.1",
 		"@vitest/coverage-v8": "^4.1.10",

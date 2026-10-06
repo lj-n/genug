@@ -33,8 +33,9 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
-      # .npmrc min-release-age needs npm >=11.17; Node 22 bundles npm 10.
-      - run: npm install -g npm@11
+          # The runner's cached Node 24 may predate 24.19, the first to bundle
+          # npm >=11.17 (engines.npm, for .npmrc min-release-age).
+          check-latest: true
       - run: npm ci
       - run: npm run build
         env:
@@ -48,8 +49,9 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
-      # .npmrc min-release-age needs npm >=11.17; Node 22 bundles npm 10.
-      - run: npm install -g npm@11
+          # The runner's cached Node 24 may predate 24.19, the first to bundle
+          # npm >=11.17 (engines.npm, for .npmrc min-release-age).
+          check-latest: true
       - run: npm ci
       - run: npm run check
 
@@ -61,8 +63,9 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
-      # .npmrc min-release-age needs npm >=11.17; Node 22 bundles npm 10.
-      - run: npm install -g npm@11
+          # The runner's cached Node 24 may predate 24.19, the first to bundle
+          # npm >=11.17 (engines.npm, for .npmrc min-release-age).
+          check-latest: true
       - run: npm ci
       - run: npm run lint
 
@@ -74,8 +77,9 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
-      # .npmrc min-release-age needs npm >=11.17; Node 22 bundles npm 10.
-      - run: npm install -g npm@11
+          # The runner's cached Node 24 may predate 24.19, the first to bundle
+          # npm >=11.17 (engines.npm, for .npmrc min-release-age).
+          check-latest: true
       - run: npm ci
       - run: npm run test:unit -- run --coverage
         env:
@@ -125,8 +129,9 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
-      # .npmrc min-release-age needs npm >=11.17; Node 22 bundles npm 10.
-      - run: npm install -g npm@11
+          # The runner's cached Node 24 may predate 24.19, the first to bundle
+          # npm >=11.17 (engines.npm, for .npmrc min-release-age).
+          check-latest: true
       - run: npm ci
       - uses: actions/cache@v6
         id: playwright-cache
@@ -180,8 +185,9 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
-      # .npmrc min-release-age needs npm >=11.17; Node 22 bundles npm 10.
-      - run: npm install -g npm@11
+          # The runner's cached Node 24 may predate 24.19, the first to bundle
+          # npm >=11.17 (engines.npm, for .npmrc min-release-age).
+          check-latest: true
       - run: npm ci
       - uses: actions/download-artifact@v4
         with:
