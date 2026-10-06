@@ -46,6 +46,22 @@ export class BasePage {
 		this.ctx = ctx;
 	}
 
+	/**
+	 * Loads `path` with a full page load and waits until the client app has
+	 * hydrated, so the next interaction reaches the app's handlers.
+	 *
+	 * A click that lands in the paint→hydration window is swallowed by
+	 * client-only controls (menus, dialogs), and a submit bypasses the remote
+	 * form's `enhance` callback and posts natively: the server still runs the
+	 * action, but client-only `onSuccess` effects (e.g. revealing a dialog)
+	 * never happen. SvelteKit's root component mounts its `#svelte-announcer`
+	 * live region only once hydration completes, so its presence is the signal.
+	 */
+	async gotoHydrated(path: string) {
+		await this.page.goto(path);
+		await expect(this.page.locator('#svelte-announcer')).toBeAttached();
+	}
+
 	async openMobileNavigation() {
 		const signOutButton = this.page.getByRole('button', { name: 'Sign out' });
 		if (!(await signOutButton.isVisible())) {

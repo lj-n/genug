@@ -4,14 +4,16 @@
 
 	let {
 		dismissible = true,
+		onOpenChangeComplete,
 		open = $bindable(false)
 	}: {
 		dismissible?: boolean;
+		onOpenChangeComplete?: (open: boolean) => void;
 		open?: boolean;
 	} = $props();
 </script>
 
-<ResponsiveModal.Root {dismissible} bind:open>
+<ResponsiveModal.Root {dismissible} {onOpenChangeComplete} bind:open>
 	<ResponsiveModal.Content>
 		<ResponsiveModal.Header>
 			<ResponsiveModal.Title>Manage users</ResponsiveModal.Title>

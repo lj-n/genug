@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import Fixture from './responsive-modal.test-fixture.svelte';
 
@@ -47,12 +47,16 @@ describe('ResponsiveModal drawer variant — dismissible={false}', () => {
 
 describe('ResponsiveModal drawer variant — dismissible (default)', () => {
 	it('still closes via the Close button', async () => {
-		render(Fixture, { props: { open: true } });
+		const onOpenChangeComplete = vi.fn();
+		render(Fixture, { props: { onOpenChangeComplete, open: true } });
 
 		const closeButton = await screen.findByRole('button', { name: 'Close' });
 		await fireEvent.click(closeButton);
 
 		await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+		// vaul's own close path restores body styles on a timer that outlives jsdom
+		// teardown; end the test only once the close transition has completed (#414).
+		await waitFor(() => expect(onOpenChangeComplete).toHaveBeenCalledWith(false));
 	});
 });
 

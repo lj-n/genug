@@ -107,6 +107,9 @@ for (const theme of THEMES) {
 		// the default button variant in dialogs is the live worst case.
 		test('Accent tokens keep AA on elevated surfaces and tint chips', async ({ page, pages }) => {
 			await pages.auth.createUserAndLogin();
+			// Read tokens only once the forced theme's class is on `<html>`, so the
+			// gate provably judges this theme's palette, not the other one's.
+			await expect(page.locator('html')).toHaveClass(new RegExp(`\\b${theme}\\b`));
 			const tokens = await page.evaluate(() => {
 				const style = getComputedStyle(document.documentElement);
 				const read = (name: string) => style.getPropertyValue(name).trim();

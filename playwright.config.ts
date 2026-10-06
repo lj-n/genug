@@ -12,6 +12,10 @@ export default defineConfig({
 		timeout: 10000
 	},
 
+	// CI fails the run when a test only passes on retry, so a new flake turns
+	// the PR red instead of hiding behind the retry below.
+	failOnFlakyTests: !!process.env.CI,
+
 	fullyParallel: true,
 
 	outputDir: 'tests/playwright/results',
@@ -38,9 +42,9 @@ export default defineConfig({
 
 	reporter: process.env.CI ? 'blob' : 'list',
 
-	// One retry in CI: a genuine failure still fails, a one-off timing flake is
-	// reported as "flaky" instead of red — and the retry records a full trace
-	// (trace: 'on-first-retry') for diagnosis.
+	// One retry in CI: a flake is reported as "flaky" (and fails the run via
+	// failOnFlakyTests) rather than as a plain failure — and the retry records
+	// a full trace (trace: 'on-first-retry') for diagnosis.
 	retries: process.env.CI ? 1 : 0,
 
 	testDir: 'tests/playwright',

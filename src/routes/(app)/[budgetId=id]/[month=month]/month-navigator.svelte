@@ -27,7 +27,10 @@
 
 	const thisMonth = currentMonth();
 
-	let selectedMonth = $derived(month);
+	// `month` is the committed month; while a later hop is still loading, an
+	// earlier hop committing would reset the navigator and the next click would
+	// step from it. `$state.eager(month)` is the month navigated to last.
+	let selectedMonth = $derived($state.eager(month));
 
 	let monthsInSelectedYear = $derived(monthsOfYear(selectedMonth));
 
