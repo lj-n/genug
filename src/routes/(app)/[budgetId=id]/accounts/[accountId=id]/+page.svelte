@@ -89,7 +89,7 @@
 		if (tableParams.sortDate) searchParams.set('sortDate', tableParams.sortDate);
 		if (tableParams.sortValidated) searchParams.set('sortValidated', tableParams.sortValidated);
 		// PROTOTYPE: keep the variant switcher's params.
-		for (const key of ['cp', 'age', 'since']) {
+		for (const key of ['cp', 'age', 'since', 'variant']) {
 			const value = page.url.searchParams.get(key);
 			if (value) searchParams.set(key, value);
 		}
@@ -199,10 +199,6 @@
 	</Page.Content>
 </Page.Root>
 
-<ProtoSwitcher
-	extras={[
-		{ label: 'days ago', param: 'age', values: ['45', '3', '0', '12', '400'] },
-		{ label: 'validated since', param: 'since', values: ['34', '0', '6', '25', '120'] }
-	]}
-	labels={{ A: 'Header, stamp, dot when due' }}
-/>
+<!-- Question 2 locked: tinted row + stamp badge (A3). Questions 1 and 2 have no
+     variants left; the switcher stays for the "no checkpoint yet" toggle. -->
+<ProtoSwitcher labels={{ A3: 'Sealed: tinted row, stamp badge' }} />

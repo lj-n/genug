@@ -26,8 +26,11 @@
 	import { tick, untrack } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
+	// PROTOTYPE — question 2 (branch prototype/checkpoint-page).
 	import TrashIcon from '~icons/ph/trash';
 
+	import SealedNote from './sealed-prototype-note.svelte';
+	import { isSealed, sealedCheckpointLabel } from './sealed-prototype.svelte';
 	import {
 		cellClass,
 		cellTriggerClass,
@@ -138,14 +141,37 @@
 	// The last visible row's cell hairline would double the frame's bottom
 	// border — except while editing, where it separates fields from actions.
 	const cell = $derived(cn(cellClass, !isEditing && 'group-last-of-type/row:border-b-0'));
+
+	const sealed = $derived(isSealed(transaction));
+	const sealedTitle = $derived(`Sealed by the checkpoint on ${sealedCheckpointLabel()}`);
 </script>
+
+<!-- PROTOTYPE: a locked cell, in read mode (B) or while editing (A, B). -->
+{#snippet lockedValue(text: string, extra?: string)}
+	<div
+		class={cn(
+			'flex size-full items-center justify-end gap-1.5 px-2',
+			!isEditing && 'cursor-not-allowed',
+			extra
+		)}
+		title={sealedTitle}
+	>
+		<span class="truncate">{text}</span>
+	</div>
+{/snippet}
 
 <!-- The keydown only catches Escape bubbling out of the edit inputs; the row
      itself is never a focus target. -->
 <!-- svelte-ignore a11y_interactive_supports_focus -->
 <div
 	role="row"
-	class={cn('group/row grid', colsClass, isEditing ? editRowClass : 'hover:bg-muted/3')}
+	class={cn(
+		'group/row grid',
+		colsClass,
+		isEditing ? editRowClass : !sealed && 'hover:bg-muted/3',
+		sealed && 'relative',
+		sealed && !isEditing && 'bg-foreground/5'
+	)}
 	{@attach isEditing && submit.anchor}
 	{@attach isEditing && clickOutside({ callback: cancelEditing })}
 	onkeydown={(e) => {
@@ -156,7 +182,14 @@
 	}}
 >
 	<div role="cell" class={cell}>
-		{#if isEditing}
+		{#if sealed}
+			<div
+				class={cn('flex size-full items-center px-2', !isEditing && 'cursor-not-allowed')}
+				title={sealedTitle}
+			>
+				<TransferBadge {transaction} class="px-1 py-0 text-sm" />
+			</div>
+		{:else if isEditing}
 			<SelectCategory
 				class={cn(editInputClass, editSelectClass)}
 				form={editFormId}
@@ -207,7 +240,12 @@
 	</div>
 
 	<div role="cell" class={cell}>
-		{#if isEditing}
+		{#if sealed}
+			{@render lockedValue(
+				formatTransactionDate(parseDate(transaction.date)),
+				isEditing ? 'text-muted' : ''
+			)}
+		{:else if isEditing}
 			<DatePicker
 				form={editFormId}
 				bind:ref={dateRef}
@@ -234,7 +272,12 @@
 	</div>
 
 	<div role="cell" class={cell}>
-		{#if isEditing}
+		{#if sealed}
+			{@render lockedValue(
+				formatMoney({ currency, money: asMoney(transaction.amount) }),
+				cn('font-currency', isEditing && 'text-muted')
+			)}
+		{:else if isEditing}
 			<InputMoney
 				form={editFormId}
 				bind:ref={amountRef}
@@ -260,7 +303,7 @@
 	<!-- Validation is per-leg and display-mode only; in edit mode the cell
 	     stays as an empty spacer so the columns hold. -->
 	<div role="cell" class={cell}>
-		{#if !isEditing}
+		{#if !isEditing || sealed}
 			<ValidateToggle {transaction} class="mr-1 ml-auto" />
 		{/if}
 	</div>
@@ -273,7 +316,11 @@
 			transition:slide={{ duration: 150 }}
 			class="col-span-full flex items-center justify-between gap-1 p-1"
 		>
-			<p class="px-1 text-sm text-muted">{m.transfer_amount_hint()}</p>
+			{#if sealed}
+				<SealedNote accountId={transaction.accountId} transfer />
+			{:else}
+				<p class="px-1 text-sm text-muted">{m.transfer_amount_hint()}</p>
+			{/if}
 
 			<div class="flex items-center gap-1">
 				<Button
@@ -287,20 +334,22 @@
 					{m.cancel()}
 				</Button>
 
-				<Button
-					type="submit"
-					variant="destructive"
-					size="icon-xs"
-					class="@3xl/main:size-11 @7xl/main:size-6"
-					form={deleteFormId}
-					name={deleteForm.fields.ids[0].as('submit', transaction.id).name}
-					value={transaction.id}
-					disabled={pending}
-					{@attach deleteSubmit.anchor}
-				>
-					<TrashIcon />
-					<span class="sr-only">{m.delete()}</span>
-				</Button>
+				{#if !sealed}
+					<Button
+						type="submit"
+						variant="destructive"
+						size="icon-xs"
+						class="@3xl/main:size-11 @7xl/main:size-6"
+						form={deleteFormId}
+						name={deleteForm.fields.ids[0].as('submit', transaction.id).name}
+						value={transaction.id}
+						disabled={pending}
+						{@attach deleteSubmit.anchor}
+					>
+						<TrashIcon />
+						<span class="sr-only">{m.delete()}</span>
+					</Button>
+				{/if}
 
 				<Button
 					type="submit"
@@ -320,6 +369,16 @@
 	<form id={editFormId} class="hidden" {...submit.attrs}>
 		<input {...form.fields.accountId.as('hidden', transaction.accountId)} />
 		<input {...form.fields.transferId.as('hidden', transaction.transferId ?? '')} />
+		{#if sealed}
+			<!-- PROTOTYPE: the locked fields still submit their sealed values. -->
+			<input
+				type="hidden"
+				name={form.fields.counterpartAccountId.as('select').name}
+				value={transaction.counterpartAccountId ?? ''}
+			/>
+			<input type="hidden" name={form.fields.date.as('date').name} value={transaction.date} />
+			<input type="hidden" name={form.fields.amount.as('number').name} value={transaction.amount} />
+		{/if}
 	</form>
 	<form id={deleteFormId} class="hidden" {...deleteSubmit.attrs}></form>
 {/if}

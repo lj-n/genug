@@ -10,8 +10,12 @@
 	} from '$lib/remote-functions/transaction.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { cn } from 'tailwind-variants';
+	// PROTOTYPE — question 2 (branch prototype/checkpoint-page).
 	import SealIcon from '~icons/ph/seal';
 	import SealCheckDuotoneIcon from '~icons/ph/seal-check-duotone';
+	import StampFillIcon from '~icons/ph/stamp-fill';
+
+	import { isSealed, sealedCheckpointLabel } from './sealed-prototype.svelte';
 
 	let {
 		class: className,
@@ -38,32 +42,61 @@
 			getAccountBalances(transaction.accountId)
 		]
 	});
+
+	const sealed = $derived(isSealed(transaction));
+	const sealedTitle = $derived(`Sealed by the checkpoint on ${sealedCheckpointLabel()}`);
+	const sealedClass = $derived(
+		cn(
+			'm-auto grid size-8 cursor-not-allowed place-items-center @3xl/main:size-11 @7xl/main:size-8',
+			className
+		)
+	);
 </script>
 
-<!-- Centering via flex + auto margins (not grid place-content) so a caller's
+{#snippet validationIcon()}
+	{#if transaction.validated}
+		<SealCheckDuotoneIcon class="size-6 text-success" />
+	{:else}
+		<SealIcon class="size-6 text-muted" />
+	{/if}
+{/snippet}
+
+{#if sealed}
+	<span class={sealedClass} title={sealedTitle}>
+		<span class="relative">
+			{@render validationIcon()}
+			<StampFillIcon
+				class="absolute -right-1.5 -bottom-1 size-3.5 rounded-full bg-surface p-px text-foreground"
+			/>
+		</span>
+		<span class="sr-only">{sealedTitle}</span>
+	</span>
+{:else}
+	<!-- Centering via flex + auto margins (not grid place-content) so a caller's
      `size-full` override can stretch the button into its cell — the mobile
      rail relies on that for its full-height tap zone. -->
-<form {...submit.attrs} class="flex size-full">
-	<input {...form.fields.validated.as('hidden', !transaction.validated)} />
+	<form {...submit.attrs} class="flex size-full">
+		<input {...form.fields.validated.as('hidden', !transaction.validated)} />
 
-	<Button
-		type="submit"
-		name={form.fields.ids[0].as('submit', transaction.id).name}
-		value={transaction.id}
-		size="icon-lg"
-		variant="ghost"
-		disabled={submit.pending}
-		class={cn(
-			'm-auto size-8 rounded-xs hover:bg-transparent @3xl/main:size-11 @7xl/main:size-8',
-			className
-		)}
-		aria-label={m.transactions_table_toggle_validated()}
-		{@attach submit.anchor}
-	>
-		{#if transaction.validated}
-			<SealCheckDuotoneIcon class="size-6 text-success" />
-		{:else}
-			<SealIcon class="size-6 text-muted" />
-		{/if}
-	</Button>
-</form>
+		<Button
+			type="submit"
+			name={form.fields.ids[0].as('submit', transaction.id).name}
+			value={transaction.id}
+			size="icon-lg"
+			variant="ghost"
+			disabled={submit.pending}
+			class={cn(
+				'm-auto size-8 rounded-xs hover:bg-transparent @3xl/main:size-11 @7xl/main:size-8',
+				className
+			)}
+			aria-label={m.transactions_table_toggle_validated()}
+			{@attach submit.anchor}
+		>
+			{#if transaction.validated}
+				<SealCheckDuotoneIcon class="size-6 text-success" />
+			{:else}
+				<SealIcon class="size-6 text-muted" />
+			{/if}
+		</Button>
+	</form>
+{/if}

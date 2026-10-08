@@ -19,9 +19,15 @@
 		listTransactions
 	} from '$lib/remote-functions/transaction.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
+	// PROTOTYPE — question 2 (branch prototype/checkpoint-page).
+	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
+	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { parseDate } from '@internationalized/date';
 	import TrashIcon from '~icons/ph/trash';
 
+	import SealedNote from './sealed-prototype-note.svelte';
+	import { isSealed } from './sealed-prototype.svelte';
+	import ValidateToggle from './transaction-validate-toggle.svelte';
 	import ValidationCheckbox from './transaction-validation-checkbox.svelte';
 
 	let {
@@ -86,7 +92,21 @@
 		form.fields.categoryId.set(transaction.categoryId ?? undefined);
 		form.fields.amount.set(transaction.amount);
 	};
+
+	const sealed = $derived(transaction !== null && isSealed(transaction));
 </script>
+
+<!-- PROTOTYPE: a locked field in the sheet (A: read-only box, B: plain text). -->
+{#snippet lockedField(label: string, text: string, extra: string)}
+	<div class="grid gap-1.5">
+		<Label>{label}</Label>
+		<div
+			class="flex h-11 items-center gap-2 rounded-sm border border-muted/10 bg-muted/5 px-3 text-muted"
+		>
+			<span class={extra}>{text}</span>
+		</div>
+	</div>
+{/snippet}
 
 <ResponsiveModal.Root bind:open onOpenChangeComplete={(isOpen) => !isOpen && (transaction = null)}>
 	<ResponsiveModal.Content>
@@ -132,34 +152,66 @@
 						/>
 					</div>
 
-					<div class="grid gap-1.5">
-						<Label>{m.transactions_table_header_date()}</Label>
-						<DatePicker
-							name={form.fields.date.as('date').name}
-							bind:value={
-								() => parseDate(form!.fields.date.value() ?? transaction!.date),
-								(v) => form!.fields.date.set(v.toString())
-							}
-							ariaInvalid={form.fields.date.issues()?.length ? true : undefined}
-							label={m.transaction_table_cell_date_select()}
-						/>
-					</div>
+					{#if sealed}
+						{@render lockedField(
+							m.transactions_table_header_date(),
+							formatTransactionDate(parseDate(transaction.date)),
+							''
+						)}
+						<input type="hidden" name={form.fields.date.as('date').name} value={transaction.date} />
+					{:else}
+						<div class="grid gap-1.5">
+							<Label>{m.transactions_table_header_date()}</Label>
+							<DatePicker
+								name={form.fields.date.as('date').name}
+								bind:value={
+									() => parseDate(form!.fields.date.value() ?? transaction!.date),
+									(v) => form!.fields.date.set(v.toString())
+								}
+								ariaInvalid={form.fields.date.issues()?.length ? true : undefined}
+								label={m.transaction_table_cell_date_select()}
+							/>
+						</div>
+					{/if}
 
-					<div class="grid gap-1.5">
-						<Label>{m.transactions_table_header_amount()}</Label>
-						<InputMoney
-							name={form.fields.amount.as('number').name}
-							aria-label={m.transactions_table_header_amount()}
-							bind:value={() => form!.fields.amount.value(), (v) => form!.fields.amount.set(v)}
-							{currency}
-							class="text-right font-currency"
-						/>
-					</div>
+					{#if sealed}
+						{@render lockedField(
+							m.transactions_table_header_amount(),
+							formatMoney({ currency, money: asMoney(transaction.amount) }),
+							'font-currency'
+						)}
+					{:else}
+						<div class="grid gap-1.5">
+							<Label>{m.transactions_table_header_amount()}</Label>
+							<InputMoney
+								name={form.fields.amount.as('number').name}
+								aria-label={m.transactions_table_header_amount()}
+								bind:value={() => form!.fields.amount.value(), (v) => form!.fields.amount.set(v)}
+								{currency}
+								class="text-right font-currency"
+							/>
+						</div>
+					{/if}
 
-					<div class="flex items-center gap-1">
-						<ValidationCheckbox {...form.fields.validated.as('checkbox', transaction.validated)} />
-						<span>{m.transaction_validated_label()}</span>
-					</div>
+					{#if sealed}
+						<div class="flex items-center gap-1">
+							<ValidateToggle {transaction} scope="modal" class="m-0" />
+							<span>
+								{m.transaction_validated_label()}
+							</span>
+						</div>
+						<input
+							class="hidden"
+							{...form.fields.validated.as('checkbox', transaction.validated)}
+						/>
+					{:else}
+						<div class="flex items-center gap-1">
+							<ValidationCheckbox
+								{...form.fields.validated.as('checkbox', transaction.validated)}
+							/>
+							<span>{m.transaction_validated_label()}</span>
+						</div>
+					{/if}
 
 					{#if form.fields.allIssues()?.length}
 						<p role="alert" class="text-sm text-error">
@@ -170,6 +222,19 @@
 						</p>
 					{/if}
 				</form>
+
+				{#if sealed}
+					<input
+						type="hidden"
+						form={formId}
+						name={form.fields.amount.as('number').name}
+						value={transaction.amount}
+					/>
+				{/if}
+
+				{#if sealed}
+					<SealedNote accountId={transaction.accountId} transfer={false} class="mt-4 px-0" />
+				{/if}
 
 				<form id={deleteFormId} class="hidden" {...deleteSubmit.attrs}></form>
 			</ResponsiveModal.Body>
@@ -185,19 +250,21 @@
 					{m.cancel()}
 				</Button>
 
-				<Button
-					type="submit"
-					variant="destructive"
-					class="h-11 w-full sm:w-auto"
-					form={deleteFormId}
-					name={deleteForm.fields.ids[0].as('submit', transaction.id).name}
-					value={transaction.id}
-					disabled={pending}
-					{@attach deleteSubmit.anchor}
-				>
-					<TrashIcon />
-					<span class="sr-only">{m.delete()}</span>
-				</Button>
+				{#if !sealed}
+					<Button
+						type="submit"
+						variant="destructive"
+						class="h-11 w-full sm:w-auto"
+						form={deleteFormId}
+						name={deleteForm.fields.ids[0].as('submit', transaction.id).name}
+						value={transaction.id}
+						disabled={pending}
+						{@attach deleteSubmit.anchor}
+					>
+						<TrashIcon />
+						<span class="sr-only">{m.delete()}</span>
+					</Button>
+				{/if}
 
 				<Button type="submit" form={formId} class="h-11 w-full sm:w-auto" disabled={pending}>
 					{m.save()}

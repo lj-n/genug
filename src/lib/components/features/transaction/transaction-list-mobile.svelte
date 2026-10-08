@@ -8,7 +8,9 @@
 	import { parseDate } from '@internationalized/date';
 	import { cn } from 'tailwind-variants';
 
+	// PROTOTYPE — question 2 (branch prototype/checkpoint-page).
 	import { groupTransactionsByDate } from './group-transactions-by-date';
+	import { isSealed } from './sealed-prototype.svelte';
 	import ValidateToggle from './transaction-validate-toggle.svelte';
 	import TransferBadge from './transfer-badge.svelte';
 
@@ -42,7 +44,11 @@
 			{#each group.transactions as item (item.id)}
 				<div
 					role="row"
-					class="grid grid-cols-[minmax(0,1fr)_auto_3.5rem] overflow-hidden rounded-sm border border-muted/10 bg-surface [grid-template-areas:'category_amount_toggle'_'notes_notes_toggle']"
+					class={cn(
+						"grid grid-cols-[minmax(0,1fr)_auto_3.5rem] overflow-hidden rounded-sm border border-muted/10 bg-surface [grid-template-areas:'category_amount_toggle'_'notes_notes_toggle']",
+						isSealed(item) && 'relative',
+						isSealed(item) && 'bg-foreground/5'
+					)}
 				>
 					<div role="cell" class="min-w-0 [grid-area:category]">
 						<button
