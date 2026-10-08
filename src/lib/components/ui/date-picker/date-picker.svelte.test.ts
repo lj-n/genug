@@ -68,3 +68,38 @@ describe('DatePicker — combobox wiring contract (#356)', () => {
 		expect(button).not.toHaveAttribute('aria-controls');
 	});
 });
+
+describe('DatePicker — focus return after picking a day (#430)', () => {
+	async function pickFirstDay() {
+		const day = await vi.waitFor(() => {
+			const el = document.querySelector<HTMLElement>(
+				'[data-calendar-day]:not([data-outside-month])'
+			);
+			if (!el) throw new Error('Expected the calendar to render');
+			return el;
+		});
+		day.focus();
+		day.click();
+	}
+
+	it('returns focus to the trigger after picking a day', async () => {
+		const { button } = renderDatePicker({ open: true });
+
+		await pickFirstDay();
+
+		await vi.waitFor(() => expect(document.activeElement).toBe(button));
+	});
+
+	it('leaves focus alone once the user moved to another field while it closes', async () => {
+		const other = document.createElement('input');
+		document.body.append(other);
+		renderDatePicker({ open: true });
+
+		await pickFirstDay();
+		other.focus();
+		await vi.runAllTimersAsync();
+
+		expect(document.activeElement).toBe(other);
+		other.remove();
+	});
+});

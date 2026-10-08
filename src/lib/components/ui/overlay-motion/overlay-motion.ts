@@ -9,7 +9,7 @@
  * `transition:`. The drawer is exempt: vaul-svelte owns its slide/drag
  * motion.
  */
-import { fade, type TransitionConfig } from 'svelte/transition';
+import { fade, slide, type TransitionConfig } from 'svelte/transition';
 
 const OVERSHOOT = 2;
 
@@ -51,6 +51,15 @@ export function modalIn(_node: Element): TransitionConfig {
 
 export function modalOut(node: Element): TransitionConfig {
 	return fade(node, { duration: duration(130) });
+}
+
+/**
+ * Inline table rows (create/edit rows, their footers) expanding in place.
+ * Not an overlay, but it shares the reduced-motion rule: a row still sliding
+ * moves everything anchored to it, such as an open date picker.
+ */
+export function rowSlide(node: Element): TransitionConfig {
+	return slide(node, { duration: duration(150) });
 }
 
 /** Scrim behind modal surfaces. */
