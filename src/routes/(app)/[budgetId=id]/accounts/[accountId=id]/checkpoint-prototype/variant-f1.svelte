@@ -53,6 +53,10 @@
 	const adjusting = $derived(cp.difference !== undefined && cp.difference !== 0);
 	const count = $derived(covered.length + (adjusting ? 1 : 0));
 
+	// Phone (below @3xl/main): each line stacks label over amount (question 3, M1).
+	const amount = 'px-3 text-right font-currency text-3xl';
+	const group = 'not-first:mt-4 @3xl/main:not-first:mt-0';
+
 	function set() {
 		cp.setCheckpoint();
 		justSet = true;
@@ -83,14 +87,16 @@
 
 	<Page.Content class="grid max-w-xl gap-8 pt-4">
 		<div class="grid gap-6">
-			<dl class="grid grid-cols-[1fr_auto] items-center gap-x-6 gap-y-3">
-				<div>
+			<dl
+				class="grid grid-cols-1 items-center gap-x-6 gap-y-1 @3xl/main:grid-cols-[1fr_auto] @3xl/main:gap-y-3"
+			>
+				<div class={group}>
 					<dt class="text-base">Validated in {accountName}</dt>
 					<dd class="text-sm text-muted">Sum of every transaction you've validated.</dd>
 				</div>
-				<dd class="px-3 text-right font-currency text-3xl">{fmt(cp.validatedBalance)}</dd>
+				<dd class={amount}>{fmt(cp.validatedBalance)}</dd>
 
-				<div>
+				<div class={group}>
 					<dt class="text-base">
 						<label for="bank-balance">Your bank</label>
 					</dt>
@@ -104,7 +110,7 @@
 						bind:value={cp.bankInput}
 						{currency}
 						class={cn(
-							'h-14 w-56 text-right font-currency text-3xl',
+							'h-14 w-full text-right font-currency text-3xl @3xl/main:w-56',
 							// First call to action: tinted until a balance is entered.
 							empty && 'border-focus/50 bg-focus/5',
 							empty && !focused && 'text-transparent'
@@ -125,8 +131,8 @@
 					{/if}
 				</dd>
 
-				<div class="col-span-2 border-t border-muted/20"></div>
-				<div>
+				<div class="mt-4 border-t border-muted/20 @3xl/main:col-span-2 @3xl/main:mt-0"></div>
+				<div class={group}>
 					<dt class="text-base">Adjustment</dt>
 					<dd class="text-sm text-muted">
 						{#if empty}
@@ -138,7 +144,7 @@
 						{/if}
 					</dd>
 				</div>
-				<dd class="px-3 text-right font-currency text-3xl">
+				<dd class={amount}>
 					{#if empty}
 						<span class="text-muted">—</span>
 					{:else}

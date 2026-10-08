@@ -18,6 +18,7 @@
 
 	import ProtoPanel from './proto-panel.svelte';
 	import { ProtoCheckpointState } from './proto-state.svelte';
+	import ProtoSwitcher from './proto-switcher.svelte';
 	import VariantF1 from './variant-f1.svelte';
 
 	let { params }: PageProps = $props();
@@ -45,3 +46,6 @@
 />
 
 <ProtoPanel currency={budget.currency} cp={proto} />
+
+<!-- Question 3 locked: phone layout M1 (stacked, full-width input). -->
+<ProtoSwitcher labels={{ M1: 'Phone: stacked, full-width input' }} />

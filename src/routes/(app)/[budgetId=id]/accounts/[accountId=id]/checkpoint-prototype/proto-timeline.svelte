@@ -48,9 +48,14 @@
 							i === 0 ? 'bg-success' : 'bg-muted/40'
 						)}
 					></span>
-					<div class="flex flex-wrap items-baseline gap-x-4 gap-y-0.5">
-						<span class="w-24 text-sm">{fmtDate(ck.createdAt)}</span>
-						<span class="w-32 text-right font-currency font-medium">{fmt(ck.bankBalance)}</span>
+					<!-- Phone: date | balance, then meta | delete. Desktop: one wrapping line. -->
+					<div
+						class="grid grid-cols-[1fr_auto] items-baseline gap-x-4 gap-y-0.5 @3xl/main:flex @3xl/main:flex-wrap"
+					>
+						<span class="text-sm @3xl/main:w-24">{fmtDate(ck.createdAt)}</span>
+						<span class="text-right font-currency font-medium @3xl/main:w-32"
+							>{fmt(ck.bankBalance)}</span
+						>
 						<span class="text-xs text-muted">
 							{ck.coveredCount} sealed{ck.adjustment
 								? ` · adjustment ${fmt(ck.adjustment, true)}`
@@ -60,7 +65,7 @@
 							<Button
 								variant="ghost"
 								size="xs"
-								class="ml-auto text-error"
+								class="-my-1 justify-self-end text-error @3xl/main:ml-auto"
 								onclick={() => confirm('Delete this checkpoint?') && cp.undoLatest()}
 							>
 								Delete
