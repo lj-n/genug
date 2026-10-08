@@ -26,6 +26,9 @@ export default defineConfig({
 				conditions: ['browser']
 			}
 		: undefined,
+	// PROTOTYPE branch only: agent worktrees under .claude/ keep touching their
+	// tsconfig, which forces full reloads that break SSR mid-request.
+	server: { watch: { ignored: ['**/.claude/worktrees/**'] } },
 	test: {
 		coverage: {
 			// Scoped floor: gate the server data layer where access control and

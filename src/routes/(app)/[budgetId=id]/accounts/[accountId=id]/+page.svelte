@@ -29,6 +29,11 @@
 
 	import type { PageProps } from './$types';
 
+	// PROTOTYPE — entry-point variants (branch prototype/checkpoint-page).
+	import EntryA from './checkpoint-prototype/entry-a.svelte';
+	import { fakeLastCheckpoint } from './checkpoint-prototype/entry-fake';
+	import ProtoSwitcher from './checkpoint-prototype/proto-switcher.svelte';
+
 	let { params }: PageProps = $props();
 
 	const budgetId = getBudgetId();
@@ -46,6 +51,8 @@
 	function rememberPageSize(size: number) {
 		getRememberedPageSize().set(size);
 	}
+
+	const lastCheckpoint = $derived(fakeLastCheckpoint(page.url));
 
 	const balances = $derived({
 		balance: account.balance,
@@ -81,6 +88,11 @@
 		if (tableParams.sortCategory) searchParams.set('sortCategory', tableParams.sortCategory);
 		if (tableParams.sortDate) searchParams.set('sortDate', tableParams.sortDate);
 		if (tableParams.sortValidated) searchParams.set('sortValidated', tableParams.sortValidated);
+		// PROTOTYPE: keep the variant switcher's params.
+		for (const key of ['variant', 'cp', 'age']) {
+			const value = page.url.searchParams.get(key);
+			if (value) searchParams.set(key, value);
+		}
 		return searchParams.toString();
 	}
 
@@ -133,22 +145,35 @@
 
 <Page.Root>
 	<Page.Header class="flex-row flex-wrap items-center justify-between gap-4">
-		<Page.Title>
-			{account.name}
-		</Page.Title>
+		<div class="grid gap-1">
+			<Page.Title>
+				{account.name}
+			</Page.Title>
+			{#if !account.archivedAt}
+				<EntryA
+					accountId={accountId()}
+					budgetId={budgetId()}
+					last={lastCheckpoint}
+					part="subtitle"
+				/>
+			{/if}
+		</div>
 
 		{#if !account.archivedAt}
-			<Button
-				variant="ghost"
-				size="icon"
-				href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/settings', {
-					accountId: accountId(),
-					budgetId: budgetId()
-				})}
-			>
-				<GearSixIcon />
-				<span class="sr-only">{m.account_settings_title()}</span>
-			</Button>
+			<div class="flex items-center gap-1">
+				<EntryA accountId={accountId()} budgetId={budgetId()} last={lastCheckpoint} part="button" />
+				<Button
+					variant="ghost"
+					size="icon"
+					href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/settings', {
+						accountId: accountId(),
+						budgetId: budgetId()
+					})}
+				>
+					<GearSixIcon />
+					<span class="sr-only">{m.account_settings_title()}</span>
+				</Button>
+			</div>
 		{/if}
 	</Page.Header>
 
@@ -178,3 +203,8 @@
 		{/if}
 	</Page.Content>
 </Page.Root>
+
+<ProtoSwitcher
+	extras={[{ label: 'days ago', param: 'age', values: ['3', '0', '1', '12', '45', '400'] }]}
+	labels={{ A: 'Header, stamp' }}
+/>

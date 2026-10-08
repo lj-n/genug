@@ -30,7 +30,7 @@
 	const fmtDate = (iso: string) => formatTransactionDate(parseDate(iso.slice(0, 10)));
 </script>
 
-<section class="grid gap-3">
+<section id="history" class="grid scroll-mt-8 gap-3">
 	<div class="grid gap-1">
 		<h2 class="font-display text-lg font-semibold">Previous checkpoints</h2>
 		{#if description}<p class="max-w-prose text-sm text-muted">{description}</p>{/if}
