@@ -34,6 +34,7 @@
 		accountId,
 		budgetId,
 		currency,
+		onRememberPageSize,
 		pagination,
 		tableState,
 		transactions
@@ -42,6 +43,7 @@
 		accountId: string;
 		budgetId: string;
 		currency: (typeof CURRENCIES)[number];
+		onRememberPageSize: (pageSize: number) => void;
 		pagination: { page: number; pageSize: number; total: number };
 		tableState: TableState;
 		transactions: ListTransaction[];
@@ -254,6 +256,7 @@
 				page={pagination.page}
 				pageSize={pagination.pageSize}
 				total={pagination.total}
+				{onRememberPageSize}
 				onSetPage={(page) => tableState.setPage(page)}
 				onSetPageSize={(pageSize) => tableState.setPageSize(pageSize)}
 			/>

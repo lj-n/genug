@@ -16,7 +16,10 @@
 	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategories } from '$lib/remote-functions/category.remote';
-	import { listTransactions } from '$lib/remote-functions/transaction.remote';
+	import {
+		getRememberedPageSize,
+		listTransactions
+	} from '$lib/remote-functions/transaction.remote';
 	import { TransactionsURLParamsSchema } from '$lib/schemas/transaction';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { stickyParam } from '$lib/utils/sticky-param';
@@ -34,6 +37,15 @@
 	const account = $derived(await getAccount(accountId()));
 	const balanceDetail = $derived(await getAccountBalances(accountId()));
 	const budget = $derived(await getBudget(budgetId()));
+	// The remembered page size: the fallback when the URL has no `pageSize`,
+	// and the baseline below which the URL stays clean.
+	const defaultPageSize = $derived(await getRememberedPageSize());
+
+	// A dropdown pick also wrote the cookie; keep the cached query in step so the
+	// rest of this session (URL baseline, other accounts) matches the next load.
+	function rememberPageSize(size: number) {
+		getRememberedPageSize().set(size);
+	}
 
 	const balances = $derived({
 		balance: account.balance,
@@ -46,7 +58,7 @@
 			categoryId: searchParams.getAll('categoryId'),
 			notes: searchParams.get('notes'),
 			page: searchParams.get('page'),
-			pageSize: searchParams.get('pageSize'),
+			pageSize: searchParams.get('pageSize') ?? defaultPageSize,
 			sortAmount: searchParams.get('sortAmount'),
 			sortCategory: searchParams.get('sortCategory'),
 			sortDate: searchParams.get('sortDate'),
@@ -63,7 +75,8 @@
 		for (const id of tableParams.categoryId) searchParams.append('categoryId', id);
 		if (tableParams.notes) searchParams.set('notes', tableParams.notes);
 		if (tableParams.page !== 1) searchParams.set('page', String(tableParams.page));
-		if (tableParams.pageSize !== 15) searchParams.set('pageSize', String(tableParams.pageSize));
+		if (tableParams.pageSize !== defaultPageSize)
+			searchParams.set('pageSize', String(tableParams.pageSize));
 		if (tableParams.sortAmount) searchParams.set('sortAmount', tableParams.sortAmount);
 		if (tableParams.sortCategory) searchParams.set('sortCategory', tableParams.sortCategory);
 		if (tableParams.sortDate) searchParams.set('sortDate', tableParams.sortDate);
@@ -149,6 +162,7 @@
 				accountId={accountId()}
 				budgetId={budgetId()}
 				currency={budget.currency}
+				onRememberPageSize={rememberPageSize}
 				pagination={{
 					page: view.result.pagination.page,
 					pageSize: view.result.pagination.pageSize,

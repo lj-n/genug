@@ -3,14 +3,18 @@
 	import * as PaginationPrimitive from '$lib/components/ui/pagination';
 	import * as Select from '$lib/components/ui/select';
 	import { m } from '$lib/paraglide/messages';
+	import { PAGE_SIZE_COOKIE_NAME, PAGE_SIZES } from '$lib/utils/page-size';
 
 	let {
+		onRememberPageSize,
 		onSetPage,
 		onSetPageSize,
 		page,
 		pageSize,
 		total
 	}: {
+		/** Called only for an explicit dropdown pick, before `onSetPageSize`. */
+		onRememberPageSize: (pageSize: number) => void;
 		onSetPage: (page: number) => void;
 		onSetPageSize: (pageSize: number) => void;
 		page: number;
@@ -33,7 +37,20 @@
 		});
 	});
 
-	const PAGE_SIZES = ['15', '25', '50', '100'] as const;
+	// Persist ~400 days so the choice survives sessions (mirrors the theme cookie).
+	const COOKIE_MAX_AGE = 34_560_000;
+
+	// Only an explicit dropdown pick is remembered — "load more" below goes
+	// through onSetPageSize directly and must never touch the cookie.
+	function selectPageSize(next: string) {
+		const size = Number(next);
+		// No Secure flag: self-hosters serve over plain http (ADR-0010).
+		document.cookie = `${PAGE_SIZE_COOKIE_NAME}=${size}; Path=/; Max-Age=${COOKIE_MAX_AGE}; SameSite=Lax`;
+		// Remember before applying, so the new size is already the URL baseline
+		// when the register rebuilds its search params.
+		onRememberPageSize(size);
+		onSetPageSize(size);
+	}
 
 	// Mobile "load more" (ADR-0014): no page numbers on the phone — growing the
 	// page size keeps the register URL-driven and simply extends the list.
@@ -53,10 +70,7 @@
 
 <div class="hidden flex-wrap items-center justify-between gap-3 p-1 @3xl/main:flex">
 	<div class="flex items-center gap-2">
-		<Select.Root
-			type="single"
-			bind:value={() => pageSize.toString(), (v) => onSetPageSize(Number(v))}
-		>
+		<Select.Root type="single" bind:value={() => pageSize.toString(), selectPageSize}>
 			<Select.Trigger
 				class="h-auto w-fit border-none bg-transparent px-2 shadow-none"
 				aria-label={m.transactions_pagination_page_size_label()}
