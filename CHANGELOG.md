@@ -10,6 +10,12 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Fixed
+
+- Adding a category filter on an account's register right after switching
+  accounts no longer fails silently. The register used to show "No transactions
+  match your filters" without the category picker.
+
 ## [2026.10.0] - 2026-10-08
 
 ### Added
