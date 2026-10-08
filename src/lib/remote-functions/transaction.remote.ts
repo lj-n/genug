@@ -13,6 +13,7 @@ import {
 	TransferCreateSchema,
 	TransferEditSchema
 } from '$lib/schemas/transaction';
+import { PAGE_SIZE_COOKIE_NAME, resolvePageSize } from '$lib/utils/page-size';
 import { guardedForm, guardedQuery } from '$server/utils/remote-guard';
 
 import { getAccount, getAccountBalances } from './account.remote';
@@ -69,6 +70,11 @@ export const listTransactions = guardedQuery(
 			transactions: rows
 		};
 	}
+);
+
+/** The register's remembered default page size, read from the `pageSize` cookie. */
+export const getDefaultPageSize = guardedQuery(async ({ event }) =>
+	resolvePageSize(event.cookies.get(PAGE_SIZE_COOKIE_NAME))
 );
 
 export const createTransaction = guardedForm(

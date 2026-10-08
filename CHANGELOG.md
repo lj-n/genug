@@ -10,6 +10,13 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Added
+
+- The transaction register now remembers the page size you last picked from
+  its per-page dropdown and opens every account at that size next time. Links
+  with an explicit page size still win, and the mobile "load more" button does
+  not change the remembered size.
+
 ### Changed
 
 - The Docker image now runs on Node.js 24 (active LTS) instead of Node.js 22.
