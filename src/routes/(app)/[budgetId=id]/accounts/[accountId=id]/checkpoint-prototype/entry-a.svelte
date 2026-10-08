@@ -41,7 +41,7 @@
 		variant="ghost"
 		size="icon"
 		class="relative"
-		title={entry.due ? 'Checkpoint · time for a new one' : 'Checkpoint'}
+		title={entry.due ? 'Checkpoint suggested' : 'Checkpoint'}
 	>
 		<StampIcon />
 		<span class="sr-only">Checkpoint</span>

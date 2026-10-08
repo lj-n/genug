@@ -164,7 +164,7 @@ export class ProtoCheckpointState {
 				date: daysAgo(0).slice(0, 10),
 				id: `adj-${Date.now()}`,
 				isAdjustment: true,
-				notes: 'Adjustment for checkpoint',
+				notes: 'Adjustment',
 				transferId: null,
 				validated: true
 			});

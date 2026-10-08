@@ -80,8 +80,8 @@
 			any more. Category and notes stay editable.
 		</Page.Description>
 		<Page.Description class="max-w-prose">
-			Off by a bit? No need to hunt for the cause. The checkpoint creates an Adjustment transaction
-			for the difference, and adjusting from time to time is perfectly fine.
+			Off by a bit? No need to hunt for the cause. The checkpoint books an Adjustment for the
+			difference, and adjusting from time to time is perfectly fine.
 		</Page.Description>
 	</Page.Header>
 
@@ -91,7 +91,7 @@
 				class="grid grid-cols-1 items-center gap-x-6 gap-y-1 @3xl/main:grid-cols-[1fr_auto] @3xl/main:gap-y-3"
 			>
 				<div class={group}>
-					<dt class="text-base">Validated in {accountName}</dt>
+					<dt class="text-base">Validated in genug</dt>
 					<dd class="text-sm text-muted">Sum of every transaction you've validated.</dd>
 				</div>
 				<dd class={amount}>{fmt(cp.validatedBalance)}</dd>
@@ -100,9 +100,7 @@
 					<dt class="text-base">
 						<label for="bank-balance">Your bank</label>
 					</dt>
-					<dd class="text-sm text-muted">
-						Current balance of {accountName} in your banking app.
-					</dd>
+					<dd class="text-sm text-muted">Current balance in your banking app.</dd>
 				</div>
 				<dd class="relative">
 					<InputMoney
@@ -138,7 +136,7 @@
 						{#if empty}
 							The difference, once you've entered your balance.
 						{:else if adjusting}
-							Booked as one uncategorised transaction so both sides match.
+							Booked as one transaction without a category, so both sides match.
 						{:else}
 							Both sides match. Nothing to book.
 						{/if}
