@@ -10,6 +10,13 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Fixed
+
+- Typing into a dialog's first field right after it opened could be lost: the
+  dialog moved focus to itself a moment later, so an account created that
+  quickly could be saved without its starting balance. Dialogs now leave focus
+  alone once a field inside them has it.
+
 ## [2026.10.0] - 2026-10-08
 
 ### Added
