@@ -10,6 +10,8 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+## [2026.10.0] - 2026-10-08
+
 ### Added
 
 - The transaction register now remembers the page size you last picked from
