@@ -1,5 +1,6 @@
 import type { ComponentProps } from 'svelte';
 
+import { CalendarDate } from '@internationalized/date';
 import { render, screen } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -69,37 +70,25 @@ describe('DatePicker — combobox wiring contract (#356)', () => {
 	});
 });
 
+// The #430 race (a late focus return stealing focus from the next field)
+// depends on the popover's exit timing in a real browser, which jsdom does
+// not reproduce. The unassigned-month-scope E2E spec covers it; this pins
+// the ordinary focus return the guard must keep.
 describe('DatePicker — focus return after picking a day (#430)', () => {
-	async function pickFirstDay() {
-		const day = await vi.waitFor(() => {
-			const el = document.querySelector<HTMLElement>(
-				'[data-calendar-day]:not([data-outside-month])'
-			);
-			if (!el) throw new Error('Expected the calendar to render');
-			return el;
+	it('returns focus to the trigger after picking a day', async () => {
+		// A fixed placeholder pins the visible month, so the day can be found by
+		// its accessible name.
+		const { button } = renderDatePicker({
+			open: true,
+			placeholder: new CalendarDate(2026, 10, 8)
 		});
+
+		const day = await vi.waitFor(() =>
+			screen.getByRole('button', { name: 'Thursday, October 15, 2026' })
+		);
 		day.focus();
 		day.click();
-	}
-
-	it('returns focus to the trigger after picking a day', async () => {
-		const { button } = renderDatePicker({ open: true });
-
-		await pickFirstDay();
 
 		await vi.waitFor(() => expect(document.activeElement).toBe(button));
-	});
-
-	it('leaves focus alone once the user moved to another field while it closes', async () => {
-		const other = document.createElement('input');
-		document.body.append(other);
-		renderDatePicker({ open: true });
-
-		await pickFirstDay();
-		other.focus();
-		await vi.runAllTimersAsync();
-
-		expect(document.activeElement).toBe(other);
-		other.remove();
 	});
 });

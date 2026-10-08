@@ -1,13 +1,17 @@
 /**
- * Shared open/close motion for the overlay family, used from bits-ui
- * `forceMount` + `child` snippets (the pattern bits-ui recommends for
- * transitions).
- *
- * Surfaces enter with a short directional travel and a slight overshoot
- * (backOut), and always exit with a quick plain fade — spring curves look
- * wrong played backwards, hence the `in:`/`out:` split instead of
- * `transition:`. The drawer is exempt: vaul-svelte owns its slide/drag
+ * Shared open/close motion for the overlay family and for inline register
+ * rows. All of it drops to zero duration when the user prefers reduced
  * motion.
+ *
+ * Overlays use these from bits-ui `forceMount` + `child` snippets, the
+ * pattern bits-ui recommends for transitions. They enter with a short
+ * directional travel and a slight overshoot (backOut) and always exit with a
+ * quick plain fade. Spring curves look wrong played backwards, so overlays
+ * use separate `in:` and `out:` transitions. The drawer is exempt:
+ * vaul-svelte owns its slide/drag motion.
+ *
+ * Inline register rows expand and collapse in place with `rowSlide`, used as
+ * a plain `transition:` because a slide is symmetric.
  */
 import { fade, slide, type TransitionConfig } from 'svelte/transition';
 
