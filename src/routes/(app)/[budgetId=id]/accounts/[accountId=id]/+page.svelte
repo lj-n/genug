@@ -31,7 +31,7 @@
 
 	// PROTOTYPE — entry-point variants (branch prototype/checkpoint-page).
 	import EntryA from './checkpoint-prototype/entry-a.svelte';
-	import { fakeLastCheckpoint } from './checkpoint-prototype/entry-fake';
+	import { fakeEntry } from './checkpoint-prototype/entry-fake';
 	import ProtoSwitcher from './checkpoint-prototype/proto-switcher.svelte';
 
 	let { params }: PageProps = $props();
@@ -52,7 +52,7 @@
 		getRememberedPageSize().set(size);
 	}
 
-	const lastCheckpoint = $derived(fakeLastCheckpoint(page.url));
+	const entry = $derived(fakeEntry(page.url));
 
 	const balances = $derived({
 		balance: account.balance,
@@ -89,7 +89,7 @@
 		if (tableParams.sortDate) searchParams.set('sortDate', tableParams.sortDate);
 		if (tableParams.sortValidated) searchParams.set('sortValidated', tableParams.sortValidated);
 		// PROTOTYPE: keep the variant switcher's params.
-		for (const key of ['variant', 'cp', 'age']) {
+		for (const key of ['cp', 'age', 'since']) {
 			const value = page.url.searchParams.get(key);
 			if (value) searchParams.set(key, value);
 		}
@@ -150,18 +150,13 @@
 				{account.name}
 			</Page.Title>
 			{#if !account.archivedAt}
-				<EntryA
-					accountId={accountId()}
-					budgetId={budgetId()}
-					last={lastCheckpoint}
-					part="subtitle"
-				/>
+				<EntryA accountId={accountId()} budgetId={budgetId()} {entry} part="subtitle" />
 			{/if}
 		</div>
 
 		{#if !account.archivedAt}
 			<div class="flex items-center gap-1">
-				<EntryA accountId={accountId()} budgetId={budgetId()} last={lastCheckpoint} part="button" />
+				<EntryA accountId={accountId()} budgetId={budgetId()} {entry} part="button" />
 				<Button
 					variant="ghost"
 					size="icon"
@@ -205,6 +200,9 @@
 </Page.Root>
 
 <ProtoSwitcher
-	extras={[{ label: 'days ago', param: 'age', values: ['3', '0', '1', '12', '45', '400'] }]}
-	labels={{ A: 'Header, stamp' }}
+	extras={[
+		{ label: 'days ago', param: 'age', values: ['45', '3', '0', '12', '400'] },
+		{ label: 'validated since', param: 'since', values: ['34', '0', '6', '25', '120'] }
+	]}
+	labels={{ A: 'Header, stamp, dot when due' }}
 />

@@ -1,6 +1,8 @@
 <!-- PROTOTYPE Entry A — "Header": a ghost icon button (stamp) in the page header
      next to the settings gear opens the Checkpoint page; under the account name
-     a line says how long ago the last checkpoint was and links to the history. -->
+     a line says how long ago the last checkpoint was and links to the history.
+     When a checkpoint is due, an amber dot sits on the button (picked H2 over an
+     amber subtitle, an inline link and a dismissible banner). -->
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
@@ -9,17 +11,17 @@
 	import { parseDate } from '@internationalized/date';
 	import StampIcon from '~icons/ph/stamp';
 
-	import type { FakeCheckpoint } from './entry-fake';
+	import type { FakeEntry } from './entry-fake';
 
 	let {
 		accountId,
 		budgetId,
-		last,
+		entry,
 		part
 	}: {
 		accountId: string;
 		budgetId: string;
-		last: FakeCheckpoint;
+		entry: FakeEntry;
 		part: 'button' | 'subtitle';
 	} = $props();
 
@@ -29,15 +31,25 @@
 			budgetId
 		})
 	);
+	const last = $derived(entry.last);
 </script>
 
+<!-- eslint-disable svelte/no-navigation-without-resolve -->
 {#if part === 'button'}
-	<Button {href} variant="ghost" size="icon" title="Checkpoint">
+	<Button
+		{href}
+		variant="ghost"
+		size="icon"
+		class="relative"
+		title={entry.due ? 'Checkpoint · time for a new one' : 'Checkpoint'}
+	>
 		<StampIcon />
 		<span class="sr-only">Checkpoint</span>
+		{#if entry.due}
+			<span class="absolute top-1.5 right-1.5 size-2 rounded-full bg-focus"></span>
+		{/if}
 	</Button>
 {:else if last}
-	<!-- eslint-disable svelte/no-navigation-without-resolve -->
 	<a
 		href="{href}#history"
 		title={formatTransactionDate(parseDate(last.date))}
@@ -46,9 +58,9 @@
 		<StampIcon class="text-success" />
 		Last checkpoint {formatRelativeDate({ date: parseDate(last.date) })}
 	</a>
-	<!-- eslint-enable svelte/no-navigation-without-resolve -->
 {:else}
 	<p class="flex items-center gap-1.5 text-sm text-muted">
 		<StampIcon /> No checkpoint yet
 	</p>
 {/if}
+<!-- eslint-enable svelte/no-navigation-without-resolve -->
