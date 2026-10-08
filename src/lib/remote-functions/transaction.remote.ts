@@ -73,7 +73,7 @@ export const listTransactions = guardedQuery(
 );
 
 /** The register's remembered default page size, read from the `pageSize` cookie. */
-export const getDefaultPageSize = guardedQuery(async ({ event }) =>
+export const getRememberedPageSize = guardedQuery(async ({ event }) =>
 	resolvePageSize(event.cookies.get(PAGE_SIZE_COOKIE_NAME))
 );
 

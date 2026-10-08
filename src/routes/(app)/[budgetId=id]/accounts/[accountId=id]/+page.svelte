@@ -16,7 +16,10 @@
 	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategories } from '$lib/remote-functions/category.remote';
-	import { getDefaultPageSize, listTransactions } from '$lib/remote-functions/transaction.remote';
+	import {
+		getRememberedPageSize,
+		listTransactions
+	} from '$lib/remote-functions/transaction.remote';
 	import { TransactionsURLParamsSchema } from '$lib/schemas/transaction';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { stickyParam } from '$lib/utils/sticky-param';
@@ -36,7 +39,13 @@
 	const budget = $derived(await getBudget(budgetId()));
 	// The remembered page size: the fallback when the URL has no `pageSize`,
 	// and the baseline below which the URL stays clean.
-	const defaultPageSize = $derived(await getDefaultPageSize());
+	const defaultPageSize = $derived(await getRememberedPageSize());
+
+	// A dropdown pick also wrote the cookie; keep the cached query in step so the
+	// rest of this session (URL baseline, other accounts) matches the next load.
+	function rememberPageSize(size: number) {
+		getRememberedPageSize().set(size);
+	}
 
 	const balances = $derived({
 		balance: account.balance,
@@ -153,6 +162,7 @@
 				accountId={accountId()}
 				budgetId={budgetId()}
 				currency={budget.currency}
+				onRememberPageSize={rememberPageSize}
 				pagination={{
 					page: view.result.pagination.page,
 					pageSize: view.result.pagination.pageSize,

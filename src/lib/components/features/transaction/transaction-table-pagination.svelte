@@ -3,16 +3,18 @@
 	import * as PaginationPrimitive from '$lib/components/ui/pagination';
 	import * as Select from '$lib/components/ui/select';
 	import { m } from '$lib/paraglide/messages';
-	import { getDefaultPageSize } from '$lib/remote-functions/transaction.remote';
 	import { PAGE_SIZE_COOKIE_NAME, PAGE_SIZES } from '$lib/utils/page-size';
 
 	let {
+		onRememberPageSize,
 		onSetPage,
 		onSetPageSize,
 		page,
 		pageSize,
 		total
 	}: {
+		/** Called only for an explicit dropdown pick, before `onSetPageSize`. */
+		onRememberPageSize: (pageSize: number) => void;
 		onSetPage: (page: number) => void;
 		onSetPageSize: (pageSize: number) => void;
 		page: number;
@@ -44,9 +46,9 @@
 		const size = Number(next);
 		// No Secure flag: self-hosters serve over plain http (ADR-0010).
 		document.cookie = `${PAGE_SIZE_COOKIE_NAME}=${size}; Path=/; Max-Age=${COOKIE_MAX_AGE}; SameSite=Lax`;
-		// Keep the cached default in step so the rest of this session (URL
-		// baseline, other accounts) matches what the next load will read.
-		getDefaultPageSize().set(size);
+		// Remember before applying, so the new size is already the URL baseline
+		// when the register rebuilds its search params.
+		onRememberPageSize(size);
 		onSetPageSize(size);
 	}
 
