@@ -20,7 +20,10 @@ and dependency bumps get no entry.
   validated state and can't be deleted; category and notes stay editable.
   The page lists previous checkpoints; deleting the latest one unseals its
   transactions again. In the register, sealed rows are tinted and carry a
-  stamp, and their editor links to the checkpoint that sealed them.
+  stamp, and their editor links to the checkpoint that sealed them. An amber
+  dot on the stamp button suggests a new checkpoint once enough days or
+  validated transactions have piled up; set both reminders, or switch them
+  off, in your user settings.
 
 ### Changed
 

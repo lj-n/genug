@@ -16,6 +16,7 @@
 	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategories } from '$lib/remote-functions/category.remote';
+	import { getCheckpointSummary } from '$lib/remote-functions/checkpoint.remote';
 	import {
 		getRememberedPageSize,
 		listTransactions
@@ -37,6 +38,7 @@
 
 	const account = $derived(await getAccount(accountId()));
 	const balanceDetail = $derived(await getAccountBalances(accountId()));
+	const checkpointSummary = $derived(await getCheckpointSummary(accountId()));
 	const budget = $derived(await getBudget(budgetId()));
 	// The remembered page size: the fallback when the URL has no `pageSize`,
 	// and the baseline below which the URL stays clean.
@@ -155,14 +157,24 @@
 				<Button
 					variant="ghost"
 					size="icon"
-					title={m.checkpoint_button_label()}
+					class="relative"
+					title={checkpointSummary.suggested
+						? m.checkpoint_button_suggested()
+						: m.checkpoint_button_label()}
 					href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/checkpoint', {
 						accountId: accountId(),
 						budgetId: budgetId()
 					})}
 				>
 					<StampIcon />
-					<span class="sr-only">{m.checkpoint_button_label()}</span>
+					<span class="sr-only">
+						{checkpointSummary.suggested
+							? m.checkpoint_button_suggested()
+							: m.checkpoint_button_label()}
+					</span>
+					{#if checkpointSummary.suggested}
+						<span class="absolute top-1.5 right-1.5 size-2 rounded-full bg-focus"></span>
+					{/if}
 				</Button>
 				<Button
 					variant="ghost"

@@ -17,18 +17,21 @@ import { PAGE_SIZE_COOKIE_NAME, resolvePageSize } from '$lib/utils/page-size';
 import { guardedForm, guardedQuery } from '$server/utils/remote-guard';
 
 import { getAccount, getAccountBalances } from './account.remote';
+import { getCheckpointSummary } from './checkpoint.remote';
 import { REFRESH_LIMIT } from './remote.utils';
 
 // Every transaction mutation moves money in one or two accounts, so the
 // balance figures (`getAccount.balance` for the total, `getAccountBalances`
-// for the validated/pending split) go stale alongside the register. Refresh
-// all three together; the client's `.updates(...)` declares which instances
+// for the validated/pending split) go stale alongside the register, and so
+// does whether a Checkpoint is suggested (`getCheckpointSummary`). Refresh
+// them together; the client's `.updates(...)` declares which instances
 // each surface holds (see docs/dev/remote-functions.md).
 function refreshRegisters() {
 	return Promise.all([
 		requested(listTransactions, REFRESH_LIMIT).refreshAll(),
 		requested(getAccount, REFRESH_LIMIT).refreshAll(),
-		requested(getAccountBalances, REFRESH_LIMIT).refreshAll()
+		requested(getAccountBalances, REFRESH_LIMIT).refreshAll(),
+		requested(getCheckpointSummary, REFRESH_LIMIT).refreshAll()
 	]);
 }
 

@@ -14,6 +14,7 @@
 		getAccountBalances,
 		getAccounts
 	} from '$lib/remote-functions/account.remote';
+	import { getCheckpointSummary } from '$lib/remote-functions/checkpoint.remote';
 	import {
 		batchDeleteTransactions,
 		editTransfer,
@@ -81,14 +82,14 @@
 	const submit = createFormSubmit(() => form, {
 		onSuccess: () => cancelEditing(),
 		toast: {},
-		updates: () => [listTransactions, getAccount, getAccountBalances]
+		updates: () => [listTransactions, getAccount, getAccountBalances, getCheckpointSummary]
 	});
 
 	// Deleting either leg removes the whole transfer server-side (ADR-0015);
 	// the refreshed list unmounting this row is the success signal.
 	const deleteSubmit = createFormSubmit(() => deleteForm, {
 		toast: {},
-		updates: () => [listTransactions, getAccount, getAccountBalances]
+		updates: () => [listTransactions, getAccount, getAccountBalances, getCheckpointSummary]
 	});
 
 	const pending = $derived(submit.pending || deleteSubmit.pending);

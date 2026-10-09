@@ -13,6 +13,7 @@
 	import { m } from '$lib/paraglide/messages';
 	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getCategories } from '$lib/remote-functions/category.remote';
+	import { getCheckpointSummary } from '$lib/remote-functions/checkpoint.remote';
 	import {
 		batchDeleteTransactions,
 		editTransaction,
@@ -65,7 +66,8 @@
 		updates: () => [
 			listTransactions,
 			getAccount(transaction!.accountId),
-			getAccountBalances(transaction!.accountId)
+			getAccountBalances(transaction!.accountId),
+			getCheckpointSummary(transaction!.accountId)
 		]
 	});
 
@@ -79,7 +81,8 @@
 		updates: () => [
 			listTransactions,
 			getAccount(transaction!.accountId),
-			getAccountBalances(transaction!.accountId)
+			getAccountBalances(transaction!.accountId),
+			getCheckpointSummary(transaction!.accountId)
 		]
 	});
 

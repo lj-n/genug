@@ -15,6 +15,11 @@ export const getCheckpointHistory = guardedQuery(v.string(), async (accountId, {
 	ctx.checkpoint.history(accountId)
 );
 
+/** The account page's view of Checkpoints for the viewing user. */
+export const getCheckpointSummary = guardedQuery(v.string(), async (accountId, { ctx }) =>
+	ctx.checkpoint.summary(accountId)
+);
+
 export const setCheckpoint = guardedForm(
 	CheckpointSetSchema,
 	async ({ accountId, bankBalance }, { ctx }) => {
@@ -23,6 +28,7 @@ export const setCheckpoint = guardedForm(
 		await Promise.all([
 			requested(getCheckpointOverview, REFRESH_LIMIT).refreshAll(),
 			requested(getCheckpointHistory, REFRESH_LIMIT).refreshAll(),
+			requested(getCheckpointSummary, REFRESH_LIMIT).refreshAll(),
 			requested(getAccount, REFRESH_LIMIT).refreshAll(),
 			requested(getAccountBalances, REFRESH_LIMIT).refreshAll(),
 			requested(getAccounts, REFRESH_LIMIT).refreshAll(),
@@ -40,6 +46,7 @@ export const deleteCheckpoint = guardedForm(
 		await Promise.all([
 			requested(getCheckpointOverview, REFRESH_LIMIT).refreshAll(),
 			requested(getCheckpointHistory, REFRESH_LIMIT).refreshAll(),
+			requested(getCheckpointSummary, REFRESH_LIMIT).refreshAll(),
 			requested(listTransactions, REFRESH_LIMIT).refreshAll()
 		]);
 	}

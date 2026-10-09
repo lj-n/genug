@@ -1,12 +1,49 @@
 import type { Money } from '$lib/utils/money';
 
 import { database, type Database, tables } from '$db';
+import { DAY_IN_MS } from '$db/auth/utils';
 import { m } from '$lib/paraglide/messages';
 import { getLocalTimeZone, today } from '@internationalized/date';
 import { error } from '@sveltejs/kit';
 import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 
 import { hasAccess } from './access';
+
+/**
+ * Checkpoint suggested (GLOSSARY.md) for the viewing user: something validated
+ * is uncovered, and either the account never had a Checkpoint or one of the
+ * user's reminder thresholds is reached. With both thresholds off, never.
+ */
+function isSuggested(
+	userId: string,
+	db: Database,
+	accountId: string,
+	lastCheckpointAt: Date | null
+) {
+	const thresholds = db
+		.select({
+			count: tables.users.checkpointCountThreshold,
+			days: tables.users.checkpointDaysThreshold
+		})
+		.from(tables.users)
+		.where(eq(tables.users.id, userId))
+		.get()!;
+	if (thresholds.count === null && thresholds.days === null) return false;
+
+	const uncoveredCount = db
+		.select({ count: sql<number>`count(*)` })
+		.from(tables.transactions)
+		.where(uncovered(accountId))
+		.get()!.count;
+	if (uncoveredCount === 0) return false;
+	if (!lastCheckpointAt) return true;
+
+	const daysReached =
+		thresholds.days !== null &&
+		Date.now() - lastCheckpointAt.getTime() >= thresholds.days * DAY_IN_MS;
+	const countReached = thresholds.count !== null && uncoveredCount >= thresholds.count;
+	return daysReached || countReached;
+}
 
 /** The account as a Checkpoint sees it; 404 when the user has no access to it. */
 function readAccount(userId: string, db: Database, accountId: string) {
@@ -91,6 +128,29 @@ export const queries = (userId: string, db: Database = database) => ({
 			.get()!;
 
 		return { toSeal, validatedBalance: readValidatedBalance(db, accountId) };
+	},
+
+	/**
+	 * What the account page shows of Checkpoints: when the latest was set, and
+	 * whether a new one is suggested to the viewing user. Never suggested on an
+	 * archived account.
+	 */
+	summary: (accountId: string) => {
+		const account = readAccount(userId, db, accountId);
+
+		const lastCheckpointAt =
+			db
+				.select({ createdAt: tables.checkpoints.createdAt })
+				.from(tables.checkpoints)
+				.where(eq(tables.checkpoints.accountId, accountId))
+				.orderBy(desc(tables.checkpoints.createdAt))
+				.limit(1)
+				.get()?.createdAt ?? null;
+
+		return {
+			lastCheckpointAt,
+			suggested: !account.archivedAt && isSuggested(userId, db, accountId, lastCheckpointAt)
+		};
 	}
 });
 

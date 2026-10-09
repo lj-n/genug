@@ -48,6 +48,16 @@ export const sessions = sqliteTable(
 export const users = sqliteTable(
 	'users',
 	(t) => ({
+		/**
+		 * Validated, uncovered transactions on an account after which a
+		 * Checkpoint is suggested to this user; null switches the reminder off.
+		 */
+		checkpointCountThreshold: t.integer('checkpoint_count_threshold').default(25),
+		/**
+		 * Days since an account's latest Checkpoint after which a new one is
+		 * suggested to this user; null switches the reminder off.
+		 */
+		checkpointDaysThreshold: t.integer('checkpoint_days_threshold').default(30),
 		createdAt: t
 			.integer('created_at', { mode: 'timestamp' })
 			.$defaultFn(() => new Date())
