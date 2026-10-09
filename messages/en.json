@@ -337,5 +337,24 @@
 	"checkpoint_error_account_archived": "This account is archived. Restore it before setting a checkpoint.",
 	"checkpoint_error_account_archived_delete": "This account is archived. Restore it before deleting a checkpoint.",
 	"checkpoint_error_not_latest": "Only the latest checkpoint can be deleted.",
-	"error_checkpoint_not_found": "Checkpoint not found."
+	"error_checkpoint_not_found": "Checkpoint not found.",
+	"checkpoint_history_title": "Previous checkpoints",
+	"checkpoint_history_description": "Each entry is the bank balance you confirmed. Only the latest checkpoint can be deleted; that unseals its transactions again.",
+	"checkpoint_history_empty": "No checkpoints yet.",
+	"checkpoint_history_sealed": "{count} sealed",
+	"checkpoint_history_adjustment": "Adjustment {amount}",
+	"checkpoint_history_delete": "Delete",
+	"checkpoint_delete_title": "Delete this checkpoint?",
+	"checkpoint_delete_description": [
+		{
+			"declarations": ["input count", "input date", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=one": "The checkpoint from {date} is removed and its {count} transaction can be edited again.",
+				"countPlural=other": "The checkpoint from {date} is removed and its {count} transactions can be edited again."
+			}
+		}
+	],
+	"checkpoint_delete_description_adjustment": "Its Adjustment stays as an ordinary transaction.",
+	"checkpoint_delete_action": "Delete"
 }

@@ -9,7 +9,11 @@
 		getAccountBalances,
 		getAccounts
 	} from '$lib/remote-functions/account.remote';
-	import { getCheckpointOverview, setCheckpoint } from '$lib/remote-functions/checkpoint.remote';
+	import {
+		getCheckpointHistory,
+		getCheckpointOverview,
+		setCheckpoint
+	} from '$lib/remote-functions/checkpoint.remote';
 	import { listTransactions } from '$lib/remote-functions/transaction.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
@@ -21,28 +25,37 @@
 	let {
 		accountId,
 		currency,
+		latestCheckpointId,
 		overview
 	}: {
 		accountId: string;
 		currency: (typeof CURRENCIES)[number];
+		latestCheckpointId: string | undefined;
 		overview: Awaited<ReturnType<typeof getCheckpointOverview>>;
 	} = $props();
 
 	const form = $derived(setCheckpoint.for(accountId));
 
 	let bankBalance = $state<number>();
-	let justSet = $state(false);
+	let setCheckpointId = $state<string>();
+	// The confirmation goes once its Checkpoint is deleted again.
+	const justSet = $derived(
+		setCheckpointId !== undefined &&
+			setCheckpointId === latestCheckpointId &&
+			bankBalance === undefined
+	);
 
 	const submit = createFormSubmit(() => form, {
 		onSuccess: () => {
 			bankBalance = undefined;
-			justSet = true;
+			setCheckpointId = form.result?.checkpointId;
 		},
 		toast: {},
 		// Query functions, not instances: the account page's register and
 		// balances stay cached for a Back navigation and must not go stale.
 		updates: () => [
 			getCheckpointOverview,
+			getCheckpointHistory,
 			getAccount,
 			getAccountBalances,
 			getAccounts,
@@ -113,7 +126,7 @@
 					{currency}
 					placeholder={m.checkpoint_bank_placeholder()}
 					aria-describedby="checkpoint-bank-description"
-					onfocus={() => (justSet = false)}
+					onfocus={() => (setCheckpointId = undefined)}
 					class="h-14 w-full text-right font-currency text-3xl placeholder:font-display placeholder:text-base placeholder:text-focus/70 placeholder:italic focus:placeholder:text-transparent data-empty:border-focus/50 data-empty:bg-focus/5 @3xl/main:w-56"
 				/>
 			</dd>
@@ -144,7 +157,7 @@
 		</div>
 	</dl>
 
-	{#if justSet && bankBalance === undefined}
+	{#if justSet}
 		<p role="status" class="flex items-center gap-2 text-success">
 			<CheckCircleDuotoneIcon class="size-6" />
 			{m.checkpoint_set_success()}
