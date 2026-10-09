@@ -6,6 +6,7 @@
 	import { page } from '$app/state';
 	import { AccountArchivedNotice, AccountBalances } from '$lib/components/features/account';
 	import {
+		checkpointHistoryHref,
 		pruneForeignCategoryIds,
 		TransactionTable,
 		UrlTableState
@@ -26,7 +27,6 @@
 	import { formatRelativeDate } from '$lib/utils/format-relative-date';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { stickyParam } from '$lib/utils/sticky-param';
-	import { fromDate, getLocalTimeZone, toCalendarDate } from '@internationalized/date';
 	import { untrack } from 'svelte';
 	import * as v from 'valibot';
 	import GearSixIcon from '~icons/ph/gear-six';
@@ -44,8 +44,8 @@
 	const checkpointSummary = $derived(await getCheckpointSummary(accountId()));
 	const budget = $derived(await getBudget(budgetId()));
 	const latestCheckpoint = $derived.by(() => {
-		if (!checkpointSummary.lastCheckpointAt) return null;
-		const date = toCalendarDate(fromDate(checkpointSummary.lastCheckpointAt, getLocalTimeZone()));
+		const date = checkpointSummary.lastCheckpointAt;
+		if (!date) return null;
 		return { exact: formatTransactionDate(date), relative: formatRelativeDate({ date }) };
 	});
 	const checkpointHref = $derived(
@@ -170,17 +170,17 @@
 			</Page.Title>
 			{#if !account.archivedAt}
 				{#if latestCheckpoint}
+					<!-- The href is resolved in checkpointHistoryHref; only the #history anchor is appended. -->
+					<!-- eslint-disable svelte/no-navigation-without-resolve -->
 					<a
-						href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/checkpoint#history', {
-							accountId: accountId(),
-							budgetId: budgetId()
-						})}
+						href={checkpointHistoryHref({ accountId: accountId(), budgetId: budgetId() })}
 						title={latestCheckpoint.exact}
 						class="flex w-fit items-center gap-1.5 text-sm text-muted hover:text-foreground"
 					>
 						<StampIcon class="text-success" />
 						{m.checkpoint_last({ relative: latestCheckpoint.relative })}
 					</a>
+					<!-- eslint-enable svelte/no-navigation-without-resolve -->
 				{:else}
 					<p class="flex items-center gap-1.5 text-sm text-muted">
 						<StampIcon />

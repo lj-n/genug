@@ -18,10 +18,11 @@
 	import { listTransactions } from '$lib/remote-functions/transaction.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
-	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { parseDate } from '@internationalized/date';
 	import CheckCircleDuotoneIcon from '~icons/ph/check-circle-duotone';
 	import StampIcon from '~icons/ph/stamp';
+
+	import { formatAmount } from './format-amount';
 
 	let {
 		accountId,
@@ -72,14 +73,6 @@
 
 	const seal = $derived(adjusting ? overview.toSealWithAdjustment : overview.toSeal);
 
-	function formatAmount(cents: number, signed = false) {
-		return formatMoney({
-			currency,
-			money: asMoney(cents),
-			options: signed ? { signDisplay: 'exceptZero' } : undefined
-		});
-	}
-
 	// Below @3xl/main each line stacks: label and description, then the amount.
 	// From @3xl/main the lines share the sum's two columns through a subgrid.
 	const lineClass =
@@ -98,7 +91,7 @@
 				<span class={descriptionClass}>{m.checkpoint_validated_description()}</span>
 			</dt>
 			<dd class={amountClass} data-testid="checkpoint-validated">
-				{formatAmount(overview.validatedBalance)}
+				{formatAmount(currency, overview.validatedBalance)}
 			</dd>
 		</div>
 
@@ -142,7 +135,7 @@
 					<span class="text-muted">—</span>
 				{:else}
 					<span class={adjusting ? undefined : 'text-success'}
-						>{formatAmount(adjustment, true)}</span
+						>{formatAmount(currency, adjustment, true)}</span
 					>
 				{/if}
 			</dd>

@@ -13,8 +13,8 @@
 	} from '$lib/remote-functions/checkpoint.remote';
 	import { listTransactions } from '$lib/remote-functions/transaction.remote';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
-	import { asMoney, formatMoney } from '$lib/utils/money';
-	import { fromDate, getLocalTimeZone, toCalendarDate } from '@internationalized/date';
+
+	import { formatAmount } from './format-amount';
 
 	let {
 		currency,
@@ -26,18 +26,6 @@
 		deletable: boolean;
 		history: Awaited<ReturnType<typeof getCheckpointHistory>>;
 	} = $props();
-
-	function formatAmount(cents: number, signed = false) {
-		return formatMoney({
-			currency,
-			money: asMoney(cents),
-			options: signed ? { signDisplay: 'exceptZero' } : undefined
-		});
-	}
-
-	function formatCreatedAt(createdAt: Date) {
-		return formatTransactionDate(toCalendarDate(fromDate(createdAt, getLocalTimeZone())));
-	}
 </script>
 
 <section id="history" class="grid scroll-mt-8 gap-3">
@@ -51,7 +39,7 @@
 	{:else}
 		<ol class="ml-1 max-w-2xl border-l border-muted/20">
 			{#each history as checkpoint, index (checkpoint.id)}
-				{@const date = formatCreatedAt(checkpoint.createdAt)}
+				{@const date = formatTransactionDate(checkpoint.createdAt)}
 				<li class="relative -ml-px py-2 pl-5">
 					<span
 						class={[
@@ -65,13 +53,13 @@
 					>
 						<span class="text-sm @3xl/main:w-24">{date}</span>
 						<span class="text-right font-currency font-medium @3xl/main:w-32">
-							{formatAmount(checkpoint.bankBalance)}
+							{formatAmount(currency, checkpoint.bankBalance)}
 						</span>
 						<span class="text-xs text-muted">
 							{m.checkpoint_history_sealed({ count: checkpoint.sealedCount })}
 							{#if checkpoint.adjustment !== null}
 								· {m.checkpoint_history_adjustment({
-									amount: formatAmount(checkpoint.adjustment, true)
+									amount: formatAmount(currency, checkpoint.adjustment, true)
 								})}
 							{/if}
 						</span>
