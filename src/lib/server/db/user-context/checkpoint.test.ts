@@ -399,6 +399,31 @@ describe('checkpoint.summary', () => {
 		expect(ctx.checkpoint.summary(account.id).lastCheckpointAt).toEqual(latest.createdAt);
 	});
 
+	it('reports the latest of two Checkpoints set within the same millisecond', () => {
+		const { account, ctx } = setup();
+		ctx.checkpoint.set(account.id, asMoney(0));
+		const latest = ctx.checkpoint.set(account.id, asMoney(0));
+
+		expect(ctx.checkpoint.summary(account.id).lastCheckpointAt).toEqual(latest.createdAt);
+	});
+
+	it("ignores another account's Checkpoints", () => {
+		const { account, budget, ctx, db } = setup();
+		const other = createAccount(db, budget.id, 'Savings');
+		ctx.checkpoint.set(other.id, asMoney(0));
+
+		expect(ctx.checkpoint.summary(account.id).lastCheckpointAt).toBeNull();
+	});
+
+	it('falls back to the previous Checkpoint once the latest is deleted', () => {
+		const { account, ctx } = setup();
+		const first = ctx.checkpoint.set(account.id, asMoney(0));
+		const second = ctx.checkpoint.set(account.id, asMoney(0));
+		ctx.checkpoint.delete(second.id);
+
+		expect(ctx.checkpoint.summary(account.id).lastCheckpointAt).toEqual(first.createdAt);
+	});
+
 	it('suggests a Checkpoint once the day threshold is reached', () => {
 		const { account, budget, ctx, db, user } = setup();
 		const checkpoint = ctx.checkpoint.set(account.id, asMoney(0));
