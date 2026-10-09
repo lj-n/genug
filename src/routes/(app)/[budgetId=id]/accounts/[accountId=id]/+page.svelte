@@ -107,7 +107,9 @@
 
 	// Effect, not derived: resetting the state is a write that must happen once
 	// per landed navigation, and only after it commits. A pending navigation
-	// lists with its URL's params meanwhile (see `tableParams`).
+	// lists with its URL's params meanwhile (see `tableParams`). Committing
+	// also means `knownCategoryIds` has loaded for the new budget, so a Back
+	// across budgets keeps its own category ids (#448).
 	$effect.pre(() => {
 		const url = page.url;
 		untrack(() => table.follow(url, prunedURLParams));
