@@ -144,7 +144,7 @@ test('An archived account shows the archived notice instead of the form', async 
 
 	await pages.account.goto(accountName);
 	await pages.account.archive(accountName);
-	await expect(page.getByRole('link', { exact: true, name: 'Checkpoint' })).toHaveCount(0);
+	await expect(pages.checkpoint.stampButton()).toHaveCount(0);
 	await expect(pages.checkpoint.lastCheckpointLine()).toHaveCount(0);
 
 	await page.goto(checkpointUrl);
@@ -153,4 +153,37 @@ test('An archived account shows the archived notice instead of the form', async 
 	// The history stays readable, but deleting is rejected on an archived account.
 	await expect(pages.checkpoint.historyEntries()).toHaveCount(1);
 	await expect(pages.checkpoint.history().getByRole('button', { name: 'Delete' })).toHaveCount(0);
+});
+
+test('The stamp button suggests a checkpoint until one is set', async ({ page, pages }) => {
+	await pages.auth.createUserAndLogin();
+	await pages.budget.createBudget(faker.commerce.department());
+	const accountName = uniqueName(faker.finance.accountName());
+	// The validated starting balance makes a first checkpoint suggested.
+	await pages.budget.createAccount(accountName, '100');
+
+	await pages.account.goto(accountName);
+	await expect(pages.checkpoint.stampButton()).toHaveAccessibleName('Checkpoint suggested');
+	await expect(pages.checkpoint.stampButton()).toHaveAttribute('title', 'Checkpoint suggested');
+
+	await pages.checkpoint.open();
+	await pages.checkpoint.enterBankBalance('100');
+	await pages.checkpoint.submit();
+
+	await pages.checkpoint.backLink(accountName).click();
+	await expect(page.getByRole('heading', { name: accountName })).toBeVisible();
+	await expect(pages.checkpoint.stampButton()).toHaveAccessibleName('Checkpoint');
+});
+
+test('Switching both reminders off suggests nothing', async ({ pages }) => {
+	await pages.auth.createUserAndLogin();
+	await pages.settings.goto();
+	await pages.settings.setCheckpointReminders({ count: null, days: null });
+
+	await pages.budget.createBudget(faker.commerce.department());
+	const accountName = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountName, '100');
+
+	await pages.account.goto(accountName);
+	await expect(pages.checkpoint.stampButton()).toHaveAccessibleName('Checkpoint');
 });

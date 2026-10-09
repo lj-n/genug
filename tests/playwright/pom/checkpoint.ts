@@ -60,12 +60,17 @@ export class CheckpointPage extends BasePage {
 
 	/** From an account page: follows the stamp button to the account's Checkpoint page. */
 	async open() {
-		await this.page.getByRole('link', { exact: true, name: 'Checkpoint' }).click();
+		await this.stampButton().click();
 		await expect(this.page.getByRole('heading', { exact: true, name: 'Checkpoint' })).toBeVisible();
 	}
 
 	setButton(): Locator {
 		return this.page.getByRole('button', { name: 'Set checkpoint' });
+	}
+
+	/** The stamp button on an account page, named "Checkpoint suggested" while one is suggested. */
+	stampButton(): Locator {
+		return this.page.getByRole('link', { name: /^Checkpoint( suggested)?$/ });
 	}
 
 	/** Sets the checkpoint and waits for the inline confirmation; the input clears. */

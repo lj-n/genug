@@ -1,4 +1,5 @@
-import { createDatabase, type Database, tables } from '$db';
+import { createDatabase, type Database, setCheckpointThresholds, tables } from '$db';
+import { DAY_IN_MS } from '$db/auth/utils';
 import * as runtime from '$lib/paraglide/runtime';
 import { asMoney } from '$lib/utils/money';
 import { currentMonth } from '$lib/utils/month';
@@ -222,46 +223,6 @@ describe('checkpoint.overview', () => {
 	});
 });
 
-describe('checkpoint.summary', () => {
-	it('has no latest Checkpoint before the first one', () => {
-		const { account, ctx } = setup();
-
-		expect(ctx.checkpoint.summary(account.id)).toEqual({ lastCheckpointAt: null });
-	});
-
-	it("reports when the account's latest Checkpoint was set", () => {
-		const { account, ctx } = setup();
-		ctx.checkpoint.set(account.id, asMoney(0));
-		const latest = ctx.checkpoint.set(account.id, asMoney(0));
-
-		expect(ctx.checkpoint.summary(account.id)).toEqual({ lastCheckpointAt: latest.createdAt });
-	});
-
-	it("ignores another account's Checkpoints", () => {
-		const { account, budget, ctx, db } = setup();
-		const other = createAccount(db, budget.id, 'Savings');
-		ctx.checkpoint.set(other.id, asMoney(0));
-
-		expect(ctx.checkpoint.summary(account.id)).toEqual({ lastCheckpointAt: null });
-	});
-
-	it('falls back to the previous Checkpoint once the latest is deleted', () => {
-		const { account, ctx } = setup();
-		const first = ctx.checkpoint.set(account.id, asMoney(0));
-		const second = ctx.checkpoint.set(account.id, asMoney(0));
-		ctx.checkpoint.delete(second.id);
-
-		expect(ctx.checkpoint.summary(account.id)).toEqual({ lastCheckpointAt: first.createdAt });
-	});
-
-	it('answers 404 to a user outside the budget', () => {
-		const { account, db } = setup();
-		const outsider = createUser(db, 'outsider');
-
-		expectNotFound(() => createUserCtx(outsider.id, db).checkpoint.summary(account.id));
-	});
-});
-
 describe('checkpoint.history', () => {
 	it('lists every Checkpoint newest first with bank balance, sealed count and Adjustment', () => {
 		const { account, budget, ctx, db } = setup();
@@ -401,6 +362,180 @@ describe('checkpoint.delete', () => {
 		expectNotFound(() => ctx.checkpoint.delete('missing'));
 	});
 });
+
+describe('checkpoint.summary', () => {
+	it('suggests a first Checkpoint as soon as anything is validated', () => {
+		const { account, budget, ctx, db } = setup();
+		createTransaction(db, budget.id, account.id, { validated: true });
+
+		expect(ctx.checkpoint.summary(account.id)).toEqual({
+			lastCheckpointAt: null,
+			suggested: true
+		});
+	});
+
+	it('suggests nothing while nothing validated is uncovered', () => {
+		const { account, budget, ctx, db } = setup();
+		createTransaction(db, budget.id, account.id, { validated: false });
+
+		expect(ctx.checkpoint.summary(account.id).suggested).toBe(false);
+
+		createTransaction(db, budget.id, account.id, { validated: true });
+		const checkpoint = ctx.checkpoint.set(account.id, asMoney(100));
+		const setAt = ageCheckpoint(db, checkpoint.id, 365);
+
+		expect(ctx.checkpoint.summary(account.id)).toEqual({
+			lastCheckpointAt: setAt,
+			suggested: false
+		});
+	});
+
+	it('reports the latest Checkpoint', () => {
+		const { account, ctx, db } = setup();
+		const older = ctx.checkpoint.set(account.id, asMoney(0));
+		ageCheckpoint(db, older.id, 3);
+		const latest = ctx.checkpoint.set(account.id, asMoney(0));
+
+		expect(ctx.checkpoint.summary(account.id).lastCheckpointAt).toEqual(latest.createdAt);
+	});
+
+	it('reports the latest of two Checkpoints set within the same millisecond', () => {
+		const { account, ctx } = setup();
+		ctx.checkpoint.set(account.id, asMoney(0));
+		const latest = ctx.checkpoint.set(account.id, asMoney(0));
+
+		expect(ctx.checkpoint.summary(account.id).lastCheckpointAt).toEqual(latest.createdAt);
+	});
+
+	it("ignores another account's Checkpoints", () => {
+		const { account, budget, ctx, db } = setup();
+		const other = createAccount(db, budget.id, 'Savings');
+		ctx.checkpoint.set(other.id, asMoney(0));
+
+		expect(ctx.checkpoint.summary(account.id).lastCheckpointAt).toBeNull();
+	});
+
+	it('falls back to the previous Checkpoint once the latest is deleted', () => {
+		const { account, ctx } = setup();
+		const first = ctx.checkpoint.set(account.id, asMoney(0));
+		const second = ctx.checkpoint.set(account.id, asMoney(0));
+		ctx.checkpoint.delete(second.id);
+
+		expect(ctx.checkpoint.summary(account.id).lastCheckpointAt).toEqual(first.createdAt);
+	});
+
+	it('suggests a Checkpoint once the day threshold is reached', () => {
+		const { account, budget, ctx, db, user } = setup();
+		const checkpoint = ctx.checkpoint.set(account.id, asMoney(0));
+		createTransaction(db, budget.id, account.id, { validated: true });
+		setCheckpointThresholds({ count: null, days: 10, db, userId: user.id });
+
+		ageCheckpoint(db, checkpoint.id, 9);
+		expect(ctx.checkpoint.summary(account.id).suggested).toBe(false);
+
+		ageCheckpoint(db, checkpoint.id, 10);
+		expect(ctx.checkpoint.summary(account.id).suggested).toBe(true);
+	});
+
+	it('suggests a Checkpoint once the count threshold is reached', () => {
+		const { account, budget, ctx, db, user } = setup();
+		ctx.checkpoint.set(account.id, asMoney(0));
+		setCheckpointThresholds({ count: 3, days: null, db, userId: user.id });
+		createTransaction(db, budget.id, account.id, { validated: true });
+		createTransaction(db, budget.id, account.id, { validated: true });
+		createTransaction(db, budget.id, account.id, { validated: false });
+
+		expect(ctx.checkpoint.summary(account.id).suggested).toBe(false);
+
+		createTransaction(db, budget.id, account.id, { validated: true });
+		expect(ctx.checkpoint.summary(account.id).suggested).toBe(true);
+	});
+
+	it('defaults to 30 days and 25 transactions', () => {
+		const { account, budget, ctx, db } = setup();
+		const checkpoint = ctx.checkpoint.set(account.id, asMoney(0));
+		ageCheckpoint(db, checkpoint.id, 29);
+		for (let i = 0; i < 24; i++) createTransaction(db, budget.id, account.id, { validated: true });
+
+		expect(ctx.checkpoint.summary(account.id).suggested).toBe(false);
+
+		ageCheckpoint(db, checkpoint.id, 30);
+		expect(ctx.checkpoint.summary(account.id).suggested).toBe(true);
+
+		ageCheckpoint(db, checkpoint.id, 0);
+		createTransaction(db, budget.id, account.id, { validated: true });
+		expect(ctx.checkpoint.summary(account.id).suggested).toBe(true);
+	});
+
+	it('ignores the day threshold when it is switched off', () => {
+		const { account, budget, ctx, db, user } = setup();
+		const checkpoint = ctx.checkpoint.set(account.id, asMoney(0));
+		ageCheckpoint(db, checkpoint.id, 365);
+		createTransaction(db, budget.id, account.id, { validated: true });
+
+		setCheckpointThresholds({ count: 25, days: null, db, userId: user.id });
+
+		expect(ctx.checkpoint.summary(account.id).suggested).toBe(false);
+	});
+
+	it('ignores the count threshold when it is switched off', () => {
+		const { account, budget, ctx, db, user } = setup();
+		ctx.checkpoint.set(account.id, asMoney(0));
+		for (let i = 0; i < 50; i++) createTransaction(db, budget.id, account.id, { validated: true });
+
+		setCheckpointThresholds({ count: null, days: 30, db, userId: user.id });
+
+		expect(ctx.checkpoint.summary(account.id).suggested).toBe(false);
+	});
+
+	it('never suggests anything with both thresholds off, not even a first Checkpoint', () => {
+		const { account, budget, ctx, db, user } = setup();
+		createTransaction(db, budget.id, account.id, { validated: true });
+
+		setCheckpointThresholds({ count: null, days: null, db, userId: user.id });
+
+		expect(ctx.checkpoint.summary(account.id).suggested).toBe(false);
+	});
+
+	it('follows the thresholds of the viewing user', () => {
+		const { account, budget, ctx, db } = setup();
+		const member = createUser(db, 'member');
+		db.insert(tables.usersToBudgets)
+			.values({ budgetId: budget.id, role: 'MEMBER', userId: member.id })
+			.run();
+		ctx.checkpoint.set(account.id, asMoney(0));
+		createTransaction(db, budget.id, account.id, { validated: true });
+		setCheckpointThresholds({ count: 1, days: null, db, userId: member.id });
+
+		expect(ctx.checkpoint.summary(account.id).suggested).toBe(false);
+		expect(createUserCtx(member.id, db).checkpoint.summary(account.id).suggested).toBe(true);
+	});
+
+	it('never suggests a Checkpoint on an archived account', () => {
+		const { account, budget, ctx, db } = setup();
+		createTransaction(db, budget.id, account.id, { validated: true });
+		db.update(tables.accounts).set({ archivedAt: new Date() }).run();
+
+		expect(ctx.checkpoint.summary(account.id).suggested).toBe(false);
+	});
+
+	it('answers 404 to a user outside the budget', () => {
+		const { account, db } = setup();
+		const outsider = createUser(db, 'outsider');
+
+		expectNotFound(() => createUserCtx(outsider.id, db).checkpoint.summary(account.id));
+	});
+});
+
+/** Moves a Checkpoint's creation back to `days` days ago. */
+function ageCheckpoint(db: Database, checkpointId: string, days: number) {
+	const createdAt = new Date(Date.now() - days * DAY_IN_MS);
+	db.update(tables.checkpoints)
+		.set({ createdAt })
+		.where(eq(tables.checkpoints.id, checkpointId))
+		.run();
+	return createdAt;
+}
 
 function expectNotFound(fn: () => unknown) {
 	try {

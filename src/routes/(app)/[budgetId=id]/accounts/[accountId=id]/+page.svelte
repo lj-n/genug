@@ -41,10 +41,8 @@
 
 	const account = $derived(await getAccount(accountId()));
 	const balanceDetail = $derived(await getAccountBalances(accountId()));
-	const budget = $derived(await getBudget(budgetId()));
-	// Awaited regardless of archiving: restoring in place must not introduce a
-	// first-time await mid-update (see `view` below).
 	const checkpointSummary = $derived(await getCheckpointSummary(accountId()));
+	const budget = $derived(await getBudget(budgetId()));
 	const latestCheckpoint = $derived.by(() => {
 		if (!checkpointSummary.lastCheckpointAt) return null;
 		const date = toCalendarDate(fromDate(checkpointSummary.lastCheckpointAt, getLocalTimeZone()));
@@ -195,11 +193,21 @@
 				<Button
 					variant="ghost"
 					size="icon"
-					title={m.checkpoint_button_label()}
+					class="relative"
+					title={checkpointSummary.suggested
+						? m.checkpoint_button_suggested()
+						: m.checkpoint_button_label()}
 					href={checkpointHref}
 				>
 					<StampIcon />
-					<span class="sr-only">{m.checkpoint_button_label()}</span>
+					<span class="sr-only">
+						{checkpointSummary.suggested
+							? m.checkpoint_button_suggested()
+							: m.checkpoint_button_label()}
+					</span>
+					{#if checkpointSummary.suggested}
+						<span class="absolute top-1.5 right-1.5 size-2 rounded-full bg-focus"></span>
+					{/if}
 				</Button>
 				<Button
 					variant="ghost"

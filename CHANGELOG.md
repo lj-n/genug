@@ -20,7 +20,10 @@ and dependency bumps get no entry.
   validated state and can't be deleted; category and notes stay editable.
   The page lists previous checkpoints; deleting the latest one unseals its
   transactions again. Under the account name, the account page shows when
-  the last checkpoint was and links to that history.
+  the last checkpoint was and links to that history. An amber dot on the
+  stamp button suggests a new checkpoint once enough days or validated
+  transactions have piled up; set both reminders, or switch them off, in
+  your user settings.
 
 ### Changed
 

@@ -14,6 +14,7 @@
 		getAccounts
 	} from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
+	import { getCheckpointSummary } from '$lib/remote-functions/checkpoint.remote';
 	import { createTransfer, listTransactions } from '$lib/remote-functions/transaction.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { getLocalTimeZone, parseDate, today } from '@internationalized/date';
@@ -68,7 +69,7 @@
 		// listTransactions instance and both accounts' balance queries (both legs'
 		// registers and summaries) rather than just the viewed account's —
 		// otherwise the counterpart stays stale until reload.
-		updates: () => [listTransactions, getAccount, getAccountBalances]
+		updates: () => [listTransactions, getAccount, getAccountBalances, getCheckpointSummary]
 	});
 
 	const submitWithKeyboard: Attachment<HTMLFormElement> = (node) => {

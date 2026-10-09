@@ -1,13 +1,24 @@
-import { form, query } from '$app/server';
-import { authenticateUser, deleteSessionCookie, deleteUserSessions, setPassword } from '$db';
+import { form, query, requested } from '$app/server';
+import {
+	authenticateUser,
+	deleteSessionCookie,
+	deleteUserSessions,
+	setCheckpointThresholds,
+	setPassword
+} from '$db';
 import { setUsername } from '$db';
 import { InvalidCredentialsError } from '$db/auth/utils';
 import { m } from '$lib/paraglide/messages';
-import { PasswordChangeSchema, UsernameChangeSchema } from '$lib/schemas/user';
+import {
+	CheckpointThresholdsSchema,
+	PasswordChangeSchema,
+	UsernameChangeSchema
+} from '$lib/schemas/user';
 import { isSqliteUniqueConstraintError } from '$server/utils/is-sqlite-unique-constraint-error';
 import { invalid } from '@sveltejs/kit';
 
-import { requireUser } from './remote.utils';
+import { getCheckpointSummary } from './checkpoint.remote';
+import { REFRESH_LIMIT, requireUser } from './remote.utils';
 
 export const getUser = query(async () => {
 	const [user] = requireUser();
@@ -25,6 +36,16 @@ export const changeUsername = form(UsernameChangeSchema, async ({ username }, is
 		}
 	}
 });
+
+export const changeCheckpointThresholds = form(
+	CheckpointThresholdsSchema,
+	async ({ count, days }) => {
+		const [user] = requireUser();
+		setCheckpointThresholds({ count, days, userId: user.id });
+		// Account pages stay cached for a Back navigation; their suggestion follows the thresholds.
+		await requested(getCheckpointSummary, REFRESH_LIMIT).refreshAll();
+	}
+);
 
 export const changePassword = form(
 	PasswordChangeSchema,

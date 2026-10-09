@@ -15,6 +15,7 @@ export const getCheckpointHistory = guardedQuery(v.string(), async (accountId, {
 	ctx.checkpoint.history(accountId)
 );
 
+/** The account page's view of Checkpoints for the viewing user. */
 export const getCheckpointSummary = guardedQuery(v.string(), async (accountId, { ctx }) =>
 	ctx.checkpoint.summary(accountId)
 );
