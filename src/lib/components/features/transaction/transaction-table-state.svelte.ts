@@ -5,7 +5,12 @@ import {
 	type FilterType,
 	TransactionFilter
 } from './transaction-filter.svelte';
-import { type SortColumn, type SortDirection, TransactionSort } from './transaction-sort.svelte';
+import {
+	type SortColumn,
+	type SortDirection,
+	sortFromParams,
+	TransactionSort
+} from './transaction-sort.svelte';
 
 export type TableParams = {
 	categoryId: string[];
@@ -65,6 +70,14 @@ export class TableState {
 		this.#page = 1;
 	}
 
+	/** Replaces filter, sort and pagination in place; the instances stay the same. */
+	reset(params: TransactionsURLParams) {
+		this.filter.reset(params);
+		this.sort.reset(params);
+		this.#page = params.page;
+		this.#pageSize = params.pageSize;
+	}
+
 	setFilter(type: FilterType, value: string | string[]) {
 		this.filter.add(type);
 		this.filter.updateValue(type, value);
@@ -88,4 +101,21 @@ export class TableState {
 	#sortDirection(column: SortColumn) {
 		return this.sort.column === column ? (this.sort.direction ?? undefined) : undefined;
 	}
+}
+
+/** The params a `TableState` freshly built from these URL params would expose. */
+export function toTableParams(params: TransactionsURLParams): TableParams {
+	const sort = sortFromParams(params);
+	const direction = (column: SortColumn) =>
+		sort.column === column ? (sort.direction ?? undefined) : undefined;
+	return {
+		categoryId: params.categoryId,
+		notes: params.notes || undefined,
+		page: params.page,
+		pageSize: params.pageSize,
+		sortAmount: direction('amount'),
+		sortCategory: direction('category'),
+		sortDate: direction('date'),
+		sortValidated: direction('validated')
+	};
 }

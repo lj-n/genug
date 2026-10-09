@@ -1,13 +1,14 @@
 <script lang="ts">
 	import type { TableParams } from '$lib/components/features/transaction';
 
-	import { beforeNavigate, goto } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { AccountArchivedNotice, AccountBalances } from '$lib/components/features/account';
 	import {
 		pruneForeignCategoryIds,
 		TableState,
+		toTableParams,
 		TransactionTable
 	} from '$lib/components/features/transaction';
 	import { Button } from '$lib/components/ui/button';
@@ -90,40 +91,38 @@
 		new Set((await getCategories({ budgetId: budgetId() })).map((c) => c.id))
 	);
 
-	// One table state per account. The route component is shared across all
-	// account pages and reused on navigation, so a single state object would carry
-	// account A's filters onto account B and the URL bridge below would stamp those
-	// stale params onto B's clean URL (#371). Rebuild it whenever the account
-	// changes. The intermediate derived only *changes value* on a real switch, so
-	// query-only navigations (in-page filter/sort/page changes) keep the instance
-	// instead of fighting the URL bridge. The URL is read untracked, so a full
-	// load or reload still hydrates from it (deep links).
-	//
-	// The instance is memoized per account because Svelte may re-execute this
-	// derived on every read while an async navigation is still settling. A fresh
-	// `TableState` per execution let the filter bar hold one instance while the
-	// handlers mutated another, so an added filter never rendered (#434). Each
-	// navigation starts by dropping every instance but the current account's, so
-	// a switch (back) to another account still builds from its URL (#371).
-	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- identity cache, not reactive state
-	const tableStates = new Map<string, TableState>();
-	beforeNavigate(({ from }) => {
-		for (const id of tableStates.keys()) {
-			if (id !== from?.params?.accountId) tableStates.delete(id);
-		}
-	});
-	const currentAccountId = $derived(accountId());
-	const tableState = $derived.by(() => {
-		const cached = tableStates.get(currentAccountId);
-		if (cached) return cached;
-		const params = untrack(() => parseURLParams(page.url));
+	function urlTableParams() {
+		const params = parseURLParams(page.url);
 		params.categoryId = pruneForeignCategoryIds(params.categoryId, knownCategoryIds);
-		const state = new TableState(params);
-		tableStates.set(currentAccountId, state);
-		return state;
+		return params;
+	}
+
+	// One table state per page visit. The route component is shared across all
+	// account pages and reused on navigation, so without a reset account A's
+	// filters would carry onto account B and the URL bridge below would stamp
+	// those stale params onto B's clean URL (#371). The instance stays the same
+	// (never built in a derived: under async Svelte may re-run a derived while a
+	// navigation settles, and the filter bar and its handlers ended up on
+	// different copies, #434); a real account switch resets it in place from the
+	// target URL. Query-only navigations (in-page filter/sort/page changes) leave
+	// it alone, and a full load or reload hydrates it from the URL (deep links).
+	const tableState = new TableState(urlTableParams());
+	let tableStateAccountId = $state(accountId());
+
+	$effect.pre(() => {
+		const id = accountId();
+		if (id === untrack(() => tableStateAccountId)) return;
+		untrack(() => tableState.reset(urlTableParams()));
+		tableStateAccountId = id;
 	});
 
-	const result = $derived(await listTransactions({ accountId: accountId(), ...tableState.params }));
+	// Until the reset above lands, the switch queries with the target URL's
+	// params, so the new account is never listed with the old account's filters.
+	const tableParams = $derived(
+		tableStateAccountId === accountId() ? tableState.params : toTableParams(urlTableParams())
+	);
+
+	const result = $derived(await listTransactions({ accountId: accountId(), ...tableParams }));
 
 	// The archived⇄active branch decision reads the register's queries through
 	// this one object, so restoring in place never introduces a first-time
@@ -136,7 +135,7 @@
 	});
 
 	$effect(() => {
-		const nextQuery = buildSearch(tableState.params);
+		const nextQuery = buildSearch(tableParams);
 		if (nextQuery === page.url.searchParams.toString()) return;
 		goto(
 			resolve(`/(app)/[budgetId=id]/accounts/[accountId=id]?${nextQuery}`, {
