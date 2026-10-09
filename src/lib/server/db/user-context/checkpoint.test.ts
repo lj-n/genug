@@ -226,7 +226,7 @@ describe('checkpoint.summary', () => {
 	it('has no latest Checkpoint before the first one', () => {
 		const { account, ctx } = setup();
 
-		expect(ctx.checkpoint.summary(account.id)).toEqual({ latestAt: null });
+		expect(ctx.checkpoint.summary(account.id)).toEqual({ lastCheckpointAt: null });
 	});
 
 	it("reports when the account's latest Checkpoint was set", () => {
@@ -234,7 +234,7 @@ describe('checkpoint.summary', () => {
 		ctx.checkpoint.set(account.id, asMoney(0));
 		const latest = ctx.checkpoint.set(account.id, asMoney(0));
 
-		expect(ctx.checkpoint.summary(account.id)).toEqual({ latestAt: latest.createdAt });
+		expect(ctx.checkpoint.summary(account.id)).toEqual({ lastCheckpointAt: latest.createdAt });
 	});
 
 	it("ignores another account's Checkpoints", () => {
@@ -242,7 +242,7 @@ describe('checkpoint.summary', () => {
 		const other = createAccount(db, budget.id, 'Savings');
 		ctx.checkpoint.set(other.id, asMoney(0));
 
-		expect(ctx.checkpoint.summary(account.id)).toEqual({ latestAt: null });
+		expect(ctx.checkpoint.summary(account.id)).toEqual({ lastCheckpointAt: null });
 	});
 
 	it('falls back to the previous Checkpoint once the latest is deleted', () => {
@@ -251,7 +251,7 @@ describe('checkpoint.summary', () => {
 		const second = ctx.checkpoint.set(account.id, asMoney(0));
 		ctx.checkpoint.delete(second.id);
 
-		expect(ctx.checkpoint.summary(account.id)).toEqual({ latestAt: first.createdAt });
+		expect(ctx.checkpoint.summary(account.id)).toEqual({ lastCheckpointAt: first.createdAt });
 	});
 
 	it('answers 404 to a user outside the budget', () => {

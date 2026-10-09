@@ -104,7 +104,7 @@ export const queries = (userId: string, db: Database = database) => ({
 			.orderBy(...newestFirst)
 			.get();
 
-		return { latestAt: latest?.createdAt ?? null };
+		return { lastCheckpointAt: latest?.createdAt ?? null };
 	}
 });
 

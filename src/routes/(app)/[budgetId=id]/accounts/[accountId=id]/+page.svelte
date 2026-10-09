@@ -46,8 +46,8 @@
 	// first-time await mid-update (see `view` below).
 	const checkpointSummary = $derived(await getCheckpointSummary(accountId()));
 	const latestCheckpoint = $derived.by(() => {
-		if (!checkpointSummary.latestAt) return null;
-		const date = toCalendarDate(fromDate(checkpointSummary.latestAt, getLocalTimeZone()));
+		if (!checkpointSummary.lastCheckpointAt) return null;
+		const date = toCalendarDate(fromDate(checkpointSummary.lastCheckpointAt, getLocalTimeZone()));
 		return { exact: formatTransactionDate(date), relative: formatRelativeDate({ date }) };
 	});
 	const checkpointHref = $derived(
