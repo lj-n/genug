@@ -161,6 +161,9 @@ export const commands = (userId: string, db: Database = database) => ({
 	 */
 	delete: (checkpointId: string) =>
 		db.transaction((tx) => {
+			// better-sqlite3 serializes on a single connection, so reads
+			// on `db` inside the transaction callback see the same
+			// uncommitted state as `tx`.
 			const checkpoint = db
 				.select({ accountId: tables.checkpoints.accountId })
 				.from(tables.checkpoints)
