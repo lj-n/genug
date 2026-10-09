@@ -168,7 +168,7 @@
 					checked={tableState.params.showSealed}
 					onchange={(e) => tableState.setShowSealed(e.currentTarget.checked)}
 				/>
-				{m.transactions_show_sealed({ count: sealed.count })}
+				{m.transactions_show_sealed({ count: sealed.hidden })}
 			</label>
 		{/if}
 
