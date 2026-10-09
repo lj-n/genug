@@ -11,6 +11,11 @@ export const getCheckpointOverview = guardedQuery(v.string(), async (accountId, 
 	ctx.checkpoint.overview(accountId)
 );
 
+/** The account page's view of Checkpoints for the viewing user. */
+export const getCheckpointSummary = guardedQuery(v.string(), async (accountId, { ctx }) =>
+	ctx.checkpoint.summary(accountId)
+);
+
 export const setCheckpoint = guardedForm(
 	CheckpointSetSchema,
 	async ({ accountId, bankBalance }, { ctx }) => {
@@ -18,6 +23,7 @@ export const setCheckpoint = guardedForm(
 		// An Adjustment moves the account's Balance, and sealing changes the register.
 		await Promise.all([
 			requested(getCheckpointOverview, REFRESH_LIMIT).refreshAll(),
+			requested(getCheckpointSummary, REFRESH_LIMIT).refreshAll(),
 			requested(getAccount, REFRESH_LIMIT).refreshAll(),
 			requested(getAccountBalances, REFRESH_LIMIT).refreshAll(),
 			requested(getAccounts, REFRESH_LIMIT).refreshAll(),

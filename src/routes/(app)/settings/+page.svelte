@@ -10,7 +10,13 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { m } from '$lib/paraglide/messages';
 	import { getLocale, type Locale, locales, setLocale } from '$lib/paraglide/runtime';
-	import { changePassword, changeUsername, getUser } from '$lib/remote-functions/user.remote';
+	import { getCheckpointSummary } from '$lib/remote-functions/checkpoint.remote';
+	import {
+		changeCheckpointThresholds,
+		changePassword,
+		changeUsername,
+		getUser
+	} from '$lib/remote-functions/user.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 
 	import type { PageProps } from './$types';
@@ -24,6 +30,31 @@
 		onSuccess: (form) => form.element.reset(),
 		toast: { success: () => m.saved() }
 	});
+
+	const thresholdsSubmit = createFormSubmit(() => changeCheckpointThresholds, {
+		toast: { success: () => m.saved() },
+		// Query functions: account pages stay cached for a Back navigation.
+		updates: () => [getCheckpointSummary]
+	});
+
+	// A switched-off threshold keeps its number box filled with the column
+	// default, so switching it back on starts somewhere sensible.
+	const thresholds = $derived([
+		{
+			enabled: changeCheckpointThresholds.fields.daysEnabled,
+			fallback: 30,
+			label: m.settings_checkpoint_days_label(),
+			stored: user.checkpointDaysThreshold,
+			value: changeCheckpointThresholds.fields.days
+		},
+		{
+			enabled: changeCheckpointThresholds.fields.countEnabled,
+			fallback: 25,
+			label: m.settings_checkpoint_count_label(),
+			stored: user.checkpointCountThreshold,
+			value: changeCheckpointThresholds.fields.count
+		}
+	]);
 
 	const passwordSubmit = createFormSubmit(() => changePassword, {
 		onSuccess: (form) => form.element.reset(),
@@ -88,6 +119,51 @@
 					{@attach passwordSubmit.anchor}
 				>
 					{m.settings_save_and_logout()}
+				</Button>
+			</form>
+
+			<Separator class="mt-6 mb-3" />
+
+			<form {...thresholdsSubmit.attrs} class="grid gap-3">
+				<h2 class="font-semibold">{m.settings_checkpoint_reminders()}</h2>
+				<p class="text-sm text-muted">{m.settings_checkpoint_reminders_description()}</p>
+
+				{#each thresholds as threshold (threshold.label)}
+					{@const enabled = threshold.enabled.value() ?? threshold.stored !== null}
+					<div class="grid gap-0.5">
+						<div class="flex items-center gap-3">
+							<label
+								class="flex flex-1 items-center gap-2 pl-1.5 text-sm font-semibold tracking-tight"
+							>
+								<input
+									{...threshold.enabled.as('checkbox', threshold.stored !== null)}
+									class="size-4 shrink-0 accent-interactive"
+								/>
+								{threshold.label}
+							</label>
+							<Input
+								{...threshold.value.as('number', threshold.stored ?? threshold.fallback)}
+								aria-label={threshold.label}
+								class="w-24 text-right"
+								disabled={!enabled}
+								min="1"
+								max="999"
+								step="1"
+							/>
+						</div>
+						{#each threshold.value.issues() as issue (issue)}
+							<p class="text-sm text-error">{issue.message}</p>
+						{/each}
+					</div>
+				{/each}
+
+				<Button
+					type="submit"
+					class="ml-auto"
+					loading={thresholdsSubmit.pending}
+					{@attach thresholdsSubmit.anchor}
+				>
+					{m.save()}
 				</Button>
 			</form>
 
