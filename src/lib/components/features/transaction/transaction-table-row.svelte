@@ -26,6 +26,9 @@
 	import EmptyIcon from '~icons/ph/empty';
 	import TrashIcon from '~icons/ph/trash';
 
+	import { sealedDate } from './sealed';
+	import SealedCell from './sealed-cell.svelte';
+	import SealedNote from './sealed-note.svelte';
 	import {
 		cellClass,
 		cellTriggerClass,
@@ -140,6 +143,11 @@
 	// The last visible row's cell hairline would double the frame's bottom
 	// border — except while editing, where it separates fields from actions.
 	const cell = $derived(cn(cellClass, !isEditing && 'group-last-of-type/row:border-b-0'));
+
+	// A sealed row keeps its account-side facts fixed; only category and notes
+	// stay editable (ADR-0017).
+	const sealed = $derived(transaction.sealed);
+	const sealedTitle = $derived(m.checkpoint_sealed_title({ date: sealedDate(transaction) }));
 </script>
 
 <!-- The keydown only catches Escape bubbling out of the edit inputs; the row
@@ -147,7 +155,12 @@
 <!-- svelte-ignore a11y_interactive_supports_focus -->
 <div
 	role="row"
-	class={cn('group/row grid', colsClass, isEditing ? editRowClass : 'hover:bg-muted/3')}
+	class={cn(
+		'group/row grid',
+		colsClass,
+		isEditing ? editRowClass : !sealed && 'hover:bg-muted/3',
+		sealed && !isEditing && 'bg-foreground/5'
+	)}
 	{@attach isEditing && submit.anchor}
 	{@attach isEditing && clickOutside({ callback: cancelEditing })}
 	onkeydown={(e) => {
@@ -216,7 +229,11 @@
 	</div>
 
 	<div role="cell" class={cell}>
-		{#if isEditing}
+		{#if sealed}
+			<SealedCell {isEditing} title={sealedTitle}>
+				{formatTransactionDate(parseDate(transaction.date))}
+			</SealedCell>
+		{:else if isEditing}
 			<DatePicker
 				form={editFormId}
 				bind:ref={dateRef}
@@ -243,7 +260,11 @@
 	</div>
 
 	<div role="cell" class={cell}>
-		{#if isEditing}
+		{#if sealed}
+			<SealedCell {isEditing} title={sealedTitle} class="font-currency">
+				{formatMoney({ currency, money: asMoney(transaction.amount) })}
+			</SealedCell>
+		{:else if isEditing}
 			<InputMoney
 				form={editFormId}
 				bind:ref={amountRef}
@@ -269,7 +290,7 @@
 	<!-- Right-aligned like the column header; mr-1/pr-1 puts the size-6 icon
 	     inside its size-8 hit area at the same px-2 inset as the header seal. -->
 	<div role="cell" class={cn(cell, isEditing && 'items-center justify-end pr-1')}>
-		{#if isEditing}
+		{#if isEditing && !sealed}
 			<ValidationCheckbox
 				labelClass="size-8"
 				form={editFormId}
@@ -288,6 +309,10 @@
 			transition:rowSlide
 			class="col-span-full flex items-center justify-end gap-1 p-1"
 		>
+			{#if sealed}
+				<SealedNote {transaction} class="mr-auto" />
+			{/if}
+
 			<Button
 				type="button"
 				size="xs"
@@ -299,20 +324,22 @@
 				{m.cancel()}
 			</Button>
 
-			<Button
-				type="submit"
-				variant="destructive"
-				size="icon-xs"
-				class="@3xl/main:size-11 @7xl/main:size-6"
-				form={deleteFormId}
-				name={deleteForm.fields.ids[0].as('submit', transaction.id).name}
-				value={transaction.id}
-				disabled={pending}
-				{@attach deleteSubmit.anchor}
-			>
-				<TrashIcon />
-				<span class="sr-only">{m.delete()}</span>
-			</Button>
+			{#if !sealed}
+				<Button
+					type="submit"
+					variant="destructive"
+					size="icon-xs"
+					class="@3xl/main:size-11 @7xl/main:size-6"
+					form={deleteFormId}
+					name={deleteForm.fields.ids[0].as('submit', transaction.id).name}
+					value={transaction.id}
+					disabled={pending}
+					{@attach deleteSubmit.anchor}
+				>
+					<TrashIcon />
+					<span class="sr-only">{m.delete()}</span>
+				</Button>
+			{/if}
 
 			<Button
 				type="submit"
@@ -331,6 +358,13 @@
 	<form id={editFormId} class="hidden" {...submit.attrs}>
 		<input {...form.fields.accountId.as('hidden', transaction.accountId)} />
 		<input {...form.fields.transactionId.as('hidden', transaction.id)} />
+		{#if sealed}
+			<!-- The seal check accepts sealed fields only when they come back
+			     unchanged; an omitted `validated` would read as unvalidating. -->
+			<input {...form.fields.date.as('hidden', transaction.date)} />
+			<input {...form.fields.amount.as('hidden', transaction.amount)} />
+			<input {...form.fields.validated.as('hidden', transaction.validated)} />
+		{/if}
 	</form>
 	<form id={deleteFormId} class="hidden" {...deleteSubmit.attrs}></form>
 {/if}

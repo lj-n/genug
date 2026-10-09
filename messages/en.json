@@ -336,5 +336,10 @@
 	"checkpoint_set_button": "Set checkpoint",
 	"checkpoint_set_success": "Checkpoint set.",
 	"checkpoint_adjustment_notes": "Adjustment",
-	"checkpoint_error_account_archived": "This account is archived. Restore it before setting a checkpoint."
+	"checkpoint_error_account_archived": "This account is archived. Restore it before setting a checkpoint.",
+	"checkpoint_sealed_title": "Sealed by the checkpoint on {date}",
+	"checkpoint_sealed_partner_title": "This transfer is sealed by the other account's checkpoint on {date}. You can still validate it here.",
+	"checkpoint_sealed_note": "Amount, date and validated are sealed by the checkpoint on {date}.",
+	"checkpoint_sealed_transfer_note": "Account, amount, date and validated are sealed by the checkpoint on {date}.",
+	"checkpoint_sealed_view": "View checkpoint"
 }

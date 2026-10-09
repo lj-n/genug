@@ -1,5 +1,6 @@
 import type { ListTransaction } from '$lib/server/db/user-context/transaction';
 
+import { m } from '$lib/paraglide/messages';
 import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 import { parseDate } from '@internationalized/date';
 import { render, screen } from '@testing-library/svelte';
@@ -35,11 +36,16 @@ function transaction(overrides: Partial<ListTransaction> & { id: string }): List
 		budgetId: 'budget-1',
 		categoryId: 'category-1',
 		categoryName: 'Groceries',
+		checkpointId: null,
+		counterpartAccountId: null,
 		createdAt: '2026-07-14T00:00:00.000Z',
 		createdBy: 'user-1',
 		createdByName: 'User',
 		date: '2026-07-14',
 		notes: null,
+		sealed: false,
+		sealedAt: null,
+		transferId: null,
 		validated: false,
 		...overrides
 	} as ListTransaction;
@@ -110,5 +116,55 @@ describe('TransactionListMobile', () => {
 
 		expect(onEdit).toHaveBeenCalledTimes(3);
 		expect(onEdit).toHaveBeenCalledWith(item);
+	});
+
+	it('tints a sealed card and locks its rail toggle behind the stamp badge', () => {
+		render(TransactionListMobile, {
+			props: {
+				...baseProps,
+				transactions: [
+					transaction({
+						checkpointId: 'checkpoint-1',
+						id: 'a',
+						sealed: true,
+						sealedAt: new Date('2026-07-20T12:00:00Z'),
+						validated: true
+					}),
+					transaction({ id: 'b' })
+				]
+			}
+		});
+
+		const [sealedCard, openCard] = screen
+			.getAllByRole('row')
+			.filter((row) => row.querySelector('[role=cell] button'));
+		expect(sealedCard).toHaveClass('bg-foreground/5');
+		expect(openCard).not.toHaveClass('bg-foreground/5');
+		expect(
+			screen.getAllByRole('button', { name: m.transactions_table_toggle_validated() })
+		).toHaveLength(1);
+		expect(sealedCard).toHaveTextContent(/Sealed by the checkpoint on/);
+	});
+
+	it('keeps the toggle of a transfer leg sealed only through its partner', () => {
+		render(TransactionListMobile, {
+			props: {
+				...baseProps,
+				transactions: [
+					transaction({
+						counterpartAccountId: 'account-2',
+						counterpartAccountName: 'Savings',
+						id: 'a',
+						sealed: true,
+						sealedAt: new Date('2026-07-20T12:00:00Z'),
+						transferId: 'transfer-1'
+					})
+				]
+			}
+		});
+
+		const toggle = screen.getByRole('button', { name: m.transactions_table_toggle_validated() });
+		expect(toggle).toBeEnabled();
+		expect(toggle).toHaveAttribute('title', expect.stringMatching(/other account's checkpoint/));
 	});
 });

@@ -336,5 +336,10 @@
 	"checkpoint_set_button": "Checkpoint setzen",
 	"checkpoint_set_success": "Checkpoint gesetzt.",
 	"checkpoint_adjustment_notes": "Ausgleichsbuchung",
-	"checkpoint_error_account_archived": "Dieses Konto ist archiviert. Stelle es wieder her, bevor du einen Checkpoint setzt."
+	"checkpoint_error_account_archived": "Dieses Konto ist archiviert. Stelle es wieder her, bevor du einen Checkpoint setzt.",
+	"checkpoint_sealed_title": "Abgestempelt durch den Checkpoint vom {date}",
+	"checkpoint_sealed_partner_title": "Diese Umbuchung ist durch den Checkpoint des anderen Kontos vom {date} abgestempelt. Hier kannst du sie trotzdem bestätigen.",
+	"checkpoint_sealed_note": "Abgestempelt durch den Checkpoint vom {date}: Betrag, Datum und Bestätigung lassen sich nicht mehr ändern.",
+	"checkpoint_sealed_transfer_note": "Abgestempelt durch den Checkpoint vom {date}: Konto, Betrag, Datum und Bestätigung lassen sich nicht mehr ändern.",
+	"checkpoint_sealed_view": "Checkpoint ansehen"
 }
