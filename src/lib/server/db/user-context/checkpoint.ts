@@ -143,8 +143,7 @@ export const queries = (userId: string, db: Database = database) => ({
 				.select({ createdAt: tables.checkpoints.createdAt })
 				.from(tables.checkpoints)
 				.where(eq(tables.checkpoints.accountId, accountId))
-				.orderBy(desc(tables.checkpoints.createdAt))
-				.limit(1)
+				.orderBy(...newestFirst)
 				.get()?.createdAt ?? null;
 
 		return {

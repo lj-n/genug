@@ -102,6 +102,32 @@ test('Delete the latest checkpoint after confirming', async ({ page, pages }) =>
 	await expect(page.getByText('Seals 2 transactions', { exact: true })).toBeVisible();
 });
 
+test('The account page tells when the last checkpoint was', async ({ page, pages }) => {
+	await pages.auth.createUserAndLogin();
+	await pages.budget.createBudget(faker.commerce.department());
+	const accountName = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountName, '100');
+
+	await pages.account.goto(accountName);
+	await expect(pages.checkpoint.lastCheckpointLine()).toHaveText('No checkpoint yet');
+
+	await pages.checkpoint.open();
+	await pages.checkpoint.enterBankBalance('100');
+	await pages.checkpoint.submit();
+	await pages.checkpoint.backLink(accountName).click();
+
+	const line = page.getByRole('link', { name: 'Last checkpoint today' });
+	await expect(line).toBeVisible();
+	await expect(line).toHaveAttribute('title', /\d/);
+	await expect(line).toHaveAttribute('href', /\/checkpoint#history$/);
+
+	await line.click();
+	await expect(pages.checkpoint.historyEntries()).toHaveCount(1);
+	await pages.checkpoint.deleteLatest();
+	await pages.checkpoint.backLink(accountName).click();
+	await expect(pages.checkpoint.lastCheckpointLine()).toHaveText('No checkpoint yet');
+});
+
 test('An archived account shows the archived notice instead of the form', async ({
 	page,
 	pages
@@ -120,6 +146,7 @@ test('An archived account shows the archived notice instead of the form', async 
 	await pages.account.goto(accountName);
 	await pages.account.archive(accountName);
 	await expect(pages.checkpoint.stampButton()).toHaveCount(0);
+	await expect(pages.checkpoint.lastCheckpointLine()).toHaveCount(0);
 
 	await page.goto(checkpointUrl);
 	await expect(page.getByText('This account is archived')).toBeVisible();

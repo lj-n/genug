@@ -320,6 +320,8 @@
 	"source_code_link": "Quellcode",
 	"checkpoint_button_label": "Checkpoint",
 	"checkpoint_button_suggested": "Checkpoint empfohlen",
+	"checkpoint_last": "Letzter Checkpoint: {relative}",
+	"checkpoint_none": "Noch kein Checkpoint",
 	"checkpoint_title": "Checkpoint",
 	"checkpoint_intro": "Ein Checkpoint bestätigt, dass {name} in genug an einem Tag mit deiner Bank übereinstimmt. Alle bis dahin bestätigten Transaktionen werden abgestempelt: Betrag, Datum und Konto lassen sich nicht mehr ändern. Kategorie und Notizen bleiben bearbeitbar.",
 	"checkpoint_intro_adjustment": "Eine kleine Abweichung? Du musst die Ursache nicht suchen. Der Checkpoint bucht die Differenz als Ausgleichsbuchung, und das ab und zu zu tun ist völlig in Ordnung.",

@@ -53,6 +53,11 @@ export class CheckpointPage extends BasePage {
 		return this.history().getByRole('listitem');
 	}
 
+	/** On an account page: the line under its name telling when the last Checkpoint was. */
+	lastCheckpointLine(): Locator {
+		return this.page.getByText(/Last checkpoint |No checkpoint yet/);
+	}
+
 	/** From an account page: follows the stamp button to the account's Checkpoint page. */
 	async open() {
 		await this.stampButton().click();

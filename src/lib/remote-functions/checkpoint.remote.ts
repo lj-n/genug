@@ -42,7 +42,7 @@ export const deleteCheckpoint = guardedForm(
 	CheckpointIdSchema,
 	async ({ checkpointId }, { ctx }) => {
 		ctx.checkpoint.delete(checkpointId);
-		// Unsealing changes what the next Checkpoint seals and the register.
+		// Unsealing changes what the next Checkpoint seals, the register and the latest Checkpoint.
 		await Promise.all([
 			requested(getCheckpointOverview, REFRESH_LIMIT).refreshAll(),
 			requested(getCheckpointHistory, REFRESH_LIMIT).refreshAll(),
