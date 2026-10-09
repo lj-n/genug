@@ -18,6 +18,8 @@ and dependency bumps get no entry.
   so far; if the two sides differ, an Adjustment without a category books
   the difference. A sealed transaction keeps its amount, date, account and
   validated state and can't be deleted; category and notes stay editable.
+  In the register, sealed rows are tinted and carry a stamp, and their
+  editor links to the checkpoint that sealed them.
 
 ### Changed
 
