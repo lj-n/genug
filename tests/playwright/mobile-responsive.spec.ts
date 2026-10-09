@@ -191,10 +191,14 @@ test('Checkpoint page stacks without horizontal overflow', async ({ page, pages 
 
 	await page.setViewportSize(PHONE_VIEWPORT);
 	await page.goto(checkpointUrl);
-	await expect(page.getByRole('heading', { name: 'Checkpoint' })).toBeVisible();
+	await expect(page.getByRole('heading', { exact: true, name: 'Checkpoint' })).toBeVisible();
 	await expectNoHorizontalOverflow(page);
 
 	await pages.checkpoint.enterBankBalance('-1234567.89');
 	await expect(pages.checkpoint.adjustment()).toHaveText('-€1,234,567.89');
+	await expectNoHorizontalOverflow(page);
+
+	await pages.checkpoint.submit();
+	await expect(pages.checkpoint.historyEntries()).toHaveCount(1);
 	await expectNoHorizontalOverflow(page);
 });

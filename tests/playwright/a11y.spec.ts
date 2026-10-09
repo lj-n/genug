@@ -288,6 +288,23 @@ for (const theme of THEMES) {
 			await expect(pages.checkpoint.adjustment()).toHaveText('€0.00');
 			await expectAxeClean(page);
 		});
+
+		test('Checkpoint history and its delete confirmation are axe-clean', async ({
+			page,
+			pages
+		}) => {
+			const { accountName } = await seedBudget(pages);
+			await pages.account.goto(accountName);
+			await pages.checkpoint.open();
+			await pages.checkpoint.enterBankBalance('12.34');
+			await pages.checkpoint.submit();
+			await expect(pages.checkpoint.historyEntries()).toHaveCount(1);
+			await expectAxeClean(page);
+
+			await pages.checkpoint.history().getByRole('button', { name: 'Delete' }).click();
+			await expect(page.getByRole('alertdialog')).toBeVisible();
+			await expectAxeClean(page);
+		});
 	});
 }
 
