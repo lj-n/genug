@@ -18,6 +18,8 @@ and dependency bumps get no entry.
 
 ### Fixed
 
+- Going Back to an account register from an account in another budget now
+  restores the register's category filter instead of dropping it.
 - Picking a date in a transaction row and then moving straight on to the next
   field no longer pulls focus back to the date button, which could swallow
   what you typed (e.g. the amount) and save the transaction without it.
