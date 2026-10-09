@@ -41,7 +41,12 @@
 		onOpenAutoFocus={(e) => {
 			e.preventDefault();
 			document.documentElement.dataset.openAutoFocusFired = 'yes';
-			setTimeout(() => ref?.focus(), 0);
+			// Deferred, so a field can already hold focus when this fires (a fast
+			// click or tab into the form); stealing it then drops the typed
+			// input (#433). Only claim focus while nothing inside has it.
+			setTimeout(() => {
+				if (ref && !ref.contains(document.activeElement)) ref.focus();
+			}, 0);
 		}}
 	>
 		{#snippet child({ open, props })}
