@@ -9,17 +9,9 @@
 	import { rowSlide } from '$lib/components/ui/overlay-motion';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { m } from '$lib/paraglide/messages';
-	import {
-		getAccount,
-		getAccountBalances,
-		getAccounts
-	} from '$lib/remote-functions/account.remote';
-	import { getCheckpointSummary } from '$lib/remote-functions/checkpoint.remote';
-	import {
-		batchDeleteTransactions,
-		editTransfer,
-		listTransactions
-	} from '$lib/remote-functions/transaction.remote';
+	import { getAccounts } from '$lib/remote-functions/account.remote';
+	import { registerQueries } from '$lib/remote-functions/register';
+	import { batchDeleteTransactions, editTransfer } from '$lib/remote-functions/transaction.remote';
 	import { clickOutside } from '$lib/utils/click-outside';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
@@ -82,14 +74,14 @@
 	const submit = createFormSubmit(() => form, {
 		onSuccess: () => cancelEditing(),
 		toast: {},
-		updates: () => [listTransactions, getAccount, getAccountBalances, getCheckpointSummary]
+		updates: () => [...registerQueries]
 	});
 
 	// Deleting either leg removes the whole transfer server-side (ADR-0015);
 	// the refreshed list unmounting this row is the success signal.
 	const deleteSubmit = createFormSubmit(() => deleteForm, {
 		toast: {},
-		updates: () => [listTransactions, getAccount, getAccountBalances, getCheckpointSummary]
+		updates: () => [...registerQueries]
 	});
 
 	const pending = $derived(submit.pending || deleteSubmit.pending);

@@ -4,11 +4,8 @@
 	import { Button } from '$lib/components/ui/button';
 	import { m } from '$lib/paraglide/messages';
 	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
-	import { getCheckpointSummary } from '$lib/remote-functions/checkpoint.remote';
-	import {
-		batchValidateTransactions,
-		listTransactions
-	} from '$lib/remote-functions/transaction.remote';
+	import { getCheckpointSummary, listTransactions } from '$lib/remote-functions/register.remote';
+	import { batchValidateTransactions } from '$lib/remote-functions/transaction.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { cn } from 'tailwind-variants';
 	import SealIcon from '~icons/ph/seal';

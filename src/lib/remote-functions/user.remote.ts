@@ -18,7 +18,7 @@ import {
 import { isSqliteUniqueConstraintError } from '$server/utils/is-sqlite-unique-constraint-error';
 import { invalid } from '@sveltejs/kit';
 
-import { getCheckpointSummary } from './checkpoint.remote';
+import { getCheckpointSummary } from './register.remote';
 import { REFRESH_LIMIT, requireUser } from './remote.utils';
 
 export const getUser = query(async () => {

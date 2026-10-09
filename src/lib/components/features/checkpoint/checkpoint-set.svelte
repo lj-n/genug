@@ -4,18 +4,13 @@
 	import { Button } from '$lib/components/ui/button';
 	import { InputMoney } from '$lib/components/ui/input-money';
 	import { m } from '$lib/paraglide/messages';
-	import {
-		getAccount,
-		getAccountBalances,
-		getAccounts
-	} from '$lib/remote-functions/account.remote';
+	import { getAccounts } from '$lib/remote-functions/account.remote';
 	import {
 		getCheckpointHistory,
 		getCheckpointOverview,
-		getCheckpointSummary,
 		setCheckpoint
 	} from '$lib/remote-functions/checkpoint.remote';
-	import { listTransactions } from '$lib/remote-functions/transaction.remote';
+	import { registerQueries } from '$lib/remote-functions/register';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { parseDate } from '@internationalized/date';
@@ -55,15 +50,7 @@
 		toast: {},
 		// Query functions, not instances: the account page's register and
 		// balances stay cached for a Back navigation and must not go stale.
-		updates: () => [
-			getCheckpointOverview,
-			getCheckpointHistory,
-			getCheckpointSummary,
-			getAccount,
-			getAccountBalances,
-			getAccounts,
-			listTransactions
-		]
+		updates: () => [...registerQueries, getCheckpointOverview, getCheckpointHistory, getAccounts]
 	});
 
 	const adjustment = $derived(

@@ -8,10 +8,9 @@
 	import {
 		deleteCheckpoint,
 		getCheckpointHistory,
-		getCheckpointOverview,
-		getCheckpointSummary
+		getCheckpointOverview
 	} from '$lib/remote-functions/checkpoint.remote';
-	import { listTransactions } from '$lib/remote-functions/transaction.remote';
+	import { registerQueries } from '$lib/remote-functions/register';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 
 	import { formatAmount } from './format-amount';
@@ -66,12 +65,7 @@
 						{#if index === 0 && deletable}
 							<AlertDialogForm
 								form={deleteCheckpoint}
-								updates={() => [
-									getCheckpointOverview,
-									getCheckpointHistory,
-									getCheckpointSummary,
-									listTransactions
-								]}
+								updates={() => [...registerQueries, getCheckpointOverview, getCheckpointHistory]}
 							>
 								{#snippet trigger(props)}
 									<Button

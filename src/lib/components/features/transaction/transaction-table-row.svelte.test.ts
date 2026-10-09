@@ -126,14 +126,16 @@ const remote = vi.hoisted(() => {
 vi.mock('$lib/remote-functions/transaction.remote', () => ({
 	batchDeleteTransactions: { for: () => remote.deleteForm.form },
 	batchValidateTransactions: { for: () => remote.validateForm.form },
-	editTransaction: { for: () => remote.editForm.form },
-	listTransactions: remote.listTransactions
+	editTransaction: { for: () => remote.editForm.form }
 }));
 vi.mock('$lib/remote-functions/account.remote', () => ({
 	getAccount: remote.getAccount,
 	getAccountBalances: remote.getAccountBalances
 }));
-vi.mock('$lib/remote-functions/checkpoint.remote', () => ({ getCheckpointSummary: vi.fn() }));
+vi.mock('$lib/remote-functions/register.remote', () => ({
+	getCheckpointSummary: vi.fn(),
+	listTransactions: remote.listTransactions
+}));
 vi.mock('$lib/remote-functions/category.remote', () => ({ getCategories: remote.getCategories }));
 
 import TableRow from './transaction-table-row.svelte';

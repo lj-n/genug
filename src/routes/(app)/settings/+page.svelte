@@ -10,7 +10,7 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { m } from '$lib/paraglide/messages';
 	import { getLocale, type Locale, locales, setLocale } from '$lib/paraglide/runtime';
-	import { getCheckpointSummary } from '$lib/remote-functions/checkpoint.remote';
+	import { getCheckpointSummary } from '$lib/remote-functions/register.remote';
 	import {
 		changeCheckpointThresholds,
 		changePassword,

@@ -100,15 +100,15 @@ const remote = vi.hoisted(() => {
 });
 
 vi.mock('$lib/remote-functions/transaction.remote', () => ({
-	createTransaction: remote.createTransaction,
-	listTransactions: remote.listTransactions
+	createTransaction: remote.createTransaction
 }));
 vi.mock('$lib/remote-functions/account.remote', () => ({
 	getAccount: remote.getAccount,
 	getAccountBalances: remote.getAccountBalances
 }));
-vi.mock('$lib/remote-functions/checkpoint.remote', () => ({
-	getCheckpointSummary: remote.getCheckpointSummary
+vi.mock('$lib/remote-functions/register.remote', () => ({
+	getCheckpointSummary: remote.getCheckpointSummary,
+	listTransactions: remote.listTransactions
 }));
 vi.mock('$lib/remote-functions/budget.remote', () => ({ getBudget: remote.getBudget }));
 vi.mock('$lib/remote-functions/category.remote', () => ({ getCategories: remote.getCategories }));

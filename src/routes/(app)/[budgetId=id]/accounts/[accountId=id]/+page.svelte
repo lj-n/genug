@@ -17,11 +17,8 @@
 	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategories } from '$lib/remote-functions/category.remote';
-	import { getCheckpointSummary } from '$lib/remote-functions/checkpoint.remote';
-	import {
-		getRememberedPageSize,
-		listTransactions
-	} from '$lib/remote-functions/transaction.remote';
+	import { getCheckpointSummary, listTransactions } from '$lib/remote-functions/register.remote';
+	import { getRememberedPageSize } from '$lib/remote-functions/transaction.remote';
 	import { TransactionsURLParamsSchema } from '$lib/schemas/transaction';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { formatRelativeDate } from '$lib/utils/format-relative-date';
