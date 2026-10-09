@@ -66,19 +66,31 @@ export const queries = (userId: string, db: Database = database) => ({
 		const where = and(hasAccess(tables.transactions, userId, db), ...filterConditions(filter));
 		const { counterpart, counterpartAccount, counterpartColumns, counterpartJoin } =
 			counterpartAccountJoin();
+		// A transfer is sealed once either leg is; the row's own `checkpointId`
+		// still tells whether this leg is validatable (ADR-0017).
+		const sealing = alias(tables.checkpoints, 'sealing_checkpoint');
 
 		const rows = db
 			.select({
 				...getColumns(tables.transactions),
 				...counterpartColumns,
 				categoryName: tables.categories.name,
-				createdByName: tables.users.username
+				createdByName: tables.users.username,
+				sealed: sql<boolean>`${sealing.id} IS NOT NULL`.mapWith(Boolean),
+				sealedAt: sealing.createdAt
 			})
 			.from(tables.transactions)
 			.leftJoin(tables.categories, eq(tables.transactions.categoryId, tables.categories.id))
 			.leftJoin(tables.users, eq(tables.transactions.createdBy, tables.users.id))
 			.leftJoin(counterpart, counterpartJoin)
 			.leftJoin(counterpartAccount, eq(counterpart.accountId, counterpartAccount.id))
+			.leftJoin(
+				sealing,
+				eq(
+					sealing.id,
+					sql`coalesce(${tables.transactions.checkpointId}, ${counterpart.checkpointId})`
+				)
+			)
 			.where(where)
 			.orderBy(...sortOrder(sort))
 			.limit(pagination.pageSize)

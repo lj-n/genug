@@ -253,6 +253,10 @@ export const contract: OpenApiDocument = {
 						description: '`null` = income (Unassigned) — or a transfer leg.',
 						type: ['string', 'null']
 					},
+					checkpointId: {
+						description: 'The Checkpoint that sealed this transaction, if any (ADR-0017).',
+						type: ['string', 'null']
+					},
 					createdAt: { format: 'date-time', type: 'string' },
 					createdBy: { type: ['string', 'null'] },
 					date: { format: 'date', type: 'string' },
@@ -271,6 +275,7 @@ export const contract: OpenApiDocument = {
 					'notes',
 					'transferId',
 					'validated',
+					'checkpointId',
 					'createdAt',
 					'createdBy'
 				],
@@ -300,6 +305,10 @@ export const contract: OpenApiDocument = {
 					budgetId: { type: 'string' },
 					categoryId: { type: ['string', 'null'] },
 					categoryName: { type: ['string', 'null'] },
+					checkpointId: {
+						description: 'The Checkpoint that sealed this transaction, if any (ADR-0017).',
+						type: ['string', 'null']
+					},
 					counterpartAccountId: {
 						description: 'The account on the other side of a transfer leg (ADR-0015).',
 						type: ['string', 'null']
@@ -311,6 +320,16 @@ export const contract: OpenApiDocument = {
 					date: { format: 'date', type: 'string' },
 					id: { type: 'string' },
 					notes: { type: ['string', 'null'] },
+					sealed: {
+						description:
+							'Sealed by a Checkpoint; for a transfer leg, true once either leg is (ADR-0017). `checkpointId` tells whether this leg itself is sealed.',
+						type: 'boolean'
+					},
+					sealedAt: {
+						description: 'When the sealing Checkpoint was set, or `null` when not sealed.',
+						format: 'date-time',
+						type: ['string', 'null']
+					},
 					transferId: { type: ['string', 'null'] },
 					validated: { type: 'boolean' }
 				},
@@ -324,12 +343,15 @@ export const contract: OpenApiDocument = {
 					'notes',
 					'transferId',
 					'validated',
+					'checkpointId',
 					'createdAt',
 					'createdBy',
 					'categoryName',
 					'createdByName',
 					'counterpartAccountId',
-					'counterpartAccountName'
+					'counterpartAccountName',
+					'sealed',
+					'sealedAt'
 				],
 				type: 'object'
 			},

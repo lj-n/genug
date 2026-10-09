@@ -1146,3 +1146,43 @@ describe('seal: transfers', () => {
 		);
 	});
 });
+
+describe('seal: register rows', () => {
+	it('report a sealed transaction and the date of its Checkpoint', () => {
+		const { account, budget, ctx, db, sealed } = sealedSetup();
+		const open = createTransaction(db, budget.id, account.id);
+		const checkpoint = db.select().from(tables.checkpoints).get()!;
+
+		const { rows } = ctx.transaction.page({ accountId: account.id }, {}, { page: 0, pageSize: 10 });
+
+		expect(rows.find((row) => row.id === sealed.id)).toMatchObject({
+			checkpointId: checkpoint.id,
+			sealed: true,
+			sealedAt: checkpoint.createdAt
+		});
+		expect(rows.find((row) => row.id === open.id)).toMatchObject({
+			checkpointId: null,
+			sealed: false,
+			sealedAt: null
+		});
+	});
+
+	it('report both legs of a transfer as sealed once either is, keeping each leg its own seal', () => {
+		const { checking, ctx, db, from, savings, to } = sealedTransferSetup();
+		const checkpoint = db.select().from(tables.checkpoints).get()!;
+		const pageOf = (accountId: string) =>
+			ctx.transaction.page({ accountId }, {}, { page: 0, pageSize: 10 }).rows;
+
+		expect(pageOf(checking.id).find((row) => row.id === from.id)).toMatchObject({
+			checkpointId: checkpoint.id,
+			sealed: true,
+			sealedAt: checkpoint.createdAt
+		});
+		// Sealed only through its partner: still validatable here (ADR-0017).
+		expect(pageOf(savings.id).find((row) => row.id === to.id)).toMatchObject({
+			checkpointId: null,
+			sealed: true,
+			sealedAt: checkpoint.createdAt
+		});
+	});
+});
