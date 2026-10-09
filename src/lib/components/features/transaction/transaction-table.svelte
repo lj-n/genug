@@ -11,6 +11,7 @@
 	import FunnelIcon from '~icons/ph/funnel';
 	import PlusBoldIcon from '~icons/ph/plus-bold';
 	import ReceiptIcon from '~icons/ph/receipt';
+	import StampIcon from '~icons/ph/stamp';
 
 	import type { TableState } from './transaction-table-state.svelte';
 
@@ -36,6 +37,7 @@
 		currency,
 		onRememberPageSize,
 		pagination,
+		sealed,
 		tableState,
 		transactions
 	}: {
@@ -45,6 +47,8 @@
 		currency: (typeof CURRENCIES)[number];
 		onRememberPageSize: (pageSize: number) => void;
 		pagination: { page: number; pageSize: number; total: number };
+		/** Rows sealed by this account's Checkpoints, and how many of them the register hides. */
+		sealed: { count: number; hidden: number };
 		tableState: TableState;
 		transactions: ListTransaction[];
 	} = $props();
@@ -87,10 +91,14 @@
 
 	// The empty branches key off the total count, never the rows on this page:
 	// a stale page URL beyond the last page must not show onboarding copy over
-	// existing data. With no active filters the total is the unfiltered count
-	// (transfer legs included), so zero really means "nothing recorded yet".
+	// existing data. With no active filters the total plus the hidden sealed
+	// rows is the unfiltered count (transfer legs included), so zero really
+	// means "nothing recorded yet".
 	const isEmpty = $derived(pagination.total === 0);
 	const isFiltered = $derived(tableState.filter.anyActive);
+	const isSealedHidden = $derived(sealed.hidden > 0);
+	// Active filters already include sealed rows, so the toggle would do nothing.
+	const showSealedToggle = $derived(sealed.count > 0 && !isFiltered);
 </script>
 
 <div class="space-y-6">
@@ -152,6 +160,18 @@
 	     state and pagination (which contains a nav and a menu button) sit outside
 	     it, since a table may only contain row/rowgroup children. -->
 	<div class="space-y-3">
+		{#if showSealedToggle}
+			<label class="ml-auto flex w-fit items-center gap-2 text-sm text-muted">
+				<input
+					type="checkbox"
+					class="size-4 shrink-0 accent-interactive"
+					checked={tableState.params.showSealed}
+					onchange={(e) => tableState.setShowSealed(e.currentTarget.checked)}
+				/>
+				{m.transactions_show_sealed({ count: sealed.hidden })}
+			</label>
+		{/if}
+
 		<div role="table">
 			<TableHeader
 				class="hidden @3xl/main:block"
@@ -229,6 +249,18 @@
 				{#snippet action()}
 					<Button onclick={() => tableState.clearAllFilters()}>
 						{m.transactions_filtered_empty_action()}
+					</Button>
+				{/snippet}
+			</EmptyState>
+		{:else if isEmpty && isSealedHidden}
+			<EmptyState
+				icon={StampIcon}
+				title={m.transactions_sealed_hidden_empty_title()}
+				description={m.transactions_sealed_hidden_empty_description()}
+			>
+				{#snippet action()}
+					<Button onclick={() => tableState.setShowSealed(true)}>
+						{m.transactions_sealed_hidden_empty_action()}
 					</Button>
 				{/snippet}
 			</EmptyState>

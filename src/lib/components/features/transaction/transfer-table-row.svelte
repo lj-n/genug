@@ -9,16 +9,9 @@
 	import { rowSlide } from '$lib/components/ui/overlay-motion';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { m } from '$lib/paraglide/messages';
-	import {
-		getAccount,
-		getAccountBalances,
-		getAccounts
-	} from '$lib/remote-functions/account.remote';
-	import {
-		batchDeleteTransactions,
-		editTransfer,
-		listTransactions
-	} from '$lib/remote-functions/transaction.remote';
+	import { getAccounts } from '$lib/remote-functions/account.remote';
+	import { registerQueries } from '$lib/remote-functions/register';
+	import { batchDeleteTransactions, editTransfer } from '$lib/remote-functions/transaction.remote';
 	import { clickOutside } from '$lib/utils/click-outside';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
@@ -28,6 +21,9 @@
 	import { cn } from 'tailwind-variants';
 	import TrashIcon from '~icons/ph/trash';
 
+	import { sealedDate } from './sealed';
+	import SealedCell from './sealed-cell.svelte';
+	import SealedNote from './sealed-note.svelte';
 	import {
 		cellClass,
 		cellTriggerClass,
@@ -78,14 +74,14 @@
 	const submit = createFormSubmit(() => form, {
 		onSuccess: () => cancelEditing(),
 		toast: {},
-		updates: () => [listTransactions, getAccount, getAccountBalances]
+		updates: () => [...registerQueries]
 	});
 
 	// Deleting either leg removes the whole transfer server-side (ADR-0015);
 	// the refreshed list unmounting this row is the success signal.
 	const deleteSubmit = createFormSubmit(() => deleteForm, {
 		toast: {},
-		updates: () => [listTransactions, getAccount, getAccountBalances]
+		updates: () => [...registerQueries]
 	});
 
 	const pending = $derived(submit.pending || deleteSubmit.pending);
@@ -138,6 +134,11 @@
 	// The last visible row's cell hairline would double the frame's bottom
 	// border — except while editing, where it separates fields from actions.
 	const cell = $derived(cn(cellClass, !isEditing && 'group-last-of-type/row:border-b-0'));
+
+	// Once either leg is sealed, the transfer's shared facts are fixed; only
+	// the notes stay editable (ADR-0017).
+	const sealed = $derived(transaction.sealed);
+	const sealedTitle = $derived(m.checkpoint_sealed_title({ date: sealedDate(transaction) }));
 </script>
 
 <!-- The keydown only catches Escape bubbling out of the edit inputs; the row
@@ -145,7 +146,12 @@
 <!-- svelte-ignore a11y_interactive_supports_focus -->
 <div
 	role="row"
-	class={cn('group/row grid', colsClass, isEditing ? editRowClass : 'hover:bg-muted/3')}
+	class={cn(
+		'group/row grid',
+		colsClass,
+		isEditing ? editRowClass : !sealed && 'hover:bg-muted/3',
+		sealed && !isEditing && 'bg-foreground/5'
+	)}
 	{@attach isEditing && submit.anchor}
 	{@attach isEditing && clickOutside({ callback: cancelEditing })}
 	onkeydown={(e) => {
@@ -156,7 +162,11 @@
 	}}
 >
 	<div role="cell" class={cell}>
-		{#if isEditing}
+		{#if sealed}
+			<SealedCell {isEditing} title={sealedTitle} class="justify-start">
+				<TransferBadge {transaction} class="px-1 py-0 text-sm" />
+			</SealedCell>
+		{:else if isEditing}
 			<SelectCategory
 				class={cn(editInputClass, editSelectClass)}
 				form={editFormId}
@@ -207,7 +217,11 @@
 	</div>
 
 	<div role="cell" class={cell}>
-		{#if isEditing}
+		{#if sealed}
+			<SealedCell {isEditing} title={sealedTitle}>
+				{formatTransactionDate(parseDate(transaction.date))}
+			</SealedCell>
+		{:else if isEditing}
 			<DatePicker
 				form={editFormId}
 				bind:ref={dateRef}
@@ -234,7 +248,11 @@
 	</div>
 
 	<div role="cell" class={cell}>
-		{#if isEditing}
+		{#if sealed}
+			<SealedCell {isEditing} title={sealedTitle} class="font-currency">
+				{formatMoney({ currency, money: asMoney(transaction.amount) })}
+			</SealedCell>
+		{:else if isEditing}
 			<InputMoney
 				form={editFormId}
 				bind:ref={amountRef}
@@ -258,9 +276,10 @@
 	</div>
 
 	<!-- Validation is per-leg and display-mode only; in edit mode the cell
-	     stays as an empty spacer so the columns hold. -->
+	     stays as an empty spacer so the columns hold — except on a sealed
+	     transfer, whose stamp badge stays in view. -->
 	<div role="cell" class={cell}>
-		{#if !isEditing}
+		{#if !isEditing || sealed}
 			<ValidateToggle {transaction} class="mr-1 ml-auto" />
 		{/if}
 	</div>
@@ -273,7 +292,11 @@
 			transition:rowSlide
 			class="col-span-full flex items-center justify-between gap-1 p-1"
 		>
-			<p class="px-1 text-sm text-muted">{m.transfer_amount_hint()}</p>
+			{#if sealed}
+				<SealedNote {transaction} />
+			{:else}
+				<p class="px-1 text-sm text-muted">{m.transfer_amount_hint()}</p>
+			{/if}
 
 			<div class="flex items-center gap-1">
 				<Button
@@ -287,20 +310,22 @@
 					{m.cancel()}
 				</Button>
 
-				<Button
-					type="submit"
-					variant="destructive"
-					size="icon-xs"
-					class="@3xl/main:size-11 @7xl/main:size-6"
-					form={deleteFormId}
-					name={deleteForm.fields.ids[0].as('submit', transaction.id).name}
-					value={transaction.id}
-					disabled={pending}
-					{@attach deleteSubmit.anchor}
-				>
-					<TrashIcon />
-					<span class="sr-only">{m.delete()}</span>
-				</Button>
+				{#if !sealed}
+					<Button
+						type="submit"
+						variant="destructive"
+						size="icon-xs"
+						class="@3xl/main:size-11 @7xl/main:size-6"
+						form={deleteFormId}
+						name={deleteForm.fields.ids[0].as('submit', transaction.id).name}
+						value={transaction.id}
+						disabled={pending}
+						{@attach deleteSubmit.anchor}
+					>
+						<TrashIcon />
+						<span class="sr-only">{m.delete()}</span>
+					</Button>
+				{/if}
 
 				<Button
 					type="submit"
@@ -320,6 +345,15 @@
 	<form id={editFormId} class="hidden" {...submit.attrs}>
 		<input {...form.fields.accountId.as('hidden', transaction.accountId)} />
 		<input {...form.fields.transferId.as('hidden', transaction.transferId ?? '')} />
+		{#if sealed}
+			<!-- The seal check accepts the shared facts only when they come back
+			     unchanged, so the locked cells still submit them. -->
+			<input
+				{...form.fields.counterpartAccountId.as('hidden', transaction.counterpartAccountId ?? '')}
+			/>
+			<input {...form.fields.date.as('hidden', transaction.date)} />
+			<input {...form.fields.amount.as('hidden', transaction.amount)} />
+		{/if}
 	</form>
 	<form id={deleteFormId} class="hidden" {...deleteSubmit.attrs}></form>
 {/if}

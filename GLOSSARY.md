@@ -13,7 +13,7 @@ A quantity of currency stored as an integer count of the smallest unit (cents fo
 _Avoid_: amount, cent value, float, display value
 
 **Archivable**:
-The lifecycle predicate for hiding an entity that still carries history — it holds no money and has nothing pending to reconcile. For a **category**: all-time Remaining is zero and it has no pending (unvalidated) transactions. For an **account**: its Balance is zero and it has no pending transactions — the account-side (Balance) analog of the category's envelope-side (Remaining) rule. The rule is enforced by `{category,account}.archive` in user-context (see ADR-0001) and projected to the UI via `{category,account}.archivability`; nothing else may write `archivedAt`. Archive only hides existing history; it never rewrites transactions. An archived **account** is additionally inert: `transaction.create` rejects a new transaction targeting it (a stale tab or back-navigation cannot write to it) and its detail page shows a restore notice in place of the register.
+The lifecycle predicate for hiding an entity that still carries history — it holds no money and has nothing pending to validate. For a **category**: all-time Remaining is zero and it has no pending (unvalidated) transactions. For an **account**: its Balance is zero and it has no pending transactions — the account-side (Balance) analog of the category's envelope-side (Remaining) rule. The rule is enforced by `{category,account}.archive` in user-context (see ADR-0001) and projected to the UI via `{category,account}.archivability`; nothing else may write `archivedAt`. Archive only hides existing history; it never rewrites transactions. An archived **account** is additionally inert: `transaction.create` rejects a new transaction targeting it (a stale tab or back-navigation cannot write to it) and its detail page shows a restore notice in place of the register.
 _Avoid_: deletable, closable
 
 **Deletable**:
@@ -60,8 +60,20 @@ _Avoid_: spend (display-side negation, not a separate quantity), gross outflow, 
 The account-side sum of transactions in an account — what is physically there, split into validated and pending. Shown as "Kontostand" in the German UI, its two states rendered "Bestätigt" (validated) and "Ausstehend" (pending). Says nothing about envelopes; the envelope-side term is Remaining.
 _Avoid_: remaining (envelope-side), funds
 
+**Checkpoint**:
+A recorded agreement between an account and the user's bank: the bank balance the user entered equalled the account's validated Balance, and the validated transactions this agreement covers are sealed. A sealed transaction's account-side facts — amount, account, date, validated state — can no longer change, and it cannot be deleted; its envelope-side facts (category, notes) stay editable. A transaction validated after the latest Checkpoint is not covered until a later one takes it in, so drift after a Checkpoint is always confined to what is not yet sealed. Only an account's latest Checkpoint can be deleted; deleting releases the seal and never rewrites a transaction. A Checkpoint may cover no new transactions — it then just records that the bank still agreed. Called "Checkpoint" in the German UI too — never "Kontrollpunkt"; "sealed" is "abgestempelt", matching the stamp that marks it.
+_Avoid_: reconcile, reconciliation, balance check, statement close, Kontrollpunkt
+
+**Checkpoint suggested**:
+An account's state in which a new Checkpoint is recommended to the viewing user: at least one validated transaction is not yet covered by a Checkpoint, and either the account has never had a Checkpoint or one of the user's reminder thresholds is reached — days since the latest Checkpoint, or the count of validated, uncovered transactions. The thresholds are a personal preference of each user, applying to all their accounts; either can be switched off, and with both off nothing is ever suggested. Advisory only — it never blocks anything. Never suggested for an archived account. Shown as "Checkpoint empfohlen" in the German UI.
+_Avoid_: checkpoint due, overdue, fällig
+
+**Adjustment**:
+A validated transaction without a category, booked whenever a Checkpoint is set while the validated Balance differs from the bank balance — the normal way to close drift, not a last resort; its amount is exactly that difference, so it counts as income (or its reversal) toward Unassigned. Booked and sealed atomically with the Checkpoint it closes; deleting that Checkpoint leaves it as an ordinary, unsealed transaction. Shown as "Ausgleichsbuchung" in the German UI.
+_Avoid_: correction, reconciliation adjustment, balance fix
+
 **Transfer**:
-The account-side movement of money between two accounts of the same budget (checking → savings, cash withdrawal, credit-card payment), recorded as a linked pair of transactions — one outflow leg in the source account, one inflow leg in the destination account. A Transfer moves money between accounts, not in or out of the budget: its legs carry no category and are excluded from all envelope math (Remaining, Unassigned, Position). Each leg is individually validatable, since each account reconciles on its own. The envelope-side counterpart is a Reassignment.
+The account-side movement of money between two accounts of the same budget (checking → savings, cash withdrawal, credit-card payment), recorded as a linked pair of transactions — one outflow leg in the source account, one inflow leg in the destination account. A Transfer moves money between accounts, not in or out of the budget: its legs carry no category and are excluded from all envelope math (Remaining, Unassigned, Position). Each leg is individually validated and covered by its own account's Checkpoint; once either leg is sealed, the Transfer's amount, date, and accounts are sealed with it, while an uncovered leg stays validatable. The envelope-side counterpart is a Reassignment.
 _Avoid_: reassignment (envelope-side), payment, transaction pair
 
 **Reassignment**:

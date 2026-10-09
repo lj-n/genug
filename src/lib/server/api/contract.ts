@@ -253,6 +253,10 @@ export const contract: OpenApiDocument = {
 						description: '`null` = income (Unassigned) — or a transfer leg.',
 						type: ['string', 'null']
 					},
+					checkpointId: {
+						description: 'The Checkpoint that sealed this transaction, if any (ADR-0017).',
+						type: ['string', 'null']
+					},
 					createdAt: { format: 'date-time', type: 'string' },
 					createdBy: { type: ['string', 'null'] },
 					date: { format: 'date', type: 'string' },
@@ -271,6 +275,7 @@ export const contract: OpenApiDocument = {
 					'notes',
 					'transferId',
 					'validated',
+					'checkpointId',
 					'createdAt',
 					'createdBy'
 				],
@@ -300,6 +305,10 @@ export const contract: OpenApiDocument = {
 					budgetId: { type: 'string' },
 					categoryId: { type: ['string', 'null'] },
 					categoryName: { type: ['string', 'null'] },
+					checkpointId: {
+						description: 'The Checkpoint that sealed this transaction, if any (ADR-0017).',
+						type: ['string', 'null']
+					},
 					counterpartAccountId: {
 						description: 'The account on the other side of a transfer leg (ADR-0015).',
 						type: ['string', 'null']
@@ -311,6 +320,16 @@ export const contract: OpenApiDocument = {
 					date: { format: 'date', type: 'string' },
 					id: { type: 'string' },
 					notes: { type: ['string', 'null'] },
+					sealed: {
+						description:
+							'Sealed by a Checkpoint; for a transfer leg, true once either leg is (ADR-0017). `checkpointId` tells whether this leg itself is sealed.',
+						type: 'boolean'
+					},
+					sealedAt: {
+						description: 'When the sealing Checkpoint was set, or `null` when not sealed.',
+						format: 'date-time',
+						type: ['string', 'null']
+					},
 					transferId: { type: ['string', 'null'] },
 					validated: { type: 'boolean' }
 				},
@@ -324,12 +343,15 @@ export const contract: OpenApiDocument = {
 					'notes',
 					'transferId',
 					'validated',
+					'checkpointId',
 					'createdAt',
 					'createdBy',
 					'categoryName',
 					'createdByName',
 					'counterpartAccountId',
-					'counterpartAccountName'
+					'counterpartAccountName',
+					'sealed',
+					'sealedAt'
 				],
 				type: 'object'
 			},
@@ -702,7 +724,7 @@ export const contract: OpenApiDocument = {
 		'/transactions/{transactionId}': {
 			delete: {
 				description:
-					'Deleting a transfer leg deletes the whole transfer — both legs — so `deletedIds` may contain two ids (ADR-0015).',
+					'Deleting a transfer leg deletes the whole transfer — both legs — so `deletedIds` may contain two ids (ADR-0015). A transaction sealed by a Checkpoint cannot be deleted (`transaction_sealed`), nor can a transfer once either leg is sealed (`transfer_sealed`, ADR-0017).',
 				operationId: 'deleteTransaction',
 				parameters: [
 					{ $ref: '#/components/parameters/ClientVersion' },
@@ -718,6 +740,7 @@ export const contract: OpenApiDocument = {
 						},
 						description: 'The deleted ids plus recomputed envelope aggregates.'
 					},
+					'400': { $ref: '#/components/responses/BadRequest' },
 					'401': { $ref: '#/components/responses/Unauthorized' },
 					'404': { $ref: '#/components/responses/NotFound' },
 					'426': { $ref: '#/components/responses/UpgradeRequired' }
@@ -727,7 +750,7 @@ export const contract: OpenApiDocument = {
 			},
 			patch: {
 				description:
-					'Transfer legs cannot be edited here (`transaction_is_transfer_leg`, ADR-0015). Note the domain quirk mirrored from the web app: an edit that omits `validated` resets it to `false` — editing un-reconciles.',
+					'Transfer legs cannot be edited here (`transaction_is_transfer_leg`, ADR-0015). Note the domain quirk mirrored from the web app: an edit that omits `validated` resets it to `false` — editing un-reconciles. On a transaction sealed by a Checkpoint, `accountId`, `amount`, `date` and `validated` cannot change (`transaction_sealed`, ADR-0017); sending them unchanged is fine, so a category or notes edit must send `validated: true`.',
 				operationId: 'updateTransaction',
 				parameters: [
 					{ $ref: '#/components/parameters/ClientVersion' },
@@ -791,7 +814,7 @@ export const contract: OpenApiDocument = {
 		'/transfers/{transferId}': {
 			patch: {
 				description:
-					'`validated` is deliberately untouched — each leg reconciles against its own account statement (ADR-0015).',
+					'`validated` is deliberately untouched — each leg reconciles against its own account statement (ADR-0015). Once either leg is sealed by a Checkpoint, `amount`, `date` and the accounts cannot change (`transfer_sealed`, ADR-0017); notes stay editable.',
 				operationId: 'updateTransfer',
 				parameters: [
 					{ $ref: '#/components/parameters/ClientVersion' },

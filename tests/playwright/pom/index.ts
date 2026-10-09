@@ -6,6 +6,7 @@ import { AuthPage } from './auth';
 import { type TestContext } from './base-page';
 import { BudgetPage } from './budget';
 import { CategoryPage } from './category';
+import { CheckpointPage } from './checkpoint';
 import { SettingsPage } from './settings';
 
 export class Pages {
@@ -14,6 +15,7 @@ export class Pages {
 	auth: AuthPage;
 	budget: BudgetPage;
 	category: CategoryPage;
+	checkpoint: CheckpointPage;
 	settings: SettingsPage;
 
 	constructor(page: Page) {
@@ -24,6 +26,7 @@ export class Pages {
 		this.auth = new AuthPage(page, ctx);
 		this.budget = new BudgetPage(page, ctx);
 		this.category = new CategoryPage(page, ctx);
+		this.checkpoint = new CheckpointPage(page, ctx);
 		this.settings = new SettingsPage(page, ctx);
 	}
 }

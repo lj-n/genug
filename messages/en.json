@@ -143,6 +143,10 @@
 	"transactions_filtered_empty_title": "No transactions match your filters",
 	"transactions_filtered_empty_description": "Adjust or clear your filters to see your transactions.",
 	"transactions_filtered_empty_action": "Clear filters",
+	"transactions_show_sealed": "Show sealed ({count})",
+	"transactions_sealed_hidden_empty_title": "Everything here is sealed",
+	"transactions_sealed_hidden_empty_description": "Sealed transactions are hidden so the register shows what is still open. Show them to look back at checked history.",
+	"transactions_sealed_hidden_empty_action": "Show sealed",
 	"pagination_previous": "Previous",
 	"pagination_next": "Next",
 	"dialog_close": "Close",
@@ -257,6 +261,11 @@
 	"settings_theme_dark": "Dark",
 	"settings_available_languages": "Available Languages",
 	"settings_api_tokens": "API Tokens",
+	"settings_checkpoint_reminders": "Checkpoint reminders",
+	"settings_checkpoint_reminders_description": "An account with validated transactions that aren't sealed yet suggests a new checkpoint once one of these is reached. Applies to all your accounts.",
+	"settings_checkpoint_days_label": "Days since the last checkpoint",
+	"settings_checkpoint_count_label": "Validated transactions not yet sealed",
+	"settings_checkpoint_threshold_error": "Enter a whole number from 1 to 999.",
 	"api_token_description": "Connect the mobile app or other API clients to this instance. A token grants full access to your account — treat it like a password.",
 	"api_token_label_name": "Token Name",
 	"api_token_label_expiry": "Expiry Date (optional)",
@@ -292,6 +301,8 @@
 	"error_transfer_amount_zero": "Enter an amount other than zero.",
 	"error_transfer_same_account": "Source and destination account must differ.",
 	"error_transaction_is_transfer_leg": "This transaction is part of a transfer. Edit the transfer instead.",
+	"error_transaction_sealed": "This transaction is sealed by a checkpoint. Its amount, date, account and validated state can't change, and it can't be deleted. Category and notes stay editable.",
+	"error_transfer_sealed": "This transfer is sealed by a checkpoint. Its amount, date and accounts can't change, and it can't be deleted. Notes stay editable.",
 	"error_category_not_archivable": "This category cannot be archived: the remaining balance must be zero and all transactions must be validated.",
 	"error_category_not_deletable": "This category cannot be deleted: the remaining balance must be zero and no transaction may reference it.",
 	"error_category_not_found": "Category not found.",
@@ -306,5 +317,63 @@
 	"reassignment_select_category": "Select category",
 	"reassignment_cover": "Cover",
 	"reassignment_trigger_label": "Adjust remaining for {name}",
-	"source_code_link": "Source code"
+	"source_code_link": "Source code",
+	"checkpoint_button_label": "Checkpoint",
+	"checkpoint_button_suggested": "Checkpoint suggested",
+	"checkpoint_last": "Last checkpoint {relative}",
+	"checkpoint_none": "No checkpoint yet",
+	"checkpoint_title": "Checkpoint",
+	"checkpoint_intro": "A checkpoint confirms that {name} in genug matches your bank on a given day. Every validated transaction up to that point gets sealed: amount, date and account can't change any more. Category and notes stay editable.",
+	"checkpoint_intro_adjustment": "Off by a bit? No need to hunt for the cause. The checkpoint books an Adjustment for the difference, and adjusting from time to time is perfectly fine.",
+	"checkpoint_validated_label": "Validated in genug",
+	"checkpoint_validated_description": "Sum of every transaction you've validated.",
+	"checkpoint_bank_label": "Your bank",
+	"checkpoint_bank_description": "Current balance in your banking app.",
+	"checkpoint_bank_placeholder": "Enter balance",
+	"checkpoint_adjustment_label": "Adjustment",
+	"checkpoint_adjustment_empty": "The difference, once you've entered your balance.",
+	"checkpoint_adjustment_difference": "Booked as one transaction without a category, so both sides match.",
+	"checkpoint_adjustment_match": "Both sides match. Nothing to book.",
+	"checkpoint_seal_summary": [
+		{
+			"declarations": ["input count", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=one": "Seals {count} transaction",
+				"countPlural=other": "Seals {count} transactions"
+			}
+		}
+	],
+	"checkpoint_seal_range": "{from} – {to}",
+	"checkpoint_set_button": "Set checkpoint",
+	"checkpoint_set_success": "Checkpoint set.",
+	"checkpoint_adjustment_notes": "Adjustment",
+	"checkpoint_error_account_archived": "This account is archived. Restore it before setting a checkpoint.",
+	"checkpoint_error_account_archived_delete": "This account is archived. Restore it before deleting a checkpoint.",
+	"checkpoint_error_not_latest": "Only the latest checkpoint can be deleted.",
+	"error_checkpoint_not_found": "Checkpoint not found.",
+	"checkpoint_history_title": "Previous checkpoints",
+	"checkpoint_history_description": "Each entry is the bank balance you confirmed. Only the latest checkpoint can be deleted; that unseals its transactions again.",
+	"checkpoint_history_empty": "No checkpoints yet.",
+	"checkpoint_history_sealed": "{count} sealed",
+	"checkpoint_history_adjustment": "Adjustment {amount}",
+	"checkpoint_history_delete": "Delete",
+	"checkpoint_delete_title": "Delete this checkpoint?",
+	"checkpoint_delete_description": [
+		{
+			"declarations": ["input count", "input date", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=one": "The checkpoint from {date} is removed and its {count} transaction can be edited again.",
+				"countPlural=other": "The checkpoint from {date} is removed and its {count} transactions can be edited again."
+			}
+		}
+	],
+	"checkpoint_delete_description_adjustment": "Its Adjustment stays as an ordinary transaction.",
+	"checkpoint_delete_action": "Delete",
+	"checkpoint_sealed_title": "Sealed by the checkpoint on {date}",
+	"checkpoint_sealed_partner_title": "This transfer is sealed by the other account's checkpoint on {date}. You can still validate it here.",
+	"checkpoint_sealed_note": "Amount, date and validated are sealed by the checkpoint on {date}.",
+	"checkpoint_sealed_transfer_note": "Account, amount, date and validated are sealed by the checkpoint on {date}.",
+	"checkpoint_sealed_view": "View checkpoint"
 }

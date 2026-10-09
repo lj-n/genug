@@ -107,6 +107,7 @@ const remote = vi.hoisted(() => {
 		'validated'
 	]);
 	const deleteForm = makeForm(['ids']);
+	const validateForm = makeForm(['ids', 'validated']);
 
 	return {
 		deleteForm,
@@ -117,18 +118,23 @@ const remote = vi.hoisted(() => {
 			{ id: 'category-1', name: 'Groceries' },
 			{ id: 'category-2', name: 'Rent' }
 		]),
-		listTransactions: vi.fn()
+		listTransactions: vi.fn(),
+		validateForm
 	};
 });
 
 vi.mock('$lib/remote-functions/transaction.remote', () => ({
 	batchDeleteTransactions: { for: () => remote.deleteForm.form },
-	editTransaction: { for: () => remote.editForm.form },
-	listTransactions: remote.listTransactions
+	batchValidateTransactions: { for: () => remote.validateForm.form },
+	editTransaction: { for: () => remote.editForm.form }
 }));
 vi.mock('$lib/remote-functions/account.remote', () => ({
 	getAccount: remote.getAccount,
 	getAccountBalances: remote.getAccountBalances
+}));
+vi.mock('$lib/remote-functions/register.remote', () => ({
+	getCheckpointSummary: vi.fn(),
+	listTransactions: remote.listTransactions
 }));
 vi.mock('$lib/remote-functions/category.remote', () => ({ getCategories: remote.getCategories }));
 
@@ -140,6 +146,7 @@ const transaction: ListTransaction = {
 	budgetId: 'budget-1',
 	categoryId: 'category-1',
 	categoryName: 'Groceries',
+	checkpointId: null,
 	counterpartAccountId: null,
 	counterpartAccountName: null,
 	createdAt: new Date('2026-07-01T00:00:00Z'),
@@ -148,6 +155,8 @@ const transaction: ListTransaction = {
 	date: '2026-07-01',
 	id: 'tx-1',
 	notes: 'weekly shop',
+	sealed: false,
+	sealedAt: null,
 	transferId: null,
 	validated: false
 };
@@ -156,7 +165,10 @@ afterEach(() => {
 	[...toasts].forEach((toast) => toast.dismiss());
 });
 
-async function renderRow(configure?: () => void) {
+async function renderRow(
+	configure?: () => void,
+	{ isEditing = true, row = transaction }: { isEditing?: boolean; row?: ListTransaction } = {}
+) {
 	remote.editForm.reset();
 	remote.deleteForm.reset();
 	configure?.();
@@ -167,9 +179,9 @@ async function renderRow(configure?: () => void) {
 			budgetId: 'budget-1',
 			cancelEditing,
 			currency: 'EUR',
-			isEditing: true,
+			isEditing,
 			setEditing,
-			transaction
+			transaction: row
 		}
 	});
 	await screen.findByRole('row');
@@ -301,5 +313,63 @@ describe('TransactionTableRow (edit mode) — pending', () => {
 		for (const button of [saveButton(), cancelButton(), deleteButton()]) {
 			expect(button).toBeDisabled();
 		}
+	});
+});
+
+const sealedTransaction: ListTransaction = {
+	...transaction,
+	checkpointId: 'checkpoint-1',
+	sealed: true,
+	sealedAt: new Date('2026-07-05T12:00:00Z'),
+	validated: true
+};
+
+describe('TransactionTableRow — sealed', () => {
+	it('shows date, amount and validated as locked plain text naming the checkpoint', async () => {
+		await renderRow(undefined, { isEditing: false, row: sealedTransaction });
+
+		expect(screen.queryByRole('button', { name: m.transactions_table_edit_date() })).toBeNull();
+		expect(screen.queryByRole('button', { name: m.transactions_table_edit_amount() })).toBeNull();
+		expect(
+			screen.queryByRole('button', { name: m.transactions_table_toggle_validated() })
+		).toBeNull();
+		expect(screen.getAllByTitle(/^Sealed by the checkpoint on /)).toHaveLength(3);
+		// Category and notes stay click-to-edit.
+		expect(screen.getByRole('button', { name: m.transactions_table_edit_notes() })).toBeVisible();
+		expect(
+			screen.getByRole('button', { name: m.transactions_table_edit_category() })
+		).toBeVisible();
+	});
+
+	it('edits only category and notes, without delete, and links to the checkpoint history', async () => {
+		await renderRow(undefined, { row: sealedTransaction });
+
+		expect(
+			screen.queryByRole('textbox', { name: m.transactions_table_header_amount() })
+		).toBeNull();
+		expect(screen.queryByRole('checkbox')).toBeNull();
+		expect(screen.queryByRole('button', { name: 'Delete' })).toBeNull();
+		expect(
+			screen.getByRole('textbox', { name: m.transactions_table_header_notes() })
+		).toBeVisible();
+		expect(
+			screen.getByText(/Amount, date and validated are sealed by the checkpoint on/)
+		).toBeVisible();
+		expect(screen.getByRole('link', { name: 'View checkpoint' })).toHaveAttribute(
+			'href',
+			'/budget-1/accounts/account-1/checkpoint#history'
+		);
+	});
+
+	it('resubmits the sealed values unchanged, so saving notes passes the seal check', async () => {
+		const user = userEvent.setup();
+		await renderRow(undefined, { row: sealedTransaction });
+
+		await user.click(saveButton());
+
+		const form = document.querySelector<HTMLFormElement>('form[id^="eform-"]')!;
+		const data = Object.fromEntries(new FormData(form));
+		expect(data).toMatchObject({ amount: '4200', date: '2026-07-01', validated: 'true' });
+		expect(remote.editForm.onSubmit).toHaveBeenCalledTimes(1);
 	});
 });

@@ -18,6 +18,7 @@ export type TableParams = {
 	notes: string | undefined;
 	page: number;
 	pageSize: number;
+	showSealed: boolean;
 	sortAmount: SortDirection | undefined;
 	sortCategory: SortDirection | undefined;
 	sortDate: SortDirection | undefined;
@@ -43,6 +44,7 @@ export class TableState {
 			notes: notes.active ? (notes.value as string) : undefined,
 			page: this.#page,
 			pageSize: this.#pageSize,
+			showSealed: this.#showSealed,
 			sort: this.sort
 		});
 	}
@@ -50,6 +52,8 @@ export class TableState {
 	#page = $state(1);
 
 	#pageSize = $state(15);
+
+	#showSealed = $state(false);
 
 	constructor(params: TransactionsURLParams) {
 		this.filter = new TransactionFilter(params);
@@ -73,6 +77,7 @@ export class TableState {
 		this.sort.reset(params);
 		this.#page = params.page;
 		this.#pageSize = params.pageSize;
+		this.#showSealed = params.showSealed;
 	}
 
 	setFilter(type: FilterType, value: string | string[]) {
@@ -87,6 +92,11 @@ export class TableState {
 
 	setPageSize(pageSize: number) {
 		this.#pageSize = pageSize;
+		this.#page = 1;
+	}
+
+	setShowSealed(showSealed: boolean) {
+		this.#showSealed = showSealed;
 		this.#page = 1;
 	}
 
@@ -106,8 +116,9 @@ function tableParams({
 	notes,
 	page,
 	pageSize,
+	showSealed,
 	sort
-}: Pick<TransactionsURLParams, 'categoryId' | 'notes' | 'page' | 'pageSize'> & {
+}: Pick<TransactionsURLParams, 'categoryId' | 'notes' | 'page' | 'pageSize' | 'showSealed'> & {
 	sort: Sort;
 }): TableParams {
 	const direction = (column: SortColumn) =>
@@ -117,6 +128,7 @@ function tableParams({
 		notes: notes || undefined,
 		page,
 		pageSize,
+		showSealed,
 		sortAmount: direction('amount'),
 		sortCategory: direction('category'),
 		sortDate: direction('date'),
