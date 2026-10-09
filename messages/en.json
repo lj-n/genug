@@ -334,5 +334,8 @@
 	"checkpoint_set_button": "Set checkpoint",
 	"checkpoint_set_success": "Checkpoint set.",
 	"checkpoint_adjustment_notes": "Adjustment",
-	"checkpoint_error_account_archived": "This account is archived. Restore it before setting a checkpoint."
+	"checkpoint_error_account_archived": "This account is archived. Restore it before setting a checkpoint.",
+	"checkpoint_error_account_archived_delete": "This account is archived. Restore it before deleting a checkpoint.",
+	"checkpoint_error_not_latest": "Only the latest checkpoint can be deleted.",
+	"error_checkpoint_not_found": "Checkpoint not found."
 }

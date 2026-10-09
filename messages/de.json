@@ -334,5 +334,8 @@
 	"checkpoint_set_button": "Checkpoint setzen",
 	"checkpoint_set_success": "Checkpoint gesetzt.",
 	"checkpoint_adjustment_notes": "Ausgleichsbuchung",
-	"checkpoint_error_account_archived": "Dieses Konto ist archiviert. Stelle es wieder her, bevor du einen Checkpoint setzt."
+	"checkpoint_error_account_archived": "Dieses Konto ist archiviert. Stelle es wieder her, bevor du einen Checkpoint setzt.",
+	"checkpoint_error_account_archived_delete": "Dieses Konto ist archiviert. Stelle es wieder her, bevor du einen Checkpoint löschst.",
+	"checkpoint_error_not_latest": "Nur der letzte Checkpoint lässt sich löschen.",
+	"error_checkpoint_not_found": "Checkpoint nicht gefunden."
 }
