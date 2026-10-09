@@ -1,5 +1,7 @@
 import type { TransactionsURLParams } from '$lib/schemas/transaction';
 
+/** The one column the register sorts by, if any. */
+export type Sort = Pick<TransactionSort, 'column' | 'direction'>;
 export type SortColumn = 'amount' | 'category' | 'date' | 'validated';
 export type SortDirection = 'asc' | 'desc';
 
@@ -29,10 +31,7 @@ export class TransactionSort {
 }
 
 /** The one sort the URL params select; earlier columns win when several are set. */
-export function sortFromParams(params: TransactionsURLParams): {
-	column: null | SortColumn;
-	direction: null | SortDirection;
-} {
+export function sortFromParams(params: TransactionsURLParams): Sort {
 	if (params.sortDate) return { column: 'date', direction: params.sortDate };
 	if (params.sortCategory) return { column: 'category', direction: params.sortCategory };
 	if (params.sortAmount) return { column: 'amount', direction: params.sortAmount };

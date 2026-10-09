@@ -6,6 +6,7 @@ import {
 	TransactionFilter
 } from './transaction-filter.svelte';
 import {
+	type Sort,
 	type SortColumn,
 	type SortDirection,
 	sortFromParams,
@@ -37,16 +38,13 @@ export class TableState {
 		const category = this.filter.items.find((f): f is CategoryFilter => f.type === 'category')!;
 		const notes = this.filter.items.find((f) => f.type === 'notes')!;
 
-		return {
+		return tableParams({
 			categoryId: category.active ? category.value : [],
-			notes: notes.active && notes.value ? (notes.value as string) : undefined,
+			notes: notes.active ? (notes.value as string) : undefined,
 			page: this.#page,
 			pageSize: this.#pageSize,
-			sortAmount: this.#sortDirection('amount'),
-			sortCategory: this.#sortDirection('category'),
-			sortDate: this.#sortDirection('date'),
-			sortValidated: this.#sortDirection('validated')
-		};
+			sort: this.sort
+		});
 	}
 
 	#page = $state(1);
@@ -56,8 +54,7 @@ export class TableState {
 	constructor(params: TransactionsURLParams) {
 		this.filter = new TransactionFilter(params);
 		this.sort = new TransactionSort(params);
-		this.#page = params.page;
-		this.#pageSize = params.pageSize;
+		this.reset(params);
 	}
 
 	clearAllFilters() {
@@ -97,22 +94,29 @@ export class TableState {
 		this.sort.toggle(column);
 		this.#page = 1;
 	}
-
-	#sortDirection(column: SortColumn) {
-		return this.sort.column === column ? (this.sort.direction ?? undefined) : undefined;
-	}
 }
 
 /** The params a `TableState` freshly built from these URL params would expose. */
 export function toTableParams(params: TransactionsURLParams): TableParams {
-	const sort = sortFromParams(params);
+	return tableParams({ ...params, sort: sortFromParams(params) });
+}
+
+function tableParams({
+	categoryId,
+	notes,
+	page,
+	pageSize,
+	sort
+}: Pick<TransactionsURLParams, 'categoryId' | 'notes' | 'page' | 'pageSize'> & {
+	sort: Sort;
+}): TableParams {
 	const direction = (column: SortColumn) =>
 		sort.column === column ? (sort.direction ?? undefined) : undefined;
 	return {
-		categoryId: params.categoryId,
-		notes: params.notes || undefined,
-		page: params.page,
-		pageSize: params.pageSize,
+		categoryId,
+		notes: notes || undefined,
+		page,
+		pageSize,
 		sortAmount: direction('amount'),
 		sortCategory: direction('category'),
 		sortDate: direction('date'),

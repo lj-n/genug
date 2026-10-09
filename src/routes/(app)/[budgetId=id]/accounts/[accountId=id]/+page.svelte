@@ -7,9 +7,8 @@
 	import { AccountArchivedNotice, AccountBalances } from '$lib/components/features/account';
 	import {
 		pruneForeignCategoryIds,
-		TableState,
-		toTableParams,
-		TransactionTable
+		TransactionTable,
+		UrlTableState
 	} from '$lib/components/features/transaction';
 	import { Button } from '$lib/components/ui/button';
 	import * as Page from '$lib/components/ui/page';
@@ -86,41 +85,35 @@
 	}
 
 	// Read tracked so filter hydration waits for the list; it is stable per budget,
-	// so pruning adds no table rebuild beyond the account switch below (#371/#372).
+	// so pruning adds no table reset beyond a navigation's own below (#371/#372).
 	const knownCategoryIds = $derived(
 		new Set((await getCategories({ budgetId: budgetId() })).map((c) => c.id))
 	);
 
-	function urlTableParams() {
+	/** The current URL's table params, minus category ids foreign to this budget (#372). */
+	function prunedURLParams() {
 		const params = parseURLParams(page.url);
 		params.categoryId = pruneForeignCategoryIds(params.categoryId, knownCategoryIds);
 		return params;
 	}
 
-	// One table state per page visit. The route component is shared across all
-	// account pages and reused on navigation, so without a reset account A's
-	// filters would carry onto account B and the URL bridge below would stamp
-	// those stale params onto B's clean URL (#371). The instance stays the same
-	// (never built in a derived: under async Svelte may re-run a derived while a
-	// navigation settles, and the filter bar and its handlers ended up on
-	// different copies, #434); a real account switch resets it in place from the
-	// target URL. Query-only navigations (in-page filter/sort/page changes) leave
-	// it alone, and a full load or reload hydrates it from the URL (deep links).
-	const tableState = new TableState(urlTableParams());
-	let tableStateAccountId = $state(accountId());
+	// One table state per page visit, never built in a derived: under async,
+	// Svelte may re-run a derived while a navigation settles, and the filter bar
+	// and its handlers ended up on different copies (#434). It keeps its own URL
+	// writes and resets in place from any other URL it lands on (#371); a full
+	// load or reload builds it from the URL (deep links).
+	const table = new UrlTableState(page.url, prunedURLParams());
+	const tableState = table.state;
 
+	// Effect, not derived: resetting the state is a write that must happen once
+	// per landed navigation, and only after it commits. A pending navigation
+	// lists with its URL's params meanwhile (see `tableParams`).
 	$effect.pre(() => {
-		const id = accountId();
-		if (id === untrack(() => tableStateAccountId)) return;
-		untrack(() => tableState.reset(urlTableParams()));
-		tableStateAccountId = id;
+		const url = page.url;
+		untrack(() => table.follow(url, prunedURLParams));
 	});
 
-	// Until the reset above lands, the switch queries with the target URL's
-	// params, so the new account is never listed with the old account's filters.
-	const tableParams = $derived(
-		tableStateAccountId === accountId() ? tableState.params : toTableParams(urlTableParams())
-	);
+	const tableParams = $derived(table.paramsAt(page.url, prunedURLParams));
 
 	const result = $derived(await listTransactions({ accountId: accountId(), ...tableParams }));
 
@@ -134,16 +127,17 @@
 		result
 	});
 
+	// Effect: writing the table state back to the URL is a navigation (`goto`),
+	// an imperative side effect no derived may perform.
 	$effect(() => {
 		const nextQuery = buildSearch(tableParams);
 		if (nextQuery === page.url.searchParams.toString()) return;
-		goto(
-			resolve(`/(app)/[budgetId=id]/accounts/[accountId=id]?${nextQuery}`, {
-				accountId: accountId(),
-				budgetId: budgetId()
-			}),
-			{ keepFocus: true, noScroll: true }
-		);
+		const target = resolve(`/(app)/[budgetId=id]/accounts/[accountId=id]?${nextQuery}`, {
+			accountId: accountId(),
+			budgetId: budgetId()
+		});
+		table.navigatingTo(new URL(target, page.url));
+		goto(target, { keepFocus: true, noScroll: true });
 	});
 </script>
 
