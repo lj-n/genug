@@ -2,7 +2,7 @@ import { m } from '$lib/paraglide/messages';
 import { MoneySchema } from '$lib/utils/money';
 import * as v from 'valibot';
 
-import { CoercedNumber } from './utils';
+import { CoercedBoolean, CoercedNumber } from './utils';
 
 export const TransactionCreateSchema = v.object({
 	accountId: v.pipe(v.string(), v.minLength(1)),
@@ -68,7 +68,7 @@ export const TransactionsURLParamsSchema = v.object({
 	page: v.nullish(v.pipe(CoercedNumber, v.integer()), 1),
 	pageSize: v.nullish(v.pipe(CoercedNumber, v.integer()), 15),
 	/** Absent hides rows sealed by a Checkpoint of the viewed account. */
-	showSealed: v.nullish(v.boolean(), false),
+	showSealed: v.nullish(CoercedBoolean, false),
 	sortAccount: SortParam,
 	sortAmount: SortParam,
 	sortCategory: SortParam,

@@ -76,7 +76,7 @@
 			notes: searchParams.get('notes'),
 			page: searchParams.get('page'),
 			pageSize: searchParams.get('pageSize') ?? defaultPageSize,
-			showSealed: searchParams.has('showSealed'),
+			showSealed: searchParams.get('showSealed'),
 			sortAmount: searchParams.get('sortAmount'),
 			sortCategory: searchParams.get('sortCategory'),
 			sortDate: searchParams.get('sortDate'),
