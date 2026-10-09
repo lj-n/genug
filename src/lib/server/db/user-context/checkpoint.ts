@@ -91,6 +91,20 @@ export const queries = (userId: string, db: Database = database) => ({
 			.get()!;
 
 		return { toSeal, validatedBalance: readValidatedBalance(db, accountId) };
+	},
+
+	/** What the account page shows about Checkpoints: when the latest was set, if any. */
+	summary: (accountId: string) => {
+		readAccount(userId, db, accountId);
+
+		const latest = db
+			.select({ createdAt: tables.checkpoints.createdAt })
+			.from(tables.checkpoints)
+			.where(eq(tables.checkpoints.accountId, accountId))
+			.orderBy(...newestFirst)
+			.get();
+
+		return { latestAt: latest?.createdAt ?? null };
 	}
 });
 

@@ -222,6 +222,46 @@ describe('checkpoint.overview', () => {
 	});
 });
 
+describe('checkpoint.summary', () => {
+	it('has no latest Checkpoint before the first one', () => {
+		const { account, ctx } = setup();
+
+		expect(ctx.checkpoint.summary(account.id)).toEqual({ latestAt: null });
+	});
+
+	it("reports when the account's latest Checkpoint was set", () => {
+		const { account, ctx } = setup();
+		ctx.checkpoint.set(account.id, asMoney(0));
+		const latest = ctx.checkpoint.set(account.id, asMoney(0));
+
+		expect(ctx.checkpoint.summary(account.id)).toEqual({ latestAt: latest.createdAt });
+	});
+
+	it("ignores another account's Checkpoints", () => {
+		const { account, budget, ctx, db } = setup();
+		const other = createAccount(db, budget.id, 'Savings');
+		ctx.checkpoint.set(other.id, asMoney(0));
+
+		expect(ctx.checkpoint.summary(account.id)).toEqual({ latestAt: null });
+	});
+
+	it('falls back to the previous Checkpoint once the latest is deleted', () => {
+		const { account, ctx } = setup();
+		const first = ctx.checkpoint.set(account.id, asMoney(0));
+		const second = ctx.checkpoint.set(account.id, asMoney(0));
+		ctx.checkpoint.delete(second.id);
+
+		expect(ctx.checkpoint.summary(account.id)).toEqual({ latestAt: first.createdAt });
+	});
+
+	it('answers 404 to a user outside the budget', () => {
+		const { account, db } = setup();
+		const outsider = createUser(db, 'outsider');
+
+		expectNotFound(() => createUserCtx(outsider.id, db).checkpoint.summary(account.id));
+	});
+});
+
 describe('checkpoint.history', () => {
 	it('lists every Checkpoint newest first with bank balance, sealed count and Adjustment', () => {
 		const { account, budget, ctx, db } = setup();
