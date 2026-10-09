@@ -23,6 +23,9 @@ and dependency bumps get no entry.
   dialog moved focus to itself a moment later, so an account created that
   quickly could be saved without its starting balance. Dialogs now leave focus
   alone once a field inside them has it.
+- Adding a category filter on an account's register right after switching
+  accounts no longer fails silently. The register used to show "No transactions
+  match your filters" without the category picker.
 
 ## [2026.10.0] - 2026-10-08
 

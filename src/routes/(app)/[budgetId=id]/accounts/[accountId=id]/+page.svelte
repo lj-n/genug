@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { TableParams } from '$lib/components/features/transaction';
 
-	import { goto } from '$app/navigation';
+	import { beforeNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { AccountArchivedNotice, AccountBalances } from '$lib/components/features/account';
@@ -98,12 +98,29 @@
 	// query-only navigations (in-page filter/sort/page changes) keep the instance
 	// instead of fighting the URL bridge. The URL is read untracked, so a full
 	// load or reload still hydrates from it (deep links).
+	//
+	// The instance is memoized per account because Svelte may re-execute this
+	// derived on every read while an async navigation is still settling. A fresh
+	// `TableState` per execution let the filter bar hold one instance while the
+	// handlers mutated another, so an added filter never rendered (#434). Each
+	// navigation starts by dropping every instance but the current account's, so
+	// a switch (back) to another account still builds from its URL (#371).
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- identity cache, not reactive state
+	const tableStates = new Map<string, TableState>();
+	beforeNavigate(({ from }) => {
+		for (const id of tableStates.keys()) {
+			if (id !== from?.params?.accountId) tableStates.delete(id);
+		}
+	});
 	const currentAccountId = $derived(accountId());
 	const tableState = $derived.by(() => {
-		const _accountId = currentAccountId;
+		const cached = tableStates.get(currentAccountId);
+		if (cached) return cached;
 		const params = untrack(() => parseURLParams(page.url));
 		params.categoryId = pruneForeignCategoryIds(params.categoryId, knownCategoryIds);
-		return new TableState(params);
+		const state = new TableState(params);
+		tableStates.set(currentAccountId, state);
+		return state;
 	});
 
 	const result = $derived(await listTransactions({ accountId: accountId(), ...tableState.params }));
