@@ -62,6 +62,7 @@
 			notes: searchParams.get('notes'),
 			page: searchParams.get('page'),
 			pageSize: searchParams.get('pageSize') ?? defaultPageSize,
+			showSealed: searchParams.has('showSealed'),
 			sortAmount: searchParams.get('sortAmount'),
 			sortCategory: searchParams.get('sortCategory'),
 			sortDate: searchParams.get('sortDate'),
@@ -80,6 +81,7 @@
 		if (tableParams.page !== 1) searchParams.set('page', String(tableParams.page));
 		if (tableParams.pageSize !== defaultPageSize)
 			searchParams.set('pageSize', String(tableParams.pageSize));
+		if (tableParams.showSealed) searchParams.set('showSealed', 'true');
 		if (tableParams.sortAmount) searchParams.set('sortAmount', tableParams.sortAmount);
 		if (tableParams.sortCategory) searchParams.set('sortCategory', tableParams.sortCategory);
 		if (tableParams.sortDate) searchParams.set('sortDate', tableParams.sortDate);
@@ -207,6 +209,7 @@
 					pageSize: view.result.pagination.pageSize,
 					total: view.result.pagination.totalTransactionCount
 				}}
+				sealed={view.result.sealed}
 				{tableState}
 				transactions={view.result.transactions}
 			>

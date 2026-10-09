@@ -44,6 +44,7 @@ export const listTransactions = guardedQuery(
 			notes,
 			page,
 			pageSize,
+			showSealed,
 			sortAccount,
 			sortAmount,
 			sortCategory,
@@ -55,7 +56,8 @@ export const listTransactions = guardedQuery(
 		const filter: TransactionFilterParam = {
 			accountId,
 			...(categoryId?.length ? { categoryId } : {}),
-			...(notes ? { notes } : {})
+			...(notes ? { notes } : {}),
+			hideSealed: !showSealed
 		};
 
 		const sort: TransactionSortParam = {
@@ -66,10 +68,14 @@ export const listTransactions = guardedQuery(
 			...(sortValidated ? { validated: sortValidated } : {})
 		};
 
-		const { rows, total } = ctx.transaction.page(filter, sort, { page: page - 1, pageSize });
+		const { hiddenCount, rows, sealedCount, total } = ctx.transaction.page(filter, sort, {
+			page: page - 1,
+			pageSize
+		});
 
 		return {
 			pagination: { page, pageSize, totalTransactionCount: total },
+			sealed: { count: sealedCount, hidden: hiddenCount },
 			transactions: rows
 		};
 	}

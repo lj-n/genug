@@ -67,6 +67,8 @@ export const TransactionsURLParamsSchema = v.object({
 	notes: v.nullish(v.string()),
 	page: v.nullish(v.pipe(CoercedNumber, v.integer()), 1),
 	pageSize: v.nullish(v.pipe(CoercedNumber, v.integer()), 15),
+	/** Absent hides rows sealed by a Checkpoint of the viewed account. */
+	showSealed: v.nullish(v.boolean(), false),
 	sortAccount: SortParam,
 	sortAmount: SortParam,
 	sortCategory: SortParam,
