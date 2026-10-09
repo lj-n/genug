@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import Harness from './dialog-content.test-harness.svelte';
+import Fixture from './dialog-content.test-fixture.svelte';
 
 beforeEach(() => vi.useFakeTimers({ shouldAdvanceTime: true }));
 afterEach(() => {
@@ -11,7 +11,7 @@ afterEach(() => {
 
 describe('DialogContent — open auto-focus (#433)', () => {
 	it('moves focus into the dialog when nothing inside it has focus yet', async () => {
-		render(Harness);
+		render(Fixture);
 		const dialog = await screen.findByRole('dialog');
 
 		await vi.runAllTimersAsync();
@@ -20,7 +20,7 @@ describe('DialogContent — open auto-focus (#433)', () => {
 	});
 
 	it('leaves focus on a field the user already focused', async () => {
-		render(Harness);
+		render(Fixture);
 		const amount = await screen.findByRole('textbox', { name: 'Amount' });
 
 		// The open auto-focus is deferred to a timer; a user (or a fast test
