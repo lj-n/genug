@@ -28,6 +28,11 @@ import { accessGuard, hasAccess } from './access';
 export type TransactionFilterParam = {
 	accountId?: string;
 	categoryId?: string[];
+	/**
+	 * Leaves out rows sealed by a Checkpoint of their own account. Ignored
+	 * while a category or notes filter is active: a search covers sealed history.
+	 */
+	hideSealed?: boolean;
 	notes?: string;
 };
 
@@ -63,7 +68,12 @@ export const queries = (userId: string, db: Database = database) => ({
 		sort: TransactionSortParam,
 		pagination: { page: number; pageSize: number }
 	) => {
-		const where = and(hasAccess(tables.transactions, userId, db), ...filterConditions(filter));
+		const matching = and(hasAccess(tables.transactions, userId, db), ...filterConditions(filter));
+		// Only a row's own seal hides it: a transfer leg sealed through its
+		// partner may still need validating here (ADR-0017).
+		const where = hidesSealed(filter)
+			? and(matching, isNull(tables.transactions.checkpointId))
+			: matching;
 		const { counterpart, counterpartAccount, counterpartColumns, counterpartJoin } =
 			counterpartAccountJoin();
 		// A transfer is sealed once either leg is; the row's own `checkpointId`
@@ -97,10 +107,22 @@ export const queries = (userId: string, db: Database = database) => ({
 			.offset(pagination.page * pagination.pageSize)
 			.all();
 
-		const total =
-			db.select({ total: count() }).from(tables.transactions).where(where).get()?.total ?? 0;
+		// Counted over every matching row, hidden or not: `sealedCount` labels
+		// the "show sealed" toggle, and `total + hiddenCount` tells a register
+		// emptied by hiding from one with nothing recorded yet.
+		const counts = db
+			.select({
+				matching: count(),
+				sealed: count(tables.transactions.checkpointId)
+			})
+			.from(tables.transactions)
+			.where(matching)
+			.get();
+		const matchingCount = counts?.matching ?? 0;
+		const sealedCount = counts?.sealed ?? 0;
+		const hiddenCount = hidesSealed(filter) ? sealedCount : 0;
 
-		return { rows, total };
+		return { hiddenCount, rows, sealedCount, total: matchingCount - hiddenCount };
 	}
 });
 
@@ -411,6 +433,10 @@ function filterConditions(filter: TransactionFilterParam) {
 	}
 
 	return conditions;
+}
+
+function hidesSealed(filter: TransactionFilterParam) {
+	return Boolean(filter.hideSealed && !filter.categoryId && !filter.notes);
 }
 
 /** Rejects a change to a sealed transaction, naming the transfer when it is a leg of one. */

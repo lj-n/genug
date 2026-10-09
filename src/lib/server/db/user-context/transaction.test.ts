@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 
 import { createAccount, createBudgetWithUser, createUser } from '../../../../test/fixtures';
 import { createUserCtx } from './index';
-import { commands, queries } from './transaction';
+import { commands, queries, type TransactionFilterParam } from './transaction';
 
 function createCategory(db: Database, budgetId: string, name: string) {
 	return db.insert(tables.categories).values({ budgetId, name }).returning().get();
@@ -1184,5 +1184,79 @@ describe('seal: register rows', () => {
 			sealed: true,
 			sealedAt: checkpoint.createdAt
 		});
+	});
+});
+
+describe('seal: hiding sealed rows', () => {
+	const firstPage = { page: 0, pageSize: 10 };
+
+	it('hides rows sealed by a Checkpoint of the viewed account when asked to', () => {
+		const { account, budget, ctx, db, sealed } = sealedSetup();
+		const open = createTransaction(db, budget.id, account.id);
+
+		const result = ctx.transaction.page({ accountId: account.id, hideSealed: true }, {}, firstPage);
+
+		expect(result.rows.map((row) => row.id)).toEqual([open.id]);
+		expect(result.rows.map((row) => row.id)).not.toContain(sealed.id);
+		expect(result.total).toBe(1);
+	});
+
+	it('shows sealed rows without the flag', () => {
+		const { account, budget, ctx, db, sealed } = sealedSetup();
+		const open = createTransaction(db, budget.id, account.id);
+
+		const result = ctx.transaction.page({ accountId: account.id }, {}, firstPage);
+
+		expect(result.rows.map((row) => row.id).sort()).toEqual([open.id, sealed.id].sort());
+		expect(result.total).toBe(2);
+	});
+
+	it('includes sealed rows while a category or notes filter is active', () => {
+		const { account, budget, ctx, db, sealed } = sealedSetup();
+		createTransaction(db, budget.id, account.id, { notes: 'groceries' });
+		const ids = (filter: Omit<TransactionFilterParam, 'accountId' | 'hideSealed'>) =>
+			ctx.transaction
+				.page({ accountId: account.id, hideSealed: true, ...filter }, {}, firstPage)
+				.rows.map((row) => row.id);
+
+		expect(ids({ notes: 'old' })).toEqual([sealed.id]);
+		expect(ids({ categoryId: [UNASSIGNED] })).toContain(sealed.id);
+	});
+
+	it('keeps a transfer leg sealed only through its partner visible', () => {
+		const { checking, ctx, from, savings, to } = sealedTransferSetup();
+		const ids = (accountId: string) =>
+			ctx.transaction
+				.page({ accountId, hideSealed: true }, {}, firstPage)
+				.rows.map((row) => row.id);
+
+		expect(ids(checking.id)).not.toContain(from.id);
+		expect(ids(savings.id)).toEqual([to.id]);
+	});
+
+	it('reports how many sealed rows it hid', () => {
+		const { account, budget, ctx, db } = sealedSetup();
+		createTransaction(db, budget.id, account.id);
+
+		const hidden = ctx.transaction.page({ accountId: account.id, hideSealed: true }, {}, firstPage);
+		const shown = ctx.transaction.page({ accountId: account.id }, {}, firstPage);
+		const filtered = ctx.transaction.page(
+			{ accountId: account.id, hideSealed: true, notes: 'old' },
+			{},
+			firstPage
+		);
+
+		expect(hidden).toMatchObject({ hiddenCount: 1, sealedCount: 1, total: 1 });
+		expect(shown).toMatchObject({ hiddenCount: 0, sealedCount: 1, total: 2 });
+		expect(filtered).toMatchObject({ hiddenCount: 0, total: 1 });
+	});
+
+	it('counts an all-sealed register as hidden, not empty', () => {
+		const { account, ctx } = sealedSetup();
+
+		const result = ctx.transaction.page({ accountId: account.id, hideSealed: true }, {}, firstPage);
+
+		expect(result).toMatchObject({ hiddenCount: 1, rows: [], total: 0 });
+		expect(result.total + result.hiddenCount).toBe(1);
 	});
 });
