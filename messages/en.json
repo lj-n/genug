@@ -292,6 +292,8 @@
 	"error_transfer_amount_zero": "Enter an amount other than zero.",
 	"error_transfer_same_account": "Source and destination account must differ.",
 	"error_transaction_is_transfer_leg": "This transaction is part of a transfer. Edit the transfer instead.",
+	"error_transaction_sealed": "This transaction is sealed by a checkpoint. Its amount, date, account and validated state can't change, and it can't be deleted. Category and notes stay editable.",
+	"error_transfer_sealed": "This transfer is sealed by a checkpoint. Its amount, date and accounts can't change, and it can't be deleted. Notes stay editable.",
 	"error_category_not_archivable": "This category cannot be archived: the remaining balance must be zero and all transactions must be validated.",
 	"error_category_not_deletable": "This category cannot be deleted: the remaining balance must be zero and no transaction may reference it.",
 	"error_category_not_found": "Category not found.",
