@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { AccountArchivedNotice } from '$lib/components/features/account';
+	import { CheckpointHistory, CheckpointSet } from '$lib/components/features/checkpoint';
 	import * as Page from '$lib/components/ui/page';
 	import { m } from '$lib/paraglide/messages';
 	import { getAccount } from '$lib/remote-functions/account.remote';
@@ -14,9 +15,6 @@
 	import ArrowLeftIcon from '~icons/ph/arrow-left';
 
 	import type { PageProps } from './$types';
-
-	import CheckpointHistory from './checkpoint-history.svelte';
-	import CheckpointSet from './checkpoint-set.svelte';
 
 	let { params }: PageProps = $props();
 
