@@ -10,6 +10,12 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Changed
+
+- The browser's Back and Forward buttons now step through an account
+  register's filter, sort and page changes. Clicking the account you are
+  already on in the sidebar now clears its filters.
+
 ### Fixed
 
 - Picking a date in a transaction row and then moving straight on to the next
@@ -26,6 +32,8 @@ and dependency bumps get no entry.
 - Adding a category filter on an account's register right after switching
   accounts no longer fails silently. The register used to show "No transactions
   match your filters" without the category picker.
+- Switching to another account and back before it finished loading no longer
+  keeps the first account's old filters.
 
 ## [2026.10.0] - 2026-10-08
 

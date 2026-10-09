@@ -5,7 +5,13 @@ import {
 	type FilterType,
 	TransactionFilter
 } from './transaction-filter.svelte';
-import { type SortColumn, type SortDirection, TransactionSort } from './transaction-sort.svelte';
+import {
+	type Sort,
+	type SortColumn,
+	type SortDirection,
+	sortFromParams,
+	TransactionSort
+} from './transaction-sort.svelte';
 
 export type TableParams = {
 	categoryId: string[];
@@ -32,16 +38,13 @@ export class TableState {
 		const category = this.filter.items.find((f): f is CategoryFilter => f.type === 'category')!;
 		const notes = this.filter.items.find((f) => f.type === 'notes')!;
 
-		return {
+		return tableParams({
 			categoryId: category.active ? category.value : [],
-			notes: notes.active && notes.value ? (notes.value as string) : undefined,
+			notes: notes.active ? (notes.value as string) : undefined,
 			page: this.#page,
 			pageSize: this.#pageSize,
-			sortAmount: this.#sortDirection('amount'),
-			sortCategory: this.#sortDirection('category'),
-			sortDate: this.#sortDirection('date'),
-			sortValidated: this.#sortDirection('validated')
-		};
+			sort: this.sort
+		});
 	}
 
 	#page = $state(1);
@@ -51,8 +54,7 @@ export class TableState {
 	constructor(params: TransactionsURLParams) {
 		this.filter = new TransactionFilter(params);
 		this.sort = new TransactionSort(params);
-		this.#page = params.page;
-		this.#pageSize = params.pageSize;
+		this.reset(params);
 	}
 
 	clearAllFilters() {
@@ -63,6 +65,14 @@ export class TableState {
 	clearFilter(type: FilterType) {
 		this.filter.remove(type);
 		this.#page = 1;
+	}
+
+	/** Replaces filter, sort and pagination in place; the instances stay the same. */
+	reset(params: TransactionsURLParams) {
+		this.filter.reset(params);
+		this.sort.reset(params);
+		this.#page = params.page;
+		this.#pageSize = params.pageSize;
 	}
 
 	setFilter(type: FilterType, value: string | string[]) {
@@ -84,8 +94,32 @@ export class TableState {
 		this.sort.toggle(column);
 		this.#page = 1;
 	}
+}
 
-	#sortDirection(column: SortColumn) {
-		return this.sort.column === column ? (this.sort.direction ?? undefined) : undefined;
-	}
+/** The params a `TableState` freshly built from these URL params would expose. */
+export function toTableParams(params: TransactionsURLParams): TableParams {
+	return tableParams({ ...params, sort: sortFromParams(params) });
+}
+
+function tableParams({
+	categoryId,
+	notes,
+	page,
+	pageSize,
+	sort
+}: Pick<TransactionsURLParams, 'categoryId' | 'notes' | 'page' | 'pageSize'> & {
+	sort: Sort;
+}): TableParams {
+	const direction = (column: SortColumn) =>
+		sort.column === column ? (sort.direction ?? undefined) : undefined;
+	return {
+		categoryId,
+		notes: notes || undefined,
+		page,
+		pageSize,
+		sortAmount: direction('amount'),
+		sortCategory: direction('category'),
+		sortDate: direction('date'),
+		sortValidated: direction('validated')
+	};
 }

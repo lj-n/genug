@@ -2,7 +2,7 @@ import { TransactionsURLParamsSchema } from '$lib/schemas/transaction';
 import { parse } from 'valibot';
 import { describe, expect, it } from 'vitest';
 
-import { TableState } from './transaction-table-state.svelte';
+import { TableState, toTableParams } from './transaction-table-state.svelte';
 
 function params(input: Record<string, unknown> = {}) {
 	return parse(TransactionsURLParamsSchema, input);
@@ -145,5 +145,65 @@ describe('TableState', () => {
 
 		expect(state.pageSize).toBe(50);
 		expect(state.page).toBe(1);
+	});
+
+	it('reset replaces filter, sort, page and pageSize with the given params', () => {
+		const state = new TableState(
+			params({ categoryId: ['cat-1'], notes: 'rent', page: '4', pageSize: '50', sortDate: 'desc' })
+		);
+
+		state.reset(params({ pageSize: '25', sortAmount: 'asc' }));
+
+		expect(state.params).toEqual({
+			categoryId: [],
+			notes: undefined,
+			page: 1,
+			pageSize: 25,
+			sortAmount: 'asc',
+			sortCategory: undefined,
+			sortDate: undefined,
+			sortValidated: undefined
+		});
+		expect(state.filter.anyActive).toBe(false);
+	});
+
+	it('reset keeps the filter and sort instances', () => {
+		const state = new TableState(params({ categoryId: ['cat-1'] }));
+		const { filter, sort } = state;
+
+		state.reset(params({ notes: 'rent', sortDate: 'asc' }));
+
+		expect(state.filter).toBe(filter);
+		expect(state.sort).toBe(sort);
+		expect(filter.items).toContainEqual({ active: true, type: 'notes', value: 'rent' });
+		expect(sort.column).toBe('date');
+	});
+});
+
+describe('toTableParams', () => {
+	it('matches the params of a fresh TableState', () => {
+		const input = params({
+			categoryId: ['cat-1'],
+			notes: 'rent',
+			page: '2',
+			pageSize: '25',
+			sortAmount: 'asc',
+			sortDate: 'desc'
+		});
+
+		expect(toTableParams(input)).toEqual(new TableState(input).params);
+	});
+
+	it('keeps only the highest-priority sort and drops empty notes', () => {
+		expect(toTableParams(params({ notes: '', sortAmount: 'asc', sortCategory: 'desc' }))).toEqual({
+			categoryId: [],
+			notes: undefined,
+			page: 1,
+			pageSize: 15,
+			sortAmount: undefined,
+			sortCategory: 'desc',
+			sortDate: undefined,
+			sortValidated: undefined
+		});
 	});
 });
