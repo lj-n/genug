@@ -12,6 +12,7 @@
 	import {
 		getCheckpointHistory,
 		getCheckpointOverview,
+		getCheckpointSummary,
 		setCheckpoint
 	} from '$lib/remote-functions/checkpoint.remote';
 	import { listTransactions } from '$lib/remote-functions/transaction.remote';
@@ -56,6 +57,7 @@
 		updates: () => [
 			getCheckpointOverview,
 			getCheckpointHistory,
+			getCheckpointSummary,
 			getAccount,
 			getAccountBalances,
 			getAccounts,

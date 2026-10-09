@@ -310,6 +310,8 @@
 	"reassignment_trigger_label": "Adjust remaining for {name}",
 	"source_code_link": "Source code",
 	"checkpoint_button_label": "Checkpoint",
+	"checkpoint_last": "Last checkpoint {relative}",
+	"checkpoint_none": "No checkpoint yet",
 	"checkpoint_title": "Checkpoint",
 	"checkpoint_intro": "A checkpoint confirms that {name} in genug matches your bank on a given day. Every validated transaction up to that point gets sealed: amount, date and account can't change any more. Category and notes stay editable.",
 	"checkpoint_intro_adjustment": "Off by a bit? No need to hunt for the cause. The checkpoint books an Adjustment for the difference, and adjusting from time to time is perfectly fine.",

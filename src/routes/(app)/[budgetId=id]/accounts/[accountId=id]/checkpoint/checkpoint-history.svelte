@@ -8,7 +8,8 @@
 	import {
 		deleteCheckpoint,
 		getCheckpointHistory,
-		getCheckpointOverview
+		getCheckpointOverview,
+		getCheckpointSummary
 	} from '$lib/remote-functions/checkpoint.remote';
 	import { listTransactions } from '$lib/remote-functions/transaction.remote';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
@@ -77,7 +78,12 @@
 						{#if index === 0 && deletable}
 							<AlertDialogForm
 								form={deleteCheckpoint}
-								updates={() => [getCheckpointOverview, getCheckpointHistory, listTransactions]}
+								updates={() => [
+									getCheckpointOverview,
+									getCheckpointHistory,
+									getCheckpointSummary,
+									listTransactions
+								]}
 							>
 								{#snippet trigger(props)}
 									<Button

@@ -19,7 +19,8 @@ and dependency bumps get no entry.
   the difference. A sealed transaction keeps its amount, date, account and
   validated state and can't be deleted; category and notes stay editable.
   The page lists previous checkpoints; deleting the latest one unseals its
-  transactions again.
+  transactions again. Under the account name, the account page shows when
+  the last checkpoint was and links to that history.
 
 ### Changed
 

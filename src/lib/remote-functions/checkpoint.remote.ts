@@ -15,6 +15,10 @@ export const getCheckpointHistory = guardedQuery(v.string(), async (accountId, {
 	ctx.checkpoint.history(accountId)
 );
 
+export const getCheckpointSummary = guardedQuery(v.string(), async (accountId, { ctx }) =>
+	ctx.checkpoint.summary(accountId)
+);
+
 export const setCheckpoint = guardedForm(
 	CheckpointSetSchema,
 	async ({ accountId, bankBalance }, { ctx }) => {
@@ -23,6 +27,7 @@ export const setCheckpoint = guardedForm(
 		await Promise.all([
 			requested(getCheckpointOverview, REFRESH_LIMIT).refreshAll(),
 			requested(getCheckpointHistory, REFRESH_LIMIT).refreshAll(),
+			requested(getCheckpointSummary, REFRESH_LIMIT).refreshAll(),
 			requested(getAccount, REFRESH_LIMIT).refreshAll(),
 			requested(getAccountBalances, REFRESH_LIMIT).refreshAll(),
 			requested(getAccounts, REFRESH_LIMIT).refreshAll(),
@@ -36,10 +41,11 @@ export const deleteCheckpoint = guardedForm(
 	CheckpointIdSchema,
 	async ({ checkpointId }, { ctx }) => {
 		ctx.checkpoint.delete(checkpointId);
-		// Unsealing changes what the next Checkpoint seals and the register.
+		// Unsealing changes what the next Checkpoint seals, the register and the latest Checkpoint.
 		await Promise.all([
 			requested(getCheckpointOverview, REFRESH_LIMIT).refreshAll(),
 			requested(getCheckpointHistory, REFRESH_LIMIT).refreshAll(),
+			requested(getCheckpointSummary, REFRESH_LIMIT).refreshAll(),
 			requested(listTransactions, REFRESH_LIMIT).refreshAll()
 		]);
 	}

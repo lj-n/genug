@@ -16,13 +16,17 @@
 	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategories } from '$lib/remote-functions/category.remote';
+	import { getCheckpointSummary } from '$lib/remote-functions/checkpoint.remote';
 	import {
 		getRememberedPageSize,
 		listTransactions
 	} from '$lib/remote-functions/transaction.remote';
 	import { TransactionsURLParamsSchema } from '$lib/schemas/transaction';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
+	import { formatRelativeDate } from '$lib/utils/format-relative-date';
+	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { stickyParam } from '$lib/utils/sticky-param';
+	import { fromDate, getLocalTimeZone, toCalendarDate } from '@internationalized/date';
 	import { untrack } from 'svelte';
 	import * as v from 'valibot';
 	import GearSixIcon from '~icons/ph/gear-six';
@@ -38,6 +42,20 @@
 	const account = $derived(await getAccount(accountId()));
 	const balanceDetail = $derived(await getAccountBalances(accountId()));
 	const budget = $derived(await getBudget(budgetId()));
+	// Awaited regardless of archiving: restoring in place must not introduce a
+	// first-time await mid-update (see `view` below).
+	const checkpointSummary = $derived(await getCheckpointSummary(accountId()));
+	const latestCheckpoint = $derived.by(() => {
+		if (!checkpointSummary.latestAt) return null;
+		const date = toCalendarDate(fromDate(checkpointSummary.latestAt, getLocalTimeZone()));
+		return { exact: formatTransactionDate(date), relative: formatRelativeDate({ date }) };
+	});
+	const checkpointHref = $derived(
+		resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/checkpoint', {
+			accountId: accountId(),
+			budgetId: budgetId()
+		})
+	);
 	// The remembered page size: the fallback when the URL has no `pageSize`,
 	// and the baseline below which the URL stays clean.
 	const defaultPageSize = $derived(await getRememberedPageSize());
@@ -146,9 +164,31 @@
 
 <Page.Root>
 	<Page.Header class="flex-row flex-wrap items-center justify-between gap-4">
-		<Page.Title>
-			{account.name}
-		</Page.Title>
+		<div class="grid gap-1">
+			<Page.Title>
+				{account.name}
+			</Page.Title>
+			{#if !account.archivedAt}
+				{#if latestCheckpoint}
+					<a
+						href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/checkpoint#history', {
+							accountId: accountId(),
+							budgetId: budgetId()
+						})}
+						title={latestCheckpoint.exact}
+						class="flex w-fit items-center gap-1.5 text-sm text-muted hover:text-foreground"
+					>
+						<StampIcon class="text-success" />
+						{m.checkpoint_last({ relative: latestCheckpoint.relative })}
+					</a>
+				{:else}
+					<p class="flex items-center gap-1.5 text-sm text-muted">
+						<StampIcon />
+						{m.checkpoint_none()}
+					</p>
+				{/if}
+			{/if}
+		</div>
 
 		{#if !account.archivedAt}
 			<div class="flex items-center gap-1">
@@ -156,10 +196,7 @@
 					variant="ghost"
 					size="icon"
 					title={m.checkpoint_button_label()}
-					href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/checkpoint', {
-						accountId: accountId(),
-						budgetId: budgetId()
-					})}
+					href={checkpointHref}
 				>
 					<StampIcon />
 					<span class="sr-only">{m.checkpoint_button_label()}</span>
