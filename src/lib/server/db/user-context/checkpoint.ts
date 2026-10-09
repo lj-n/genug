@@ -4,7 +4,7 @@ import { database, type Database, tables } from '$db';
 import { m } from '$lib/paraglide/messages';
 import { getLocalTimeZone, today } from '@internationalized/date';
 import { error } from '@sveltejs/kit';
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 
 import { hasAccess } from './access';
 
@@ -45,7 +45,34 @@ function uncovered(accountId: string) {
 	);
 }
 
+/**
+ * Newest first. Setting two Checkpoints within the same millisecond is
+ * possible, so insertion order breaks the tie.
+ */
+const newestFirst = [desc(tables.checkpoints.createdAt), desc(sql`${tables.checkpoints}.rowid`)];
+
 export const queries = (userId: string, db: Database = database) => ({
+	/** The account's Checkpoints, newest first, with how many transactions each seals. */
+	history: (accountId: string) => {
+		readAccount(userId, db, accountId);
+
+		return db
+			.select({
+				adjustment: tables.checkpoints.adjustment,
+				bankBalance: tables.checkpoints.bankBalance,
+				createdAt: tables.checkpoints.createdAt,
+				id: tables.checkpoints.id,
+				sealedCount: db.$count(
+					tables.transactions,
+					eq(tables.transactions.checkpointId, tables.checkpoints.id)
+				)
+			})
+			.from(tables.checkpoints)
+			.where(eq(tables.checkpoints.accountId, accountId))
+			.orderBy(...newestFirst)
+			.all();
+	},
+
 	/**
 	 * What the Checkpoint page shows before setting one: the validated Balance
 	 * and the validated transactions the next Checkpoint would seal.
@@ -68,6 +95,46 @@ export const queries = (userId: string, db: Database = database) => ({
 });
 
 export const commands = (userId: string, db: Database = database) => ({
+	/**
+	 * Deletes the account's latest Checkpoint (ADR-0017): unseals exactly its
+	 * transactions and removes the record. No transaction is rewritten or
+	 * deleted, so its Adjustment stays as an ordinary transaction.
+	 */
+	delete: (checkpointId: string) =>
+		db.transaction((tx) => {
+			const checkpoint = db
+				.select({ accountId: tables.checkpoints.accountId })
+				.from(tables.checkpoints)
+				.where(eq(tables.checkpoints.id, checkpointId))
+				.get();
+			if (!checkpoint) error(404, m.error_checkpoint_not_found());
+
+			const account = readAccount(userId, db, checkpoint.accountId);
+			if (account.archivedAt)
+				error(400, {
+					code: 'account_archived',
+					message: m.checkpoint_error_account_archived_delete()
+				});
+
+			const latest = db
+				.select({ id: tables.checkpoints.id })
+				.from(tables.checkpoints)
+				.where(eq(tables.checkpoints.accountId, account.id))
+				.orderBy(...newestFirst)
+				.get()!;
+			if (latest.id !== checkpointId)
+				error(400, {
+					code: 'checkpoint_not_latest',
+					message: m.checkpoint_error_not_latest()
+				});
+
+			tx.update(tables.transactions)
+				.set({ checkpointId: null })
+				.where(eq(tables.transactions.checkpointId, checkpointId))
+				.run();
+			tx.delete(tables.checkpoints).where(eq(tables.checkpoints.id, checkpointId)).run();
+		}),
+
 	/**
 	 * Sets a Checkpoint at the entered bank balance (ADR-0017): books an
 	 * Adjustment for any difference to the validated Balance, then seals every
