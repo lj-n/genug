@@ -9,6 +9,11 @@ import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 
 import { hasAccess } from './access';
 
+/** An Adjustment is dated the day its Checkpoint is set. */
+function adjustmentDate() {
+	return today(getLocalTimeZone()).toString();
+}
+
 /**
  * Checkpoint suggested (GLOSSARY.md) for the viewing user: something validated
  * is uncovered, and either the account never had a Checkpoint or one of the
@@ -112,7 +117,9 @@ export const queries = (userId: string, db: Database = database) => ({
 
 	/**
 	 * What the Checkpoint page shows before setting one: the validated Balance
-	 * and the validated transactions the next Checkpoint would seal.
+	 * and the validated transactions the next Checkpoint would seal, as is
+	 * when the bank balance matches (`toSeal`) and with the Adjustment
+	 * otherwise (`toSealWithAdjustment`).
 	 */
 	overview: (accountId: string) => {
 		readAccount(userId, db, accountId);
@@ -127,7 +134,15 @@ export const queries = (userId: string, db: Database = database) => ({
 			.where(uncovered(accountId))
 			.get()!;
 
-		return { toSeal, validatedBalance: readValidatedBalance(db, accountId) };
+		// The Adjustment `set` books is sealed along with the rest.
+		const date = adjustmentDate();
+		const toSealWithAdjustment = {
+			count: toSeal.count + 1,
+			firstDate: toSeal.firstDate !== null && toSeal.firstDate < date ? toSeal.firstDate : date,
+			lastDate: toSeal.lastDate !== null && toSeal.lastDate > date ? toSeal.lastDate : date
+		};
+
+		return { toSeal, toSealWithAdjustment, validatedBalance: readValidatedBalance(db, accountId) };
 	},
 
 	/**
@@ -225,7 +240,7 @@ export const commands = (userId: string, db: Database = database) => ({
 						amount: adjustment,
 						budgetId: account.budgetId,
 						createdBy: userId,
-						date: today(getLocalTimeZone()).toString(),
+						date: adjustmentDate(),
 						notes: m.checkpoint_adjustment_notes(),
 						validated: true
 					})

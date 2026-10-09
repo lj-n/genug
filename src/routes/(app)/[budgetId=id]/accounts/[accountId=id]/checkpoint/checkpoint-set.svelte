@@ -19,7 +19,7 @@
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { asMoney, formatMoney } from '$lib/utils/money';
-	import { getLocalTimeZone, parseDate, today } from '@internationalized/date';
+	import { parseDate } from '@internationalized/date';
 	import CheckCircleDuotoneIcon from '~icons/ph/check-circle-duotone';
 	import StampIcon from '~icons/ph/stamp';
 
@@ -70,17 +70,7 @@
 	);
 	const adjusting = $derived(adjustment !== undefined && adjustment !== 0);
 
-	// The Adjustment, dated today, is sealed along with what is already validated.
-	const seal = $derived.by(() => {
-		const dates = [overview.toSeal.firstDate, overview.toSeal.lastDate];
-		if (adjusting) dates.push(today(getLocalTimeZone()).toString());
-		const known = dates.filter((date) => date !== null).sort();
-		return {
-			count: overview.toSeal.count + (adjusting ? 1 : 0),
-			from: known.at(0),
-			to: known.at(-1)
-		};
-	});
+	const seal = $derived(adjusting ? overview.toSealWithAdjustment : overview.toSeal);
 
 	function formatAmount(cents: number, signed = false) {
 		return formatMoney({
@@ -169,14 +159,14 @@
 			<StampIcon class="shrink-0 text-muted" />
 			<span>
 				<span class="font-medium">{m.checkpoint_seal_summary({ count: seal.count })}</span>
-				{#if seal.from && seal.to}
+				{#if seal.firstDate && seal.lastDate}
 					<span class="text-muted">
 						·
-						{seal.from === seal.to
-							? formatTransactionDate(parseDate(seal.from))
+						{seal.firstDate === seal.lastDate
+							? formatTransactionDate(parseDate(seal.firstDate))
 							: m.checkpoint_seal_range({
-									from: formatTransactionDate(parseDate(seal.from)),
-									to: formatTransactionDate(parseDate(seal.to))
+									from: formatTransactionDate(parseDate(seal.firstDate)),
+									to: formatTransactionDate(parseDate(seal.lastDate))
 								})}
 					</span>
 				{/if}

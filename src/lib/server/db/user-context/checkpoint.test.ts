@@ -198,9 +198,24 @@ describe('checkpoint.overview', () => {
 			validated: false
 		});
 
+		const adjustmentDate = today(getLocalTimeZone()).toString();
 		expect(ctx.checkpoint.overview(account.id)).toEqual({
 			toSeal: { count: 2, firstDate: '2025-01-05', lastDate: '2025-02-10' },
+			toSealWithAdjustment: { count: 3, firstDate: '2025-01-05', lastDate: adjustmentDate },
 			validatedBalance: 800
+		});
+	});
+
+	it('keeps a later-dated transaction as the last date to seal next to an Adjustment', () => {
+		const { account, budget, ctx, db } = setup();
+		const adjustmentDate = today(getLocalTimeZone());
+		const later = adjustmentDate.add({ days: 3 }).toString();
+		createTransaction(db, budget.id, account.id, { date: later, validated: true });
+
+		expect(ctx.checkpoint.overview(account.id).toSealWithAdjustment).toEqual({
+			count: 2,
+			firstDate: adjustmentDate.toString(),
+			lastDate: later
 		});
 	});
 
@@ -209,8 +224,10 @@ describe('checkpoint.overview', () => {
 		createTransaction(db, budget.id, account.id, { amount: 1000, validated: true });
 		ctx.checkpoint.set(account.id, asMoney(1000));
 
+		const adjustmentDate = today(getLocalTimeZone()).toString();
 		expect(ctx.checkpoint.overview(account.id)).toEqual({
 			toSeal: { count: 0, firstDate: null, lastDate: null },
+			toSealWithAdjustment: { count: 1, firstDate: adjustmentDate, lastDate: adjustmentDate },
 			validatedBalance: 1000
 		});
 	});
