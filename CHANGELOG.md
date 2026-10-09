@@ -10,6 +10,33 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Changed
+
+- The browser's Back and Forward buttons now step through an account
+  register's filter, sort and page changes. Clicking the account you are
+  already on in the sidebar now clears its filters.
+
+### Fixed
+
+- Going Back to an account register from an account in another budget now
+  restores the register's category filter instead of dropping it.
+- Picking a date in a transaction row and then moving straight on to the next
+  field no longer pulls focus back to the date button, which could swallow
+  what you typed (e.g. the amount) and save the transaction without it.
+- The inline transaction and transfer rows on an account's register no longer
+  slide open or closed when your system asks for reduced motion, like the
+  app's other popovers and dialogs. A still-sliding row could shift an open
+  date picker under the pointer and drop the click.
+- Typing into a dialog's first field right after it opened could be lost: the
+  dialog moved focus to itself a moment later, so an account created that
+  quickly could be saved without its starting balance. Dialogs now leave focus
+  alone once a field inside them has it.
+- Adding a category filter on an account's register right after switching
+  accounts no longer fails silently. The register used to show "No transactions
+  match your filters" without the category picker.
+- Switching to another account and back before it finished loading no longer
+  keeps the first account's old filters.
+
 ## [2026.10.0] - 2026-10-08
 
 ### Added

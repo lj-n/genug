@@ -50,14 +50,7 @@ export class TransactionFilter {
 	}
 
 	constructor(params: TransactionsURLParams) {
-		this.items = [
-			{
-				active: params.categoryId.length > 0,
-				type: 'category',
-				value: params.categoryId
-			} as CategoryFilter,
-			{ active: !!params.notes, type: 'notes', value: params.notes ?? '' } as NotesFilter
-		];
+		this.reset(params);
 	}
 
 	add(type: FilterType) {
@@ -81,6 +74,17 @@ export class TransactionFilter {
 		f.active = false;
 		if (f.type === 'category') (f.value as string[]) = [];
 		else f.value = '';
+	}
+
+	reset(params: TransactionsURLParams) {
+		this.items = [
+			{
+				active: params.categoryId.length > 0,
+				type: 'category',
+				value: params.categoryId
+			} as CategoryFilter,
+			{ active: !!params.notes, type: 'notes', value: params.notes ?? '' } as NotesFilter
+		];
 	}
 
 	updateValue(type: FilterType, value: string | string[]) {

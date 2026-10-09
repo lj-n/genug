@@ -6,6 +6,7 @@
 	import { DatePicker } from '$lib/components/ui/date-picker';
 	import { Input } from '$lib/components/ui/input';
 	import { InputMoney } from '$lib/components/ui/input-money';
+	import { rowSlide } from '$lib/components/ui/overlay-motion';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { m } from '$lib/paraglide/messages';
 	import {
@@ -24,7 +25,6 @@
 	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { parseDate } from '@internationalized/date';
 	import { tick, untrack } from 'svelte';
-	import { slide } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
 	import TrashIcon from '~icons/ph/trash';
 
@@ -270,7 +270,7 @@
 
 		<div
 			role="cell"
-			transition:slide={{ duration: 150 }}
+			transition:rowSlide
 			class="col-span-full flex items-center justify-between gap-1 p-1"
 		>
 			<p class="px-1 text-sm text-muted">{m.transfer_amount_hint()}</p>

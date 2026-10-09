@@ -74,11 +74,18 @@
 		if (contentRef) contentRef.id = contentId;
 	});
 
+	// Focus returns to the trigger only while nobody else has claimed it: the
+	// return lands after the popover closes, and by then the user may already
+	// have moved to the next field — pulling focus back would drop keystrokes.
+	function focusTriggerIfUnclaimed() {
+		const active = document.activeElement;
+		if (active && active !== document.body && !contentRef?.contains(active)) return;
+		ref?.focus();
+	}
+
 	function closeAndFocusTrigger() {
 		open = false;
-		tick().then(() => {
-			ref?.focus();
-		});
+		tick().then(focusTriggerIfUnclaimed);
 	}
 </script>
 
@@ -110,6 +117,10 @@
 		bind:ref={contentRef}
 		class="w-full p-0"
 		sideOffset={4}
+		onCloseAutoFocus={(ev) => {
+			ev.preventDefault();
+			focusTriggerIfUnclaimed();
+		}}
 		onkeydown={(ev) => {
 			if (ev.key === 'Escape') {
 				closeAndFocusTrigger();

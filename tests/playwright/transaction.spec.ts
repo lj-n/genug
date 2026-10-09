@@ -430,6 +430,62 @@ test('Filter state does not persist when switching accounts (#371)', async ({ pa
 	await expect(pages.account.categoryFilterTrigger()).toHaveCount(0);
 });
 
+test('Switching back before the other account loads starts clean (#371)', async ({
+	page,
+	pages
+}) => {
+	// The desktop side menu only mounts at the wide breakpoint.
+	await page.setViewportSize({ height: 900, width: 1440 });
+
+	await pages.auth.createUserAndLogin();
+
+	const budgetName = faker.commerce.department();
+	await pages.budget.createBudget(budgetName);
+	const accountA = uniqueName(faker.finance.accountName());
+	const accountB = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountA);
+	await pages.budget.createAccount(accountB);
+	const category = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(category);
+
+	await pages.account.goto(accountA);
+	await pages.account.applyCategoryFilter(category);
+	await expect(page).toHaveURL(/categoryId=/);
+
+	// Hold B's remote requests until the end, so the A -> B navigation never
+	// settles: the switch back to A's clean link lands first.
+	const sideMenu = page.getByRole('navigation');
+	const linkB = sideMenu.getByRole('link', { exact: true, name: accountB });
+	const accountBId = (await linkB.getAttribute('href'))!.split('/').pop()!;
+	let releaseB!: () => void;
+	const bHeld = new Promise<void>((resolve) => (releaseB = resolve));
+	let bRequested!: () => void;
+	const bLoading = new Promise<void>((resolve) => (bRequested = resolve));
+	await page.route('**/_app/remote/**', async (route) => {
+		const request = route.request();
+		const payload = new URL(request.url()).searchParams.get('payload') ?? '';
+		const args = `${Buffer.from(payload, 'base64url')} ${request.postData() ?? ''}`;
+		if (args.includes(accountBId)) {
+			bRequested();
+			await bHeld;
+		}
+		await route.fallback();
+	});
+	await linkB.click();
+	await bLoading;
+	await sideMenu.getByRole('link', { exact: true, name: accountA }).click();
+
+	await expect(page.getByRole('heading', { name: accountA })).toBeVisible();
+	await expect(pages.account.categoryFilterTrigger()).toHaveCount(0);
+	await expect(page).toHaveURL(/^[^?]*$/);
+	// A sort click proves the register settled on the clean state: the URL then
+	// carries only the sort, not A's earlier filter.
+	await page.getByRole('button', { name: 'Sort by date' }).click();
+	await expect(page).toHaveURL(/sortDate=asc/);
+	await expect(page).not.toHaveURL(/categoryId=/);
+	releaseB();
+});
+
 test('Deep link drops category filter ids foreign to the budget (#372)', async ({
 	page,
 	pages
@@ -490,6 +546,42 @@ test('Deep link drops category filter ids foreign to the budget (#372)', async (
 	await expect
 		.poll(() => new URL(page.url()).searchParams.getAll('categoryId'))
 		.toEqual(['__none__']);
+});
+
+test('Browser Back across budgets restores the category filter (#448)', async ({ page, pages }) => {
+	// The desktop side menu only mounts at the wide breakpoint.
+	await page.setViewportSize({ height: 900, width: 1440 });
+
+	await pages.auth.createUserAndLogin();
+
+	const budgetOne = faker.commerce.department();
+	await pages.budget.createBudget(budgetOne);
+	const accountA = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountA);
+	const category = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(category);
+
+	const budgetTwo = faker.commerce.department();
+	await pages.budget.createAdditionalBudget(budgetTwo);
+	const accountB = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountB);
+
+	await pages.account.goto(accountA);
+	await pages.account.applyCategoryFilter(category);
+	await expect(page).toHaveURL(/categoryId=/);
+	const categoryId = new URL(page.url()).searchParams.get('categoryId');
+
+	await pages.account.switchToAccountViaSideMenu(accountB);
+	await expect(page).toHaveURL(/^[^?]*$/);
+
+	// Back lands on A's filtered URL: the id belongs to A's own budget, so it
+	// must survive even though B's budget was the one loaded a moment ago.
+	await page.goBack();
+	await expect(page.getByRole('heading', { name: accountA })).toBeVisible();
+	await expect(pages.account.categoryFilterTrigger()).toHaveText('1 selected');
+	await expect
+		.poll(() => new URL(page.url()).searchParams.getAll('categoryId'))
+		.toEqual([categoryId]);
 });
 
 test('Create-row category options reflect the budget after a cross-budget switch (#395)', async ({

@@ -3,3 +3,4 @@ export { default as TransactionTableRowCreate } from './transaction-table-row-cr
 export { type TableParams, TableState } from './transaction-table-state.svelte';
 export { default as TransactionTable } from './transaction-table.svelte';
 export { default as TransactionValidationCheckbox } from './transaction-validation-checkbox.svelte';
+export { UrlTableState } from './url-table-state.svelte';
