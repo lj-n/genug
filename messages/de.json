@@ -306,5 +306,33 @@
 	"reassignment_select_category": "Kategorie auswählen",
 	"reassignment_cover": "Ausgleichen",
 	"reassignment_trigger_label": "Verbleibendes für {name} anpassen",
-	"source_code_link": "Quellcode"
+	"source_code_link": "Quellcode",
+	"checkpoint_button_label": "Checkpoint",
+	"checkpoint_title": "Checkpoint",
+	"checkpoint_intro": "Ein Checkpoint bestätigt, dass {name} in genug an einem Tag mit deiner Bank übereinstimmt. Alle bis dahin bestätigten Transaktionen werden abgestempelt: Betrag, Datum und Konto lassen sich nicht mehr ändern. Kategorie und Notizen bleiben bearbeitbar.",
+	"checkpoint_intro_adjustment": "Eine kleine Abweichung? Du musst die Ursache nicht suchen. Der Checkpoint bucht die Differenz als Ausgleichsbuchung, und das ab und zu zu tun ist völlig in Ordnung.",
+	"checkpoint_validated_label": "Bestätigt in genug",
+	"checkpoint_validated_description": "Summe aller Transaktionen, die du bestätigt hast.",
+	"checkpoint_bank_label": "Deine Bank",
+	"checkpoint_bank_description": "Aktueller Kontostand in deiner Banking-App.",
+	"checkpoint_bank_placeholder": "Kontostand eingeben",
+	"checkpoint_adjustment_label": "Ausgleichsbuchung",
+	"checkpoint_adjustment_empty": "Die Differenz, sobald du deinen Kontostand eingegeben hast.",
+	"checkpoint_adjustment_difference": "Wird als eine Transaktion ohne Kategorie gebucht, damit beide Seiten übereinstimmen.",
+	"checkpoint_adjustment_match": "Beide Seiten stimmen überein. Nichts zu buchen.",
+	"checkpoint_seal_summary": [
+		{
+			"declarations": ["input count", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=one": "Stempelt {count} Transaktion ab",
+				"countPlural=other": "Stempelt {count} Transaktionen ab"
+			}
+		}
+	],
+	"checkpoint_seal_range": "{from} – {to}",
+	"checkpoint_set_button": "Checkpoint setzen",
+	"checkpoint_set_success": "Checkpoint gesetzt.",
+	"checkpoint_adjustment_notes": "Ausgleichsbuchung",
+	"checkpoint_error_account_archived": "Dieses Konto ist archiviert. Stelle es wieder her, bevor du einen Checkpoint setzt."
 }
