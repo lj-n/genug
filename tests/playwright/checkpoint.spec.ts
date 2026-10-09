@@ -158,5 +158,5 @@ test('A sealed row keeps its amount locked but its notes editable', async ({ pag
 	await savedRow.getByRole('button', { name: 'Edit notes' }).click();
 	await page.getByRole('link', { name: 'View checkpoint' }).click();
 	await expect(page).toHaveURL(/\/checkpoint#history$/);
-	await expect(page.getByRole('heading', { name: 'Checkpoint' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Previous checkpoints' })).toBeInViewport();
 });
