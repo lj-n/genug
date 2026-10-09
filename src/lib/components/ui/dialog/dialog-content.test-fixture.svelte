@@ -8,7 +8,7 @@
 
 <Dialog.Root bind:open>
 	<Dialog.Content>
-		<Dialog.Title>Harness</Dialog.Title>
+		<Dialog.Title>Fixture</Dialog.Title>
 		<input aria-label="Amount" />
 	</Dialog.Content>
 </Dialog.Root>
