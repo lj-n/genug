@@ -548,6 +548,42 @@ test('Deep link drops category filter ids foreign to the budget (#372)', async (
 		.toEqual(['__none__']);
 });
 
+test('Browser Back across budgets restores the category filter (#448)', async ({ page, pages }) => {
+	// The desktop side menu only mounts at the wide breakpoint.
+	await page.setViewportSize({ height: 900, width: 1440 });
+
+	await pages.auth.createUserAndLogin();
+
+	const budgetOne = faker.commerce.department();
+	await pages.budget.createBudget(budgetOne);
+	const accountA = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountA);
+	const category = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(category);
+
+	const budgetTwo = faker.commerce.department();
+	await pages.budget.createAdditionalBudget(budgetTwo);
+	const accountB = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountB);
+
+	await pages.account.goto(accountA);
+	await pages.account.applyCategoryFilter(category);
+	await expect(page).toHaveURL(/categoryId=/);
+	const categoryId = new URL(page.url()).searchParams.get('categoryId');
+
+	await pages.account.switchToAccountViaSideMenu(accountB);
+	await expect(page).toHaveURL(/^[^?]*$/);
+
+	// Back lands on A's filtered URL: the id belongs to A's own budget, so it
+	// must survive even though B's budget was the one loaded a moment ago.
+	await page.goBack();
+	await expect(page.getByRole('heading', { name: accountA })).toBeVisible();
+	await expect(pages.account.categoryFilterTrigger()).toHaveText('1 selected');
+	await expect
+		.poll(() => new URL(page.url()).searchParams.getAll('categoryId'))
+		.toEqual([categoryId]);
+});
+
 test('Create-row category options reflect the budget after a cross-budget switch (#395)', async ({
 	page,
 	pages
