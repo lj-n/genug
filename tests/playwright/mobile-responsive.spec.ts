@@ -183,3 +183,18 @@ test('Add account and category at phone width', async ({ page, pages }) => {
 	await expect(pages.budget.categoryRow(categoryName)).toBeVisible();
 	await expectNoHorizontalOverflow(page);
 });
+
+test('Checkpoint page stacks without horizontal overflow', async ({ page, pages }) => {
+	const { accountName } = await seedBudget(pages);
+	await pages.account.goto(accountName);
+	const checkpointUrl = pages.budget.ctx.accounts.get(accountName)! + '/checkpoint';
+
+	await page.setViewportSize(PHONE_VIEWPORT);
+	await page.goto(checkpointUrl);
+	await expect(page.getByRole('heading', { name: 'Checkpoint' })).toBeVisible();
+	await expectNoHorizontalOverflow(page);
+
+	await pages.checkpoint.enterBankBalance('-1234567.89');
+	await expect(pages.checkpoint.adjustment()).toHaveText('-€1,234,567.89');
+	await expectNoHorizontalOverflow(page);
+});

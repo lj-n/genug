@@ -270,6 +270,24 @@ for (const theme of THEMES) {
 			).toBeVisible();
 			await expectAxeClean(page);
 		});
+
+		test('Checkpoint page — empty, difference, and match are axe-clean', async ({
+			page,
+			pages
+		}) => {
+			const { accountName } = await seedBudget(pages);
+			await pages.account.goto(accountName);
+			await pages.checkpoint.open();
+			await expectAxeClean(page);
+
+			await pages.checkpoint.enterBankBalance('12.34');
+			await expect(pages.checkpoint.adjustment()).toHaveText('+€12.34');
+			await expectAxeClean(page);
+
+			await pages.checkpoint.enterBankBalance('0');
+			await expect(pages.checkpoint.adjustment()).toHaveText('€0.00');
+			await expectAxeClean(page);
+		});
 	});
 }
 
