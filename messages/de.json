@@ -297,6 +297,8 @@
 	"error_transfer_amount_zero": "Gib einen Betrag ungleich null an.",
 	"error_transfer_same_account": "Quell- und Zielkonto müssen sich unterscheiden.",
 	"error_transaction_is_transfer_leg": "Diese Transaktion gehört zu einer Umbuchung. Bearbeite stattdessen die Umbuchung.",
+	"error_transaction_sealed": "Diese Transaktion ist durch einen Checkpoint abgestempelt. Betrag, Datum, Konto und Bestätigung lassen sich nicht mehr ändern, und sie lässt sich nicht löschen. Kategorie und Notizen bleiben bearbeitbar.",
+	"error_transfer_sealed": "Diese Umbuchung ist durch einen Checkpoint abgestempelt. Betrag, Datum und Konten lassen sich nicht mehr ändern, und sie lässt sich nicht löschen. Notizen bleiben bearbeitbar.",
 	"error_category_not_archivable": "Diese Kategorie kann nicht archiviert werden: Der verbleibende Betrag muss null sein und alle Transaktionen müssen bestätigt sein.",
 	"error_category_not_deletable": "Diese Kategorie kann nicht gelöscht werden: Der verbleibende Betrag muss null sein und keine Transaktion darf auf sie verweisen.",
 	"error_category_not_found": "Kategorie nicht gefunden.",
@@ -340,5 +342,27 @@
 	"checkpoint_set_button": "Checkpoint setzen",
 	"checkpoint_set_success": "Checkpoint gesetzt.",
 	"checkpoint_adjustment_notes": "Ausgleichsbuchung",
-	"checkpoint_error_account_archived": "Dieses Konto ist archiviert. Stelle es wieder her, bevor du einen Checkpoint setzt."
+	"checkpoint_error_account_archived": "Dieses Konto ist archiviert. Stelle es wieder her, bevor du einen Checkpoint setzt.",
+	"checkpoint_error_account_archived_delete": "Dieses Konto ist archiviert. Stelle es wieder her, bevor du einen Checkpoint löschst.",
+	"checkpoint_error_not_latest": "Nur der letzte Checkpoint lässt sich löschen.",
+	"error_checkpoint_not_found": "Checkpoint nicht gefunden.",
+	"checkpoint_history_title": "Bisherige Checkpoints",
+	"checkpoint_history_description": "Jeder Eintrag ist ein Kontostand, den du bestätigt hast. Nur der letzte Checkpoint lässt sich löschen; seine Transaktionen sind danach wieder bearbeitbar.",
+	"checkpoint_history_empty": "Noch keine Checkpoints.",
+	"checkpoint_history_sealed": "{count} abgestempelt",
+	"checkpoint_history_adjustment": "Ausgleichsbuchung {amount}",
+	"checkpoint_history_delete": "Löschen",
+	"checkpoint_delete_title": "Diesen Checkpoint löschen?",
+	"checkpoint_delete_description": [
+		{
+			"declarations": ["input count", "input date", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=one": "Der Checkpoint vom {date} wird entfernt, und seine {count} Transaktion lässt sich wieder bearbeiten.",
+				"countPlural=other": "Der Checkpoint vom {date} wird entfernt, und seine {count} Transaktionen lassen sich wieder bearbeiten."
+			}
+		}
+	],
+	"checkpoint_delete_description_adjustment": "Seine Ausgleichsbuchung bleibt als normale Transaktion erhalten.",
+	"checkpoint_delete_action": "Löschen"
 }

@@ -223,6 +223,146 @@ describe('checkpoint.overview', () => {
 	});
 });
 
+describe('checkpoint.history', () => {
+	it('lists every Checkpoint newest first with bank balance, sealed count and Adjustment', () => {
+		const { account, budget, ctx, db } = setup();
+		createTransaction(db, budget.id, account.id, { amount: 1000, validated: true });
+		createTransaction(db, budget.id, account.id, { amount: -200, validated: true });
+		const first = ctx.checkpoint.set(account.id, asMoney(800));
+		createTransaction(db, budget.id, account.id, { amount: 50, validated: true });
+		const second = ctx.checkpoint.set(account.id, asMoney(900));
+
+		expect(ctx.checkpoint.history(account.id)).toEqual([
+			{
+				adjustment: 50,
+				bankBalance: 900,
+				createdAt: second.createdAt,
+				id: second.id,
+				sealedCount: 2
+			},
+			{
+				adjustment: null,
+				bankBalance: 800,
+				createdAt: first.createdAt,
+				id: first.id,
+				sealedCount: 2
+			}
+		]);
+	});
+
+	it('is empty for an account without Checkpoints', () => {
+		const { account, ctx } = setup();
+
+		expect(ctx.checkpoint.history(account.id)).toEqual([]);
+	});
+
+	it('answers 404 to a user outside the budget', () => {
+		const { account, db } = setup();
+		const outsider = createUser(db, 'outsider');
+
+		expectNotFound(() => createUserCtx(outsider.id, db).checkpoint.history(account.id));
+	});
+});
+
+describe('checkpoint.delete', () => {
+	it("unseals exactly the latest Checkpoint's transactions and leaves their data, the Adjustment included, unchanged", () => {
+		const { account, budget, ctx, db } = setup();
+		createTransaction(db, budget.id, account.id, { amount: 1000, validated: true });
+		const first = ctx.checkpoint.set(account.id, asMoney(1000));
+		createTransaction(db, budget.id, account.id, {
+			amount: -200,
+			categoryId: null,
+			date: '2025-02-01',
+			notes: 'Groceries',
+			validated: true
+		});
+		createTransaction(db, budget.id, account.id, { amount: -40, validated: false });
+		const latest = ctx.checkpoint.set(account.id, asMoney(790));
+		const before = db.select().from(tables.transactions).all();
+
+		ctx.checkpoint.delete(latest.id);
+
+		const after = db.select().from(tables.transactions).all();
+		expect(after).toEqual(
+			before.map((row) => ({
+				...row,
+				checkpointId: row.checkpointId === latest.id ? null : row.checkpointId
+			}))
+		);
+		expect(after.filter((row) => row.checkpointId === null)).toHaveLength(3);
+		expect(after.find((row) => row.notes === 'Adjustment')).toMatchObject({
+			amount: -10,
+			checkpointId: null,
+			validated: true
+		});
+		expect(ctx.checkpoint.history(account.id).map((checkpoint) => checkpoint.id)).toEqual([
+			first.id
+		]);
+	});
+
+	it('rejects a Checkpoint that is not the latest and changes nothing', () => {
+		const { account, budget, ctx, db } = setup();
+		createTransaction(db, budget.id, account.id, { amount: 1000, validated: true });
+		const first = ctx.checkpoint.set(account.id, asMoney(1000));
+		ctx.checkpoint.set(account.id, asMoney(1000));
+
+		expect(() => ctx.checkpoint.delete(first.id)).toThrow(
+			expect.objectContaining({
+				body: expect.objectContaining({ code: 'checkpoint_not_latest' }),
+				status: 400
+			})
+		);
+		expect(db.select().from(tables.checkpoints).all()).toHaveLength(2);
+		const [row] = db.select().from(tables.transactions).all();
+		expect(row.checkpointId).toBe(first.id);
+	});
+
+	it('rejects an archived account and changes nothing', () => {
+		const { account, budget, ctx, db } = setup();
+		createTransaction(db, budget.id, account.id, { amount: 1000, validated: true });
+		const checkpoint = ctx.checkpoint.set(account.id, asMoney(1000));
+		db.update(tables.accounts).set({ archivedAt: new Date() }).run();
+
+		expect(() => ctx.checkpoint.delete(checkpoint.id)).toThrow(
+			expect.objectContaining({
+				body: expect.objectContaining({ code: 'account_archived' }),
+				status: 400
+			})
+		);
+		expect(db.select().from(tables.checkpoints).all()).toHaveLength(1);
+		const [row] = db.select().from(tables.transactions).all();
+		expect(row.checkpointId).toBe(checkpoint.id);
+	});
+
+	it('is allowed for a budget member', () => {
+		const { account, budget, ctx, db } = setup();
+		const checkpoint = ctx.checkpoint.set(account.id, asMoney(0));
+		const member = createUser(db, 'member');
+		db.insert(tables.usersToBudgets)
+			.values({ budgetId: budget.id, role: 'MEMBER', userId: member.id })
+			.run();
+
+		createUserCtx(member.id, db).checkpoint.delete(checkpoint.id);
+
+		expect(db.select().from(tables.checkpoints).all()).toHaveLength(0);
+	});
+
+	it('answers 404 to a user outside the budget', () => {
+		const { account, ctx, db } = setup();
+		const checkpoint = ctx.checkpoint.set(account.id, asMoney(0));
+		const outsider = createUser(db, 'outsider');
+
+		expectNotFound(() => createUserCtx(outsider.id, db).checkpoint.delete(checkpoint.id));
+		expect(db.select().from(tables.checkpoints).all()).toHaveLength(1);
+	});
+
+	it('answers 404 to an unknown Checkpoint', () => {
+		const { ctx } = setup();
+
+		expectNotFound(() => ctx.checkpoint.delete('missing'));
+	});
+});
+
 describe('checkpoint.summary', () => {
 	it('suggests a first Checkpoint as soon as anything is validated', () => {
 		const { account, budget, ctx, db } = setup();

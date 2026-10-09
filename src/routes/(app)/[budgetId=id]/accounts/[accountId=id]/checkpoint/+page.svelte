@@ -5,13 +5,17 @@
 	import { m } from '$lib/paraglide/messages';
 	import { getAccount } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
-	import { getCheckpointOverview } from '$lib/remote-functions/checkpoint.remote';
+	import {
+		getCheckpointHistory,
+		getCheckpointOverview
+	} from '$lib/remote-functions/checkpoint.remote';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
 	import { stickyParam } from '$lib/utils/sticky-param';
 	import ArrowLeftIcon from '~icons/ph/arrow-left';
 
 	import type { PageProps } from './$types';
 
+	import CheckpointHistory from './checkpoint-history.svelte';
 	import CheckpointSet from './checkpoint-set.svelte';
 
 	let { params }: PageProps = $props();
@@ -25,6 +29,7 @@
 	// place must not introduce a first-time await mid-update, which leaves the
 	// fragment blank in production builds (see the account page).
 	const overview = $derived(await getCheckpointOverview(accountId()));
+	const history = $derived(await getCheckpointHistory(accountId()));
 </script>
 
 <Page.Root>
@@ -54,7 +59,14 @@
 		{#if account.archivedAt}
 			<AccountArchivedNotice accountId={accountId()} />
 		{:else}
-			<CheckpointSet accountId={accountId()} currency={budget.currency} {overview} />
+			<CheckpointSet
+				accountId={accountId()}
+				currency={budget.currency}
+				latestCheckpointId={history[0]?.id}
+				{overview}
+			/>
 		{/if}
+
+		<CheckpointHistory currency={budget.currency} deletable={!account.archivedAt} {history} />
 	</Page.Content>
 </Page.Root>

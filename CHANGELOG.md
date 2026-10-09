@@ -16,9 +16,12 @@ and dependency bumps get no entry.
   account page opens its Checkpoint page, where you enter the balance from
   your banking app. Setting a checkpoint seals every validated transaction
   so far; if the two sides differ, an Adjustment without a category books
-  the difference. An amber dot on the stamp button suggests a new checkpoint
-  once enough days or validated transactions have piled up; set both
-  reminders, or switch them off, in your user settings.
+  the difference. A sealed transaction keeps its amount, date, account and
+  validated state and can't be deleted; category and notes stay editable.
+  The page lists previous checkpoints; deleting the latest one unseals its
+  transactions again. An amber dot on the stamp button suggests a new
+  checkpoint once enough days or validated transactions have piled up; set
+  both reminders, or switch them off, in your user settings.
 
 ### Changed
 

@@ -144,24 +144,28 @@ export const commands = (userId: string, db: Database = database) => ({
 				)
 			);
 
-		return db
-			.delete(tables.transactions)
-			.where(
-				and(
-					hasAccess(tables.transactions, userId, db),
-					or(
-						inArray(tables.transactions.id, ids),
-						inArray(tables.transactions.transferId, selectedTransferIds)
-					)
-				)
+		const selection = and(
+			hasAccess(tables.transactions, userId, db),
+			or(
+				inArray(tables.transactions.id, ids),
+				inArray(tables.transactions.transferId, selectedTransferIds)
 			)
-			.returning()
-			.all();
+		);
+
+		// A sealed row anywhere in the expanded selection rejects the whole
+		// batch, so a transfer goes with neither leg once one is sealed.
+		sealGuard(db, selection);
+
+		return db.delete(tables.transactions).where(selection).returning().all();
 	},
 
-	edit: (id: string, update: Partial<typeof tables.transactions.$inferInsert>) => {
+	// The seal itself only changes through the checkpoint commands.
+	edit: (
+		id: string,
+		update: Partial<Omit<typeof tables.transactions.$inferInsert, 'checkpointId'>>
+	) => {
 		const existing = db
-			.select({ transferId: tables.transactions.transferId })
+			.select(getColumns(tables.transactions))
 			.from(tables.transactions)
 			.where(and(hasAccess(tables.transactions, userId, db), eq(tables.transactions.id, id)))
 			.get();
@@ -176,6 +180,14 @@ export const commands = (userId: string, db: Database = database) => ({
 			});
 
 		const data = { ...update, validated: update.validated ?? false };
+		// A sealed field resubmitted with its stored value is not a change, so
+		// the normal edit form can still save category and notes (ADR-0017).
+		if (
+			existing.checkpointId &&
+			SEALED_FIELDS.some((field) => data[field] !== undefined && data[field] !== existing[field])
+		)
+			sealedError(existing);
+
 		const updated = db
 			.update(tables.transactions)
 			.set(data)
@@ -218,6 +230,18 @@ export const commands = (userId: string, db: Database = database) => ({
 
 		const fromAccountId = update.fromAccountId ?? currentFrom.accountId;
 		const toAccountId = update.toAccountId ?? currentTo.accountId;
+
+		// Once either leg is sealed, the transfer's shared facts are fixed;
+		// resubmitting them unchanged still saves the notes (ADR-0017).
+		if (
+			(currentFrom.checkpointId || currentTo.checkpointId) &&
+			((update.amount !== undefined && update.amount !== currentTo.amount) ||
+				(update.date !== undefined && update.date !== currentFrom.date) ||
+				fromAccountId !== currentFrom.accountId ||
+				toAccountId !== currentTo.accountId)
+		)
+			sealedError(currentFrom);
+
 		if (fromAccountId === toAccountId) error(400, m.error_transfer_same_account());
 
 		if (update.fromAccountId && update.fromAccountId !== currentFrom.accountId) {
@@ -310,14 +334,21 @@ export const commands = (userId: string, db: Database = database) => ({
 	},
 
 	validate: (ids: string[], validated: boolean) => {
-		return db
-			.update(tables.transactions)
-			.set({ validated })
-			.where(and(inArray(tables.transactions.id, ids), hasAccess(tables.transactions, userId, db)))
-			.returning()
-			.all();
+		const selection = and(
+			inArray(tables.transactions.id, ids),
+			hasAccess(tables.transactions, userId, db)
+		);
+
+		// Only a row's own seal counts: the uncovered leg of a sealed transfer
+		// stays validatable for its account's next Checkpoint (ADR-0017).
+		sealGuard(db, selection);
+
+		return db.update(tables.transactions).set({ validated }).where(selection).returning().all();
 	}
 });
+
+/** A transaction's account-side facts, fixed once a Checkpoint seals it (ADR-0017). */
+const SEALED_FIELDS = ['accountId', 'amount', 'date', 'validated'] as const;
 
 // An archived account is inert: reject new transactions server-side so a
 // stale tab or back-navigation can never write to it (see ADR-0011).
@@ -368,6 +399,22 @@ function filterConditions(filter: TransactionFilterParam) {
 	}
 
 	return conditions;
+}
+
+/** Rejects a change to a sealed transaction, naming the transfer when it is a leg of one. */
+function sealedError(row: { transferId: null | string }): never {
+	if (row.transferId) error(400, { code: 'transfer_sealed', message: m.error_transfer_sealed() });
+	error(400, { code: 'transaction_sealed', message: m.error_transaction_sealed() });
+}
+
+/** Rejects the whole selection when any of its rows is sealed. */
+function sealGuard(db: Database, selection: SQL | undefined) {
+	const sealed = db
+		.select({ transferId: tables.transactions.transferId })
+		.from(tables.transactions)
+		.where(and(selection, isNotNull(tables.transactions.checkpointId)))
+		.get();
+	if (sealed) sealedError(sealed);
 }
 
 function sortDirection(direction: SortParam, column: SQLiteColumn) {
