@@ -26,6 +26,7 @@
 	import { untrack } from 'svelte';
 	import * as v from 'valibot';
 	import GearSixIcon from '~icons/ph/gear-six';
+	import StampIcon from '~icons/ph/stamp';
 
 	import type { PageProps } from './$types';
 
@@ -150,17 +151,31 @@
 		</Page.Title>
 
 		{#if !account.archivedAt}
-			<Button
-				variant="ghost"
-				size="icon"
-				href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/settings', {
-					accountId: accountId(),
-					budgetId: budgetId()
-				})}
-			>
-				<GearSixIcon />
-				<span class="sr-only">{m.account_settings_title()}</span>
-			</Button>
+			<div class="flex items-center gap-1">
+				<Button
+					variant="ghost"
+					size="icon"
+					title={m.checkpoint_button_label()}
+					href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/checkpoint', {
+						accountId: accountId(),
+						budgetId: budgetId()
+					})}
+				>
+					<StampIcon />
+					<span class="sr-only">{m.checkpoint_button_label()}</span>
+				</Button>
+				<Button
+					variant="ghost"
+					size="icon"
+					href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/settings', {
+						accountId: accountId(),
+						budgetId: budgetId()
+					})}
+				>
+					<GearSixIcon />
+					<span class="sr-only">{m.account_settings_title()}</span>
+				</Button>
+			</div>
 		{/if}
 	</Page.Header>
 

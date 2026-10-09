@@ -10,6 +10,14 @@ and dependency bumps get no entry.
 
 ## [Unreleased]
 
+### Added
+
+- Checkpoints: confirm an account against your bank. The stamp button on an
+  account page opens its Checkpoint page, where you enter the balance from
+  your banking app. Setting a checkpoint seals every validated transaction
+  so far; if the two sides differ, an Adjustment without a category books
+  the difference.
+
 ### Changed
 
 - The browser's Back and Forward buttons now step through an account

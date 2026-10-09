@@ -140,6 +140,7 @@ const transaction: ListTransaction = {
 	budgetId: 'budget-1',
 	categoryId: 'category-1',
 	categoryName: 'Groceries',
+	checkpointId: null,
 	counterpartAccountId: null,
 	counterpartAccountName: null,
 	createdAt: new Date('2026-07-01T00:00:00Z'),
