@@ -35,6 +35,7 @@ test('Set a checkpoint that books an Adjustment', async ({ page, pages }) => {
 
 	await pages.checkpoint.backLink(accountName).click();
 	await expect(page.getByRole('heading', { name: accountName })).toBeVisible();
+	await pages.account.showSealed();
 	await expect(page.getByRole('row').filter({ hasText: 'Adjustment' })).toContainText('-€2.50');
 	await expect(pages.account.balanceFigure('Validated')).toContainText('€97.50');
 });
@@ -139,6 +140,7 @@ test('A sealed row keeps its amount locked but its notes editable', async ({ pag
 	await pages.checkpoint.enterBankBalance('100');
 	await pages.checkpoint.submit();
 	await pages.checkpoint.backLink(accountName).click();
+	await pages.account.showSealed();
 
 	const row = page.getByRole('row').filter({ hasText: 'Starting Balance' }).first();
 	await expect(row.getByRole('button', { name: 'Edit amount' })).toHaveCount(0);
@@ -159,6 +161,44 @@ test('A sealed row keeps its amount locked but its notes editable', async ({ pag
 	await page.getByRole('link', { name: 'View checkpoint' }).click();
 	await expect(page).toHaveURL(/\/checkpoint#history$/);
 	await expect(page.getByRole('heading', { name: 'Previous checkpoints' })).toBeInViewport();
+});
+
+test('Sealed rows are hidden until Show sealed is ticked', async ({ page, pages }) => {
+	await pages.auth.createUserAndLogin();
+	await pages.budget.createBudget(faker.commerce.department());
+	const accountName = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountName, '100');
+
+	await pages.account.goto(accountName);
+	await pages.checkpoint.open();
+	await pages.checkpoint.enterBankBalance('100');
+	await pages.checkpoint.submit();
+	await pages.checkpoint.backLink(accountName).click();
+
+	// Every row is sealed: the register says so instead of onboarding copy.
+	const startingBalance = page.getByRole('row').filter({ hasText: 'Starting Balance' });
+	await expect(pages.account.sealedHiddenEmptyState()).toBeVisible();
+	await expect(pages.account.transactionsEmptyState()).toHaveCount(0);
+	await expect(startingBalance).toHaveCount(0);
+
+	await page.getByRole('button', { name: 'Show sealed' }).click();
+	await expect(page).toHaveURL(/[?&]showSealed=true/);
+	await expect(startingBalance.first()).toBeVisible();
+	await expect(pages.account.showSealedCheckbox()).toBeChecked();
+
+	await page.reload();
+	await expect(startingBalance.first()).toBeVisible();
+
+	await pages.account.createTransaction({ amount: '5', notes: 'Open coffee' });
+	await pages.account.showSealedCheckbox().uncheck();
+	await expect(page).not.toHaveURL(/showSealed/);
+	await expect(startingBalance).toHaveCount(0);
+	await expect(page.getByRole('row').filter({ hasText: 'Open coffee' }).first()).toBeVisible();
+	await expect(pages.account.showSealedCheckbox()).toHaveAccessibleName('Show sealed (1)');
+
+	// A notes filter searches sealed history too.
+	await pages.account.applyNotesFilter('Starting');
+	await expect(startingBalance.first()).toBeVisible();
 });
 
 test('The stamp button suggests a checkpoint until one is set', async ({ page, pages }) => {

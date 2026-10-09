@@ -373,6 +373,22 @@ export class AccountPage extends BasePage {
 		await expect(this.page.getByRole('button', { name: 'New Transaction' })).toBeVisible();
 	}
 
+	/** The register's empty state when every row is sealed and sealed rows are hidden. */
+	sealedHiddenEmptyState(): Locator {
+		return this.page.getByText('Everything here is sealed');
+	}
+
+	/** Ticks "Show sealed" above the register so sealed rows are listed. */
+	async showSealed() {
+		await this.showSealedCheckbox().check();
+		await expect(this.page).toHaveURL(/[?&]showSealed=true/);
+	}
+
+	/** The "Show sealed (count)" checkbox above the register. */
+	showSealedCheckbox(): Locator {
+		return this.page.getByRole('checkbox', { name: /^Show sealed \(\d+\)$/ });
+	}
+
 	/**
 	 * Switches to another account through the desktop side-menu link. Unlike
 	 * `goto`, this is a client-side (SPA) navigation, so the target account's
