@@ -1,7 +1,7 @@
 # ADR-0017: Checkpoints seal account-side facts only
 
 Date: 2026-10-08
-Status: proposed
+Status: accepted
 
 ## Context
 
