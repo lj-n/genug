@@ -1,11 +1,13 @@
 import { createDatabase, type Database, tables } from '$db';
 import { TRANSFER, UNASSIGNED } from '$lib/constants';
+import { asMoney } from '$lib/utils/money';
 import { NotFoundError } from '$server/utils/not-found-error';
 import { getLocalTimeZone, today } from '@internationalized/date';
 import { eq } from 'drizzle-orm';
 import { describe, expect, it } from 'vitest';
 
 import { createAccount, createBudgetWithUser, createUser } from '../../../../test/fixtures';
+import { createUserCtx } from './index';
 import { commands, queries } from './transaction';
 
 function createCategory(db: Database, budgetId: string, name: string) {
@@ -896,5 +898,251 @@ describe('commands.validate', () => {
 
 		const result = validate([tx.id], false);
 		expect(result[0].validated).toBe(false);
+	});
+});
+
+/** An account with one transaction sealed by a real Checkpoint. */
+function sealedSetup() {
+	const db = createDatabase(':memory:');
+	const { budget, user } = createBudgetWithUser(db);
+	const account = createAccount(db, budget.id, 'Checking');
+	const sealed = createTransaction(db, budget.id, account.id, {
+		amount: -500,
+		date: '2025-01-10',
+		notes: 'old',
+		validated: true
+	});
+	const ctx = createUserCtx(user.id, db);
+	ctx.checkpoint.set(account.id, asMoney(-500));
+	return { account, budget, ctx, db, sealed: storedRow(db, sealed.id)!, user };
+}
+
+function storedRow(db: Database, id: string) {
+	return db.select().from(tables.transactions).where(eq(tables.transactions.id, id)).get();
+}
+
+/** Runs `fn` and returns what it threw, so tests can assert on the error body. */
+function thrownBy(fn: () => unknown) {
+	try {
+		fn();
+	} catch (e) {
+		return e;
+	}
+	throw new Error('expected a throw');
+}
+
+const SEALED = { body: { code: 'transaction_sealed' }, status: 400 };
+
+describe('seal: commands.edit', () => {
+	it('rejects a changed amount and leaves the row untouched', () => {
+		const { ctx, db, sealed } = sealedSetup();
+
+		expect(
+			thrownBy(() =>
+				ctx.transaction.edit(sealed.id, { amount: -600, notes: 'new', validated: true })
+			)
+		).toMatchObject(SEALED);
+		expect(storedRow(db, sealed.id)).toEqual(sealed);
+	});
+
+	it('rejects a changed date', () => {
+		const { ctx, sealed } = sealedSetup();
+
+		expect(
+			thrownBy(() => ctx.transaction.edit(sealed.id, { date: '2025-01-11', validated: true }))
+		).toMatchObject(SEALED);
+	});
+
+	it('rejects a move to another account', () => {
+		const { budget, ctx, db, sealed } = sealedSetup();
+		const other = createAccount(db, budget.id, 'Savings');
+
+		expect(
+			thrownBy(() => ctx.transaction.edit(sealed.id, { accountId: other.id, validated: true }))
+		).toMatchObject(SEALED);
+	});
+
+	it('rejects unvalidating, including an edit that omits validated', () => {
+		const { ctx, db, sealed } = sealedSetup();
+
+		expect(thrownBy(() => ctx.transaction.edit(sealed.id, { validated: false }))).toMatchObject(
+			SEALED
+		);
+		// Omitting `validated` means false for edits (editing un-reconciles),
+		// which would unvalidate a sealed row.
+		expect(thrownBy(() => ctx.transaction.edit(sealed.id, { notes: 'new' }))).toMatchObject(SEALED);
+		expect(storedRow(db, sealed.id)).toEqual(sealed);
+	});
+
+	it('saves category and notes when the sealed fields come back unchanged', () => {
+		const { budget, ctx, db, sealed } = sealedSetup();
+		const category = createCategory(db, budget.id, 'Groceries');
+
+		const updated = ctx.transaction.edit(sealed.id, {
+			accountId: sealed.accountId,
+			amount: sealed.amount,
+			categoryId: category.id,
+			date: sealed.date,
+			notes: 'new',
+			validated: true
+		});
+
+		expect(updated).toEqual({ ...sealed, categoryId: category.id, notes: 'new' });
+	});
+
+	it('leaves an unsealed transaction of the same account editable', () => {
+		const { account, budget, ctx, db } = sealedSetup();
+		const open = createTransaction(db, budget.id, account.id, { validated: true });
+
+		const updated = ctx.transaction.edit(open.id, { amount: 999 });
+
+		expect(updated).toMatchObject({ amount: 999, validated: false });
+	});
+});
+
+describe('seal: commands.delete', () => {
+	it('rejects deleting a sealed transaction', () => {
+		const { ctx, db, sealed } = sealedSetup();
+
+		expect(thrownBy(() => ctx.transaction.delete([sealed.id]))).toMatchObject(SEALED);
+		expect(storedRow(db, sealed.id)).toEqual(sealed);
+	});
+
+	it('rejects a batch containing a sealed row as a whole', () => {
+		const { account, budget, ctx, db, sealed } = sealedSetup();
+		const open = createTransaction(db, budget.id, account.id);
+
+		expect(thrownBy(() => ctx.transaction.delete([open.id, sealed.id]))).toMatchObject(SEALED);
+		expect(storedRow(db, open.id)).toBeDefined();
+	});
+
+	it('still deletes unsealed transactions', () => {
+		const { account, budget, ctx, db } = sealedSetup();
+		const open = createTransaction(db, budget.id, account.id, { validated: true });
+
+		expect(ctx.transaction.delete([open.id])).toHaveLength(1);
+	});
+});
+
+describe('seal: commands.validate', () => {
+	it('rejects unvalidating a sealed transaction', () => {
+		const { ctx, db, sealed } = sealedSetup();
+
+		expect(thrownBy(() => ctx.transaction.validate([sealed.id], false))).toMatchObject(SEALED);
+		expect(storedRow(db, sealed.id)).toEqual(sealed);
+	});
+
+	it('rejects validating a sealed transaction', () => {
+		const { ctx, sealed } = sealedSetup();
+
+		expect(thrownBy(() => ctx.transaction.validate([sealed.id], true))).toMatchObject(SEALED);
+	});
+
+	it('rejects a batch containing a sealed row as a whole', () => {
+		const { account, budget, ctx, db, sealed } = sealedSetup();
+		const open = createTransaction(db, budget.id, account.id, { validated: false });
+
+		expect(thrownBy(() => ctx.transaction.validate([open.id, sealed.id], true))).toMatchObject(
+			SEALED
+		);
+		expect(storedRow(db, open.id)?.validated).toBe(false);
+	});
+});
+
+/**
+ * A transfer from Checking to Savings whose Checking leg is validated and
+ * sealed; the Savings leg is uncovered and pending.
+ */
+function sealedTransferSetup() {
+	const db = createDatabase(':memory:');
+	const { budget, user } = createBudgetWithUser(db);
+	const checking = createAccount(db, budget.id, 'Checking');
+	const savings = createAccount(db, budget.id, 'Savings');
+	const ctx = createUserCtx(user.id, db);
+	const { from, to } = ctx.transaction.transfer({
+		amount: 500,
+		budgetId: budget.id,
+		date: '2025-01-10',
+		fromAccountId: checking.id,
+		toAccountId: savings.id
+	});
+	ctx.transaction.validate([from.id], true);
+	ctx.checkpoint.set(checking.id, asMoney(-500));
+	return {
+		budget,
+		checking,
+		ctx,
+		db,
+		from: storedRow(db, from.id)!,
+		savings,
+		to: storedRow(db, to.id)!
+	};
+}
+
+const TRANSFER_SEALED = { body: { code: 'transfer_sealed' }, status: 400 };
+
+describe('seal: transfers', () => {
+	it('rejects changing the amount, date or accounts once either leg is sealed', () => {
+		const { budget, ctx, db, from, to } = sealedTransferSetup();
+		const other = createAccount(db, budget.id, 'Cash');
+		const unchanged = {
+			amount: 500,
+			date: '2025-01-10',
+			fromAccountId: from.accountId,
+			toAccountId: to.accountId
+		};
+
+		for (const change of [
+			{ amount: 600 },
+			{ date: '2025-01-11' },
+			{ fromAccountId: other.id },
+			{ toAccountId: other.id }
+		]) {
+			expect(
+				thrownBy(() => ctx.transaction.editTransfer(from.transferId!, { ...unchanged, ...change }))
+			).toMatchObject(TRANSFER_SEALED);
+		}
+		expect(storedRow(db, from.id)).toEqual(from);
+		expect(storedRow(db, to.id)).toEqual(to);
+	});
+
+	it('saves notes when amount, date and accounts come back unchanged', () => {
+		const { ctx, from, to } = sealedTransferSetup();
+
+		const result = ctx.transaction.editTransfer(from.transferId!, {
+			amount: 500,
+			date: '2025-01-10',
+			fromAccountId: from.accountId,
+			notes: 'rent',
+			toAccountId: to.accountId
+		});
+
+		expect(result.from).toEqual({ ...from, notes: 'rent' });
+		expect(result.to).toEqual({ ...to, notes: 'rent' });
+	});
+
+	it('rejects deleting the transfer through either leg', () => {
+		const { ctx, db, from, to } = sealedTransferSetup();
+
+		for (const leg of [from, to]) {
+			expect(thrownBy(() => ctx.transaction.delete([leg.id]))).toMatchObject(TRANSFER_SEALED);
+		}
+		expect(storedRow(db, from.id)).toEqual(from);
+		expect(storedRow(db, to.id)).toEqual(to);
+	});
+
+	it('still validates and unvalidates the uncovered leg', () => {
+		const { ctx, to } = sealedTransferSetup();
+
+		expect(ctx.transaction.validate([to.id], true)[0].validated).toBe(true);
+		expect(ctx.transaction.validate([to.id], false)[0].validated).toBe(false);
+	});
+
+	it('rejects validating the sealed leg', () => {
+		const { ctx, from } = sealedTransferSetup();
+
+		expect(thrownBy(() => ctx.transaction.validate([from.id], false))).toMatchObject(
+			TRANSFER_SEALED
+		);
 	});
 });
