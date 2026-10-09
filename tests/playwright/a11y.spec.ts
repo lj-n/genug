@@ -305,6 +305,38 @@ for (const theme of THEMES) {
 			await expect(page.getByRole('alertdialog')).toBeVisible();
 			await expectAxeClean(page);
 		});
+
+		test('Account header and sealed register are axe-clean', async ({ page, pages }) => {
+			await seedBudget(pages);
+			// A validated starting balance and no Checkpoint yet: one is suggested.
+			const accountName = uniqueName(faker.finance.accountName());
+			await pages.budget.createAccount(accountName, '100');
+			await pages.account.goto(accountName);
+
+			// Header: "No checkpoint yet" and the stamp button with its suggestion dot.
+			await expect(pages.checkpoint.lastCheckpointLine()).toHaveText('No checkpoint yet');
+			await expect(pages.checkpoint.stampButton()).toHaveAccessibleName('Checkpoint suggested');
+			await expectAxeClean(page);
+
+			await pages.checkpoint.open();
+			await pages.checkpoint.enterBankBalance('100');
+			await pages.checkpoint.submit();
+			await pages.checkpoint.backLink(accountName).click();
+
+			// Header: the last checkpoint line. Register: every row sealed and
+			// hidden, so the sealed-hidden empty state and the Show sealed checkbox.
+			await expect(pages.checkpoint.lastCheckpointLine()).toHaveText('Last checkpoint today');
+			await expect(pages.account.sealedHiddenEmptyState()).toBeVisible();
+			await expect(pages.account.showSealedCheckbox()).toBeVisible();
+			await expectAxeClean(page);
+
+			// Show sealed: the sealed rows with their stamp cells.
+			await pages.account.showSealed();
+			await expect(
+				page.getByRole('row').filter({ hasText: 'Starting Balance' }).first()
+			).toBeVisible();
+			await expectAxeClean(page);
+		});
 	});
 }
 
