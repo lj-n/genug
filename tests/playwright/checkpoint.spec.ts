@@ -75,3 +75,36 @@ test('An archived account shows the archived notice instead of the form', async 
 	await expect(page.getByText('This account is archived')).toBeVisible();
 	await expect(pages.checkpoint.bankInput()).toHaveCount(0);
 });
+
+test('A sealed row keeps its amount locked but its notes editable', async ({ page, pages }) => {
+	await pages.auth.createUserAndLogin();
+	await pages.budget.createBudget(faker.commerce.department());
+	const accountName = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountName, '100');
+
+	await pages.account.goto(accountName);
+	await pages.checkpoint.open();
+	await pages.checkpoint.enterBankBalance('100');
+	await pages.checkpoint.submit();
+	await pages.checkpoint.backLink(accountName).click();
+
+	const row = page.getByRole('row').filter({ hasText: 'Starting Balance' }).first();
+	await expect(row.getByRole('button', { name: 'Edit amount' })).toHaveCount(0);
+	await expect(row.getByTitle(/^Sealed by the checkpoint on /).first()).toBeVisible();
+
+	await row.getByRole('button', { name: 'Edit notes' }).click();
+	const editRow = page.getByRole('row').filter({ has: page.getByRole('button', { name: 'Save' }) });
+	await expect(editRow.getByRole('textbox', { name: 'Amount' })).toHaveCount(0);
+	await expect(editRow.getByRole('button', { name: 'Delete' })).toHaveCount(0);
+	await editRow.getByRole('textbox', { name: 'Notes' }).fill('Opening balance');
+	await editRow.getByRole('button', { name: 'Save' }).click();
+	await expect(editRow).not.toBeVisible();
+
+	const savedRow = page.getByRole('row').filter({ hasText: 'Opening balance' }).first();
+	await expect(savedRow).toContainText('€100.00');
+
+	await savedRow.getByRole('button', { name: 'Edit notes' }).click();
+	await page.getByRole('link', { name: 'View checkpoint' }).click();
+	await expect(page).toHaveURL(/\/checkpoint#history$/);
+	await expect(page.getByRole('heading', { name: 'Checkpoint' })).toBeVisible();
+});
