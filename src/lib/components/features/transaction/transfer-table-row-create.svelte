@@ -5,6 +5,7 @@
 	import { DatePicker } from '$lib/components/ui/date-picker';
 	import { Input } from '$lib/components/ui/input';
 	import { InputMoney } from '$lib/components/ui/input-money';
+	import { rowSlide } from '$lib/components/ui/overlay-motion';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { m } from '$lib/paraglide/messages';
 	import {
@@ -17,7 +18,6 @@
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { getLocalTimeZone, parseDate, today } from '@internationalized/date';
 	import { Popover } from 'bits-ui';
-	import { slide } from 'svelte/transition';
 	import { cn } from 'tailwind-variants';
 
 	import {
@@ -118,7 +118,7 @@
 			{#if open}
 				<form
 					{...props}
-					transition:slide={{ duration: 150 }}
+					transition:rowSlide
 					class={cn(className, 'grid', editRowClass)}
 					role="row"
 					aria-label={m.transactions_table_create_transfer()}

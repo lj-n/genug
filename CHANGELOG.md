@@ -12,6 +12,13 @@ and dependency bumps get no entry.
 
 ### Fixed
 
+- Picking a date in a transaction row and then moving straight on to the next
+  field no longer pulls focus back to the date button, which could swallow
+  what you typed (e.g. the amount) and save the transaction without it.
+- The inline transaction and transfer rows on an account's register no longer
+  slide open or closed when your system asks for reduced motion, like the
+  app's other popovers and dialogs. A still-sliding row could shift an open
+  date picker under the pointer and drop the click.
 - Typing into a dialog's first field right after it opened could be lost: the
   dialog moved focus to itself a moment later, so an account created that
   quickly could be saved without its starting balance. Dialogs now leave focus
