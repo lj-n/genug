@@ -42,14 +42,14 @@
 	const thresholds = $derived([
 		{
 			enabled: changeCheckpointThresholds.fields.daysEnabled,
-			fallback: 30,
+			fallback: user.checkpointThresholdDefaults.days,
 			label: m.settings_checkpoint_days_label(),
 			stored: user.checkpointDaysThreshold,
 			value: changeCheckpointThresholds.fields.days
 		},
 		{
 			enabled: changeCheckpointThresholds.fields.countEnabled,
-			fallback: 25,
+			fallback: user.checkpointThresholdDefaults.count,
 			label: m.settings_checkpoint_count_label(),
 			stored: user.checkpointCountThreshold,
 			value: changeCheckpointThresholds.fields.count

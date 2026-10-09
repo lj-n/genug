@@ -4,7 +4,8 @@ import {
 	deleteSessionCookie,
 	deleteUserSessions,
 	setCheckpointThresholds,
-	setPassword
+	setPassword,
+	tables
 } from '$db';
 import { setUsername } from '$db';
 import { InvalidCredentialsError } from '$db/auth/utils';
@@ -22,7 +23,7 @@ import { REFRESH_LIMIT, requireUser } from './remote.utils';
 
 export const getUser = query(async () => {
 	const [user] = requireUser();
-	return user;
+	return { ...user, checkpointThresholdDefaults: tables.checkpointThresholdDefaults };
 });
 
 export const changeUsername = form(UsernameChangeSchema, async ({ username }, issue) => {
