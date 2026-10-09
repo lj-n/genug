@@ -77,6 +77,7 @@ const remote = vi.hoisted(() => {
 			{ id: 'category-1', name: 'Groceries' },
 			{ id: 'category-2', name: 'Rent' }
 		]),
+		getCheckpointSummary: vi.fn((accountId: unknown) => ({ summary: accountId })),
 		listTransactions: vi.fn((args: unknown) => ({ args })),
 		onSubmit,
 		resetMocks: () => {
@@ -105,6 +106,9 @@ vi.mock('$lib/remote-functions/transaction.remote', () => ({
 vi.mock('$lib/remote-functions/account.remote', () => ({
 	getAccount: remote.getAccount,
 	getAccountBalances: remote.getAccountBalances
+}));
+vi.mock('$lib/remote-functions/checkpoint.remote', () => ({
+	getCheckpointSummary: remote.getCheckpointSummary
 }));
 vi.mock('$lib/remote-functions/budget.remote', () => ({ getBudget: remote.getBudget }));
 vi.mock('$lib/remote-functions/category.remote', () => ({ getCategories: remote.getCategories }));
@@ -184,7 +188,7 @@ describe('TableRowCreate', () => {
 		expect(screen.getByRole('row')).toBeInTheDocument();
 	});
 
-	it('updates the transaction list and account balances for the account on submit', async () => {
+	it('updates the transaction list, balances and checkpoint summary for the account on submit', async () => {
 		const user = userEvent.setup();
 		await renderRow();
 
@@ -193,7 +197,8 @@ describe('TableRowCreate', () => {
 		expect(remote.listTransactions).toHaveBeenCalledWith({ accountId: 'account-1', ...urlParams });
 		expect(remote.getAccount).toHaveBeenCalledWith('account-1');
 		expect(remote.getAccountBalances).toHaveBeenCalledWith('account-1');
-		expect(remote.updatedQueries).toHaveLength(3);
+		expect(remote.getCheckpointSummary).toHaveBeenCalledWith('account-1');
+		expect(remote.updatedQueries).toHaveLength(4);
 	});
 
 	it('closes the popover after saving with the save button', async () => {

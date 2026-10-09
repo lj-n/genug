@@ -9,7 +9,11 @@
 		getAccountBalances,
 		getAccounts
 	} from '$lib/remote-functions/account.remote';
-	import { getCheckpointOverview, setCheckpoint } from '$lib/remote-functions/checkpoint.remote';
+	import {
+		getCheckpointOverview,
+		getCheckpointSummary,
+		setCheckpoint
+	} from '$lib/remote-functions/checkpoint.remote';
 	import { listTransactions } from '$lib/remote-functions/transaction.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
@@ -43,6 +47,7 @@
 		// balances stay cached for a Back navigation and must not go stale.
 		updates: () => [
 			getCheckpointOverview,
+			getCheckpointSummary,
 			getAccount,
 			getAccountBalances,
 			getAccounts,

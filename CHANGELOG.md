@@ -16,7 +16,9 @@ and dependency bumps get no entry.
   account page opens its Checkpoint page, where you enter the balance from
   your banking app. Setting a checkpoint seals every validated transaction
   so far; if the two sides differ, an Adjustment without a category books
-  the difference.
+  the difference. An amber dot on the stamp button suggests a new checkpoint
+  once enough days or validated transactions have piled up; set both
+  reminders, or switch them off, in your user settings.
 
 ### Changed
 

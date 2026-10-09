@@ -25,6 +25,7 @@ vi.mock('$lib/remote-functions/account.remote', () => ({
 	getAccount: vi.fn(),
 	getAccountBalances: vi.fn()
 }));
+vi.mock('$lib/remote-functions/checkpoint.remote', () => ({ getCheckpointSummary: vi.fn() }));
 
 import TransactionListMobile from './transaction-list-mobile.svelte';
 

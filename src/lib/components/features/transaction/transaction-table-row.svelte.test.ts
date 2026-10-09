@@ -130,6 +130,7 @@ vi.mock('$lib/remote-functions/account.remote', () => ({
 	getAccount: remote.getAccount,
 	getAccountBalances: remote.getAccountBalances
 }));
+vi.mock('$lib/remote-functions/checkpoint.remote', () => ({ getCheckpointSummary: vi.fn() }));
 vi.mock('$lib/remote-functions/category.remote', () => ({ getCategories: remote.getCategories }));
 
 import TableRow from './transaction-table-row.svelte';
