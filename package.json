@@ -53,7 +53,7 @@
 		"@internationalized/number": "^3.6.7",
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
-		"@playwright/test": "^1.60.0",
+		"@playwright/test": "^1.64.1",
 		"@sveltejs/adapter-node": "^5.0.0",
 		"@sveltejs/kit": "^2.50.2",
 		"@sveltejs/vite-plugin-svelte": "^7.3.1",
