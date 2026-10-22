@@ -665,3 +665,68 @@ test('Category filter dropdown lists only the active budget categories after swi
 	await expect(options.filter({ hasText: categoryB })).toBeVisible();
 	await expect(options.filter({ hasText: categoryA })).toHaveCount(0);
 });
+
+test('Transaction sheets list only the active budget categories after a mobile drawer switch (#397)', async ({
+	page,
+	pages
+}) => {
+	// Desktop first: the transactions are created through the inline rows and
+	// the side menu, then the viewport drops to phone width for the sheets and
+	// the navigation drawer.
+	await page.setViewportSize({ height: 900, width: 1440 });
+
+	await pages.auth.createUserAndLogin();
+
+	const budgetOne = faker.commerce.department();
+	await pages.budget.createBudget(budgetOne);
+	const accountA = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountA);
+	const categoryA = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryA);
+
+	const budgetTwo = faker.commerce.department();
+	await pages.budget.createAdditionalBudget(budgetTwo);
+	const accountB = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountB);
+	const categoryB = uniqueName(faker.commerce.department());
+	await pages.budget.createCategory(categoryB);
+
+	await pages.account.goto(accountA);
+	await pages.account.createTransaction({ amount: '1', category: categoryA });
+	await pages.account.switchToAccountViaSideMenu(accountB);
+	await pages.account.createTransaction({ amount: '2', category: categoryB });
+
+	// A fresh load on B, then a round trip through B's edit sheet: the switch
+	// below used to re-run the sheets' category query for B after A's, and the
+	// later result stuck.
+	await page.setViewportSize({ height: 844, width: 390 });
+	await page.reload();
+	await expect(page.getByRole('heading', { name: accountB })).toBeVisible();
+
+	const sheet = page.getByRole('dialog');
+	await page.getByRole('button', { name: 'Edit category' }).first().click();
+	await sheet.getByRole('button', { name: 'Open category dropdown' }).click();
+	await expect(page.getByRole('option').filter({ hasText: categoryB })).toBeVisible();
+	await page.keyboard.press('Escape');
+	await sheet.getByRole('button', { name: 'Cancel' }).click();
+	await expect(sheet).toHaveCount(0);
+
+	await page.getByRole('button', { name: 'Toggle Navigation' }).click();
+	await sheet.getByRole('link', { exact: true, name: accountA }).click();
+	await expect(page.getByRole('heading', { name: accountA })).toBeVisible();
+
+	const options = page.getByRole('option');
+
+	await page.getByRole('button', { name: 'New Transaction' }).click();
+	await sheet.getByRole('button', { name: 'Open category dropdown' }).click();
+	await expect(options.filter({ hasText: categoryA })).toBeVisible();
+	await expect(options.filter({ hasText: categoryB })).toHaveCount(0);
+	await page.keyboard.press('Escape');
+	await sheet.getByRole('button', { name: 'Cancel' }).click();
+	await expect(sheet).toHaveCount(0);
+
+	await page.getByRole('button', { name: 'Edit category' }).first().click();
+	await sheet.getByRole('button', { name: 'Open category dropdown' }).click();
+	await expect(options.filter({ hasText: categoryA })).toBeVisible();
+	await expect(options.filter({ hasText: categoryB })).toHaveCount(0);
+});
