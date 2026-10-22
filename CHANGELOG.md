@@ -18,6 +18,9 @@ and dependency bumps get no entry.
 
 ### Fixed
 
+- Switching to an account in another budget no longer leaves the new- and
+  edit-transaction forms listing the previous budget's categories. It happened
+  intermittently after opening a transaction in the account you left.
 - Going Back to an account register from an account in another budget now
   restores the register's category filter instead of dropping it.
 - Picking a date in a transaction row and then moving straight on to the next
