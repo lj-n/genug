@@ -43,6 +43,27 @@ test('Create and revoke an API token', async ({ page, pages }) => {
 	await expect(page.getByText('No API tokens yet.')).toBeVisible();
 });
 
+test('Change checkpoint reminders, switching one off', async ({ page, pages }) => {
+	await pages.auth.createUserAndLogin();
+	await pages.settings.goto();
+
+	const days = pages.settings.checkpointReminder('Days since the last checkpoint');
+	const count = pages.settings.checkpointReminder('Validated transactions not yet sealed');
+	await expect(days.toggle).toBeChecked();
+	await expect(days.input).toHaveValue('30');
+	await expect(count.toggle).toBeChecked();
+	await expect(count.input).toHaveValue('25');
+
+	await pages.settings.setCheckpointReminders({ count: 10, days: null });
+
+	// Stored on the user, so a fresh load shows the saved values.
+	await page.reload();
+	await expect(days.toggle).not.toBeChecked();
+	await expect(days.input).toBeDisabled();
+	await expect(count.toggle).toBeChecked();
+	await expect(count.input).toHaveValue('10');
+});
+
 test('Change Language', async ({ pages }) => {
 	await pages.auth.createUserAndLogin();
 	await pages.settings.goto();

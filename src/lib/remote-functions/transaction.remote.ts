@@ -1,13 +1,6 @@
-import type {
-	TransactionFilterParam,
-	TransactionSortParam
-} from '$lib/server/db/user-context/transaction';
-
-import { requested } from '$app/server';
 import {
 	BatchTransactionIdsSchema,
 	BatchValidateSchema,
-	ListTransactionsSchema,
 	TransactionCreateSchema,
 	TransactionEditSchema,
 	TransferCreateSchema,
@@ -16,61 +9,7 @@ import {
 import { PAGE_SIZE_COOKIE_NAME, resolvePageSize } from '$lib/utils/page-size';
 import { guardedForm, guardedQuery } from '$server/utils/remote-guard';
 
-import { getAccount, getAccountBalances } from './account.remote';
-import { REFRESH_LIMIT } from './remote.utils';
-
-// Every transaction mutation moves money in one or two accounts, so the
-// balance figures (`getAccount.balance` for the total, `getAccountBalances`
-// for the validated/pending split) go stale alongside the register. Refresh
-// all three together; the client's `.updates(...)` declares which instances
-// each surface holds (see docs/dev/remote-functions.md).
-function refreshRegisters() {
-	return Promise.all([
-		requested(listTransactions, REFRESH_LIMIT).refreshAll(),
-		requested(getAccount, REFRESH_LIMIT).refreshAll(),
-		requested(getAccountBalances, REFRESH_LIMIT).refreshAll()
-	]);
-}
-
-export const listTransactions = guardedQuery(
-	ListTransactionsSchema,
-	async (
-		{
-			accountId,
-			categoryId,
-			notes,
-			page,
-			pageSize,
-			sortAccount,
-			sortAmount,
-			sortCategory,
-			sortDate,
-			sortValidated
-		},
-		{ ctx }
-	) => {
-		const filter: TransactionFilterParam = {
-			accountId,
-			...(categoryId?.length ? { categoryId } : {}),
-			...(notes ? { notes } : {})
-		};
-
-		const sort: TransactionSortParam = {
-			...(sortCategory ? { category: sortCategory } : {}),
-			...(sortAccount ? { account: sortAccount } : {}),
-			...(sortDate ? { date: sortDate } : {}),
-			...(sortAmount ? { amount: sortAmount } : {}),
-			...(sortValidated ? { validated: sortValidated } : {})
-		};
-
-		const { rows, total } = ctx.transaction.page(filter, sort, { page: page - 1, pageSize });
-
-		return {
-			pagination: { page, pageSize, totalTransactionCount: total },
-			transactions: rows
-		};
-	}
-);
+import { refreshRegisters } from './register-refresh';
 
 /** The register's remembered default page size, read from the `pageSize` cookie. */
 export const getRememberedPageSize = guardedQuery(async ({ event }) =>

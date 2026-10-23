@@ -79,6 +79,19 @@ export const relations = defineRelations(tables, (r) => ({
 		})
 	},
 
+	checkpoints: {
+		account: r.one.accounts({
+			from: r.checkpoints.accountId,
+			optional: false,
+			to: r.accounts.id
+		}),
+
+		transactions: r.many.transactions({
+			from: r.checkpoints.id,
+			to: r.transactions.checkpointId
+		})
+	},
+
 	sessions: {
 		user: r.one.users({
 			from: r.sessions.userId,
@@ -103,6 +116,11 @@ export const relations = defineRelations(tables, (r) => ({
 		category: r.one.categories({
 			from: r.transactions.categoryId,
 			to: r.categories.id
+		}),
+
+		checkpoint: r.one.checkpoints({
+			from: r.transactions.checkpointId,
+			to: r.checkpoints.id
 		})
 	},
 

@@ -2,7 +2,8 @@ import type { CalendarDate } from '@internationalized/date';
 
 import { formatDate } from './format-date';
 
-export function formatTransactionDate(date: CalendarDate) {
+/** Formats a calendar date, or an instant as its local day. */
+export function formatTransactionDate(date: CalendarDate | Date) {
 	return formatDate({
 		date,
 		options: {

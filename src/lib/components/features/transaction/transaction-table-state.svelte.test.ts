@@ -35,6 +35,7 @@ describe('TableState', () => {
 			notes: undefined,
 			page: 1,
 			pageSize: 15,
+			showSealed: false,
 			sortAmount: undefined,
 			sortCategory: undefined,
 			sortDate: undefined,
@@ -58,6 +59,7 @@ describe('TableState', () => {
 			notes: 'rent',
 			page: 2,
 			pageSize: 25,
+			showSealed: false,
 			sortAmount: undefined,
 			sortCategory: undefined,
 			sortDate: 'asc',
@@ -159,6 +161,7 @@ describe('TableState', () => {
 			notes: undefined,
 			page: 1,
 			pageSize: 25,
+			showSealed: false,
 			sortAmount: 'asc',
 			sortCategory: undefined,
 			sortDate: undefined,
@@ -177,6 +180,30 @@ describe('TableState', () => {
 		expect(state.sort).toBe(sort);
 		expect(filter.items).toContainEqual({ active: true, type: 'notes', value: 'rent' });
 		expect(sort.column).toBe('date');
+	});
+});
+
+describe('TableState show sealed', () => {
+	it('hydrates from params and exposes the flag', () => {
+		expect(new TableState(params({ showSealed: true })).params.showSealed).toBe(true);
+		expect(new TableState(params()).params.showSealed).toBe(false);
+	});
+
+	it('goes back to page 1 when the flag changes', () => {
+		const state = new TableState(params({ page: '3' }));
+
+		state.setShowSealed(true);
+
+		expect(state.params).toMatchObject({ page: 1, showSealed: true });
+	});
+
+	it('takes the flag from params on reset', () => {
+		const state = new TableState(params());
+		state.setShowSealed(true);
+
+		state.reset(params());
+
+		expect(state.params.showSealed).toBe(false);
 	});
 });
 
@@ -200,6 +227,7 @@ describe('toTableParams', () => {
 			notes: undefined,
 			page: 1,
 			pageSize: 15,
+			showSealed: false,
 			sortAmount: undefined,
 			sortCategory: 'desc',
 			sortDate: undefined,

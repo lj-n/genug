@@ -67,6 +67,12 @@ The canonical rule is **one pattern, awaited at component top level**
   it is a silent no-op and the client falls back to `invalidateAll()`, which
   refreshes every cached query — including ones whose entity the mutation just
   deleted (404s) — and can drop the visible update entirely (#147).
+- A mutation that changes an account's register (transactions, Checkpoints)
+  refreshes the shared list in `register.ts` (`registerQueries`): the server
+  calls `refreshRegisters()` from `register-refresh.ts`, and a client that
+  refreshes by query function declares `.updates(...registerQueries)`. Those
+  reads live in `register.remote.ts`, which holds no mutations, so the fan-out
+  imports them without an import cycle.
 - Optimistic updates (`.updates(query.withOverride(...))`) are opt-in for
   hot paths only: rapid repeated interactions where the round-trip is felt
   (assigning money to categories, toggling transaction validation). Anything

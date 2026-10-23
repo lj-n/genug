@@ -8,7 +8,11 @@ export class SettingsPage extends BasePage {
 		const input = this.page.getByRole('textbox', { name: 'Display Name' });
 		await input.clear();
 		await input.fill(name);
-		await this.page.getByRole('button', { exact: true, name: 'Save' }).click();
+		await this.page
+			.locator('form')
+			.filter({ has: input })
+			.getByRole('button', { exact: true, name: 'Save' })
+			.click();
 
 		// Changing the name is invisible at the origin, so success is signaled
 		// by an anchored toast. Dismiss via click to guard against occlusion.
@@ -52,6 +56,14 @@ export class SettingsPage extends BasePage {
 		await expect(toast).not.toBeVisible();
 	}
 
+	/** One checkpoint reminder row: its on/off checkbox and its threshold number. */
+	checkpointReminder(label: string) {
+		return {
+			input: this.page.getByRole('spinbutton', { name: label }),
+			toggle: this.page.getByRole('checkbox', { name: label })
+		};
+	}
+
 	/** Issues a token and returns the one-time plaintext from the reveal dialog. */
 	async createApiToken(name: string): Promise<string> {
 		await this.page.getByRole('textbox', { name: 'Token Name' }).fill(name);
@@ -82,6 +94,28 @@ export class SettingsPage extends BasePage {
 		await dialog.getByRole('button', { exact: true, name: 'Revoke' }).click();
 		await expect(dialog).not.toBeVisible();
 		await expect(row).not.toBeVisible();
+	}
+
+	/** Saves both checkpoint reminders; null switches one off. */
+	async setCheckpointReminders(reminders: { count: null | number; days: null | number }) {
+		const rows = [
+			[this.checkpointReminder('Days since the last checkpoint'), reminders.days],
+			[this.checkpointReminder('Validated transactions not yet sealed'), reminders.count]
+		] as const;
+		for (const [row, value] of rows) {
+			await row.toggle.setChecked(value !== null);
+			if (value !== null) await row.input.fill(String(value));
+		}
+
+		const form = this.page
+			.locator('form')
+			.filter({ has: this.page.getByRole('heading', { name: 'Checkpoint reminders' }) });
+		await form.getByRole('button', { exact: true, name: 'Save' }).click();
+
+		const savedToast = this.page.getByRole('status').filter({ hasText: 'Saved' });
+		await expect(savedToast).toBeVisible();
+		await savedToast.getByRole('button').click();
+		await expect(savedToast).not.toBeVisible();
 	}
 
 	async setTheme(label: 'Dark' | 'Light' | 'System') {

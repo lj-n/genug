@@ -7,6 +7,12 @@ export const CoercedNumber = v.pipe(
 	v.check((v) => !Number.isNaN(v), 'Expected a valid number')
 );
 
+/** A boolean, or its URL spelling `'true'` / `'false'`. */
+export const CoercedBoolean = v.pipe(
+	v.union([v.boolean(), v.picklist(['true', 'false'])]),
+	v.transform((value) => value === true || value === 'true')
+);
+
 export const NameSchema = v.pipe(
 	v.string(),
 	v.minLength(3, m.name_error_minlength({ length: 3 })),

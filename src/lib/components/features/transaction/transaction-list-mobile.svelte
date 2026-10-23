@@ -42,7 +42,10 @@
 			{#each group.transactions as item (item.id)}
 				<div
 					role="row"
-					class="grid grid-cols-[minmax(0,1fr)_auto_3.5rem] overflow-hidden rounded-sm border border-muted/10 bg-surface [grid-template-areas:'category_amount_toggle'_'notes_notes_toggle']"
+					class={cn(
+						"grid grid-cols-[minmax(0,1fr)_auto_3.5rem] overflow-hidden rounded-sm border border-muted/10 bg-surface [grid-template-areas:'category_amount_toggle'_'notes_notes_toggle']",
+						item.sealed && 'bg-foreground/5'
+					)}
 				>
 					<div role="cell" class="min-w-0 [grid-area:category]">
 						<button

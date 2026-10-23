@@ -12,7 +12,8 @@
 	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategories } from '$lib/remote-functions/category.remote';
-	import { createTransaction, listTransactions } from '$lib/remote-functions/transaction.remote';
+	import { getCheckpointSummary, listTransactions } from '$lib/remote-functions/register.remote';
+	import { createTransaction } from '$lib/remote-functions/transaction.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { getLocalTimeZone, parseDate, today } from '@internationalized/date';
 	import { Popover } from 'bits-ui';
@@ -67,7 +68,8 @@
 		updates: () => [
 			listTransactions({ accountId, ...urlParams }),
 			getAccount(accountId),
-			getAccountBalances(accountId)
+			getAccountBalances(accountId),
+			getCheckpointSummary(accountId)
 		]
 	});
 

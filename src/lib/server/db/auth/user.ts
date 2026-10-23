@@ -111,6 +111,27 @@ export async function resetPassword({
 	return password;
 }
 
+/**
+ * Stores the user's reminder thresholds for Checkpoint suggested; null
+ * switches a threshold off.
+ */
+export function setCheckpointThresholds({
+	count,
+	days,
+	db = database,
+	userId
+}: {
+	count: null | number;
+	days: null | number;
+	db?: Database;
+	userId: string;
+}) {
+	db.update(tables.users)
+		.set({ checkpointCountThreshold: count, checkpointDaysThreshold: days })
+		.where(eq(tables.users.id, userId))
+		.run();
+}
+
 export async function setPassword({
 	db = database,
 	password,
