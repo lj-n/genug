@@ -36,7 +36,7 @@
 	},
 	"//overrides": "Rationale and per-pin removal conditions: https://github.com/lj-n/genug/issues/213",
 	"overrides": {
-		"cookie": "^0.7.0",
+		"cookie": "^2.0.0",
 		"undici": "^7.29.1",
 		"esbuild": "$esbuild"
 	},
