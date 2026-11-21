@@ -148,6 +148,10 @@
 	"transactions_filtered_empty_title": "Keine Transaktionen entsprechen deinen Filtern",
 	"transactions_filtered_empty_description": "Passe deine Filter an oder setze sie zurück, um deine Transaktionen zu sehen.",
 	"transactions_filtered_empty_action": "Filter zurücksetzen",
+	"transactions_show_sealed": "Abgestempelte zeigen ({count})",
+	"transactions_sealed_hidden_empty_title": "Hier ist alles abgestempelt",
+	"transactions_sealed_hidden_empty_description": "Abgestempelte Transaktionen sind ausgeblendet, damit du siehst, was noch offen ist. Blende sie ein, um auf geprüfte Buchungen zurückzublicken.",
+	"transactions_sealed_hidden_empty_action": "Abgestempelte zeigen",
 	"pagination_previous": "Zurück",
 	"pagination_next": "Weiter",
 	"dialog_close": "Schließen",
@@ -257,6 +261,11 @@
 	"settings_theme_dark": "Dunkel",
 	"settings_available_languages": "Verfügbare Sprachen",
 	"settings_api_tokens": "API-Tokens",
+	"settings_checkpoint_reminders": "Checkpoint-Erinnerungen",
+	"settings_checkpoint_reminders_description": "Ein Konto mit bestätigten, noch nicht abgestempelten Transaktionen empfiehlt einen neuen Checkpoint, sobald eine dieser Grenzen erreicht ist. Gilt für alle deine Konten.",
+	"settings_checkpoint_days_label": "Tage seit dem letzten Checkpoint",
+	"settings_checkpoint_count_label": "Bestätigte, noch nicht abgestempelte Transaktionen",
+	"settings_checkpoint_threshold_error": "Gib eine ganze Zahl von 1 bis 999 ein.",
 	"api_token_description": "Verbinde die Mobile-App oder andere API-Clients mit dieser Instanz. Ein Token gewährt vollen Zugriff auf dein Konto — behandle es wie ein Passwort.",
 	"api_token_label_name": "Token-Name",
 	"api_token_label_expiry": "Ablaufdatum (optional)",
@@ -292,6 +301,8 @@
 	"error_transfer_amount_zero": "Gib einen Betrag ungleich null an.",
 	"error_transfer_same_account": "Quell- und Zielkonto müssen sich unterscheiden.",
 	"error_transaction_is_transfer_leg": "Diese Transaktion gehört zu einer Umbuchung. Bearbeite stattdessen die Umbuchung.",
+	"error_transaction_sealed": "Diese Transaktion ist durch einen Checkpoint abgestempelt. Betrag, Datum, Konto und Bestätigung lassen sich nicht mehr ändern, und sie lässt sich nicht löschen. Kategorie und Notizen bleiben bearbeitbar.",
+	"error_transfer_sealed": "Diese Umbuchung ist durch einen Checkpoint abgestempelt. Betrag, Datum und Konten lassen sich nicht mehr ändern, und sie lässt sich nicht löschen. Notizen bleiben bearbeitbar.",
 	"error_category_not_archivable": "Diese Kategorie kann nicht archiviert werden: Der verbleibende Betrag muss null sein und alle Transaktionen müssen bestätigt sein.",
 	"error_category_not_deletable": "Diese Kategorie kann nicht gelöscht werden: Der verbleibende Betrag muss null sein und keine Transaktion darf auf sie verweisen.",
 	"error_category_not_found": "Kategorie nicht gefunden.",
@@ -306,5 +317,63 @@
 	"reassignment_select_category": "Kategorie auswählen",
 	"reassignment_cover": "Ausgleichen",
 	"reassignment_trigger_label": "Verbleibendes für {name} anpassen",
-	"source_code_link": "Quellcode"
+	"source_code_link": "Quellcode",
+	"checkpoint_button_label": "Checkpoint",
+	"checkpoint_button_suggested": "Checkpoint empfohlen",
+	"checkpoint_last": "Letzter Checkpoint: {relative}",
+	"checkpoint_none": "Noch kein Checkpoint",
+	"checkpoint_title": "Checkpoint",
+	"checkpoint_intro": "Ein Checkpoint bestätigt, dass {name} in genug an einem Tag mit deiner Bank übereinstimmt. Alle bis dahin bestätigten Transaktionen werden abgestempelt: Betrag, Datum und Konto lassen sich nicht mehr ändern. Kategorie und Notizen bleiben bearbeitbar.",
+	"checkpoint_intro_adjustment": "Eine kleine Abweichung? Du musst die Ursache nicht suchen. Der Checkpoint bucht die Differenz als Ausgleichsbuchung, und das ab und zu zu tun ist völlig in Ordnung.",
+	"checkpoint_validated_label": "Bestätigt in genug",
+	"checkpoint_validated_description": "Summe aller Transaktionen, die du bestätigt hast.",
+	"checkpoint_bank_label": "Deine Bank",
+	"checkpoint_bank_description": "Aktueller Kontostand in deiner Banking-App.",
+	"checkpoint_bank_placeholder": "Kontostand eingeben",
+	"checkpoint_adjustment_label": "Ausgleichsbuchung",
+	"checkpoint_adjustment_empty": "Die Differenz, sobald du deinen Kontostand eingegeben hast.",
+	"checkpoint_adjustment_difference": "Wird als eine Transaktion ohne Kategorie gebucht, damit beide Seiten übereinstimmen.",
+	"checkpoint_adjustment_match": "Beide Seiten stimmen überein. Nichts zu buchen.",
+	"checkpoint_seal_summary": [
+		{
+			"declarations": ["input count", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=one": "Stempelt {count} Transaktion ab",
+				"countPlural=other": "Stempelt {count} Transaktionen ab"
+			}
+		}
+	],
+	"checkpoint_seal_range": "{from} – {to}",
+	"checkpoint_set_button": "Checkpoint setzen",
+	"checkpoint_set_success": "Checkpoint gesetzt.",
+	"checkpoint_adjustment_notes": "Ausgleichsbuchung",
+	"checkpoint_error_account_archived": "Dieses Konto ist archiviert. Stelle es wieder her, bevor du einen Checkpoint setzt.",
+	"checkpoint_error_account_archived_delete": "Dieses Konto ist archiviert. Stelle es wieder her, bevor du einen Checkpoint löschst.",
+	"checkpoint_error_not_latest": "Nur der letzte Checkpoint lässt sich löschen.",
+	"error_checkpoint_not_found": "Checkpoint nicht gefunden.",
+	"checkpoint_history_title": "Bisherige Checkpoints",
+	"checkpoint_history_description": "Jeder Eintrag ist ein Kontostand, den du bestätigt hast. Nur der letzte Checkpoint lässt sich löschen; seine Transaktionen sind danach wieder bearbeitbar.",
+	"checkpoint_history_empty": "Noch keine Checkpoints.",
+	"checkpoint_history_sealed": "{count} abgestempelt",
+	"checkpoint_history_adjustment": "Ausgleichsbuchung {amount}",
+	"checkpoint_history_delete": "Löschen",
+	"checkpoint_delete_title": "Diesen Checkpoint löschen?",
+	"checkpoint_delete_description": [
+		{
+			"declarations": ["input count", "input date", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=one": "Der Checkpoint vom {date} wird entfernt, und seine {count} Transaktion lässt sich wieder bearbeiten.",
+				"countPlural=other": "Der Checkpoint vom {date} wird entfernt, und seine {count} Transaktionen lassen sich wieder bearbeiten."
+			}
+		}
+	],
+	"checkpoint_delete_description_adjustment": "Seine Ausgleichsbuchung bleibt als normale Transaktion erhalten.",
+	"checkpoint_delete_action": "Löschen",
+	"checkpoint_sealed_title": "Abgestempelt durch den Checkpoint vom {date}",
+	"checkpoint_sealed_partner_title": "Diese Umbuchung ist durch den Checkpoint des anderen Kontos vom {date} abgestempelt. Hier kannst du sie trotzdem bestätigen.",
+	"checkpoint_sealed_note": "Abgestempelt durch den Checkpoint vom {date}: Betrag, Datum und Bestätigung lassen sich nicht mehr ändern.",
+	"checkpoint_sealed_transfer_note": "Abgestempelt durch den Checkpoint vom {date}: Konto, Betrag, Datum und Bestätigung lassen sich nicht mehr ändern.",
+	"checkpoint_sealed_view": "Checkpoint ansehen"
 }

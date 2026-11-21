@@ -183,3 +183,46 @@ test('Add account and category at phone width', async ({ page, pages }) => {
 	await expect(pages.budget.categoryRow(categoryName)).toBeVisible();
 	await expectNoHorizontalOverflow(page);
 });
+
+test('Checkpoint page stacks without horizontal overflow', async ({ page, pages }) => {
+	const { accountName } = await seedBudget(pages);
+	await pages.account.goto(accountName);
+	const checkpointUrl = pages.budget.ctx.accounts.get(accountName)! + '/checkpoint';
+
+	await page.setViewportSize(PHONE_VIEWPORT);
+	await page.goto(checkpointUrl);
+	await expect(page.getByRole('heading', { exact: true, name: 'Checkpoint' })).toBeVisible();
+	await expectNoHorizontalOverflow(page);
+
+	await pages.checkpoint.enterBankBalance('-1234567.89');
+	await expect(pages.checkpoint.adjustment()).toHaveText('-€1,234,567.89');
+	await expectNoHorizontalOverflow(page);
+
+	await pages.checkpoint.submit();
+	await expect(pages.checkpoint.historyEntries()).toHaveCount(1);
+	await expectNoHorizontalOverflow(page);
+});
+
+test('Account header keeps the checkpoint line and stamp button within phone width', async ({
+	page,
+	pages
+}) => {
+	await seedBudget(pages);
+	// A validated starting balance and no Checkpoint yet: the stamp button shows its dot.
+	const accountName = uniqueName(faker.finance.accountName());
+	await pages.budget.createAccount(accountName, '100');
+	await pages.account.goto(accountName);
+
+	await page.setViewportSize(PHONE_VIEWPORT);
+	await expect(pages.checkpoint.lastCheckpointLine()).toHaveText('No checkpoint yet');
+	await expect(pages.checkpoint.stampButton()).toHaveAccessibleName('Checkpoint suggested');
+	await expectNoHorizontalOverflow(page);
+
+	await pages.checkpoint.open();
+	await pages.checkpoint.enterBankBalance('100');
+	await pages.checkpoint.submit();
+	await pages.checkpoint.backLink(accountName).click();
+	await expect(pages.checkpoint.lastCheckpointLine()).toHaveText('Last checkpoint today');
+	await expect(pages.checkpoint.stampButton()).toBeVisible();
+	await expectNoHorizontalOverflow(page);
+});

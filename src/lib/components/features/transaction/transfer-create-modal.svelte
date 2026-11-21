@@ -9,13 +9,10 @@
 	import * as ResponsiveModal from '$lib/components/ui/responsive-modal';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { m } from '$lib/paraglide/messages';
-	import {
-		getAccount,
-		getAccountBalances,
-		getAccounts
-	} from '$lib/remote-functions/account.remote';
+	import { getAccounts } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
-	import { createTransfer, listTransactions } from '$lib/remote-functions/transaction.remote';
+	import { registerQueries } from '$lib/remote-functions/register';
+	import { createTransfer } from '$lib/remote-functions/transaction.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
 	import { getLocalTimeZone, parseDate, today } from '@internationalized/date';
 
@@ -48,7 +45,7 @@
 		// listTransactions instance and both accounts' balance queries (both legs'
 		// registers and summaries) rather than just the viewed account's —
 		// otherwise the counterpart stays stale until reload.
-		updates: () => [listTransactions, getAccount, getAccountBalances]
+		updates: () => [...registerQueries]
 	});
 
 	// The draft is scoped to one account (carried as the hidden accountId), so it

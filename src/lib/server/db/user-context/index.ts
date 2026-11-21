@@ -3,6 +3,7 @@ import { database } from '$db';
 import * as account from './account';
 import * as budget from './budget';
 import * as category from './category';
+import * as checkpoint from './checkpoint';
 import * as transaction from './transaction';
 
 export const createUserCtx = (userId: string, db: App.Database = database) => ({
@@ -17,6 +18,10 @@ export const createUserCtx = (userId: string, db: App.Database = database) => ({
 	category: {
 		...category.commands(userId, db),
 		...category.queries(userId, db)
+	},
+	checkpoint: {
+		...checkpoint.commands(userId, db),
+		...checkpoint.queries(userId, db)
 	},
 	transaction: {
 		...transaction.commands(userId, db),

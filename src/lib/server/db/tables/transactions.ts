@@ -5,6 +5,7 @@ import { createId } from '../../utils/create-id';
 import { accounts } from './accounts';
 import { budgets } from './budgets';
 import { categories } from './categories';
+import { checkpoints } from './checkpoints';
 import { users } from './users';
 
 export const transactions = sqliteTable(
@@ -20,6 +21,10 @@ export const transactions = sqliteTable(
 			.references(() => budgets.id, { onDelete: 'cascade' })
 			.notNull(),
 		categoryId: t.text('category_id').references(() => categories.id, {
+			onDelete: 'set null'
+		}),
+		/** The Checkpoint that sealed this transaction; sealed means "has one" (ADR-0017). */
+		checkpointId: t.text('checkpoint_id').references(() => checkpoints.id, {
 			onDelete: 'set null'
 		}),
 		createdAt: t
@@ -43,6 +48,7 @@ export const transactions = sqliteTable(
 		index('transaction_account').on(t.accountId),
 		index('transaction_account_date').on(t.accountId, t.date),
 		index('transaction_transfer').on(t.transferId),
+		index('transaction_checkpoint').on(t.checkpointId),
 		foreignKey({
 			columns: [t.accountId, t.budgetId],
 			foreignColumns: [accounts.id, accounts.budgetId]

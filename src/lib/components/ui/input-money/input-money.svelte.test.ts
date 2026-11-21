@@ -7,6 +7,7 @@ import { flushSync, tick } from 'svelte';
 import { describe, expect, it } from 'vitest';
 
 import InputMoney from './input-money.svelte';
+import InputMoneyFixture from './input-money.test-fixture.svelte';
 
 function formatted(cents: number): string {
 	return formatMoney({ currency: 'EUR', money: asMoney(cents) });
@@ -262,5 +263,110 @@ describe('InputMoney paste', () => {
 
 		expect(input.value).toBe('42');
 		expect(hidden.value).toBe('4200');
+	});
+});
+
+describe('InputMoney empty mode', () => {
+	function renderEmptyMoneyInput(value?: number) {
+		const result = render(InputMoneyFixture, { props: { value } });
+
+		const input = screen.getByRole<HTMLInputElement>('textbox');
+		const hidden = document.querySelector<HTMLInputElement>(
+			'input[type="hidden"][name="bankBalance"]'
+		);
+		if (!hidden) {
+			throw new Error('Expected hidden cent input to exist');
+		}
+
+		return { bound: screen.getByRole('status'), hidden, input, rerender: result.rerender };
+	}
+
+	it('starts empty with the placeholder instead of a formatted zero', () => {
+		const { bound, hidden, input } = renderEmptyMoneyInput();
+
+		expect(input.value).toBe('');
+		expect(input.placeholder).toBe('Enter balance');
+		expect(input).toHaveAttribute('data-empty');
+		expect(hidden.value).toBe('');
+		expect(bound).toHaveTextContent('empty');
+	});
+
+	it('submits no amount in form data while empty', () => {
+		const form = document.createElement('form');
+		document.body.append(form);
+
+		render(InputMoney, {
+			props: { allowEmpty: true, currency: 'EUR', name: 'bankBalance' },
+			target: form
+		});
+
+		expect(new FormData(form).get('bankBalance')).toBe('');
+	});
+
+	it('becomes a normal money input once a value is typed', async () => {
+		const user = userEvent.setup();
+		const { bound, hidden, input } = renderEmptyMoneyInput();
+
+		await user.type(input, '12,34');
+		flushSync();
+		expect(hidden.value).toBe('1234');
+		expect(bound).toHaveTextContent('1234');
+		expect(input).not.toHaveAttribute('data-empty');
+
+		await user.tab();
+		flushSync();
+		expect(input.value).toBe(formatted(1234));
+	});
+
+	it('treats a typed zero as a value', async () => {
+		const user = userEvent.setup();
+		const { bound, hidden, input } = renderEmptyMoneyInput();
+
+		await user.type(input, '0');
+		await user.tab();
+		flushSync();
+
+		expect(input.value).toBe(formatted(0));
+		expect(hidden.value).toBe('0');
+		expect(bound).toHaveTextContent('0');
+		expect(input).not.toHaveAttribute('data-empty');
+	});
+
+	it('returns to empty when the typed value is cleared', async () => {
+		const user = userEvent.setup();
+		const { bound, hidden, input } = renderEmptyMoneyInput(40000);
+
+		await user.clear(input);
+		flushSync();
+		expect(hidden.value).toBe('');
+		expect(bound).toHaveTextContent('empty');
+
+		await user.tab();
+		flushSync();
+		expect(input.value).toBe('');
+		expect(input).toHaveAttribute('data-empty');
+	});
+
+	it('treats a bare minus as empty', async () => {
+		const user = userEvent.setup();
+		const { bound, hidden, input } = renderEmptyMoneyInput();
+
+		await user.type(input, '-');
+		await user.tab();
+		flushSync();
+
+		expect(input.value).toBe('');
+		expect(hidden.value).toBe('');
+		expect(bound).toHaveTextContent('empty');
+	});
+
+	it('returns to empty when the bound value is reset from outside', async () => {
+		const { input, rerender } = renderEmptyMoneyInput(1234);
+		expect(input.value).toBe(formatted(1234));
+
+		await rerender({ value: undefined });
+
+		expect(input.value).toBe('');
+		expect(input).toHaveAttribute('data-empty');
 	});
 });

@@ -20,6 +20,13 @@
 		HTMLInputAttributes,
 		'onbeforeinput' | 'oninput' | 'onpaste' | 'type' | 'value'
 	> & {
+		/**
+		 * Opt-in empty mode: unset `value` shows as an empty input (with any
+		 * `placeholder`) instead of a formatted zero, submits an empty string,
+		 * and clearing the text sets `value` back to undefined. While empty the
+		 * input carries `data-empty`, so callers can style it with `data-empty:`.
+		 */
+		allowEmpty?: boolean;
 		currency: (typeof CURRENCIES)[number];
 		ref?: HTMLInputElement | null;
 		selectOnFocus?: boolean;
@@ -27,6 +34,7 @@
 	};
 
 	let {
+		allowEmpty = false,
 		class: className,
 		currency,
 		'data-slot': dataSlot = 'input',
@@ -41,8 +49,9 @@
 
 	// No $bindable fallback: remote-function form fields read as undefined
 	// before their first write, and Svelte forbids binding undefined to a
-	// prop with a fallback. Unset simply means 0 cents.
+	// prop with a fallback. Unset means 0 cents, or empty in empty mode.
 	const cents = $derived(value ?? 0);
+	const empty = $derived(allowEmpty && value === undefined);
 
 	// While focused the text is owned by the user's editing; while unfocused it
 	// derives from the bound cents, so external writes reset it automatically.
@@ -50,8 +59,13 @@
 	let editText = $state('');
 
 	const displayText = $derived(
-		focused ? editText : formatMoney({ currency, money: asMoney(cents) })
+		focused ? editText : empty ? '' : formatMoney({ currency, money: asMoney(cents) })
 	);
+
+	// In empty mode, text without a digit ('' or a bare minus) is no amount.
+	function textToValue(text: string): number | undefined {
+		return allowEmpty && !/\d/.test(text) ? undefined : editTextToCents(text);
+	}
 
 	function proposedText(input: HTMLInputElement, inserted: string): string {
 		const start = input.selectionStart ?? input.value.length;
@@ -71,7 +85,7 @@
 
 	function handleInput(event: Event & { currentTarget: HTMLInputElement }) {
 		editText = event.currentTarget.value;
-		value = editTextToCents(editText);
+		value = textToValue(editText);
 	}
 
 	function handlePaste(event: ClipboardEvent & { currentTarget: HTMLInputElement }) {
@@ -81,7 +95,7 @@
 		const inserted = proposedText(event.currentTarget, pasted);
 		if (isValidEditText(inserted)) {
 			editText = inserted;
-			value = editTextToCents(inserted);
+			value = textToValue(inserted);
 			return;
 		}
 
@@ -112,7 +126,10 @@
 			if (document.activeElement !== input) return;
 			const hadFullSelection =
 				input.selectionStart === 0 && input.selectionEnd === input.value.length;
-			editText = cents === 0 ? '' : centsToEditText(cents, decimalSeparatorFor(getLocale()));
+			editText =
+				empty || (!allowEmpty && cents === 0)
+					? ''
+					: centsToEditText(cents, decimalSeparatorFor(getLocale()));
 			focused = true;
 			input.value = editText;
 			if (hadFullSelection) {
@@ -138,6 +155,7 @@
 <input
 	bind:this={ref}
 	data-slot={dataSlot}
+	data-empty={empty || undefined}
 	class={cn(inputVariants(), className)}
 	type="text"
 	inputmode="decimal"
@@ -154,7 +172,7 @@
 	<input
 		type="hidden"
 		{name}
-		value={String(cents)}
+		value={empty ? '' : String(cents)}
 		disabled={restProps.disabled}
 		form={restProps.form}
 	/>

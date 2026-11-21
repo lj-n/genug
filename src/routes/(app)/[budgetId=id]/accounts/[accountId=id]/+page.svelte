@@ -6,6 +6,7 @@
 	import { page } from '$app/state';
 	import { AccountArchivedNotice, AccountBalances } from '$lib/components/features/account';
 	import {
+		checkpointHistoryHref,
 		pruneForeignCategoryIds,
 		TransactionTable,
 		UrlTableState
@@ -16,16 +17,17 @@
 	import { getAccount, getAccountBalances } from '$lib/remote-functions/account.remote';
 	import { getBudget } from '$lib/remote-functions/budget.remote';
 	import { getCategories } from '$lib/remote-functions/category.remote';
-	import {
-		getRememberedPageSize,
-		listTransactions
-	} from '$lib/remote-functions/transaction.remote';
+	import { getCheckpointSummary, listTransactions } from '$lib/remote-functions/register.remote';
+	import { getRememberedPageSize } from '$lib/remote-functions/transaction.remote';
 	import { TransactionsURLParamsSchema } from '$lib/schemas/transaction';
 	import { getBudgetId } from '$lib/utils/budget-id-context';
+	import { formatRelativeDate } from '$lib/utils/format-relative-date';
+	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
 	import { stickyParam } from '$lib/utils/sticky-param';
 	import { untrack } from 'svelte';
 	import * as v from 'valibot';
 	import GearSixIcon from '~icons/ph/gear-six';
+	import StampIcon from '~icons/ph/stamp';
 
 	import type { PageProps } from './$types';
 
@@ -36,7 +38,19 @@
 
 	const account = $derived(await getAccount(accountId()));
 	const balanceDetail = $derived(await getAccountBalances(accountId()));
+	const checkpointSummary = $derived(await getCheckpointSummary(accountId()));
 	const budget = $derived(await getBudget(budgetId()));
+	const latestCheckpoint = $derived.by(() => {
+		const date = checkpointSummary.lastCheckpointAt;
+		if (!date) return null;
+		return { exact: formatTransactionDate(date), relative: formatRelativeDate({ date }) };
+	});
+	const checkpointHref = $derived(
+		resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/checkpoint', {
+			accountId: accountId(),
+			budgetId: budgetId()
+		})
+	);
 	// The remembered page size: the fallback when the URL has no `pageSize`,
 	// and the baseline below which the URL stays clean.
 	const defaultPageSize = $derived(await getRememberedPageSize());
@@ -59,6 +73,7 @@
 			notes: searchParams.get('notes'),
 			page: searchParams.get('page'),
 			pageSize: searchParams.get('pageSize') ?? defaultPageSize,
+			showSealed: searchParams.get('showSealed'),
 			sortAmount: searchParams.get('sortAmount'),
 			sortCategory: searchParams.get('sortCategory'),
 			sortDate: searchParams.get('sortDate'),
@@ -77,6 +92,7 @@
 		if (tableParams.page !== 1) searchParams.set('page', String(tableParams.page));
 		if (tableParams.pageSize !== defaultPageSize)
 			searchParams.set('pageSize', String(tableParams.pageSize));
+		if (tableParams.showSealed) searchParams.set('showSealed', 'true');
 		if (tableParams.sortAmount) searchParams.set('sortAmount', tableParams.sortAmount);
 		if (tableParams.sortCategory) searchParams.set('sortCategory', tableParams.sortCategory);
 		if (tableParams.sortDate) searchParams.set('sortDate', tableParams.sortDate);
@@ -145,22 +161,65 @@
 
 <Page.Root>
 	<Page.Header class="flex-row flex-wrap items-center justify-between gap-4">
-		<Page.Title>
-			{account.name}
-		</Page.Title>
+		<div class="grid gap-1">
+			<Page.Title>
+				{account.name}
+			</Page.Title>
+			{#if !account.archivedAt}
+				{#if latestCheckpoint}
+					<!-- The href is resolved in checkpointHistoryHref; only the #history anchor is appended. -->
+					<!-- eslint-disable svelte/no-navigation-without-resolve -->
+					<a
+						href={checkpointHistoryHref({ accountId: accountId(), budgetId: budgetId() })}
+						title={latestCheckpoint.exact}
+						class="flex w-fit items-center gap-1.5 text-sm text-muted hover:text-foreground"
+					>
+						<StampIcon class="text-success" />
+						{m.checkpoint_last({ relative: latestCheckpoint.relative })}
+					</a>
+					<!-- eslint-enable svelte/no-navigation-without-resolve -->
+				{:else}
+					<p class="flex items-center gap-1.5 text-sm text-muted">
+						<StampIcon />
+						{m.checkpoint_none()}
+					</p>
+				{/if}
+			{/if}
+		</div>
 
 		{#if !account.archivedAt}
-			<Button
-				variant="ghost"
-				size="icon"
-				href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/settings', {
-					accountId: accountId(),
-					budgetId: budgetId()
-				})}
-			>
-				<GearSixIcon />
-				<span class="sr-only">{m.account_settings_title()}</span>
-			</Button>
+			<div class="flex items-center gap-1">
+				<Button
+					variant="ghost"
+					size="icon"
+					class="relative"
+					title={checkpointSummary.suggested
+						? m.checkpoint_button_suggested()
+						: m.checkpoint_button_label()}
+					href={checkpointHref}
+				>
+					<StampIcon />
+					<span class="sr-only">
+						{checkpointSummary.suggested
+							? m.checkpoint_button_suggested()
+							: m.checkpoint_button_label()}
+					</span>
+					{#if checkpointSummary.suggested}
+						<span class="absolute top-1.5 right-1.5 size-2 rounded-full bg-focus"></span>
+					{/if}
+				</Button>
+				<Button
+					variant="ghost"
+					size="icon"
+					href={resolve('/(app)/[budgetId=id]/accounts/[accountId=id]/settings', {
+						accountId: accountId(),
+						budgetId: budgetId()
+					})}
+				>
+					<GearSixIcon />
+					<span class="sr-only">{m.account_settings_title()}</span>
+				</Button>
+			</div>
 		{/if}
 	</Page.Header>
 
@@ -180,6 +239,7 @@
 					pageSize: view.result.pagination.pageSize,
 					total: view.result.pagination.totalTransactionCount
 				}}
+				sealed={view.result.sealed}
 				{tableState}
 				transactions={view.result.transactions}
 			>

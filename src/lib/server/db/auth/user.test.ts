@@ -11,6 +11,7 @@ import {
 	getAllUsers,
 	isFirstUser,
 	resetPassword,
+	setCheckpointThresholds,
 	setPassword,
 	setUsername
 } from './user';
@@ -246,4 +247,24 @@ it('setUsername - updates the username', async () => {
 
 	const stored = await db.query.users.findFirst({ where: { id: user.id } });
 	expect(stored?.username).toBe('newname');
+});
+
+it('createUser - suggests a Checkpoint after 30 days or 25 transactions by default', async () => {
+	const db = createDatabase(':memory:');
+	const passwordHash = await hashPassword({ password: 'password123' });
+
+	const user = createUser({ db, passwordHash, username: 'testuser' });
+
+	expect(user).toMatchObject({ checkpointCountThreshold: 25, checkpointDaysThreshold: 30 });
+});
+
+it('setCheckpointThresholds - stores both thresholds, null switching one off', async () => {
+	const db = createDatabase(':memory:');
+	const passwordHash = await hashPassword({ password: 'password123' });
+	const user = createUser({ db, passwordHash, username: 'testuser' });
+
+	setCheckpointThresholds({ count: null, days: 7, db, userId: user.id });
+
+	const stored = await db.query.users.findFirst({ where: { id: user.id } });
+	expect(stored).toMatchObject({ checkpointCountThreshold: null, checkpointDaysThreshold: 7 });
 });

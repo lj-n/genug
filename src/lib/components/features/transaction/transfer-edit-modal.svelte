@@ -11,19 +11,19 @@
 	import * as ResponsiveModal from '$lib/components/ui/responsive-modal';
 	import { SelectCategory } from '$lib/components/ui/select-category';
 	import { m } from '$lib/paraglide/messages';
-	import {
-		getAccount,
-		getAccountBalances,
-		getAccounts
-	} from '$lib/remote-functions/account.remote';
-	import {
-		batchDeleteTransactions,
-		editTransfer,
-		listTransactions
-	} from '$lib/remote-functions/transaction.remote';
+	import { getAccounts } from '$lib/remote-functions/account.remote';
+	import { registerQueries } from '$lib/remote-functions/register';
+	import { batchDeleteTransactions, editTransfer } from '$lib/remote-functions/transaction.remote';
 	import { createFormSubmit } from '$lib/utils/form-submit.svelte';
+	import { formatTransactionDate } from '$lib/utils/format-transaction-date';
+	import { asMoney, formatMoney } from '$lib/utils/money';
 	import { parseDate } from '@internationalized/date';
 	import TrashIcon from '~icons/ph/trash';
+
+	import { sealedDate } from './sealed';
+	import SealedField from './sealed-field.svelte';
+	import SealedNote from './sealed-note.svelte';
+	import TransferBadge from './transfer-badge.svelte';
 
 	let {
 		budgetId,
@@ -60,7 +60,7 @@
 			open = false;
 		},
 		toast: {},
-		updates: () => [listTransactions, getAccount, getAccountBalances]
+		updates: () => [...registerQueries]
 	});
 
 	// Deleting either leg removes the whole transfer server-side (ADR-0015);
@@ -70,7 +70,7 @@
 			open = false;
 		},
 		toast: {},
-		updates: () => [listTransactions, getAccount, getAccountBalances]
+		updates: () => [...registerQueries]
 	});
 
 	const pending = $derived(submit.pending || deleteSubmit.pending);
@@ -82,6 +82,12 @@
 		form.fields.counterpartAccountId.set(transaction.counterpartAccountId ?? '');
 		form.fields.amount.set(transaction.amount);
 	};
+
+	// Once either leg is sealed, the transfer's shared facts are fixed (ADR-0017).
+	const sealed = $derived(transaction?.sealed ?? false);
+	const sealedTitle = $derived(
+		transaction === null ? '' : m.checkpoint_sealed_title({ date: sealedDate(transaction) })
+	);
 </script>
 
 <ResponsiveModal.Root bind:open onOpenChangeComplete={(isOpen) => !isOpen && (transaction = null)}>
@@ -105,22 +111,34 @@
 					<input {...form.fields.accountId.as('hidden', transaction.accountId)} />
 					<input {...form.fields.transferId.as('hidden', transaction.transferId ?? '')} />
 
-					<div class="grid gap-1.5">
-						<Label>{m.transfer_counterpart_account_label()}</Label>
-						<SelectCategory
-							name={form.fields.counterpartAccountId.as('select').name}
-							bind:value={
-								() => form!.fields.counterpartAccountId.value() ?? '',
-								(v) => form!.fields.counterpartAccountId.set(v)
-							}
-							categories={counterpartAccounts}
-							ariaInvalid={form.fields.counterpartAccountId.issues()?.length ? true : undefined}
-							ariaLabel={m.transfer_counterpart_account_label()}
-							ariaLabelTrigger={m.select_account_open()}
-							placeholder={m.select_account_placeholder()}
-							textNotFound={m.select_account_not_found()}
+					{#if sealed}
+						<SealedField label={m.transfer_counterpart_account_label()} title={sealedTitle}>
+							<TransferBadge {transaction} />
+						</SealedField>
+						<input
+							{...form.fields.counterpartAccountId.as(
+								'hidden',
+								transaction.counterpartAccountId ?? ''
+							)}
 						/>
-					</div>
+					{:else}
+						<div class="grid gap-1.5">
+							<Label>{m.transfer_counterpart_account_label()}</Label>
+							<SelectCategory
+								name={form.fields.counterpartAccountId.as('select').name}
+								bind:value={
+									() => form!.fields.counterpartAccountId.value() ?? '',
+									(v) => form!.fields.counterpartAccountId.set(v)
+								}
+								categories={counterpartAccounts}
+								ariaInvalid={form.fields.counterpartAccountId.issues()?.length ? true : undefined}
+								ariaLabel={m.transfer_counterpart_account_label()}
+								ariaLabelTrigger={m.select_account_open()}
+								placeholder={m.select_account_placeholder()}
+								textNotFound={m.select_account_not_found()}
+							/>
+						</div>
+					{/if}
 
 					<div class="grid gap-1.5">
 						<Label>{m.transactions_table_header_notes()}</Label>
@@ -130,30 +148,48 @@
 						/>
 					</div>
 
-					<div class="grid gap-1.5">
-						<Label>{m.transactions_table_header_date()}</Label>
-						<DatePicker
-							name={form.fields.date.as('date').name}
-							bind:value={
-								() => parseDate(form!.fields.date.value() ?? transaction!.date),
-								(v) => form!.fields.date.set(v.toString())
-							}
-							ariaInvalid={form.fields.date.issues()?.length ? true : undefined}
-							label={m.transaction_table_cell_date_select()}
-						/>
-					</div>
+					{#if sealed}
+						<SealedField label={m.transactions_table_header_date()} title={sealedTitle}>
+							{formatTransactionDate(parseDate(transaction.date))}
+						</SealedField>
+						<input {...form.fields.date.as('hidden', transaction.date)} />
+					{:else}
+						<div class="grid gap-1.5">
+							<Label>{m.transactions_table_header_date()}</Label>
+							<DatePicker
+								name={form.fields.date.as('date').name}
+								bind:value={
+									() => parseDate(form!.fields.date.value() ?? transaction!.date),
+									(v) => form!.fields.date.set(v.toString())
+								}
+								ariaInvalid={form.fields.date.issues()?.length ? true : undefined}
+								label={m.transaction_table_cell_date_select()}
+							/>
+						</div>
+					{/if}
 
-					<div class="grid gap-1.5">
-						<Label>{m.transactions_table_header_amount()}</Label>
-						<InputMoney
-							name={form.fields.amount.as('number').name}
-							aria-label={m.transactions_table_header_amount()}
-							bind:value={() => form!.fields.amount.value(), (v) => form!.fields.amount.set(v)}
-							{currency}
-							class="text-right font-currency"
-						/>
-						<p class="text-sm text-muted">{m.transfer_amount_hint()}</p>
-					</div>
+					{#if sealed}
+						<SealedField
+							label={m.transactions_table_header_amount()}
+							title={sealedTitle}
+							class="font-currency"
+						>
+							{formatMoney({ currency, money: asMoney(transaction.amount) })}
+						</SealedField>
+						<input {...form.fields.amount.as('hidden', transaction.amount)} />
+					{:else}
+						<div class="grid gap-1.5">
+							<Label>{m.transactions_table_header_amount()}</Label>
+							<InputMoney
+								name={form.fields.amount.as('number').name}
+								aria-label={m.transactions_table_header_amount()}
+								bind:value={() => form!.fields.amount.value(), (v) => form!.fields.amount.set(v)}
+								{currency}
+								class="text-right font-currency"
+							/>
+							<p class="text-sm text-muted">{m.transfer_amount_hint()}</p>
+						</div>
+					{/if}
 
 					{#if form.fields.allIssues()?.length}
 						<p role="alert" class="text-sm text-error">
@@ -164,6 +200,10 @@
 						</p>
 					{/if}
 				</form>
+
+				{#if sealed}
+					<SealedNote {transaction} class="mt-4 px-0" />
+				{/if}
 
 				<form id={deleteFormId} class="hidden" {...deleteSubmit.attrs}></form>
 			</ResponsiveModal.Body>
@@ -179,19 +219,21 @@
 					{m.cancel()}
 				</Button>
 
-				<Button
-					type="submit"
-					variant="destructive"
-					class="h-11 w-full sm:w-auto"
-					form={deleteFormId}
-					name={deleteForm.fields.ids[0].as('submit', transaction.id).name}
-					value={transaction.id}
-					disabled={pending}
-					{@attach deleteSubmit.anchor}
-				>
-					<TrashIcon />
-					<span class="sr-only">{m.delete()}</span>
-				</Button>
+				{#if !sealed}
+					<Button
+						type="submit"
+						variant="destructive"
+						class="h-11 w-full sm:w-auto"
+						form={deleteFormId}
+						name={deleteForm.fields.ids[0].as('submit', transaction.id).name}
+						value={transaction.id}
+						disabled={pending}
+						{@attach deleteSubmit.anchor}
+					>
+						<TrashIcon />
+						<span class="sr-only">{m.delete()}</span>
+					</Button>
+				{/if}
 
 				<Button type="submit" form={formId} class="h-11 w-full sm:w-auto" disabled={pending}>
 					{m.save()}
